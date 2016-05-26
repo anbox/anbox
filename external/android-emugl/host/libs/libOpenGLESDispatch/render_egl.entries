@@ -1,0 +1,26 @@
+# The list of EGL functions used by libOpenglRender, without extensions.
+# This is only a subset of the full EGL API.
+
+!Render_EGL
+%#include <EGL/egl.h>
+
+EGLint eglGetError(void);
+EGLDisplay eglGetDisplay(EGLNativeDisplayType dpy);
+EGLBoolean eglInitialize(EGLDisplay dpy, EGLint* major, EGLint* minor);
+char* eglQueryString(EGLDisplay dpy, EGLint id);
+EGLBoolean eglGetConfigs(EGLDisplay display, EGLConfig* configs, EGLint config_size, EGLint* num_config);
+EGLBoolean eglChooseConfig(EGLDisplay display, const EGLint* attribs, EGLConfig* configs, EGLint config_size, EGLint* num_config);
+EGLBoolean eglGetConfigAttrib(EGLDisplay display, EGLConfig config, EGLint attribute, EGLint* value);
+EGLSurface eglCreateWindowSurface(EGLDisplay display, EGLConfig config, EGLNativeWindowType native_window, const EGLint* attrib_list);
+EGLSurface eglCreatePbufferSurface(EGLDisplay display, EGLConfig config, const EGLint* attrib_list);
+EGLBoolean eglDestroySurface(EGLDisplay display, EGLSurface surface);
+EGLBoolean eglBindAPI(EGLenum api);
+EGLenum eglQueryAPI(void);
+EGLBoolean eglReleaseThread(void);
+EGLContext eglCreateContext(EGLDisplay display, EGLConfig config, EGLContext share_context, const EGLint* attrib_list);
+EGLBoolean eglDestroyContext(EGLDisplay display, EGLContext context);
+EGLBoolean eglMakeCurrent(EGLDisplay display, EGLSurface draw, EGLSurface read, EGLContext context);
+EGLContext eglGetCurrentContext(void);
+EGLSurface eglGetCurrentSurface(EGLint readdraw);
+EGLBoolean eglSwapBuffers(EGLDisplay display, EGLSurface surface);
+void* eglGetProcAddress(const char* function_name);

@@ -1,0 +1,16 @@
+{
+global:
+    extern "C++" {
+        core::*;
+	typeinfo?for?core::*;
+	typeinfo?name?for?core::*;
+	VTT?for?core::*;
+	virtual?thunk?to?core::*;
+	vtable?for?core::*;
+	std::hash*;
+    };
+local:
+    extern "C++" {
+        *;
+    };
+};

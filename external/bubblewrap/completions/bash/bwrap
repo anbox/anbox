@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# bash completion file for bubblewrap commands
+#
+
+_bwrap() {
+    local cur prev words cword
+    _init_completion || return
+
+	local boolean_options="
+		--help
+		--share-user
+		--unshare-ipc
+		--unshare-net
+		--unshare-pid
+		--unshare-uts
+		--version
+	"
+
+	local options_with_args="
+		$boolean_optons
+		--args
+		--bind
+		--bind-data
+		--chdir
+		--dev
+		--dev-bind
+		--dir
+		--exec-label
+		--file
+		--file-label
+		--gid
+		--lock-file
+		--proc
+		--ro-bind
+		--seccomp
+		--setenv
+		--symlink
+		--sync-fd
+		--uid
+		--unsetenv
+		--seccomp
+		--symlink
+	"
+
+	if [[ "$cur" == -* ]]; then
+	    COMPREPLY=( $( compgen -W "$boolean_options $options_with_args" -- "$cur" ) )
+	fi
+
+	return 0
+}
+complete -F _bwrap bwrap

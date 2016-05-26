@@ -1,0 +1,15 @@
+GLOBAL
+    base_opcode 200
+    encoder_headers "fooUtils.h" "fooBase.h"
+
+fooIsBuffer
+    dir stuff in
+    len stuff (4 * sizeof(float))
+    param_check stuff if (n == NULL) { LOG(ERROR) << "NULL stuff"; return; }
+
+fooUnsupported
+    dir params in
+    flag unsupported
+
+fooDoEncoderFlush
+    flag flushOnEncode

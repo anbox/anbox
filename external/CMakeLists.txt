@@ -1,0 +1,3 @@
+add_subdirectory(bubblewrap)
+add_subdirectory(process-cpp-minimal)
+add_subdirectory(android-emugl)

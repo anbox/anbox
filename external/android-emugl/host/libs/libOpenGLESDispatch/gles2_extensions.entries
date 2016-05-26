@@ -1,0 +1,6 @@
+!gles2_extensions
+
+# GLES 2.0 extensions
+void glGetShaderPrecisionFormat(GLenum shadertype, GLenum precisiontype, GLint* range, GLint* precision);
+void glReleaseShaderCompiler(void);
+void glShaderBinary(GLsizei n, const GLuint* shaders, GLenum binaryformat, const GLvoid* binary, GLsizei length);

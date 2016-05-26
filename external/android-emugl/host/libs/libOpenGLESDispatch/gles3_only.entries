@@ -1,0 +1,18 @@
+!gles3_only
+
+# GLES 3.x functions required by the translator library.
+# Right now, this is only use to get glGetStringi() from the host GL library
+# in order to deal with the fact that glGetString(GL_EXTENSIONS) is obsolete
+# in OpenGL 3.0, and some drivers don't implement it anymore (i.e. the
+# function just returns NULL).
+
+%#include <GLES/gl.h>
+%
+%// Used to avoid adding GLES3/gl3.h to our headers.
+%#ifndef GL_NUM_EXTENSIONS
+%#define GL_NUM_EXTENSIONS  0x821D
+%#endif
+
+%typedef const GLubyte* GLconstubyteptr;
+
+GLconstubyteptr glGetStringi(GLenum name, GLint index);

@@ -1,0 +1,11 @@
+# The list of EGL extension functions used by libOpenglRender.
+# This is only a subset of the full EGL API.
+
+!Render_EGL_extensions
+
+%#include <EGL/egl.h>
+%#define EGL_EGLEXT_PROTOTYPES
+%#include <EGL/eglext.h>
+
+EGLImageKHR eglCreateImageKHR(EGLDisplay display, EGLContext context, EGLenum target, EGLClientBuffer buffer, const EGLint* attrib_list);
+EGLBoolean eglDestroyImageKHR(EGLDisplay display, EGLImageKHR image);

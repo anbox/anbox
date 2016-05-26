@@ -1,0 +1,96 @@
+This directory contains the host-side modules related to hardware OpenGL ES
+emulation. The guest-side modules are in
+$ANDROID_BUILD_TOP/device/generic/goldfish/opengl
+
+I. Overview of components:
+==========================
+
+The 'emugen' tool is used to generate several source files related to the
+EGL/GLES command stream used between the guest and the host during emulation.
+
+  host/tools/emugen   -> emugen program
+
+Note that emugen is capable of generating, from a single set of specification
+files, three types of auto-generated sources:
+
+  - sources to encode commands into a byte stream.
+  - sources to decode the byte stream into commands.
+  - sources to wrap normal procedural EGL/GLES calls into context-aware ones.
+
+Modules under the system/ directory corresponds to code that runs on the
+guest, and implement the marshalling of EGL/GLES commands into a stream of
+bytes sent to the host through a fast pipe mechanism.
+
+   system/GLESv1_enc        -> encoder for GLES 1.1 commands
+   system/GLESv2_enc        -> encoder for GLES 2.0 commands
+   system/renderControl_enc -> encoder for rendering control commands
+   system/egl               -> emulator-specific guest EGL library
+   system/GLESv1            -> emulator-specific guest GLES 1.1 library
+   system/gralloc           -> emulator-specific gralloc module
+   system/OpenglSystemCommon -> library of common routines
+
+Modules under the host/ directory corresponds to code that runs on the
+host, and implement the decoding of the command stream, translation of
+EGL/GLES commands into desktop GL 2.0 ones, and rendering to an off-screen
+buffer.
+
+  host/libs/GLESv1_dec        -> decoder for GLES 1.1 commands
+  host/libs/GLESv2_dec        -> decoder for GLES 2.0 commands
+  host/libs/renderControl_dec -> decoder for rendering control commands
+
+  host/libs/Translator/EGL    -> translator for EGL commands
+  host/libs/Translator/GLES_CM -> translator for GLES 1.1 commands
+  host/libs/Translator/GLES_V2 -> translator for GLES 2.0 commands
+  host/libs/Translator/GLcommon -> library of common translation routines
+
+  host/libs/libOpenglRender -> rendering library (uses all host libs above)
+                               can be used by the 'renderer' program below,
+                               or directly linked into the emulator UI program.
+
+  host/renderer/ -> stand-alone renderer program executable.
+                    this can run in head-less mode and receive requests from
+                    several emulators at the same time. It is the receiving
+                    end of all command streams.
+
+Modules under the test/ directory correspond to test programs that are useful
+to debug the various modules described above:
+
+  tests/EGL_host_wrapper  -> a small library used to dynamically load the
+                             desktop libEGL.so or a replacement named by the
+                             ANDROID_EGL_LIB environment variable. This lib
+                             provides all EGL entry points.
+
+  tests/emulator_test_renderer -> a small program to run the rendering library
+                                  in a single SDL window on the host desktop.
+
+  tests/gles_android_wrapper -> guest EGL / GLES libraries that are run on
+                                the device to run some tests. Replace the
+                                system/egl and system/GLESv1 modules for now.
+
+  tests/translator_tests/GLES_CM -> desktop GLESv1 translation unit test
+  tests/translator_tests/GLES_V2 -> desktop GLESv2 translation unit test
+  tests/translator_tests/MacCommon -> used by translation tests on Mac only.
+
+  tests/ut_rendercontrol_enc -> guest library used by tests/ut_renderer
+  tests/ut_rendercontrol_dec -> host library used by tests/ut_renderer
+  tests/ut_renderer          -> unit-test for render control and rendering library.
+
+                                
+II. Build system considerations:
+--------------------------------
+
+The dependencies on the more than 20 components described in the previous
+section are pretty sophisticated, involving lots of auto-generated code and
+non-trivial placement for guest/device libraries.
+
+To simplify the development and maintenance of these modules, a set of
+helper GNU Make function is defined in common.mk, and included from the
+Android.mk in this directory.
+
+These functions all begin with the "emugl-" prefix, and can be used to
+declare modules, what information they export to other modules, or import
+from them, and also what kind of auto-generated sources they depend on.
+
+Look at the comments inside common.mk and the Android.mk of the modules
+to better understand what's happening.
+

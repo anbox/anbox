@@ -1,0 +1,25 @@
+language: c
+dist: trusty
+addons:
+  apt:
+    packages:
+      - automake
+      - autotools-dev
+      - libcap-dev
+script:
+  - env NOCONFIGURE=1 ./autogen.sh
+  - mkdir build
+  - cd build && ../configure
+  - make -j 2
+  - make check
+
+notifications:
+  # This is Colin's instance of Homu, in the future
+  # we'll move this to a production cluster.
+  webhooks: http://escher.verbum.org:54856/travis
+  email: false
+
+branches:
+  only:
+    - auto
+

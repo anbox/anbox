@@ -1,0 +1,15 @@
+GL_ENTRY(void, glVertexPointerOffset, GLint size, GLenum type, GLsizei stride,  GLuint offset)
+GL_ENTRY(void, glColorPointerOffset, GLint size, GLenum type, GLsizei stride,  GLuint offset)
+GL_ENTRY(void, glNormalPointerOffset, GLenum type, GLsizei stride,  GLuint offset)
+GL_ENTRY(void, glPointSizePointerOffset, GLenum type, GLsizei stride,  GLuint offset)
+GL_ENTRY(void, glTexCoordPointerOffset, GLint size, GLenum type, GLsizei stride,  GLuint offset)
+
+GL_ENTRY(void, glVertexPointerData, GLint size, GLenum type, GLsizei stride,  void * data, GLuint datalen)
+GL_ENTRY(void, glColorPointerData, GLint size, GLenum type, GLsizei stride,  void * data, GLuint datalen)
+GL_ENTRY(void, glNormalPointerData, GLenum type, GLsizei stride,  void * data, GLuint datalen)
+GL_ENTRY(void, glTexCoordPointerData, GLint size, GLenum type, GLsizei stride,  void * data, GLuint datalen)
+GL_ENTRY(void, glPointSizePointerData, GLenum type, GLsizei stride,  void * data, GLuint datalen)
+
+GL_ENTRY(void, glDrawElementsOffset, GLenum mode, GLsizei count, GLenum type, GLuint offset);
+GL_ENTRY(void, glDrawElementsData, GLenum mode, GLsizei count, GLenum type, void *data, GLuint datalen);
+

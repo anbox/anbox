@@ -1,0 +1,24 @@
+!gles_extensions
+
+# Common GLES 1.x / 2.0 extension functions
+GLboolean glIsRenderbufferEXT(GLuint renderbuffer);
+void glBindRenderbufferEXT(GLenum target, GLuint renderbuffer);
+void glDeleteRenderbuffersEXT(GLsizei n, const GLuint *renderbuffers);
+void glGenRenderbuffersEXT(GLsizei n, GLuint *renderbuffers);
+void glRenderbufferStorageEXT(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+void glGetRenderbufferParameterivEXT(GLenum target, GLenum pname, GLint *params);
+GLboolean glIsFramebufferEXT(GLuint framebuffer);
+void glBindFramebufferEXT(GLenum target, GLuint framebuffer);
+void glDeleteFramebuffersEXT(GLsizei n, const GLuint *framebuffers);
+void glGenFramebuffersEXT(GLsizei n, GLuint *framebuffers);
+GLenum glCheckFramebufferStatusEXT(GLenum target);
+void glFramebufferTexture1DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+void glFramebufferTexture2DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+void glFramebufferTexture3DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset);
+void glFramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+void glGetFramebufferAttachmentParameterivEXT(GLenum target, GLenum attachment, GLenum pname, GLint *params);
+void glGenerateMipmapEXT(GLenum target);
+
+# The following extensions are used by GLESv1Dispatch and GLESv2Dispatch, but not by GLDispatch
+void glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image);
+void glEGLImageTargetRenderbufferStorageOES(GLenum target, GLeglImageOES image);

@@ -1,0 +1,6 @@
+add_subdirectory(mir_support)
+add_subdirectory(GLESv1_dec)
+add_subdirectory(GLESv2_dec)
+add_subdirectory(libOpenGLESDispatch)
+add_subdirectory(libOpenglRender)
+add_subdirectory(renderControl_dec)

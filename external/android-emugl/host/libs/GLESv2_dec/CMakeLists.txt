@@ -1,0 +1,18 @@
+set(GENERATED_SOURCES
+    gles2_dec.cpp
+    gles2_opcodes.h
+    gles2_server_context.cpp)
+
+add_custom_command(
+    OUTPUT ${GENERATED_SOURCES}
+    POST_BUILD
+    COMMAND ${CMAKE_BINARY_DIR}/external/android-emugl/host/tools/emugen/emugen
+            -D ${CMAKE_CURRENT_BINARY_DIR} gles2
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS emugen)
+
+set(SOURCES
+    GLESv2Decoder.cpp)
+
+add_library(GLESv2_dec ${SOURCES} ${GENERATED_SOURCES})
+target_link_libraries(GLESv2_dec OpenglCodecCommon)

@@ -1,0 +1,14 @@
+set(GENERATED_SOURCES
+    renderControl_dec.cpp
+    renderControl_server_context.cpp)
+
+add_custom_command(
+    OUTPUT ${GENERATED_SOURCES}
+    POST_BUILD
+    COMMAND ${CMAKE_BINARY_DIR}/external/android-emugl/host/tools/emugen/emugen
+            -D ${CMAKE_CURRENT_BINARY_DIR} renderControl
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS emugen)
+
+add_library(renderControl_dec ${GENERATED_SOURCES})
+target_link_libraries(renderControl_dec OpenglCodecCommon)

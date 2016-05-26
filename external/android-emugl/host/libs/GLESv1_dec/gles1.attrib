@@ -1,0 +1,694 @@
+GLOBAL
+	base_opcode 1024
+	encoder_headers "glUtils.h" "GLEncoderUtils.h"
+	
+#void glClipPlanef(GLenum plane, GLfloat *equation)
+glClipPlanef
+  dir equation in
+	len equation (4 * sizeof(float))
+
+#void glFogfv(GLenum pname, GLfloat *params)
+glFogfv
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glGetFloatv(GLenum pname, GLfloat *params)
+glGetFloatv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glGetLightfv(GLenum light, GLenum pname, GLfloat *params)
+glGetLightfv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glGetMaterialfv(GLenum face, GLenum pname, GLfloat *params)
+glGetMaterialfv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glGetTexEnvfv(GLenum env, GLenum pname, GLfloat *params)
+glGetTexEnvfv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
+glGetTexParameterfv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glLightModelfv(GLenum pname, GLfloat *params)
+glLightModelfv
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glLightfv(GLenum light, GLenum pname, GLfloat *params)
+glLightfv
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glLoadMatrixf(GLfloat *m)
+glLoadMatrixf
+	len m (16 * sizeof(GLfloat))
+
+#void glMaterialfv(GLenum face, GLenum pname, GLfloat *params)
+glMaterialfv
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glMultMatrixf(GLfloat *m)
+glMultMatrixf
+	len m (16 * sizeof(GLfloat))
+
+#void glPointParameterfv(GLenum pname, GLfloat *params)
+glPointParameterfv
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glTexEnvfv(GLenum target, GLenum pname, GLfloat *params)
+glTexEnvfv
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
+glTexParameterfv
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glBufferData(GLenum target, GLsizeiptr size, GLvoid *data, GLenum usage)
+glBufferData
+	len data size
+	var_flag data nullAllowed
+
+#void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, GLvoid *data)
+glBufferSubData
+	dir data in
+	len data size
+	var_flag data nullAllowed
+
+#void glClipPlanex(GLenum plane, GLfixed *eqn)
+glClipPlanex
+	dir eqn in
+	len eqn (4 * sizeof(GLfixed))
+
+#void glColorPointer(GLint size, GLenum type, GLsizei stride, GLvoid *pointer)
+#we treat the pointer as offset to a VBO
+glColorPointer
+	len pointer (sizeof(unsigned int))
+	flag unsupported
+
+#void glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, GLvoid *data)
+glCompressedTexImage2D
+	len data imageSize
+    var_flag data nullAllowed
+
+#void glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, GLvoid *data)
+glCompressedTexSubImage2D
+	len data imageSize
+        var_flag data nullAllowed
+
+#void glDeleteBuffers(GLsizei n, GLuint *buffers)
+glDeleteBuffers
+	len buffers (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glDeleteTextures(GLsizei n, GLuint *textures)
+glDeleteTextures
+	len textures (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#this function is marked as unsupported - it shouldn't be called directly
+#instead it translated into - glDrawDirectElements and glDrawIndirectElements
+#void glDrawElements(GLenum mode, GLsizei count, GLenum type, GLvoid *indices)
+glDrawElements
+	flag unsupported
+
+
+#void glFogxv(GLenum pname, GLfixed *params)
+glFogxv
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetBooleanv(GLenum pname, GLboolean *params)
+glGetBooleanv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLboolean))
+
+#void glGetBufferParameteriv(GLenum target, GLenum pname, GLint *params)
+glGetBufferParameteriv
+	len params (sizeof(GLint))
+	dir params out
+
+#void glGenBuffers(GLsizei n, GLuint *buffers)
+glGenBuffers
+	len buffers (n * sizeof(GLuint))
+	dir buffers out
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGenTextures(GLsizei n, GLuint *textures)
+glGenTextures
+	len textures (n * sizeof(GLuint))
+	dir textures out
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGetFixedv(GLenum pname, GLfixed *params)
+glGetFixedv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetIntegerv(GLenum pname, GLint *params)
+glGetIntegerv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glGetLightxv(GLenum light, GLenum pname, GLfixed *params)
+glGetLightxv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetMaterialxv(GLenum face, GLenum pname, GLfixed *params)
+glGetMaterialxv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetPointerv(GLenum pname, void **params)
+glGetPointerv
+	flag unsupported
+
+#GLubyte* glGetString(GLenum name)
+glGetString
+  flag unsupported
+
+#void glGetTexEnviv(GLenum env, GLenum pname, GLint *params)
+glGetTexEnviv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glGetTexEnvxv(GLenum env, GLenum pname, GLfixed *params)
+glGetTexEnvxv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
+glGetTexParameteriv
+	dir params out
+	len params (sizeof(GLint))
+
+#void glGetTexParameterxv(GLenum target, GLenum pname, GLfixed *params)
+glGetTexParameterxv
+	dir params out
+	len params (sizeof(GLfixed))
+
+#void glLightModelxv(GLenum pname, GLfixed *params)
+glLightModelxv
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glLightxv(GLenum light, GLenum pname, GLfixed *params)
+glLightxv
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glLoadMatrixx(GLfixed *m)
+glLoadMatrixx
+	len m (16 * sizeof(GLfixed))
+
+#void glMaterialxv(GLenum face, GLenum pname, GLfixed *params)
+glMaterialxv
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glMultMatrixx(GLfixed *m)
+glMultMatrixx
+	len m (16 * sizeof(GLfixed))
+
+#void glNormalPointer(GLenum type, GLsizei stride, GLvoid *pointer)
+#we treat the pointer as an offset to a VBO
+glNormalPointer
+	len pointer (sizeof(unsigned int))
+	flag unsupported
+
+#void glPointParameterxv(GLenum pname, GLfixed *params)
+glPointParameterxv
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels)
+glReadPixels
+	dir pixels out
+	len pixels glesv1_enc::pixelDataSize(self, width, height, format, type, 1)
+
+#void glTexCoordPointer(GLint size, GLenum type, GLsizei stride, GLvoid *pointer)
+glTexCoordPointer
+	len pointer (sizeof(unsigned int))
+	flag unsupported
+
+#void glTexEnviv(GLenum target, GLenum pname, GLint *params)
+glTexEnviv
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glTexEnvxv(GLenum target, GLenum pname, GLfixed *params)
+glTexEnvxv
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, GLvoid *pixels)
+glTexImage2D
+	dir pixels in
+	len pixels glesv1_enc::pixelDataSize(self, width, height, format, type, 0)
+	var_flag pixels nullAllowed isLarge
+
+#void glTexParameteriv(GLenum target, GLenum pname, GLint *params)
+glTexParameteriv
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glTexParameterxv(GLenum target, GLenum pname, GLfixed *params)
+glTexParameterxv
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels)
+glTexSubImage2D
+	len pixels glesv1_enc::pixelDataSize(self, width, height, format, type, 0)
+        var_flag pixels nullAllowed isLarge
+
+#void glVertexPointer(GLint size, GLenum type, GLsizei stride, GLvoid *pointer)
+# we treat the pointer as an offset to a VBO
+glVertexPointer
+	flag unsupported
+
+#void glPointSizePointerOES(GLenum type, GLsizei stride, GLvoid *pointer)
+glPointSizePointerOES
+	len pointer (sizeof(unsigned int))
+	flag unsupported
+
+#void glGetClipPlanef(GLenum pname, GLfloat * eqn)
+glGetClipPlanef
+	dir eqn out
+	len eqn (4 * sizeof(GLfloat))
+
+#void glVertexPointerData(GLint size, GLenum type, GLsizei stride, void *data, GLuint datalen)
+glVertexPointerData
+	len data datalen
+	custom_pack data glUtilsPackPointerData((unsigned char *)ptr, (unsigned char *)data, size, type, stride, datalen)
+	flag custom_decoder
+	flag not_api
+
+#void glColorPointerData(GLint size, GLenum type, GLsizei stride, void *data, GLuint datalen)
+glColorPointerData
+	len data datalen
+	flag custom_decoder
+	custom_pack data glUtilsPackPointerData((unsigned char *)ptr, (unsigned char *)data, size, type, stride, datalen)
+	flag not_api
+
+#void glNormalPointerData(GLenum type, GLsizei stride, void *data, GLuint datalen)
+glNormalPointerData
+	len data datalen
+	flag custom_decoder
+	custom_pack data glUtilsPackPointerData((unsigned char *)ptr, (unsigned char *)data, 3, type, stride, datalen)
+	flag not_api
+
+#void glPointSizePointerData(GLenum type, GLsizei stride, void *data, GLuint datalen)
+glPointSizePointerData
+	len data datalen
+	flag custom_decoder
+	custom_pack data glUtilsPackPointerData((unsigned char *)ptr, (unsigned char *)data, 1, type, stride, datalen)
+	flag not_api
+
+#void glTexCoordPointerData(GLint size, GLenum type, GLsizei stride, void *data, GLuint datalen)
+glTexCoordPointerData
+	len data datalen
+	flag custom_decoder
+	custom_pack data glUtilsPackPointerData((unsigned char *)ptr, (unsigned char *)data, size, type, stride, datalen)
+	flag not_api
+
+#void glWeightPointerData(GLint size, GLenum type, GLsizei stride,  void * data, GLuint datalen)
+glWeightPointerData
+  	len data datalen
+  	custom_pack data glUtilsPackPointerData((unsigned char *)ptr, (unsigned char*)data, size, type, stride, datalen)
+  	flag custom_decoder
+	flag not_api
+
+#void glMatrixIndexPointerData(GLint size, GLenum type, GLsizei stride,  void * data, GLuint datalen)
+glMatrixIndexPointerData
+	len data datalen
+  	custom_pack data glUtilsPackPointerData((unsigned char *)ptr, (unsigned char*)data, size, type, stride, datalen)
+  	flag custom_decoder
+	flag not_api
+
+glVertexPointerOffset
+	flag custom_decoder
+	flag not_api
+glNormalPointerOffset
+	flag custom_decoder
+	flag not_api
+glTexCoordPointerOffset
+	flag custom_decoder
+	flag not_api
+glPointSizePointerOffset
+	flag custom_decoder
+	flag not_api
+glColorPointerOffset
+	flag custom_decoder
+	flag not_api
+glWeightPointerOffset
+    flag custom_decoder
+	flag not_api
+glMatrixIndexPointerOffset
+    flag custom_decoder
+	flag not_api
+
+glDrawElementsData
+	len data datalen
+	flag custom_decoder
+	flag not_api
+
+glDrawElementsOffset
+	flag custom_decoder
+	flag not_api
+
+glGetCompressedTextureFormats
+	dir formats out
+	len formats (count * sizeof(GLint))
+	flag custom_decoder
+	flag not_api
+
+glFinishRoundTrip
+	flag custom_decoder
+	flag not_api
+
+#gles1 extensions
+
+#void glDrawTexsvOES(GLshort *coords)
+glDrawTexsvOES
+	len coords (5 * sizeof(GLshort))
+
+#void glDrawTexivOES(GLint *coords)
+glDrawTexivOES
+	len coords (5 * sizeof(GLint))
+
+#void glDrawTexxvOES(GLfixed *coords)
+glDrawTexxvOES
+	len coords (5 * sizeof(GLfixed))
+
+#void glDrawTexfvOES(GLfloat *coords)
+glDrawTexfvOES
+	len coords (5 * sizeof(GLfloat))
+
+#glClipPlanexOES(GLenum plane, const GLfixed * equation)
+glClipPlanexOES
+	dir equation in
+	len equation (4 * sizeof(GLfixed))
+
+#glClipPlanexIMG(GLenum plane, const GLfixed * equation)
+glClipPlanexIMG
+	dir equation in
+	len equation (4 * sizeof(GLfixed))
+
+#void glFogxvOES(GLenum pname, GLfixed *params)
+glFogxvOES
+	dir params in
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetClipPlanexOES(GLenum pname,  GLfixed * eqn)
+glGetClipPlanexOES
+	dir eqn out
+	len eqn (4 * sizeof(GLfixed))
+
+#void glGetClipPlanex(GLenum pname,  GLfixed * eqn)
+glGetClipPlanex
+	dir eqn out
+	len eqn (4 * sizeof(GLfixed))
+
+#void glGetFixedvOES(GLenum pname, GLfixed *params)
+glGetFixedvOES
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetLightxvOES(GLenum light, GLenum pname, GLfixed *params)
+glGetLightxvOES
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetMaterialxvOES(GLenum face, GLenum pname, GLfixed *params)
+glGetMaterialxvOES
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetTexEnvxvOES(GLenum env, GLenum pname, GLfixed *params)
+glGetTexEnvxvOES
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetTexParameterxvOES(GLenum target, GLenum pname, GLfixed *params)
+glGetTexParameterxvOES
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glLightModelxvOES(GLenum pname, GLfixed *params)
+glLightModelxvOES
+	dir params in
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glLightxvOES(GLenum light, GLenum pname, GLfixed *params)
+glLightxvOES
+	dir params in
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glLoadMatrixxOES(GLfixed *m)
+glLoadMatrixxOES
+	dir m in
+	len m (16 * sizeof(GLfixed))
+
+#void glMaterialxvOES(GLenum face, GLenum pname, GLfixed *params)
+glMaterialxvOES
+	dir params in
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glMultMatrixxOES(GLfixed *m)
+glMultMatrixxOES
+	dir m in
+	len m (16 * sizeof(GLfixed))
+
+#void glPointParameterxvOES(GLenum pname, GLfixed *params)
+glPointParameterxvOES
+	dir params in
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glTexEnvxvOES(GLenum target, GLenum pname, GLfixed *params)
+glTexEnvxvOES
+	dir params in
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glTexParameterxvOES(GLenum target, GLenum pname, GLfixed *params)
+glTexParameterxvOES
+	dir params in
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glDeleteRenderbuffersOES(GLsizei n, GLuint *renderbuffers)
+glDeleteRenderbuffersOES
+	dir renderbuffers in
+	len renderbuffers (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGenRenderbuffersOES(GLsizei n, GLuint *renderbuffers)
+glGenRenderbuffersOES
+	dir renderbuffers out 
+	len renderbuffers (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGetRenderbufferParameterivOES(GLenum target, GLenum pname, GLint *params)
+glGetRenderbufferParameterivOES
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glDeleteFramebuffersOES(GLsizei n, GLuint *framebuffers)
+glDeleteFramebuffersOES
+	dir framebuffers in
+	len framebuffers (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGenFramebuffersOES(GLsizei n, GLuint *framebuffers)
+glGenFramebuffersOES
+	dir framebuffers out
+	len framebuffers (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGetFramebufferAttachmentParameterivOES(GLenum target, GLenum attachment, GLenum pname, GLint *params)
+glGetFramebufferAttachmentParameterivOES
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void* glMapBufferOES(GLenum target, GLenum access)
+glMapBufferOES
+	flag unsupported
+
+#void glGetBufferPointervOES(GLenum target, GLenum pname, GLvoid ** params)
+glGetBufferPointervOES
+	flag unsupported
+
+#void glMatrixIndexPointerOES(GLint size, GLenum type, GLsizei stride, GLvoid *pointer)
+glMatrixIndexPointerOES
+	len pointer (sizeof(unsigned int))
+	flag unsupported
+
+#void glWeightPointerOES(GLint size, GLenum type, GLsizei stride, GLvoid *pointer)
+glWeightPointerOES
+	len pointer (sizeof(unsigned int))
+	flag unsupported
+
+#glQueryMatrixxOES(GLfixed * mantissa, GLint * exponent)
+glQueryMatrixxOES
+	dir mantissa out
+	len mantissa (16 * sizeof(GLfixed))
+	dir exponent out
+	len exponent (16 * sizeof(GLfixed))
+
+#void glClipPlanefOES(GLenum plane, GLfloat *equation)
+glClipPlanefOES
+	dir equation in
+	len equation (4 * sizeof(GLfloat))
+
+#void glClipPlanefIMG(GLenum plane, GLfloat *equation)
+glClipPlanefIMG
+	dir equation in
+	len equation (4 * sizeof(GLfloat))
+
+#void glGetClipPlanefOES(GLenum pname, GLfloat * eqn)
+glGetClipPlanefOES
+	dir eqn out
+	len eqn (4 * sizeof(GLfloat))
+
+#void glTexGenfvOES(GLenum coord, GLenum pname, GLfloat *params)
+glTexGenfvOES
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glTexGenivOES(GLenum coord, GLenum pname, GLint *params)
+glTexGenivOES
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glTexGenxvOES(GLenum coord, GLenum pname, GLfixed *params)
+glTexGenxvOES
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glGetTexGenfvOES(GLenum coord, GLenum pname, GLfloat *params)
+glGetTexGenfvOES
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glGetTexGenivOES(GLenum coord, GLenum pname, GLint *params)
+glGetTexGenivOES
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glGetTexGenxvOES(GLenum coord, GLenum pname, GLfixed *params)
+glGetTexGenxvOES
+	len params (glUtilsParamSize(pname) * sizeof(GLfixed))
+
+#void glDeleteVertexArraysOES(GLsizei n, const GLuint *arrays)
+glDeleteVertexArraysOES
+	dir arrays in
+	len arrays (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGenVertexArraysOES(GLsizei n, GLuint *arrays)
+glGenVertexArraysOES
+	dir arrays out
+	len arrays (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)
+glDiscardFramebufferEXT
+	dir attachments in
+	len attachments (numAttachments * sizeof(const GLenum))
+
+#void glMultiDrawArraysEXT(GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount)
+glMultiDrawArraysEXT
+	flag unsupported
+	
+#void glMultiDrawElementsEXT(GLenum mode, const GLsizei *count, GLenum type, const GLvoid* const *indices, GLsizei primcount)
+glMultiDrawElementsEXT
+	flag unsupported
+
+#void glMultiDrawArraysSUN(GLenum mode, GLint *first, GLsizei *count, GLsizei primcount)
+glMultiDrawArraysSUN
+	flag unsupported
+	
+#void glMultiDrawElementsSUN(GLenum mode, const GLsizei *count, GLenum type, const GLvoid* *indices, GLsizei primcount)
+glMultiDrawElementsSUN
+	flag unsupported
+
+#void glDeleteFencesNV(GLsizei n, const GLuint *fences)
+glDeleteFencesNV
+	dir fences in
+	len fences (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGenFencesNV(GLsizei n, GLuint *fences)
+glGenFencesNV
+	dir fences in
+	len fences (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGetFenceivNV(GLuint fence, GLenum pname, GLint *params)
+glGetFenceivNV
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glGetDriverControlsQCOM(GLint *num, GLsizei size, GLuint *driverControls)
+glGetDriverControlsQCOM
+	dir num out
+	len num (1 * sizeof(GLint))
+	dir driverControls out
+	len driverControls (size * sizeof(GLuint))
+
+#void glGetDriverControlStringQCOM(GLuint driverControl, GLsizei bufSize, GLsizei *length, GLchar *driverControlString)
+glGetDriverControlStringQCOM
+	dir length out
+	len length (1 * sizeof(GLsizei))
+	dir driverControlString out
+	len driverControlString (1 * sizeof(GLchar))
+
+#void glExtGetTexturesQCOM(GLuint *textures, GLint maxTextures, GLint *numTextures)
+glExtGetTexturesQCOM
+	dir textures out
+	len textures (maxTextures * sizeof(GLuint))
+	dir numTextures out
+	len numTextures (1 * sizeof(GLint))
+
+#void glExtGetBuffersQCOM(GLuint *buffers, GLint maxBuffers, GLint *numBuffers)
+glExtGetBuffersQCOM
+	dir buffers out
+	len buffers (maxBuffers * sizeof(GLuint))
+	dir numBuffers out
+	len numBuffers (1 * sizeof(GLint))
+
+#void glExtGetRenderbuffersQCOM(GLuint *renderbuffers, GLint maxRenderbuffers, GLint *numRenderbuffers)
+glExtGetRenderbuffersQCOM
+	dir renderbuffers out
+	len renderbuffers (maxRenderbuffers * sizeof(GLuint))
+	dir numRenderbuffers out
+	len numRenderbuffers (1 * sizeof(GLint))
+
+#void glExtGetFramebuffersQCOM(GLuint *framebuffers, GLint maxFramebuffers, GLint *numFramebuffers)
+glExtGetFramebuffersQCOM
+	dir framebuffers out
+	len framebuffers (maxFramebuffers * sizeof(GLuint))
+	dir numFramebuffers out
+	len numFramebuffers (1 * sizeof(GLint))
+
+#void glExtGetTexLevelParameterivQCOM(GLuint texture, GLenum face, GLint level, GLenum pname, GLint *params)
+glExtGetTexLevelParameterivQCOM
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glExtGetTexSubImageQCOM(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLvoid *texels)
+glExtGetTexSubImageQCOM
+	dir texels out
+	len texels (depth * glesv1_enc::pixelDataSize(self, width, height, format, type, 0))
+
+#void glExtGetBufferPointervQCOM(GLenum target, GLvoid **params)
+glExtGetBufferPointervQCOM
+	flag unsupported
+
+#void glExtGetShadersQCOM(GLuint *shaders, GLint maxShaders, GLint *numShaders)
+glExtGetShadersQCOM
+	dir shaders out
+	len shaders (maxShaders * sizeof(GLuint))
+	dir numShaders out
+	len numShaders (1 * sizeof(GLint))
+
+#void glExtGetProgramsQCOM(GLuint *programs, GLint maxPrograms, GLint *numPrograms)
+glExtGetProgramsQCOM
+	dir programs out
+	len programs (maxPrograms * sizeof(GLuint))
+	dir numPrograms out
+	len numPrograms (1 * sizeof(GLint))
+
+#void glExtGetProgramBinarySourceQCOM(GLuint program, GLenum shadertype, GLchar *source, GLint *length)
+glExtGetProgramBinarySourceQCOM
+	flag unsupported

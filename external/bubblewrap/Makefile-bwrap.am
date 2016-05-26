@@ -1,0 +1,13 @@
+
+bwrap_SOURCES = \
+	$(bwrap_srcpath)/bubblewrap.c \
+	$(bwrap_srcpath)/bind-mount.h \
+	$(bwrap_srcpath)/bind-mount.c \
+	$(bwrap_srcpath)/network.h \
+	$(bwrap_srcpath)/network.c \
+	$(bwrap_srcpath)/utils.h \
+	$(bwrap_srcpath)/utils.c \
+	$(NULL)
+
+bwrap_CFLAGS = $(AM_CFLAGS)
+bwrap_LDFLAGS = $(SELINUX_LIBS)

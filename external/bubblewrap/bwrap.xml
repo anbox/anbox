@@ -1,0 +1,266 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
+]>
+<refentry id="bwrap">
+
+<refentryinfo>
+  <title>bwrap</title>
+  <productname>Project Atomic</productname>
+  <authorgroup>
+    <author>
+      <contrib>Developer</contrib>
+      <firstname>Alexander</firstname>
+      <surname>Larsson</surname>
+    </author>
+    <author>
+      <contrib>Developer</contrib>
+      <firstname>Colin</firstname>
+      <surname>Walters</surname>
+    </author>
+  </authorgroup>
+</refentryinfo>
+
+<refmeta>
+  <refentrytitle>bwrap</refentrytitle>
+  <manvolnum>1</manvolnum>
+  <refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+  <refname>bwrap</refname>
+  <refpurpose>container setup utility</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>bwrap</command>
+<arg choice="opt" rep="repeat"><replaceable>OPTION</replaceable></arg>
+<arg choice="opt"><replaceable>COMMAND</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsect1><title>Description</title>
+<para>
+  <command>bwrap</command> is a privileged helper for container setup. You
+  are unlikely to use it directly from the commandline, although that is possible.
+</para>
+<para>
+  It works by creating a new, completely empty, filesystem namespace where the root
+  is on a tmpfs that is invisible from the host, and which will be automatically
+  cleaned up when the last process exists. You can then use commandline options to
+  construct the root filesystem and process environment for the command to run in
+  the namespace.
+</para>
+<para>
+  By default, <command>bwrap</command> creates a new user namespace for the sandbox.
+  Optionally it also sets up new ipc, pid, network and uts namespaces. The application
+  in the sandbox can be made to run with a different UID and GID.
+</para>
+<para>
+  If needed (e.g. when using a PID namespace) <command>bwrap</command>
+  is running a minimal pid 1 process in the sandbox that is
+  responsible for reaping zombies. It also detects when the initial
+  application process (pid 2) dies and reports its exit status back to
+  the original spawner.  The pid 1 process exits to clean up the
+  sandbox when there are no other processes in the sandbox left.
+</para>
+</refsect1>
+
+<refsect1><title>Options</title>
+  <para>
+    When options are used multiple times, the last option wins, unless otherwise
+    specified.
+  </para>
+  <para>General options:</para>
+  <variablelist>
+    <varlistentry>
+      <term><option>--help</option></term>
+      <listitem><para>Print help and exit</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--version</option></term>
+      <listitem><para>Print version</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--args <arg choice="plain">FD</arg></option></term>
+      <listitem><para>
+        Parse nul-separated arguments from the given file descriptor.
+        This option can be used multiple times to parse options from
+        multiple sources.
+      </para></listitem>
+    </varlistentry>
+  </variablelist>
+  <para>Options related to kernel namespaces:</para>
+  <variablelist>
+    <varlistentry>
+      <term><option>--share-user</option></term>
+      <listitem><para>Don't create a new user namespace</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--unshare-ipc</option></term>
+      <listitem><para>Create a new ipc namespace</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--unshare-pid</option></term>
+      <listitem><para>Create a new pid namespace</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--unshare-net</option></term>
+      <listitem><para>Create a new network namespace</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--unshare-uts</option></term>
+      <listitem><para>Create a new uts namespace</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--unshare-cgroup</option></term>
+      <listitem><para>Create a new cgroup namespace</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--unshare-cgroup-try</option></term>
+      <listitem><para>Create a new cgroup namespace if possible else skip it</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--uid <arg choice="plain">UID</arg></option></term>
+      <listitem><para>Use a custom user id in the sandbox (incompatible with <option>--share-user</option>)</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--gid <arg choice="plain">GID</arg></option></term>
+      <listitem><para>Use a custom group id in the sandbox (incompatible with <option>--share-user</option>)</para></listitem>
+    </varlistentry>
+  </variablelist>
+  <para>Options about environment setup:</para>
+  <variablelist>
+    <varlistentry>
+      <term><option>--chdir <arg choice="plain">DIR</arg></option></term>
+      <listitem><para>Change directory to <arg choice="plain">DIR</arg></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--setenv <arg choice="plain">VAR</arg> <arg choice="plain">VALUE</arg></option></term>
+      <listitem><para>Set an environment variable</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--unsetenv <arg choice="plain">VAR</arg></option></term>
+      <listitem><para>Unset an environment variable</para></listitem>
+    </varlistentry>
+  </variablelist>
+  <para>Options for monitoring the sandbox from the outside:</para>
+  <variablelist>
+    <varlistentry>
+      <term><option>--lock-file <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>
+        Take a lock on <arg choice="plain">DEST</arg> while the sandbox is running.
+        This option can be used multiple times to take locks on multiple files.
+      </para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--sync-fd <arg choice="plain">FD</arg></option></term>
+      <listitem><para>Keep this file descriptor open while the sandbox is running</para></listitem>
+    </varlistentry>
+  </variablelist>
+  <para>
+    Filesystem related options. These are all operations that modify the filesystem directly, or
+    mounts stuff in the filesystem. These are applied in the order they are given as arguments.
+    Any missing parent directories that are required to create a specified destination are
+    automatically created as needed.
+  </para>
+  <variablelist>
+    <varlistentry>
+      <term><option>--bind <arg choice="plain">SRC</arg> <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Bind mount the host path <arg choice="plain">SRC</arg> on <arg choice="plain">DEST</arg></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--dev-bind <arg choice="plain">SRC</arg> <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Bind mount the host path <arg choice="plain">SRC</arg> on <arg choice="plain">DEST</arg>, allowing device access</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--ro-bind <arg choice="plain">SRC</arg> <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Bind mount the host path <arg choice="plain">SRC</arg> readonly on <arg choice="plain">DEST</arg></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--proc <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Mount procfs on <arg choice="plain">DEST</arg></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--dev <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Mount new devtmpfs on <arg choice="plain">DEST</arg></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--tmpfs <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Mount new tmpfs on <arg choice="plain">DEST</arg></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--mqueue <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Mount new mqueue on <arg choice="plain">DEST</arg></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--dir <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Create a directory at <arg choice="plain">DEST</arg></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--file <arg choice="plain">FD</arg> <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Copy from the file descriptor <arg choice="plain">FD</arg> to <arg choice="plain">DEST</arg></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--bind-data <arg choice="plain">FD</arg> <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Copy from the file descriptor <arg choice="plain">FD</arg> to a file which is bind-mounted on <arg choice="plain">DEST</arg></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--symlink <arg choice="plain">SRC</arg> <arg choice="plain">DEST</arg></option></term>
+      <listitem><para>Create a symlink at <arg choice="plain">DEST</arg> with target <arg choice="plain">SRC</arg></para></listitem>
+    </varlistentry>
+  </variablelist>
+  <para>Lockdown options:</para>
+  <variablelist>
+    <varlistentry>
+      <term><option>--seccomp <arg choice="plain">FD</arg></option></term>
+      <listitem><para>
+        Load and use seccomp rules from <arg choice="plain">FD</arg>.
+        The rules need to be in the form of a compiled eBPF program,
+        as generated by seccomp_export_bpf.
+      </para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--exec-label <arg choice="plain">LABEL</arg></option></term>
+      <listitem><para>
+	Exec Label from the sandbox. On an SELinux system you can specify the SELinux
+	context for the sandbox process(s).
+      </para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--file-label <arg choice="plain">LABEL</arg></option></term>
+      <listitem><para>
+	File label for temporary sandbox content. On an SELinux system you can specify
+	the SELinux context for the sandbox content.
+      </para></listitem>
+    </varlistentry>
+  </variablelist>
+</refsect1>
+
+<refsect1>
+  <title>Environment</title>
+
+  <variablelist>
+    <varlistentry>
+      <term><envar>HOME</envar></term>
+      <listitem><para>
+        Used as the cwd in the sandbox if <option>--cwd</option> has not been
+        explicitly specified and the current cwd is not present inside the sandbox.
+        The <option>--setenv</option> option can be used to override the value
+        that is used here.
+      </para></listitem>
+    </varlistentry>
+  </variablelist>
+</refsect1>
+
+<refsect1>
+  <title>Exit status</title>
+
+  <para>
+    The <command>bwrap</command> command returns the exit status of the
+    initial application process (pid 2 in the sandbox).
+  </para>
+</refsect1>
+
+</refentry>

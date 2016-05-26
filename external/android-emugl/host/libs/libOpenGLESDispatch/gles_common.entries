@@ -1,0 +1,74 @@
+!gles_common
+
+# Functions common to both GLES 1.x and 2.0
+
+%#include <GLES/gl.h>
+%// Return types must be single words, see GLDispatch.cpp
+%typedef const GLubyte* GLconstubyteptr;
+
+void glActiveTexture( GLenum texture );
+void glBindBuffer(GLenum target, GLuint buffer);
+void glBindTexture(GLenum target, GLuint texture);
+void glBlendFunc(GLenum sfactor, GLenum dfactor);
+void glBlendEquation( GLenum mode );
+void glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha);
+void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+void glBufferData(GLenum target, GLsizeiptr size, const GLvoid *data, GLenum usage);
+void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid *data);
+void glClear(GLbitfield mask);
+void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+void glClearDepth(GLclampd depth);
+void glClearStencil(GLint s);
+void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+void glCompressedTexImage2D( GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid *data );
+void glCompressedTexSubImage2D( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid *data );
+void glCopyTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
+void glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+void glCullFace(GLenum mode);
+void glDeleteBuffers(GLsizei n, const GLuint *buffers);
+void glDeleteTextures(GLsizei n, const GLuint *textures);
+void glDepthFunc(GLenum func);
+void glDepthMask(GLboolean flag);
+void glDepthRange(GLclampd zNear, GLclampd zFar);
+void glDisable(GLenum cap);
+void glDrawArrays(GLenum mode, GLint first, GLsizei count);
+void glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
+void glEnable(GLenum cap);
+void glFinish(void);
+void glFlush(void);
+void glFrontFace(GLenum mode);
+void glGenBuffers(GLsizei n, GLuint *buffers);
+void glGenTextures(GLsizei n, GLuint *textures);
+void glGetBooleanv(GLenum pname, GLboolean *params);
+void glGetBufferParameteriv(GLenum buffer, GLenum parameter, GLint *value);
+GLenum glGetError(void);
+void glGetFloatv(GLenum pname, GLfloat *params);
+void glGetIntegerv(GLenum pname, GLint *params);
+GLconstubyteptr glGetString(GLenum name);
+void glTexParameterf(GLenum target, GLenum pname, GLfloat param);
+void glTexParameterfv(GLenum target, GLenum pname, const GLfloat *params);
+void glGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params);
+void glGetTexParameteriv(GLenum target, GLenum pname, GLint *params);
+void glGetTexLevelParameteriv(GLenum target, GLint level, GLenum pname, GLint *params);
+void glHint(GLenum target, GLenum mode);
+GLboolean glIsBuffer(GLuint buffer);
+GLboolean glIsEnabled(GLenum cap);
+GLboolean glIsTexture(GLuint texture);
+void glLineWidth(GLfloat width);
+void glPolygonOffset(GLfloat factor, GLfloat units);
+void glPixelStorei(GLenum pname, GLint param);
+void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
+void glSampleCoverage( GLclampf value, GLboolean invert );
+void glScissor(GLint x, GLint y, GLsizei width, GLsizei height);
+void glStencilFunc(GLenum func, GLint ref, GLuint mask);
+void glStencilMask(GLuint mask);
+void glStencilOp(GLenum fail, GLenum zfail, GLenum zpass);
+void glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+void glTexParameteri(GLenum target, GLenum pname, GLint param);
+void glTexParameteriv(GLenum target, GLenum pname, const GLint *params);
+void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
+void glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
+void glPushAttrib( GLbitfield mask );
+void glPushClientAttrib( GLbitfield mask );
+void glPopAttrib( void );
+void glPopClientAttrib( void );

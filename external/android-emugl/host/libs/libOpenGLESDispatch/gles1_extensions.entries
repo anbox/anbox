@@ -1,0 +1,13 @@
+!gles1_extensions
+
+# OpenGL functions which are needed ONLY for implementing GLES 1.1 EXTENSIONS
+void glCurrentPaletteMatrixARB(GLint index);
+void glMatrixIndexuivARB(GLint size, GLuint * indices);
+void glMatrixIndexPointerARB(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
+void glWeightPointerARB(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
+void glTexGenf(GLenum coord, GLenum pname, GLfloat param );
+void glTexGeni(GLenum coord, GLenum pname, GLint param );
+void glTexGenfv(GLenum coord, GLenum pname, const GLfloat *params );
+void glTexGeniv(GLenum coord, GLenum pname, const GLint *params );
+void glGetTexGenfv(GLenum coord, GLenum pname, GLfloat *params );
+void glGetTexGeniv(GLenum coord, GLenum pname, GLint *params );

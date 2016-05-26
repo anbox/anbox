@@ -1,0 +1,595 @@
+GLOBAL
+	base_opcode 2048
+	encoder_headers <string.h> "glUtils.h" "GLESv2EncoderUtils.h"
+
+#void glBindAttribLocation(GLuint program, GLuint index, GLchar *name)
+glBindAttribLocation
+	len name (strlen(name) + 1)
+
+#void glBufferData(GLenum target, GLsizeiptr size, GLvoid *data, GLenum usage)
+glBufferData
+	len data size
+	var_flag data nullAllowed isLarge
+
+#void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, GLvoid *data)
+glBufferSubData
+	len data size
+        var_flag data nullAllowed isLarge
+
+#void glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, GLvoid *data)
+glCompressedTexImage2D
+	len data imageSize
+    var_flag data nullAllowed isLarge
+
+#void glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, GLvoid *data)
+glCompressedTexSubImage2D
+	len data imageSize
+        var_flag data nullAllowed isLarge
+
+#void glDeleteBuffers(GLsizei n, GLuint *buffers)
+glDeleteBuffers
+	len buffers (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glDeleteFramebuffers(GLsizei n, GLuint *framebuffers)
+glDeleteFramebuffers
+	len framebuffers (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glDeleteRenderbuffers(GLsizei n, GLuint *renderbuffers)
+glDeleteRenderbuffers
+	len renderbuffers (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glDeleteTextures(GLsizei n, GLuint *textures)
+glDeleteTextures
+	len textures (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glDrawElements(GLenum mode, GLsizei count, GLenum type, GLvoid *indices)
+glDrawElements
+	flag unsupported
+
+#void glGenBuffers(GLsizei n, GLuint *buffers)
+glGenBuffers
+	len buffers (n * sizeof(GLuint))
+	dir buffers out
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGenFramebuffers(GLsizei n, GLuint *framebuffers)
+glGenFramebuffers
+	len framebuffers (n * sizeof(GLuint))
+	dir framebuffers out
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGenRenderbuffers(GLsizei n, GLuint *renderbuffers)
+glGenRenderbuffers
+	len renderbuffers (n * sizeof(GLuint))
+	dir renderbuffers out
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGenTextures(GLsizei n, GLuint *textures)
+glGenTextures
+	len textures (n * sizeof(GLuint))
+	dir textures out
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGetActiveAttrib(GLuint program, GLuint index, GLsizei bufsize, GLsizei *length, GLint *size, GLenum *type, GLchar *name)
+glGetActiveAttrib
+	len name bufsize
+	dir name out
+	var_flag name nullAllowed
+	dir length out
+	len length (sizeof(GLsizei))
+	var_flag length nullAllowed
+	dir size out
+	len size (sizeof(GLint))
+	var_flag size nullAllowed
+	dir type out
+	len type (sizeof(GLenum))
+	var_flag type nullAllowed
+	
+#void glGetActiveUniform(GLuint program, GLuint index, GLsizei bufsize, GLsizei *length, GLint *size, GLenum *type, GLchar *name)
+glGetActiveUniform
+	len name bufsize
+	dir name out
+	  var_flag name nullAllowed
+	dir length out
+	len length (sizeof(GLsizei))
+	var_flag length nullAllowed
+	dir size out
+	len size (sizeof(GLint))
+	var_flag size nullAllowed
+	dir type out
+	len type (sizeof(GLenum))
+	var_flag type nullAllowed
+
+
+#void glGetAttachedShaders(GLuint program, GLsizei maxcount, GLsizei *count, GLuint *shaders)
+glGetAttachedShaders
+	len shaders (maxcount*sizeof(GLuint))
+	dir shaders out
+	dir count out
+	var_flag count nullAllowed
+	len count (sizeof(GLsizei))
+
+#int glGetAttribLocation(GLuint program, GLchar *name)
+glGetAttribLocation
+	len name (strlen(name) + 1)
+
+#void glGetBooleanv(GLenum pname, GLboolean *params)
+glGetBooleanv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLboolean))
+
+#void glGetBufferParameteriv(GLenum target, GLenum pname, GLint *params)
+glGetBufferParameteriv
+	len params (sizeof(GLint))
+	dir params out
+
+#void glGetFloatv(GLenum pname, GLfloat *params)
+glGetFloatv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint *params)
+glGetFramebufferAttachmentParameteriv
+	dir params out
+	len params (sizeof(GLint))
+
+#void glGetIntegerv(GLenum pname, GLint *params)
+glGetIntegerv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glGetProgramiv(GLuint program, GLenum pname, GLint *params)
+glGetProgramiv
+	dir params out
+	len params sizeof(GLint)
+#XXX - might change if extension constants that return more then one value
+
+
+#void glGetProgramInfoLog(GLuint program, GLsizei bufsize, GLsizei *length, GLchar *infolog)
+glGetProgramInfoLog
+	dir infolog out
+	len infolog bufsize
+	dir length out
+	len length sizeof(GLsizei)
+	var_flag length nullAllowed
+
+#void glGetRenderbufferParameteriv(GLenum target, GLenum pname, GLint *params)
+glGetRenderbufferParameteriv
+	dir params out
+	len params sizeof(GLint)
+# XXX - might change if pname with value larger then one is added
+
+#void glGetShaderiv(GLuint shader, GLenum pname, GLint *params)
+glGetShaderiv
+	dir params out
+	len params sizeof(GLint)
+# XXX - might change if pname with value larger then one is added
+
+#void glGetShaderInfoLog(GLuint shader, GLsizei bufsize, GLsizei *length, GLchar *infolog)
+glGetShaderInfoLog
+	dir length out
+	len length (sizeof(GLsizei))
+	var_flag length nullAllowed
+	dir infolog out
+	len infolog bufsize
+	
+
+#void glGetShaderPrecisionFormat(GLenum shadertype, GLenum precisiontype, GLint *range, GLint *precision)
+glGetShaderPrecisionFormat
+	dir range out
+	len range (2 * sizeof(GLint))
+	dir precision out
+	len precision (sizeof(GLint))
+
+#void glGetShaderSource(GLuint shader, GLsizei bufsize, GLsizei *length, GLchar *source)
+glGetShaderSource
+	dir length out
+	len length (sizeof(GLsizei))
+	var_flag length nullAllowed
+	dir source out
+	len source bufsize
+
+#GLubyte* glGetString(GLenum name)
+glGetString
+	flag unsupported
+
+#void glGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
+glGetTexParameterfv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#void glGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
+glGetTexParameteriv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glGetUniformfv(GLuint program, GLint location, GLfloat *params)
+glGetUniformfv
+	dir params out
+	len params glSizeof(glesv2_enc::uniformType(self, program, location))
+
+#void glGetUniformiv(GLuint program, GLint location, GLint *params)
+glGetUniformiv
+	dir params out
+	len params glSizeof(glesv2_enc::uniformType(self, program, location))
+
+#int glGetUniformLocation(GLuint program, GLchar *name)
+glGetUniformLocation
+	len name (strlen(name) + 1)
+
+# client-state shall be handled locally by the encoder in most cases.
+# however, GL_CURRENT_VERTEX_ATTRIB and potential others are handled by the server side,
+# thus we still need to implement it. 
+#void glGetVertexAttribfv(GLuint index, GLenum pname, GLfloat *params)
+glGetVertexAttribfv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+
+#see glGetVertexAttribfv for comments
+#void glGetVertexAttribiv(GLuint index, GLenum pname, GLint *params)
+glGetVertexAttribiv
+	dir params out
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+
+
+#void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels)
+glReadPixels
+	dir pixels out
+	len pixels glesv2_enc::pixelDataSize(self, width, height, format, type, 1)
+
+#void glShaderBinary(GLsizei n, GLuint *shaders, GLenum binaryformat, GLvoid *binary, GLsizei length)
+glShaderBinary
+	flag unsupported
+
+#void glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, GLvoid *pixels)
+glTexImage2D
+	dir pixels in
+	len pixels glesv2_enc::pixelDataSize(self, width, height, format, type, 0)
+	var_flag pixels nullAllowed isLarge
+
+#void glTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
+glTexParameterfv
+	len params (glUtilsParamSize(pname) * sizeof(GLfloat))
+#void glTexParameteriv(GLenum target, GLenum pname, GLint *params)
+glTexParameteriv
+	len params (glUtilsParamSize(pname) * sizeof(GLint))
+
+#void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels)
+glTexSubImage2D
+	len pixels glesv2_enc::pixelDataSize(self, width, height, format, type, 0)
+        var_flag pixels nullAllowed isLarge
+	
+#void glUniform1fv(GLint location, GLsizei count, GLfloat *v)
+glUniform1fv
+	len v (count * sizeof(GLfloat))
+
+#void glUniform1iv(GLint location, GLsizei count, GLint *v)
+glUniform1iv
+	len v (count * sizeof(GLint))
+
+#void glUniform2fv(GLint location, GLsizei count, GLfloat *v)
+glUniform2fv
+	len v (count * 2 * sizeof(GLfloat))
+
+#void glUniform2iv(GLint location, GLsizei count, GLint *v)
+glUniform2iv
+	len v (count * 2 * sizeof(GLint))
+
+#void glUniform3fv(GLint location, GLsizei count, GLfloat *v)
+glUniform3fv
+	len v (count * 3 * sizeof(GLfloat))
+
+#void glUniform3iv(GLint location, GLsizei count, GLint *v)
+glUniform3iv
+	len v (3 * count * sizeof(GLint))
+
+#void glUniform4fv(GLint location, GLsizei count, GLfloat *v)
+glUniform4fv
+	len v (4 * count * sizeof(GLfloat))
+
+#void glUniform4iv(GLint location, GLsizei count, GLint *v)
+glUniform4iv
+	len v (4 * count * sizeof(GLint))
+
+#void glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value)
+glUniformMatrix2fv
+	len value (count * 4 * sizeof(GLfloat))
+
+#void glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value)
+glUniformMatrix3fv
+	len value (count * 9 * sizeof(GLfloat))
+	
+#void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value)
+glUniformMatrix4fv
+	len value (count * 16 * sizeof(GLfloat))
+
+#void glVertexAttrib1fv(GLuint indx, GLfloat *values)
+glVertexAttrib1fv
+	len values (sizeof(GLfloat))
+#void glVertexAttrib2fv(GLuint indx, GLfloat *values)
+glVertexAttrib2fv
+	len values (2 * sizeof(GLfloat))
+
+#void glVertexAttrib3fv(GLuint indx, GLfloat *values)
+glVertexAttrib3fv
+	len values (3 * sizeof(GLfloat))
+
+#void glVertexAttrib4fv(GLuint indx, GLfloat *values)
+glVertexAttrib4fv
+	len values (4 * sizeof(GLfloat))
+
+#void glVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid *ptr)
+glVertexAttribPointer
+	flag unsupported
+
+#void glGetProgramBinaryOES(GLuint program, GLsizei bufSize, GLsizei *length, GLenum *binaryFormat, GLvoid *binary)
+glGetProgramBinaryOES
+	flag unsupported
+
+#void glProgramBinaryOES(GLuint program, GLenum binaryFormat, GLvoid *binary, GLint length)
+glProgramBinaryOES
+	flag unsupported
+
+#void* glMapBufferOES(GLenum target, GLenum access)
+glMapBufferOES
+	flag unsupported
+
+#void glTexImage3DOES(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, GLvoid *pixels)
+glTexImage3DOES
+	len pixels glesv2_enc::pixelDataSize3D(self, width, height, depth, format, type, 0)
+	var_flag pixels nullAllowed isLarge
+
+#void glTexSubImage3DOES(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLvoid *pixels)
+glTexSubImage3DOES
+	len pixels glesv2_enc::pixelDataSize3D(self, width, height, depth, format, type, 0)	
+        var_flag pixels nullAllowed isLarge
+
+#void glCompressedTexImage3DOES(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, GLvoid *data)
+glCompressedTexImage3DOES
+	len data imageSize
+        var_flag data nullAllowed isLarge
+
+#void glCompressedTexSubImage3DOES(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, GLvoid *data)
+glCompressedTexSubImage3DOES
+	len data imageSize
+        var_flag data nullAllowed isLarge
+
+#void glDeleteVertexArraysOES(GLsizei n, GLuint *arrays)
+glDeleteVertexArraysOES
+	len arrays (n * sizeof(GLuint))
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+#void glGenVertexArraysOES(GLsizei n, GLuint *arrays)
+glGenVertexArraysOES
+	len arrays (n * sizeof(GLuint))
+	dir arrays out
+    param_check n if(n<0){ ctx->setError(GL_INVALID_VALUE); return; } 
+
+
+#void glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, GLenum *attachments)
+glDiscardFramebufferEXT
+	len attachments (numAttachments * sizeof(GLenum))
+
+#void glMultiDrawArraysEXT(GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount)
+glMultiDrawArraysEXT
+	flag unsupported
+#void glMultiDrawElementsEXT(GLenum mode, GLsizei *count, GLenum type, const GLvoid* const *indices, GLsizei primcount)
+glMultiDrawElementsEXT
+	flag unsupported
+
+
+# handled by encoder
+#void glShaderSource(GLuint shader, GLsizei count, GLstr *string, const GLint *length)
+glShaderSource
+	flag unsupported
+
+
+
+#void glGetPerfMonitorGroupsAMD(GLint *numGroups, GLsizei groupsSize, GLuint *groups)
+glGetPerfMonitorGroupsAMD
+	flag unsupported
+
+#void glGetPerfMonitorCountersAMD(GLuint group, GLint *numCounters, GLint *maxActiveCounters, GLsizei counterSize, GLuint *counters)
+glGetPerfMonitorCountersAMD
+	flag unsupported
+
+#void glGetPerfMonitorGroupStringAMD(GLuint group, GLsizei bufSize, GLsizei *length, GLchar *groupString)
+glGetPerfMonitorGroupStringAMD
+	flag unsupported
+
+#void glGetPerfMonitorCounterStringAMD(GLuint group, GLuint counter, GLsizei bufSize, GLsizei *length, GLchar *counterString)
+glGetPerfMonitorCounterStringAMD
+	flag unsupported
+
+#void glGetPerfMonitorCounterInfoAMD(GLuint group, GLuint counter, GLenum pname, GLvoid *data)
+glGetPerfMonitorCounterInfoAMD
+	flag unsupported
+
+#void glGenPerfMonitorsAMD(GLsizei n, GLuint *monitors)
+glGenPerfMonitorsAMD
+	flag unsupported
+
+#void glDeletePerfMonitorsAMD(GLsizei n, GLuint *monitors)
+glDeletePerfMonitorsAMD
+	flag unsupported
+
+#void glSelectPerfMonitorCountersAMD(GLuint monitor, GLboolean enable, GLuint group, GLint numCounters, GLuint *countersList)
+glSelectPerfMonitorCountersAMD
+	flag unsupported
+
+#void glBeginPerfMonitorAMD(GLuint monitor)
+glBeginPerfMonitorAMD
+	flag unsupported
+
+#void glEndPerfMonitorAMD(GLuint monitor)
+glEndPerfMonitorAMD
+	flag unsupported
+
+#void glGetPerfMonitorCounterDataAMD(GLuint monitor, GLenum pname, GLsizei dataSize, GLuint *data, GLint *bytesWritten)
+glGetPerfMonitorCounterDataAMD
+	flag unsupported
+
+#void glRenderbufferStorageMultisampleIMG(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
+glRenderbufferStorageMultisampleIMG
+	flag unsupported
+
+#void glFramebufferTexture2DMultisampleIMG(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples)
+glFramebufferTexture2DMultisampleIMG
+	flag unsupported
+
+#void glDeleteFencesNV(GLsizei n, GLuint *fences)
+glDeleteFencesNV
+	flag unsupported
+
+#void glGenFencesNV(GLsizei n, GLuint *fences)
+glGenFencesNV
+	flag unsupported
+
+#GLboolean glIsFenceNV(GLuint fence)
+glIsFenceNV
+	flag unsupported
+
+#GLboolean glTestFenceNV(GLuint fence)
+glTestFenceNV
+	flag unsupported
+
+#void glGetFenceivNV(GLuint fence, GLenum pname, GLint *params)
+glGetFenceivNV
+	flag unsupported
+
+#void glFinishFenceNV(GLuint fence)
+glFinishFenceNV
+	flag unsupported
+
+#void glSetFenceNV(GLuint fence, GLenum condition)
+glSetFenceNV
+	flag unsupported
+
+#void glCoverageMaskNV(GLboolean mask)
+glCoverageMaskNV
+	flag unsupported
+
+#void glCoverageOperationNV(GLenum operation)
+glCoverageOperationNV
+	flag unsupported
+
+#void glGetDriverControlsQCOM(GLint *num, GLsizei size, GLuint *driverControls)
+glGetDriverControlsQCOM
+	flag unsupported
+
+#void glGetDriverControlStringQCOM(GLuint driverControl, GLsizei bufSize, GLsizei *length, GLchar *driverControlString)
+glGetDriverControlStringQCOM
+	flag unsupported
+
+#void glEnableDriverControlQCOM(GLuint driverControl)
+glEnableDriverControlQCOM
+	flag unsupported
+
+#void glDisableDriverControlQCOM(GLuint driverControl)
+glDisableDriverControlQCOM
+	flag unsupported
+
+#void glExtGetTexturesQCOM(GLuint *textures, GLint maxTextures, GLint *numTextures)
+glExtGetTexturesQCOM
+	flag unsupported
+
+#void glExtGetBuffersQCOM(GLuint *buffers, GLint maxBuffers, GLint *numBuffers)
+glExtGetBuffersQCOM
+	flag unsupported
+
+#void glExtGetRenderbuffersQCOM(GLuint *renderbuffers, GLint maxRenderbuffers, GLint *numRenderbuffers)
+glExtGetRenderbuffersQCOM
+	flag unsupported
+
+#void glExtGetFramebuffersQCOM(GLuint *framebuffers, GLint maxFramebuffers, GLint *numFramebuffers)
+glExtGetFramebuffersQCOM
+	flag unsupported
+
+#void glExtGetTexLevelParameterivQCOM(GLuint texture, GLenum face, GLint level, GLenum pname, GLint *params)
+glExtGetTexLevelParameterivQCOM
+	flag unsupported
+
+#void glExtTexObjectStateOverrideiQCOM(GLenum target, GLenum pname, GLint param)
+glExtTexObjectStateOverrideiQCOM
+	flag unsupported
+
+#void glExtGetTexSubImageQCOM(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLvoid *texels)
+glExtGetTexSubImageQCOM
+	flag unsupported
+
+#void glExtGetBufferPointervQCOM(GLenum target, GLvoidptr *params)
+glExtGetBufferPointervQCOM
+	flag unsupported
+
+#void glExtGetShadersQCOM(GLuint *shaders, GLint maxShaders, GLint *numShaders)
+glExtGetShadersQCOM
+	flag unsupported
+
+#void glExtGetProgramsQCOM(GLuint *programs, GLint maxPrograms, GLint *numPrograms)
+glExtGetProgramsQCOM
+	flag unsupported
+
+#GLboolean glExtIsProgramBinaryQCOM(GLuint program)
+glExtIsProgramBinaryQCOM
+	flag unsupported
+
+#void glExtGetProgramBinarySourceQCOM(GLuint program, GLenum shadertype, GLchar *source, GLint *length)
+glExtGetProgramBinarySourceQCOM
+	flag unsupported
+
+#void glStartTilingQCOM(GLuint x, GLuint y, GLuint width, GLuint height, GLbitfield preserveMask)
+glStartTilingQCOM
+	flag unsupported
+
+#void glEndTilingQCOM(GLbitfield preserveMask)
+glEndTilingQCOM
+	flag unsupported
+
+
+#void glVertexAttribPointerData(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride,  void * data, GLuint datalen)
+glVertexAttribPointerData
+	len data datalen
+	custom_pack data glUtilsPackPointerData((unsigned char *)ptr, (unsigned char *)data, size, type, stride, datalen) 
+	flag custom_decoder
+	flag not_api
+
+glVertexAttribPointerOffset
+	flag custom_decoder
+	flag not_api
+
+#client-state, handled by the encoder
+#GL_ENTRY(void, glGetVertexAttribPointerv, GLuint index, GLenum pname, GLvoid** pointer)
+glGetVertexAttribPointerv
+	flag unsupported
+
+glDrawElementsData
+	len data datalen
+	flag custom_decoder
+	flag not_api
+
+glDrawElementsOffset
+	flag custom_decoder
+	flag not_api
+
+#GL_ENTRY(void, glGetCompressedTextureFormats, int count, GLint *formats)
+glGetCompressedTextureFormats
+	dir formats out
+	len formats (count * sizeof(GLint))
+	flag custom_decoder
+	flag not_api
+
+#GL_ENTRY(void, glShaderString, GLuint shader, GLchar *string, GLsizei len)
+glShaderString
+	len string len
+	flag custom_decoder
+	flag not_api
+	
+glFinishRoundTrip
+	flag custom_decoder
+	flag not_api
+
