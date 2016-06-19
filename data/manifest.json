@@ -1,0 +1,15 @@
+{
+    "architecture": "armhf",
+    "description": "Android in a Box - An application-based approach to run a full Android system",
+    "framework": "ubuntu-sdk-15.04",
+    "hooks": {
+        "anbox": {
+            "apparmor": "apparmor.json",
+            "desktop": "anbox.desktop"
+        }
+    },
+    "maintainer": "Simon Fels <morphis@gravedo.de>",
+    "name": "org.anbox",
+    "title": "Anbox",
+    "version": "0.1"
+}
