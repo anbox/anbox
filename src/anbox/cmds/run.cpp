@@ -28,6 +28,7 @@
 #include "anbox/network/published_socket_connector.h"
 #include "anbox/network/qemu_pipe_connection_creator.h"
 #include "anbox/graphics/gl_renderer_server.h"
+#include "anbox/input_channel.h"
 
 #include <sys/prctl.h>
 
@@ -66,7 +67,9 @@ anbox::cmds::Run::Run()
 
         auto rt = Runtime::create();
 
-        auto renderer = std::make_shared<graphics::GLRendererServer>();
+        auto input_channel = std::make_shared<InputChannel>();
+
+        auto renderer = std::make_shared<graphics::GLRendererServer>(input_channel);
         renderer->start();
 
         // Socket which will be used by the qemud service inside the Android
@@ -87,7 +90,11 @@ anbox::cmds::Run::Run()
         spec.rootfs_path = rootfs_;
         spec.bind_paths.insert({qemud_connector->socket_file(), "/dev/qemud"});
         spec.bind_paths.insert({qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"});
+
         spec.temporary_dirs.push_back("/data");
+        spec.temporary_dirs.push_back("/cache");
+        spec.temporary_dirs.push_back("/storage");
+        spec.temporary_dirs.push_back("/dev/input");
         // We isolate the container from accessing binder nodes of the host
         // through the IPC namespace which gets support for binder with extra
         // patches we require.
@@ -95,6 +102,11 @@ anbox::cmds::Run::Run()
         // Required for shared memory allocations. TODO(morphis): Letting the guest
         // access should be ok but needs more investigation.
         spec.dev_bind_paths.push_back("/dev/ashmem");
+        // Our uinput based event node should get root:android_input assigned on Ubuntu
+        // which is enough for our phablet user (being root inside the container) to
+        // read event data from it.
+        spec.dev_bind_paths.push_back({input_channel->dev_path()});
+        spec.dev_bind_paths.push_back({"/dev/input/event7"});
 
         auto container = Container::create(spec);
 

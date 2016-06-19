@@ -15,27 +15,29 @@
  *
  */
 
-#include "anbox/support/hwcontrol_message_processor.h"
 #include "anbox/logger.h"
+#include "anbox/support/fingerprint_message_processor.h"
 
 namespace anbox {
 namespace support {
-HwControlMessageProcessor::HwControlMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
+FingerprintMessageProcessor::FingerprintMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
     QemudMessageProcessor(messenger) {
 }
 
-HwControlMessageProcessor::~HwControlMessageProcessor() {
+FingerprintMessageProcessor::~FingerprintMessageProcessor() {
 }
 
-void HwControlMessageProcessor::handle_command(const std::string &command) {
-    if (command == "power:screen_state:wake")
-        DEBUG("Got screen wake command");
-    else if (command == "power:screen_state:standby")
-        DEBUG("Got screen standby command");
-    else if (utils::string_starts_with(command, "power:light:brightness:lcd_backlight"))
-        DEBUG("Got LCD backligh brightness control command");
-    else
-        DEBUG("Unknown command '%s'", command);
+void FingerprintMessageProcessor::handle_command(const std::string &command) {
+    if (command == "listen")
+        listen();
+}
+
+void FingerprintMessageProcessor::listen() {
+    char buf[12];
+    snprintf(buf, sizeof(buf), "off");
+    send_header(strlen(buf));
+    messenger_->send(buf, strlen(buf));
+    finish_message();
 }
 } // namespace support
 } // namespace anbox

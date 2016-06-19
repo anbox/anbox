@@ -15,29 +15,39 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
-#define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
+#ifndef ANBOX_GRAPHICS_MIR_WINDOW_H_
+#define ANBOX_GRAPHICS_MIR_WINDOW_H_
 
-#include <string>
+#define MIR_EGL_PLATFORM
+
+#include <mirclient/mir_toolkit/mir_client_library.h>
+
+#include <EGL/egl.h>
+
 #include <memory>
 
 namespace anbox {
 class InputChannel;
+
 namespace graphics {
-class MirNativeWindowCreator;
+class MirDisplayConnection;
 
-class GLRendererServer {
+class MirWindow {
 public:
-    GLRendererServer(const std::shared_ptr<InputChannel> &input_channel);
-    ~GLRendererServer();
+    MirWindow(const std::shared_ptr<MirDisplayConnection> &display, const std::shared_ptr<InputChannel> &input_channel);
+    ~MirWindow();
 
-    void start();
-
-    std::string socket_path() const;
+    EGLNativeWindowType native_window() const;
 
 private:
-    std::string socket_path_;
-    std::shared_ptr<MirNativeWindowCreator> window_creator_;
+    static void handle_surface_event(MirSurface *surface, MirEvent const* event, void *context);
+
+    void handle_input_event(MirInputEvent const* input_event);
+    void handle_touch_event(MirTouchEvent const* touch_event);
+
+    std::shared_ptr<InputChannel> input_channel_;
+    EGLNativeWindowType native_window_;
+    MirSurface *surface_;
 };
 
 } // namespace graphics

@@ -15,29 +15,34 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
-#define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
+#ifndef ANBOX_GRAPHICS_MIR_NATIVE_WINDOW_CREATOR_H_
+#define ANBOX_GRAPHICS_MIR_NATIVE_WINDOW_CREATOR_H_
 
-#include <string>
+#include "external/android-emugl/host/libs/libOpenglRender/NativeSubWindow.h"
+
 #include <memory>
+#include <map>
 
 namespace anbox {
 class InputChannel;
+
 namespace graphics {
-class MirNativeWindowCreator;
 
-class GLRendererServer {
+class MirDisplayConnection;
+class MirWindow;
+
+class MirNativeWindowCreator : public SubWindowHandler {
 public:
-    GLRendererServer(const std::shared_ptr<InputChannel> &input_channel);
-    ~GLRendererServer();
+    MirNativeWindowCreator(const std::shared_ptr<InputChannel> &input_channel);
+    virtual ~MirNativeWindowCreator();
 
-    void start();
-
-    std::string socket_path() const;
+    EGLNativeWindowType create_window(int x, int y, int width, int height) override;
+    void destroy_window(EGLNativeWindowType win) override;
 
 private:
-    std::string socket_path_;
-    std::shared_ptr<MirNativeWindowCreator> window_creator_;
+    std::shared_ptr<InputChannel> input_channel_;
+    std::shared_ptr<MirDisplayConnection> display_connection_;
+    std::map<EGLNativeWindowType,std::shared_ptr<MirWindow>> windows_;
 };
 
 } // namespace graphics

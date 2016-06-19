@@ -23,6 +23,10 @@
 #include "anbox/graphics/opengles_message_processor.h"
 #include "anbox/support/boot_properties_message_processor.h"
 #include "anbox/support/null_message_processor.h"
+#include "anbox/support/hwcontrol_message_processor.h"
+#include "anbox/support/sensors_message_processor.h"
+#include "anbox/support/camera_message_processor.h"
+#include "anbox/support/fingerprint_message_processor.h"
 
 namespace ba = boost::asio;
 
@@ -81,6 +85,14 @@ QemuPipeConnectionCreator::client_type QemuPipeConnectionCreator::identify_clien
     // take this as a own service instance as that is what it is.
     else if (utils::string_starts_with(identifier_and_args, "pipe:qemud:boot-properties"))
         return client_type::qemud_boot_properties;
+    else if (utils::string_starts_with(identifier_and_args, "pipe:qemud:hw-control"))
+        return client_type::qemud_hw_control;
+    else if (utils::string_starts_with(identifier_and_args, "pipe:qemud:sensors"))
+        return client_type::qemud_sensors;
+    else if (utils::string_starts_with(identifier_and_args, "pipe:qemud:camera"))
+        return client_type::qemud_camera;
+    else if (utils::string_starts_with(identifier_and_args, "pipe:qemud:fingerprintlisten"))
+        return client_type::qemud_fingerprint;
 
     return client_type::invalid;
 }
@@ -90,6 +102,14 @@ std::shared_ptr<MessageProcessor> QemuPipeConnectionCreator::create_processor(co
         return std::make_shared<graphics::OpenGlesMessageProcessor>(renderer_socket_path_, runtime_, messenger);
     else if (type == client_type::qemud_boot_properties)
         return std::make_shared<support::BootPropertiesMessageProcessor>(messenger);
+    else if (type == client_type::qemud_hw_control)
+        return std::make_shared<support::HwControlMessageProcessor>(messenger);
+    else if (type == client_type::qemud_sensors)
+        return std::make_shared<support::SensorsMessageProcessor>(messenger);
+    else if (type == client_type::qemud_camera)
+        return std::make_shared<support::CameraMessageProcessor>(messenger);
+    else if (type == client_type::qemud_fingerprint)
+        return std::make_shared<support::FingerprintMessageProcessor>(messenger);
 
     return std::make_shared<support::NullMessageProcessor>();
 }

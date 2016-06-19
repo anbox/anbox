@@ -3,6 +3,9 @@ include_directories(
   ${GLIB_INCLUDE_DIRS}
   ${GIO_INCLUDE_DIRS}
   ${GIO-UNIX_INCLUDE_DIRS}
+  ${MIRCLIENT_INCLUDE_DIRS}
+  ${LIBEVDEV_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_SOURCE_DIR}/external/process-cpp-minimal/include
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include
@@ -16,9 +19,12 @@ set(SOURCES
     anbox/version.cpp
     anbox/daemon.cpp
     anbox/config.cpp
+    anbox/not_reachable.cpp
     anbox/pid_persister.cpp
+    anbox/namespace_attacher.cpp
     anbox/container.cpp
     anbox/container_connector.cpp
+    anbox/input_channel.cpp
 
     anbox/common/fd.cpp
     anbox/common/fd_sets.h
@@ -37,11 +43,18 @@ set(SOURCES
     anbox/network/delegate_message_processor.h
 
     anbox/graphics/opengles_message_processor.cpp
+    anbox/graphics/mir_display_connection.cpp
+    anbox/graphics/mir_window.cpp
+    anbox/graphics/mir_native_window_creator.cpp
     anbox/graphics/gl_renderer_server.cpp
 
     anbox/support/null_message_processor.cpp
+    anbox/support/qemud_message_processor.cpp
     anbox/support/boot_properties_message_processor.cpp
     anbox/support/hwcontrol_message_processor.cpp
+    anbox/support/sensors_message_processor.cpp
+    anbox/support/camera_message_processor.cpp
+    anbox/support/fingerprint_message_processor.cpp
 
     anbox/cmds/version.cpp
     anbox/cmds/run.cpp
@@ -55,14 +68,21 @@ add_library(anbox-core ${SOURCES})
 target_link_libraries(anbox-core
   ${Boost_LDFLAGS}
   ${Boost_LIBRARIES}
+  ${MIRCLIENT_LDFLAGS}
+  ${MIRCLIENT_LIBRARIES}
+  ${LIBEVDEV_LDFLAGS}
+  ${LIBEVDEV_LIBRARIES}
   pthread
   process-cpp
-  bwrap
   OpenglRender)
 
 add_executable(anbox main.cpp)
 target_link_libraries(anbox
     anbox-core)
+
+add_executable(anbox-container container_main.cpp)
+target_link_libraries(anbox-container
+    bwrap)
 
 install(
   TARGETS anbox

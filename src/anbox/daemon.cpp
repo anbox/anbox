@@ -46,6 +46,7 @@ try {
 }
 catch(std::exception &err) {
     ERROR("%s", err.what());
+    return EXIT_FAILURE;
 }
 
 void Daemon::ensure_data_path() {

@@ -27,10 +27,12 @@
 namespace fs = boost::filesystem;
 
 anbox::cmds::Shell::Shell()
-    : CommandWithFlagsAndAction{cli::Name{"shell"}, cli::Usage{"shell"}, cli::Description{"Open a shell within the Anbox container"}}
+    : CommandWithFlagsAndAction{cli::Name{"shell"}, cli::Usage{"shell"}, cli::Description{"Open a shell within the Anbox container"}},
+      pid_(-1)
 {
-    action([this](const cli::Command::Context &ctx) {
-        ContainerConnector connector;
+    flag(cli::make_flag(cli::Name{"pid"}, cli::Description{"PID of container to attach to"}, pid_));
+    action([this](const cli::Command::Context &) {
+        ContainerConnector connector(pid_);
         return connector.run("/system/bin/sh");
     });
 }

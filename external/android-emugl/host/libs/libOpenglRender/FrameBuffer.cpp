@@ -28,10 +28,6 @@
 
 #include <stdio.h>
 
-#include "mir_support/shared_state.h"
-
-#define MID_AUBERGINE(x) (x)*0.368627451f, (x)*0.152941176f, (x)*0.31372549f
-
 namespace {
 
 // Helper class to call the bind_locked() / unbind_locked() properly.
@@ -188,8 +184,7 @@ bool FrameBuffer::initialize(int width, int height, bool useSubWindow)
     //
     // Initialize backend EGL display
     //
-    mir::support::SharedState::get()->ensure_connection();
-    fb->m_eglDisplay = s_egl.eglGetDisplay(mir::support::SharedState::get()->native_display());
+    fb->m_eglDisplay = s_egl.eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (fb->m_eglDisplay == EGL_NO_DISPLAY) {
         ERR("Failed to Initialize backend EGL display\n");
         delete fb;
@@ -582,7 +577,6 @@ bool FrameBuffer::setupSubWindow(FBNativeWindowType p_window,
             if (m_lastPostedColorBuffer) {
                 post(m_lastPostedColorBuffer, false);
             } else {
-                s_gles2.glClearColor(MID_AUBERGINE(1.0), 1.0);
                 s_gles2.glClear(GL_COLOR_BUFFER_BIT |
                                 GL_DEPTH_BUFFER_BIT |
                                 GL_STENCIL_BUFFER_BIT);

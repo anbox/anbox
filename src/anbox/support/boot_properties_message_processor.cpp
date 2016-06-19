@@ -15,67 +15,24 @@
  *
  */
 
-#include "anbox/logger.h"
 #include "anbox/support/boot_properties_message_processor.h"
-#include "anbox/network/socket_messenger.h"
-#include "anbox/network/connections.h"
-#include "anbox/network/delegate_message_processor.h"
-
-#include <string.h>
-
-namespace ba = boost::asio;
-
-namespace {
-static constexpr const long header_size{4};
-}
+#include "anbox/logger.h"
 
 namespace anbox {
 namespace support {
 BootPropertiesMessageProcessor::BootPropertiesMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
-    messenger_(messenger) {
+    QemudMessageProcessor(messenger) {
 }
 
 BootPropertiesMessageProcessor::~BootPropertiesMessageProcessor() {
 }
 
-bool BootPropertiesMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
-    for (const auto &byte : data)
-        buffer_.push_back(byte);
 
-    process_commands();
-
-    return true;
-}
-
-void BootPropertiesMessageProcessor::process_commands() {
-    while (true) {
-        if (buffer_.size() < header_size)
-            break;
-
-        char header[header_size] = { 0 };
-        ::memcpy(header, buffer_.data(), header_size);
-
-        unsigned int body_size = 0;
-        ::sscanf(header, "%04x", &body_size);
-        if (body_size != buffer_.size() - header_size)
-            break;
-
-        std::string command;
-        // Make sure we only copy as much bytes as we have to and not more
-        command.insert(0, reinterpret_cast<const char*>(buffer_.data()) + header_size, body_size);
-
-        if (command == "list")
-            list_properties();
-        else
-            DEBUG("Unknown command '%s'", command);
-
-        const auto consumed = header_size + body_size;
-        buffer_.erase(buffer_.begin(), buffer_.begin() + consumed);
-
-        const auto remaining = buffer_.size() - consumed;
-        if (remaining <= 0)
-            break;
-    }
+void BootPropertiesMessageProcessor::handle_command(const std::string &command) {
+    if (command == "list")
+        list_properties();
+    else
+        DEBUG("Unknown command '%s'", command);
 }
 
 void BootPropertiesMessageProcessor::list_properties() {
@@ -96,18 +53,20 @@ void BootPropertiesMessageProcessor::list_properties() {
 
         // TODO(morphis): Using HDPI here for now but should be adjusted to the device
         // we're running on.
-        "qemu.sf.lcd_density=240"
+        "qemu.sf.lcd_density=240",
+
+        // libhwui detects that we support certain GLESv3 extensions which
+        // we don't yet support in our host channel so we have to disable
+        // those things here.
+        "ro.hwui.use_gpu_pixel_buffers=0",
     };
 
     for (const auto &prop : properties) {
-        char header[header_size + 1];
-        std::snprintf(header, header_size + 1, "%04x", prop.length());
-        messenger_->send(header, header_size);
+        send_header(prop.length());
         messenger_->send(prop.c_str(), prop.length());
     }
 
-    // Send terminating NULL byte
-    messenger_->send(static_cast<const char*>(""), 1);
+    finish_message();
 }
 } // namespace support
 } // namespace anbox

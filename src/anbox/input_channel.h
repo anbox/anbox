@@ -15,36 +15,33 @@
  *
  */
 
-#ifndef MIR_SUPPORT_SHARED_STATE_H_
-#define MIR_SUPPORT_SHARED_STATE_H_
+#ifndef ANBOX_INPUT_CHANNEL_H_
+#define ANBOX_INPUT_CHANNEL_H_
 
-#define MIR_EGL_PLATFORM
+#include <string>
 
-#include <mirclient/mir_toolkit/mir_client_library.h>
+struct libevdev_uinput;
 
-#include <EGL/egl.h>
-
-#include <memory>
-
-namespace mir {
-namespace support {
-class SharedState {
+namespace anbox {
+class InputChannel {
 public:
-    static std::shared_ptr<SharedState> get();
+    InputChannel();
+    ~InputChannel();
 
-    SharedState();
-    ~SharedState();
+    struct Event {
+        int type;
+        int code;
+        int value;
+    };
 
-    void ensure_connection();
-    void release_connection();
+    void setup(int width, int height);
+    void push_event(const Event &event);
 
-    MirConnection* connection() const;
-    EGLNativeDisplayType native_display() const;
+    std::string dev_path() const;
 
 private:
-    MirConnection *connection_;
+    struct libevdev_uinput *dev_;
 };
-} // namespace support
-} // namespace mir
+} // namespace anbox
 
 #endif

@@ -15,24 +15,25 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONNECTOR_H_
-#define ANBOX_CONTAINER_CONNECTOR_H_
+#ifndef ANBOX_SUPPORT_FINGERPRINT_MESSAGE_PROCESSOR_H_
+#define ANBOX_SUPPORT_FINGERPRINT_MESSAGE_PROCESSOR_H_
 
-#include <memory>
+#include "anbox/support/qemud_message_processor.h"
 
 namespace anbox {
-class NamespaceAttacher;
-class ContainerConnector {
+namespace support {
+class FingerprintMessageProcessor : public QemudMessageProcessor {
 public:
-    ContainerConnector(int pid = -1);
-    ~ContainerConnector();
+    FingerprintMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
+    ~FingerprintMessageProcessor();
 
-    int run(const std::string &path);
+protected:
+    void handle_command(const std::string &command) override;
 
 private:
-    int pid_;
-    std::shared_ptr<NamespaceAttacher> namespaces_;
+    void listen();
 };
-} // namespace
+} // namespace graphics
+} // namespace anbox
 
 #endif

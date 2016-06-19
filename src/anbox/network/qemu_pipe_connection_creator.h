@@ -46,6 +46,10 @@ public:
         invalid,
         opengles,
         qemud_boot_properties,
+        qemud_hw_control,
+        qemud_sensors,
+        qemud_camera,
+        qemud_fingerprint,
     };
 
 private:

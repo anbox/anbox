@@ -16,6 +16,8 @@
  */
 
 #include "anbox/support/null_message_processor.h"
+#include "anbox/utils.h"
+#include "anbox/logger.h"
 
 #include <string.h>
 
@@ -27,7 +29,8 @@ NullMessageProcessor::NullMessageProcessor() {
 NullMessageProcessor::~NullMessageProcessor() {
 }
 
-bool NullMessageProcessor::process_data(const std::vector<std::uint8_t>&) {
+bool NullMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
+    DEBUG("Received: %s", utils::hex_dump(data.data(), data.size()));
     return true;
 }
 } // namespace support

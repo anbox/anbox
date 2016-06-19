@@ -15,31 +15,34 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
-#define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
+#ifndef ANBOX_SUPPORT_QEMUD_MESSAGE_PROCESSOR_H_
+#define ANBOX_SUPPORT_QEMUD_MESSAGE_PROCESSOR_H_
 
-#include <string>
-#include <memory>
+#include "anbox/network/message_processor.h"
+#include "anbox/network/socket_messenger.h"
 
 namespace anbox {
-class InputChannel;
-namespace graphics {
-class MirNativeWindowCreator;
-
-class GLRendererServer {
+namespace support {
+class QemudMessageProcessor : public network::MessageProcessor {
 public:
-    GLRendererServer(const std::shared_ptr<InputChannel> &input_channel);
-    ~GLRendererServer();
+    QemudMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
+    ~QemudMessageProcessor();
 
-    void start();
+    bool process_data(const std::vector<std::uint8_t> &data) override;
 
-    std::string socket_path() const;
+protected:
+    virtual void handle_command(const std::string &command) = 0;
+
+    void send_header(const size_t &size);
+    void finish_message();
+
+    std::shared_ptr<network::SocketMessenger> messenger_;
 
 private:
-    std::string socket_path_;
-    std::shared_ptr<MirNativeWindowCreator> window_creator_;
-};
+    void process_commands();
 
+    std::vector<std::uint8_t> buffer_;
+};
 } // namespace graphics
 } // namespace anbox
 

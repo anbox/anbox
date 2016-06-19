@@ -15,23 +15,34 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONNECTOR_H_
-#define ANBOX_CONTAINER_CONNECTOR_H_
+#ifndef ANBOX_NAMESPACE_ATTACHER_H_
+#define ANBOX_NAMESPACE_ATTACHER_H_
 
 #include <memory>
+#include <vector>
+#include <string>
 
 namespace anbox {
-class NamespaceAttacher;
-class ContainerConnector {
-public:
-    ContainerConnector(int pid = -1);
-    ~ContainerConnector();
+enum class NamespaceType {
+    user,
+    pid,
+    uts,
+    mount,
+    ipc,
+    net,
+};
 
-    int run(const std::string &path);
+class NamespaceAttacher {
+public:
+    static std::string ns_type_to_string(NamespaceType type);
+
+    NamespaceAttacher(const std::vector<NamespaceType> &types, pid_t pid);
+    ~NamespaceAttacher();
 
 private:
-    int pid_;
-    std::shared_ptr<NamespaceAttacher> namespaces_;
+    void attach(const std::vector<NamespaceType> &types);
+
+    pid_t pid_;
 };
 } // namespace
 

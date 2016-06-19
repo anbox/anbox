@@ -18,30 +18,20 @@
 #ifndef ANBOX_SUPPORT_BOOT_PROPERTIES_MESSAGE_PROCESSOR_H_
 #define ANBOX_SUPPORT_BOOT_PROPERTIES_MESSAGE_PROCESSOR_H_
 
-#include <memory>
-
-#include <boost/asio.hpp>
-
-#include "anbox/runtime.h"
-#include "anbox/network/message_processor.h"
-#include "anbox/network/socket_messenger.h"
-#include "anbox/network/socket_connection.h"
+#include "anbox/support/qemud_message_processor.h"
 
 namespace anbox {
 namespace support {
-class BootPropertiesMessageProcessor : public network::MessageProcessor {
+class BootPropertiesMessageProcessor : public QemudMessageProcessor {
 public:
     BootPropertiesMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
     ~BootPropertiesMessageProcessor();
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
+protected:
+    void handle_command(const std::string &command) override;
 
 private:
-    void process_commands();
     void list_properties();
-
-    std::shared_ptr<network::SocketMessenger> messenger_;
-    std::vector<std::uint8_t> buffer_;
 };
 } // namespace graphics
 } // namespace anbox

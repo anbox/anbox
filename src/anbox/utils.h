@@ -38,6 +38,8 @@ bool string_starts_with(const std::string &text, const std::string &prefix);
 
 std::string hex_dump(const uint8_t *data, uint32_t size);
 
+std::string get_env_value(const std::string &name, const std::string &default_value = "");
+
 template<typename... Types>
 static std::string string_format(const std::string& fmt_str, Types&&... args);
 } // namespace utils

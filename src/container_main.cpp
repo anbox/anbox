@@ -15,24 +15,8 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONNECTOR_H_
-#define ANBOX_CONTAINER_CONNECTOR_H_
+extern "C" int bwrap_main(int argc, char **argv);
 
-#include <memory>
-
-namespace anbox {
-class NamespaceAttacher;
-class ContainerConnector {
-public:
-    ContainerConnector(int pid = -1);
-    ~ContainerConnector();
-
-    int run(const std::string &path);
-
-private:
-    int pid_;
-    std::shared_ptr<NamespaceAttacher> namespaces_;
-};
-} // namespace
-
-#endif
+int main(int argc, char **argv) {
+    return bwrap_main(argc, argv);
+}

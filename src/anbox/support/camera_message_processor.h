@@ -15,24 +15,31 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONNECTOR_H_
-#define ANBOX_CONTAINER_CONNECTOR_H_
+#ifndef ANBOX_SUPPORT_CAMERA_MESSAGE_PROCESSOR_H_
+#define ANBOX_SUPPORT_CAMERA_MESSAGE_PROCESSOR_H_
 
-#include <memory>
+#include "anbox/network/message_processor.h"
+#include "anbox/network/socket_messenger.h"
 
 namespace anbox {
-class NamespaceAttacher;
-class ContainerConnector {
+namespace support {
+class CameraMessageProcessor : public network::MessageProcessor {
 public:
-    ContainerConnector(int pid = -1);
-    ~ContainerConnector();
+    CameraMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
+    ~CameraMessageProcessor();
 
-    int run(const std::string &path);
+    bool process_data(const std::vector<std::uint8_t> &data) override;
 
 private:
-    int pid_;
-    std::shared_ptr<NamespaceAttacher> namespaces_;
+    void process_commands();
+
+    void handle_command(const std::string &command);
+    void list();
+
+    std::shared_ptr<network::SocketMessenger> messenger_;
+    std::vector<std::uint8_t> buffer_;
 };
-} // namespace
+} // namespace graphics
+} // namespace anbox
 
 #endif

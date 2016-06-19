@@ -15,24 +15,40 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONNECTOR_H_
-#define ANBOX_CONTAINER_CONNECTOR_H_
+#ifndef ANBOX_GRAPHICS_MIR_DISPLAY_CONNECTION_H_
+#define ANBOX_GRAPHICS_MIR_DISPLAY_CONNECTION_H_
 
-#include <memory>
+#define MIR_EGL_PLATFORM
+
+#include <mirclient/mir_toolkit/mir_client_library.h>
+
+#include <EGL/egl.h>
 
 namespace anbox {
-class NamespaceAttacher;
-class ContainerConnector {
-public:
-    ContainerConnector(int pid = -1);
-    ~ContainerConnector();
+namespace graphics {
 
-    int run(const std::string &path);
+class MirDisplayConnection {
+public:
+    MirDisplayConnection();
+    ~MirDisplayConnection();
+
+    MirPixelFormat default_pixel_format() const;
+
+    MirConnection* connection() const;
+    EGLNativeDisplayType native_display() const;
+
+    int output_id() const;
+    int vertical_resolution() const;
+    int horizontal_resolution() const;
 
 private:
-    int pid_;
-    std::shared_ptr<NamespaceAttacher> namespaces_;
+    MirConnection *connection_;
+    int output_id_;
+    int vertical_resolution_;
+    int horizontal_resolution_;
 };
-} // namespace
+
+} // namespace graphics
+} // namespace anbox
 
 #endif

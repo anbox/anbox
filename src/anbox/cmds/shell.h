@@ -31,7 +31,7 @@ public:
     Shell();
 
 private:
-    std::string rootfs_;
+    int pid_;
 };
 } // namespace cmds
 } // namespace anbox

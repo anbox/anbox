@@ -1319,10 +1319,6 @@ bwrap_main (int    argc,
   /* Get the (optional) capabilities we need, drop root */
   acquire_caps ();
 
-  /* Never gain any more privs during exec */
-  if (prctl (PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0)
-    die_with_error ("prctl(PR_SET_NO_NEW_CAPS) failed");
-
   /* The initial code is run with high permissions
      (i.e. CAP_SYS_ADMIN), so take lots of care. */
 
@@ -1390,9 +1386,7 @@ bwrap_main (int    argc,
   /* We block sigchild here so that we can use signalfd in the monitor. */
   block_sigchild ();
 
-  clone_flags = SIGCHLD | CLONE_NEWNS;
-  if (opt_unshare_user)
-    clone_flags |= CLONE_NEWUSER;
+  clone_flags = SIGCHLD;
   if (opt_unshare_pid)
     clone_flags |= CLONE_NEWPID;
   if (opt_unshare_net)
@@ -1423,14 +1417,6 @@ bwrap_main (int    argc,
   pid = raw_clone (clone_flags, NULL);
   if (pid == -1)
     {
-      if (opt_unshare_user)
-        {
-          if (errno == EINVAL)
-            die ("Creating new namespace failed, likely because the kernel does not support user namespaces.  bwrap must be installed setuid on such systems.");
-          else if (errno == EPERM && !is_privileged)
-            die ("No permissions to creating new namespace, likely because the kernel does not allow non-privileged user namespaces. On e.g. debian this can be enabled with 'sysctl kernel.unprivileged_userns_clone=1'.");
-        }
-
       die_with_error ("Creating new namespace failed");
     }
 
@@ -1439,18 +1425,6 @@ bwrap_main (int    argc,
 
   if (pid != 0)
     {
-      if (is_privileged && opt_unshare_user)
-        {
-          /* Map the uid/gid 0 if opt_needs_devpts, as otherwise
-           * mounting it will fail.
-           * Due to this non-direct mapping we need to have set[ug]id
-           * caps in the parent namespaces, and thus we need to write
-           * the map in the parent namespace, not the child. */
-          write_uid_gid_map (ns_uid, uid,
-                             ns_gid, gid,
-                             pid, TRUE, opt_needs_devpts);
-        }
-
       /* Initial launched process, wait for exec:ed command to exit */
 
       if (opt_pid_file) {
@@ -1463,9 +1437,6 @@ bwrap_main (int    argc,
           write(pid_file_fd, pid_str, strlen(pid_str));
           close(pid_file_fd);
       }
-
-      /* We don't need any caps in the launcher, drop them immediately. */
-      drop_caps ();
 
       /* Let child run */
       val = 1;
@@ -1486,25 +1457,6 @@ bwrap_main (int    argc,
 
   ns_uid = opt_sandbox_uid;
   ns_gid = opt_sandbox_gid;
-  if (!is_privileged && opt_unshare_user)
-    {
-      /* In the unprivileged case we have to write the uid/gid maps in
-       * the child, because we have no caps in the parent */
-
-      if (opt_needs_devpts)
-        {
-          /* This is a bit hacky, but we need to first map the real uid/gid to
-             0, otherwise we can't mount the devpts filesystem because root is
-             not mapped. Later we will create another child user namespace and
-             map back to the real uid */
-          ns_uid = 0;
-          ns_gid = 0;
-        }
-
-      write_uid_gid_map (ns_uid, uid,
-                         ns_gid, gid,
-                         -1, TRUE, FALSE);
-    }
 
   old_umask = umask (0);
 
@@ -1542,53 +1494,7 @@ bwrap_main (int    argc,
   if (chdir ("/") != 0)
     die_with_error ("chdir / (base path)");
 
-  if (is_privileged)
-    {
-      pid_t child;
-      int privsep_sockets[2];
-
-      if (socketpair (AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, privsep_sockets) != 0)
-        die_with_error ("Can't create privsep socket");
-
-      child = fork ();
-      if (child == -1)
-        die_with_error ("Can't fork unprivileged helper");
-
-      if (child == 0)
-        {
-          /* Unprivileged setup process */
-          drop_caps ();
-          close (privsep_sockets[0]);
-          setup_newroot (opt_unshare_pid, privsep_sockets[1]);
-          exit (0);
-        }
-      else
-        {
-          uint32_t buffer[2048];  /* 8k, but is int32 to guarantee nice alignment */
-          uint32_t op, flags;
-          const char *arg1, *arg2;
-          cleanup_fd int unpriv_socket = -1;
-
-          unpriv_socket = privsep_sockets[0];
-          close (privsep_sockets[1]);
-
-          do
-            {
-              op = read_priv_sec_op (unpriv_socket, buffer, sizeof (buffer),
-                                     &flags, &arg1, &arg2);
-              privileged_op (-1, op, flags, arg1, arg2);
-              if (write (unpriv_socket, buffer, 1) != 1)
-                die ("Can't write to op_socket");
-            }
-          while (op != PRIV_SEP_OP_DONE);
-
-          /* Continue post setup */
-        }
-    }
-  else
-    {
-      setup_newroot (opt_unshare_pid, -1);
-    }
+  setup_newroot (opt_unshare_pid, -1);
 
   /* The old root better be rprivate or we will send unmount events to the parent namespace */
   if (mount ("oldroot", "oldroot", NULL, MS_REC | MS_PRIVATE, NULL) != 0)
@@ -1597,21 +1503,6 @@ bwrap_main (int    argc,
   if (umount2 ("oldroot", MNT_DETACH))
     die_with_error ("unmount old root");
 
-  if (opt_unshare_user &&
-      (ns_uid != opt_sandbox_uid || ns_gid != opt_sandbox_gid))
-    {
-      /* Now that devpts is mounted and we've no need for mount
-         permissions we can create a new userspace and map our uid
-         1:1 */
-
-      if (unshare (CLONE_NEWUSER))
-        die_with_error ("unshare user ns");
-
-      write_uid_gid_map (opt_sandbox_uid, ns_uid,
-                         opt_sandbox_gid, ns_gid,
-                         -1, FALSE, FALSE);
-    }
-
   /* Now make /newroot the real root */
   if (chdir ("/newroot") != 0)
     die_with_error ("chdir newroot");
@@ -1619,31 +1510,6 @@ bwrap_main (int    argc,
     die_with_error ("chroot /newroot");
   if (chdir ("/") != 0)
     die_with_error ("chdir /");
-
-  /* Now we have everything we need CAP_SYS_ADMIN for, so drop it */
-  drop_caps ();
-
-  if (opt_seccomp_fd != -1)
-    {
-      cleanup_free char *seccomp_data = NULL;
-      size_t seccomp_len;
-      struct sock_fprog prog;
-
-      seccomp_data = load_file_data (opt_seccomp_fd, &seccomp_len);
-      if (seccomp_data == NULL)
-        die_with_error ("Can't read seccomp data");
-
-      if (seccomp_len % 8 != 0)
-        die ("Invalide seccomp data, must be multiple of 8");
-
-      prog.len = seccomp_len / 8;
-      prog.filter = (struct sock_filter *) seccomp_data;
-
-      close (opt_seccomp_fd);
-
-      if (prctl (PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog) != 0)
-        die_with_error ("prctl(PR_SET_SECCOMP)");
-    }
 
   umask (old_umask);
 

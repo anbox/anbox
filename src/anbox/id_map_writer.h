@@ -15,24 +15,29 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONNECTOR_H_
-#define ANBOX_CONTAINER_CONNECTOR_H_
+#ifndef ANBOX_ID_MAP_WRITER_H_
+#define ANBOX_ID_MAP_WRITER_H_
 
-#include <memory>
+#include <vector>
+#include <boost/filesystem.hpp>
 
 namespace anbox {
-class NamespaceAttacher;
-class ContainerConnector {
+class IdMapWriter {
 public:
-    ContainerConnector(int pid = -1);
-    ~ContainerConnector();
+    enum class Type {
+        UID,
+        GID
+    };
 
-    int run(const std::string &path);
+    IdMapWriter(const Type &type, const pid_t &pid = -1);
+    ~IdMapWriter();
+
+    void apply();
 
 private:
-    int pid_;
-    std::shared_ptr<NamespaceAttacher> namespaces_;
+    Type type_;
+    pid_t pid_;
 };
-} // namespace
+} // namespace anbox
 
 #endif

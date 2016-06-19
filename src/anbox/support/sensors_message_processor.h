@@ -15,24 +15,25 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONNECTOR_H_
-#define ANBOX_CONTAINER_CONNECTOR_H_
+#ifndef ANBOX_SUPPORT_SENSORS_MESSAGE_PROCESSOR_H_
+#define ANBOX_SUPPORT_SENSORS_MESSAGE_PROCESSOR_H_
 
-#include <memory>
+#include "anbox/support/qemud_message_processor.h"
 
 namespace anbox {
-class NamespaceAttacher;
-class ContainerConnector {
+namespace support {
+class SensorsMessageProcessor : public QemudMessageProcessor {
 public:
-    ContainerConnector(int pid = -1);
-    ~ContainerConnector();
+    SensorsMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
+    ~SensorsMessageProcessor();
 
-    int run(const std::string &path);
+protected:
+    void handle_command(const std::string &command) override;
 
 private:
-    int pid_;
-    std::shared_ptr<NamespaceAttacher> namespaces_;
+    void list_sensors();
 };
-} // namespace
+} // namespace graphics
+} // namespace anbox
 
 #endif

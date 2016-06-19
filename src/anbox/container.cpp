@@ -19,6 +19,9 @@
 
 #include <boost/filesystem.hpp>
 
+#include <fstream>
+#include <sstream>
+
 #include "core/posix/fork.h"
 #include "core/posix/exec.h"
 
@@ -28,14 +31,15 @@
 #include "anbox/container.h"
 #include "anbox/common/fd.h"
 
-extern "C" int bwrap_main(int argc, char **argv);
+#include <grp.h>
+#include <sys/mount.h>
 
 namespace fs = boost::filesystem;
 namespace anbox {
 
 Container::Spec Container::Spec::Default() {
     Spec spec;
-    spec.init_command = "/init";
+    spec.init_command = "/anbox-init.sh";
     spec.environment.insert({"PATH", "/system/bin:/system/sbin:/system/xbin"});
     return spec;
 }
@@ -53,66 +57,76 @@ Container::~Container() {
     stop();
 }
 
+std::vector<Container::IdMapping> Container::read_id_mappings() {
+    std::vector<Container::IdMapping> mappings;
+
+    static const std::string subuid_path = "/etc/subuid";
+    static const std::string subgid_path = "/etc/subgid";
+
+    std::ifstream subuid_file(subuid_path);
+
+    return mappings;
+}
+
 void Container::start() {
-    std::vector<std::string> arguments = {
-        "--ro-bind", spec_.rootfs_path, "/",
+    DEBUG("uid %d gid %d", getuid(), getgid());
+    std::vector<std::string> args = {
+        // We need to setup user mapping here as lxc-usernsexec will not
+        // map our current user to root which we need to allow our container
+        // to access files we've created.
+        "-m", utils::string_format("u:0:%d:1", getuid()),
+        "-m", utils::string_format("g:0:%d:1", getgid()),
+        // FIXME(morphis): We need to determine those things dynamically and
+        // error out if not subui range is set for our current user.
+        "-m", "u:1:100000:100000",
+        "-m", "g:1:100000:100000",
+        "--",
+        // FIXME(morphis): use system or in-click path
+        "/home/phablet/anbox-container",
+        "--bind", spec_.rootfs_path, "/",
         "--dev", "/dev",
         "--proc", "/proc",
-        "--unshare-user",
         "--unshare-ipc",
         "--unshare-pid",
         "--unshare-net",
         "--unshare-uts",
-        // We will take UID 0 (root) inside the container
-        "--uid", "0",
-        // We will take GID 0 (root) inside the container
-        "--gid", "0",
         "--chdir", "/",
         "--pid-file", utils::string_format("%s/pid", config::data_path()),
     };
 
     for (const auto &dir : spec_.temporary_dirs) {
-        arguments.push_back("--tmpfs");
-        arguments.push_back(dir);
+        args.push_back("--tmpfs");
+        args.push_back(dir);
     }
 
     for (const auto &path : spec_.dev_bind_paths) {
-        arguments.push_back("--dev-bind");
-        arguments.push_back(path);
-        arguments.push_back(path);
+        args.push_back("--dev-bind");
+        args.push_back(path);
+        args.push_back(path);
     }
 
     for (const auto &path : spec_.bind_paths) {
-        arguments.push_back("--bind");
-        arguments.push_back(path.first);
-        arguments.push_back(path.second);
+        args.push_back("--bind");
+        args.push_back(path.first);
+        args.push_back(path.second);
     }
 
     for (const auto &env : spec_.environment) {
-        arguments.push_back("--setenv");
-        arguments.push_back(env.first);
-        arguments.push_back(env.second);
+        args.push_back("--setenv");
+        args.push_back(env.first);
+        args.push_back(env.second);
     }
 
-    arguments.push_back(spec_.init_command);
+    args.push_back(spec_.init_command);
 
-    child_ = core::posix::fork([&]() {
-        char **it, **pargv;
-        it = pargv = new char*[arguments.size() + 2];
-        *it = strdup("bwrap");
-        it++;
-        for (auto arg : arguments) {
-            *it = ::strdup(arg.c_str());
-            it++;
-        }
-        *it = nullptr;
+    std::map<std::string,std::string> env = {
+        // lxc-usernsexec needs this as otherwise it doesn't find the
+        // newuidmap/newgidmap utilities it uses to setup the user
+        // namespace
+        { "PATH", "/usr/bin" },
+    };
 
-        if (bwrap_main(arguments.size() + 1, pargv))
-            return core::posix::exit::Status::failure;
-
-        return core::posix::exit::Status::success;
-    }, core::posix::StandardStream::empty);
-
+    child_ = core::posix::exec("/usr/bin/lxc-usernsexec", args, env, core::posix::StandardStream::empty);
     child_group_ = child_.process_group_or_throw();
 }
 

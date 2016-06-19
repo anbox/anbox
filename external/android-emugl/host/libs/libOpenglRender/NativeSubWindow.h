@@ -20,9 +20,20 @@
 
 #include <EGL/egl.h>
 
+#include <memory>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+class SubWindowHandler {
+public:
+    virtual ~SubWindowHandler() { }
+    virtual EGLNativeWindowType create_window(int x, int y, int width, int height) = 0;
+    virtual void destroy_window(EGLNativeWindowType win) = 0;
+};
+
+void registerSubWindowHandler(const std::shared_ptr<SubWindowHandler> &handler);
 
 typedef void (*SubWindowRepaintCallback)(void*);
 

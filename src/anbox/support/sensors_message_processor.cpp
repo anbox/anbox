@@ -15,27 +15,32 @@
  *
  */
 
-#include "anbox/support/hwcontrol_message_processor.h"
 #include "anbox/logger.h"
+#include "anbox/support/sensors_message_processor.h"
 
 namespace anbox {
 namespace support {
-HwControlMessageProcessor::HwControlMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
+SensorsMessageProcessor::SensorsMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
     QemudMessageProcessor(messenger) {
 }
 
-HwControlMessageProcessor::~HwControlMessageProcessor() {
+SensorsMessageProcessor::~SensorsMessageProcessor() {
 }
 
-void HwControlMessageProcessor::handle_command(const std::string &command) {
-    if (command == "power:screen_state:wake")
-        DEBUG("Got screen wake command");
-    else if (command == "power:screen_state:standby")
-        DEBUG("Got screen standby command");
-    else if (utils::string_starts_with(command, "power:light:brightness:lcd_backlight"))
-        DEBUG("Got LCD backligh brightness control command");
-    else
-        DEBUG("Unknown command '%s'", command);
+void SensorsMessageProcessor::handle_command(const std::string &command) {
+    DEBUG("command %s", command);
+    if (command == "list-sensors")
+        list_sensors();
+}
+
+void SensorsMessageProcessor::list_sensors() {
+    // We don't support sensors yet so we mark all as disabled
+    int mask = 0;
+    char buf[12];
+    snprintf(buf, sizeof(buf), "%d", mask);
+    send_header(strlen(buf));
+    messenger_->send(buf, strlen(buf));
+    finish_message();
 }
 } // namespace support
 } // namespace anbox

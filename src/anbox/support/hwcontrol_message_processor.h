@@ -18,29 +18,17 @@
 #ifndef ANBOX_SUPPORT_HWCONTROL_MESSAGE_PROCESSOR_H_
 #define ANBOX_SUPPORT_HWCONTROL_MESSAGE_PROCESSOR_H_
 
-#include <memory>
-
-#include <boost/asio.hpp>
-
-#include "anbox/runtime.h"
-#include "anbox/network/message_processor.h"
-#include "anbox/network/socket_messenger.h"
-#include "anbox/network/socket_connection.h"
+#include "anbox/support/qemud_message_processor.h"
 
 namespace anbox {
 namespace support {
-class HwControlMessageProcessor : public network::MessageProcessor {
+class HwControlMessageProcessor : public QemudMessageProcessor {
 public:
     HwControlMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
     ~HwControlMessageProcessor();
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
-
-private:
-    void process_commands();
-
-    std::shared_ptr<network::SocketMessenger> messenger_;
-    std::vector<std::uint8_t> buffer_;
+protected:
+    void handle_command(const std::string &command) override;
 };
 } // namespace graphics
 } // namespace anbox

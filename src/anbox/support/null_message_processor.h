@@ -18,11 +18,6 @@
 #ifndef ANBOX_SUPPORT_NULL_MESSAGE_PROCESSOR_H_
 #define ANBOX_SUPPORT_NULL_MESSAGE_PROCESSOR_H_
 
-#include <memory>
-
-#include <boost/asio.hpp>
-
-#include "anbox/runtime.h"
 #include "anbox/network/message_processor.h"
 
 namespace anbox {

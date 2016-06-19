@@ -17,6 +17,7 @@
 
 #include "anbox/logger.h"
 #include "anbox/graphics/gl_renderer_server.h"
+#include "anbox/graphics/mir_native_window_creator.h"
 
 #include "OpenglRender/render_api.h"
 
@@ -26,7 +27,9 @@
 
 namespace anbox {
 namespace graphics {
-GLRendererServer::GLRendererServer() {
+GLRendererServer::GLRendererServer(const std::shared_ptr<InputChannel> &input_channel) :
+    window_creator_(std::make_shared<MirNativeWindowCreator>(input_channel)) {
+
     // Force the host EGL/GLES libraries as translator implementation
     ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 1);
     ::setenv("ANDROID_GLESv1_LIB", "libGLESv1_CM.so.1", 1);
@@ -36,6 +39,8 @@ GLRendererServer::GLRendererServer() {
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize OpenGL renderer"));
 
     setStreamMode(RENDER_API_STREAM_MODE_UNIX);
+
+    registerSubWindowHandler(window_creator_);
 }
 
 GLRendererServer::~GLRendererServer() {

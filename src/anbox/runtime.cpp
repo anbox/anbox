@@ -38,7 +38,7 @@ void exception_safe_run(boost::asio::io_service& service) {
             break;
         }
         catch (const std::exception& e) {
-            std::cerr << "test" << e.what();
+            std::cerr << e.what() << std::endl;
         }
         catch (...) {
             std::cerr << "Unknown exception caught while executing boost::asio::io_service";

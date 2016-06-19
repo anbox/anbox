@@ -132,5 +132,12 @@ std::string hex_dump(const uint8_t *data, uint32_t size) {
     return buffer.str();
 }
 
+std::string get_env_value(const std::string &name, const std::string &default_value) {
+    char *value = getenv(name.c_str());
+    if (!value)
+        return default_value;
+    return std::string(value);
+}
+
 } // namespace utils
 } // namespace anbox
