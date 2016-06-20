@@ -57,5 +57,10 @@ void MirNativeWindowCreator::destroy_window(EGLNativeWindowType win) {
 
     windows_.erase(iter);
 }
+
+std::shared_ptr<MirDisplayConnection> MirNativeWindowCreator::display() const {
+    return display_connection_;
+}
+
 } // namespace graphics
 } // namespace anbox

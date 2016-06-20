@@ -18,6 +18,7 @@
 #include "anbox/logger.h"
 #include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/graphics/mir_native_window_creator.h"
+#include "anbox/graphics/mir_display_connection.h"
 
 #include "OpenglRender/render_api.h"
 
@@ -71,10 +72,15 @@ void GLRendererServer::start() {
     socket_path_ = server_addr;
     DEBUG("socket path %s", socket_path_);
 
+    auto display = window_creator_->display();
+
     // Create the window we use for rendering the output we get from the
     // Android container. This will internally construct a Mir surface
     // and use the host EGL/GLES libraries for rendering.
-    showOpenGLSubwindow(0, 0, 0, 1080, 1920, 1080, 1920, 1.0f, 0);
+    const auto width = display->horizontal_resolution();
+    const auto height = display->vertical_resolution();
+    if (!showOpenGLSubwindow(0, 0, 0, width, height, width, height, 1.0f, 0))
+        BOOST_THROW_EXCEPTION(std::runtime_error("Failed to setup GL based window"));
 }
 
 std::string GLRendererServer::socket_path() const {

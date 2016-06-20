@@ -39,6 +39,8 @@ public:
     EGLNativeWindowType create_window(int x, int y, int width, int height) override;
     void destroy_window(EGLNativeWindowType win) override;
 
+    std::shared_ptr<MirDisplayConnection> display() const;
+
 private:
     std::shared_ptr<InputChannel> input_channel_;
     std::shared_ptr<MirDisplayConnection> display_connection_;
