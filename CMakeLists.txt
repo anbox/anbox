@@ -62,7 +62,6 @@ find_package(EGL REQUIRED)
 find_package(GLESv2 REQUIRED)
 
 pkg_check_modules(MIRCLIENT REQUIRED mirclient)
-pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 
 #####################################################################
 # Enable code coverage calculation with gcov/gcovr/lcov

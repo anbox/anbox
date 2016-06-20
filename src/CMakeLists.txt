@@ -4,7 +4,6 @@ include_directories(
   ${GIO_INCLUDE_DIRS}
   ${GIO-UNIX_INCLUDE_DIRS}
   ${MIRCLIENT_INCLUDE_DIRS}
-  ${LIBEVDEV_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_SOURCE_DIR}/external/process-cpp-minimal/include
@@ -70,8 +69,6 @@ target_link_libraries(anbox-core
   ${Boost_LIBRARIES}
   ${MIRCLIENT_LDFLAGS}
   ${MIRCLIENT_LIBRARIES}
-  ${LIBEVDEV_LDFLAGS}
-  ${LIBEVDEV_LIBRARIES}
   pthread
   process-cpp
   OpenglRender)
