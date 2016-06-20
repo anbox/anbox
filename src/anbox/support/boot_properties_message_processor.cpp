@@ -42,6 +42,8 @@ void BootPropertiesMessageProcessor::list_properties() {
         // should be enough for the simple cases.
         "ro.anbox=1",
 
+        // Needed for identification within the system. Normally retrieve from
+        // kernel configuration which isn't possible in our case.
         "ro.hardware=goldfish",
 
         // Needed to let the gralloc HAL load the right implementation
