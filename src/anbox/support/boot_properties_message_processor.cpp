@@ -61,6 +61,10 @@ void BootPropertiesMessageProcessor::list_properties() {
         // we don't yet support in our host channel so we have to disable
         // those things here.
         "ro.hwui.use_gpu_pixel_buffers=0",
+
+        // This will give us a virtual on screen navigation area at the bottom
+        // of the screen we really need to navigate through the system.
+        "qemu.hw.mainkeys=0",
     };
 
     for (const auto &prop : properties) {
