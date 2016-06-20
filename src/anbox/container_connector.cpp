@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <grp.h>
 
 namespace fs = boost::filesystem;
 
@@ -75,6 +76,7 @@ int ContainerConnector::run(const std::string &path) {
 
         setuid(0);
         setgid(0);
+        setgroups(0, nullptr);
 
         chdir("/");
     });
