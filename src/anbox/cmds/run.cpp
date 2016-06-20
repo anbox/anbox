@@ -105,7 +105,12 @@ anbox::cmds::Run::Run()
         // Our uinput based event node should get root:android_input assigned on Ubuntu
         // which is enough for our phablet user (being root inside the container) to
         // read event data from it.
-        spec.dev_bind_paths.push_back({input_channel->dev_path()});
+        // FIXME(morphis): Need to reenable this once we have both sides prepared
+        // for an socket based approach.
+        // spec.dev_bind_paths.push_back({input_channel->dev_path()});
+        // Until then we forward just the host input device which needs to have
+        // proper permissions (insecure!!!) for this.
+        // $ sudo chmod 666 /dev/input/event7
         spec.dev_bind_paths.push_back({"/dev/input/event7"});
 
         auto container = Container::create(spec);
