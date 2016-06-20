@@ -56,20 +56,6 @@ public:
 private:
     Container(const Container::Spec &spec);
 
-    struct IdMapping {
-        enum class Type {
-            UID,
-            GID
-        };
-
-        Type type;
-        int hostid;
-        int nsid;
-        int range;
-    };
-
-    std::vector<IdMapping> read_id_mappings();
-
     Spec spec_;
     core::posix::ChildProcess child_;
     core::posix::ProcessGroup child_group_;

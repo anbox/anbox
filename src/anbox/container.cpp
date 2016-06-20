@@ -57,27 +57,15 @@ Container::~Container() {
     stop();
 }
 
-std::vector<Container::IdMapping> Container::read_id_mappings() {
-    std::vector<Container::IdMapping> mappings;
-
-    static const std::string subuid_path = "/etc/subuid";
-    static const std::string subgid_path = "/etc/subgid";
-
-    std::ifstream subuid_file(subuid_path);
-
-    return mappings;
-}
-
 void Container::start() {
-    DEBUG("uid %d gid %d", getuid(), getgid());
     std::vector<std::string> args = {
         // We need to setup user mapping here as lxc-usernsexec will not
         // map our current user to root which we need to allow our container
-        // to access files we've created.
+        // to access files we've created and mapped into it
         "-m", utils::string_format("u:0:%d:1", getuid()),
         "-m", utils::string_format("g:0:%d:1", getgid()),
-        // FIXME(morphis): We need to determine those things dynamically and
-        // error out if not subui range is set for our current user.
+        // For all other users inside the container we're using a subuid/
+        // subgid range which is defined on the host.
         "-m", "u:1:100000:100000",
         "-m", "g:1:100000:100000",
         "--",
