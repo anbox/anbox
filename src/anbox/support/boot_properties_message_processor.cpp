@@ -55,7 +55,7 @@ void BootPropertiesMessageProcessor::list_properties() {
 
         // TODO(morphis): Using HDPI here for now but should be adjusted to the device
         // we're running on.
-        "qemu.sf.lcd_density=240",
+        "ro.sf.lcd_density=480",
 
         // libhwui detects that we support certain GLESv3 extensions which
         // we don't yet support in our host channel so we have to disable
