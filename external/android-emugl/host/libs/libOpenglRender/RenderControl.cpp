@@ -88,6 +88,17 @@ static EGLint rcGetGLString(EGLenum name, void* buffer, EGLint bufferSize)
         len += strlen(glProtocolStr) + 1;
     }
 
+    if (name = GL_VERSION) {
+        // We're forcing version 2.0 no matter what the host provides as
+        // our emulation layer isn't prepared for anything newer (yet).
+        // This goes in parallel with filtering the extension set for
+        // any unwanted extensions. If we don't force the right version
+        // here certain parts of the system will assume API conditions
+        // which aren't met.
+        static const char *version = "OpenGL ES 2.0";
+        str = version;
+        len = strlen(str) + 1;
+    }
     if (!buffer || len > bufferSize) {
         return -len;
     }
