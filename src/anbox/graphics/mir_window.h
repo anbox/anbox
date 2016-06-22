@@ -27,14 +27,16 @@
 #include <memory>
 
 namespace anbox {
-class InputChannel;
-
+namespace input {
+class Manager;
+class Device;
+}
 namespace graphics {
 class MirDisplayConnection;
 
 class MirWindow {
 public:
-    MirWindow(const std::shared_ptr<MirDisplayConnection> &display, const std::shared_ptr<InputChannel> &input_channel);
+    MirWindow(const std::shared_ptr<MirDisplayConnection> &display, const std::shared_ptr<input::Manager> &input_manager);
     ~MirWindow();
 
     EGLNativeWindowType native_window() const;
@@ -45,7 +47,7 @@ private:
     void handle_input_event(MirInputEvent const* input_event);
     void handle_touch_event(MirTouchEvent const* touch_event);
 
-    std::shared_ptr<InputChannel> input_channel_;
+    std::shared_ptr<input::Device> input_device_;
     EGLNativeWindowType native_window_;
     MirSurface *surface_;
 };

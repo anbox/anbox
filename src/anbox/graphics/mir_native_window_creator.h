@@ -24,8 +24,9 @@
 #include <map>
 
 namespace anbox {
-class InputChannel;
-
+namespace input {
+class Manager;
+}
 namespace graphics {
 
 class MirDisplayConnection;
@@ -33,7 +34,7 @@ class MirWindow;
 
 class MirNativeWindowCreator : public SubWindowHandler {
 public:
-    MirNativeWindowCreator(const std::shared_ptr<InputChannel> &input_channel);
+    MirNativeWindowCreator(const std::shared_ptr<input::Manager> &input_channel);
     virtual ~MirNativeWindowCreator();
 
     EGLNativeWindowType create_window(int x, int y, int width, int height) override;
@@ -42,7 +43,7 @@ public:
     std::shared_ptr<MirDisplayConnection> display() const;
 
 private:
-    std::shared_ptr<InputChannel> input_channel_;
+    std::shared_ptr<input::Manager> input_manager_;
     std::shared_ptr<MirDisplayConnection> display_connection_;
     std::map<EGLNativeWindowType,std::shared_ptr<MirWindow>> windows_;
 };

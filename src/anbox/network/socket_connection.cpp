@@ -37,10 +37,12 @@ namespace anbox {
 namespace network {
 SocketConnection::SocketConnection(
     std::shared_ptr<MessageReceiver> const& message_receiver,
+    std::shared_ptr<MessageSender> const& message_sender,
     int id_,
     std::shared_ptr<Connections<SocketConnection>> const& connections,
     std::shared_ptr<MessageProcessor> const& processor)
      : message_receiver_(message_receiver),
+       message_sender_(message_sender),
        id_(id_),
        connections_(connections),
        processor_(processor)
@@ -49,6 +51,10 @@ SocketConnection::SocketConnection(
 
 SocketConnection::~SocketConnection() noexcept
 {
+}
+
+void SocketConnection::send(char const* data, size_t length) {
+    message_sender_->send(data, length);
 }
 
 void SocketConnection::read_next_message()

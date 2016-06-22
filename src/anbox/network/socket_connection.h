@@ -21,6 +21,7 @@
 
 #include "anbox/network/connections.h"
 #include "anbox/network/message_receiver.h"
+#include "anbox/network/message_sender.h"
 #include "anbox/network/message_processor.h"
 
 #include <boost/asio.hpp>
@@ -34,6 +35,7 @@ class SocketConnection
 public:
     SocketConnection(
         std::shared_ptr<MessageReceiver> const& message_receiver,
+        std::shared_ptr<MessageSender> const& message_sender,
         int id,
         std::shared_ptr<Connections<SocketConnection>> const& connections,
         std::shared_ptr<MessageProcessor> const& processor);
@@ -42,6 +44,7 @@ public:
 
     int id() const { return id_; }
 
+    void send(char const* data, size_t length);
     void read_next_message();
 
 private:
@@ -49,6 +52,7 @@ private:
     void on_read_size(const boost::system::error_code& ec, std::size_t bytes_read);
 
     std::shared_ptr<MessageReceiver> const message_receiver_;
+    std::shared_ptr<MessageSender>  const message_sender_;
     int const id_;
     std::shared_ptr<Connections<SocketConnection>> const connections_;
     std::shared_ptr<MessageProcessor> const processor_;

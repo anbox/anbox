@@ -15,34 +15,33 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
-#define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
+#ifndef ANBOX_INPUT_MANAGER_H_
+#define ANBOX_INPUT_MANAGER_H_
 
-#include <string>
 #include <memory>
+#include <map>
 
 namespace anbox {
+class Runtime;
 namespace input {
-class Manager;
-}
-namespace graphics {
-class MirNativeWindowCreator;
-
-class GLRendererServer {
+class Device;
+class Manager {
 public:
-    GLRendererServer(const std::shared_ptr<input::Manager> &input_manager);
-    ~GLRendererServer();
+    Manager(const std::shared_ptr<Runtime> &runtime);
+    ~Manager();
 
-    void start();
+    std::shared_ptr<Device> create_device();
 
-    std::string socket_path() const;
+    void generate_mappings(std::map<std::string,std::string> &target);
 
 private:
-    std::string socket_path_;
-    std::shared_ptr<MirNativeWindowCreator> window_creator_;
-};
+    std::uint32_t next_id();
+    std::string build_device_path(const std::uint32_t &id);
 
-} // namespace graphics
+    std::shared_ptr<Runtime> runtime_;
+    std::map<std::uint32_t,std::shared_ptr<Device>> devices_;
+};
+} // namespace input
 } // namespace anbox
 
 #endif

@@ -18,18 +18,15 @@
 #include "anbox/graphics/mir_native_window_creator.h"
 #include "anbox/graphics/mir_display_connection.h"
 #include "anbox/graphics/mir_window.h"
-#include "anbox/input_channel.h"
+#include "anbox/input/manager.h"
 
 #include <boost/throw_exception.hpp>
 
 namespace anbox {
 namespace graphics {
-MirNativeWindowCreator::MirNativeWindowCreator(const std::shared_ptr<InputChannel> &input_channel) :
-    input_channel_(input_channel),
+MirNativeWindowCreator::MirNativeWindowCreator(const std::shared_ptr<input::Manager> &input_manager) :
+    input_manager_(input_manager),
     display_connection_(std::make_shared<MirDisplayConnection>()) {
-
-    input_channel_->setup(display_connection_->horizontal_resolution(),
-                          display_connection_->vertical_resolution());
 }
 
 MirNativeWindowCreator::~MirNativeWindowCreator() {
@@ -44,7 +41,7 @@ EGLNativeWindowType MirNativeWindowCreator::create_window(int x, int y, int widt
     if (windows_.size() > 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("We currently only allow a single native window"));
 
-    auto window = std::make_shared<MirWindow>(display_connection_, input_channel_);
+    auto window = std::make_shared<MirWindow>(display_connection_, input_manager_);
     windows_.insert({window->native_window(), window});
 
     return window->native_window();

@@ -28,7 +28,7 @@
 #include "anbox/network/published_socket_connector.h"
 #include "anbox/network/qemu_pipe_connection_creator.h"
 #include "anbox/graphics/gl_renderer_server.h"
-#include "anbox/input_channel.h"
+#include "anbox/input/manager.h"
 
 #include <sys/prctl.h>
 
@@ -67,9 +67,9 @@ anbox::cmds::Run::Run()
 
         auto rt = Runtime::create();
 
-        auto input_channel = std::make_shared<InputChannel>();
+        auto input_manager = std::make_shared<input::Manager>(rt);
 
-        auto renderer = std::make_shared<graphics::GLRendererServer>(input_channel);
+        auto renderer = std::make_shared<graphics::GLRendererServer>(input_manager);
         renderer->start();
 
         // Socket which will be used by the qemud service inside the Android
@@ -91,6 +91,8 @@ anbox::cmds::Run::Run()
         spec.bind_paths.insert({qemud_connector->socket_file(), "/dev/qemud"});
         spec.bind_paths.insert({qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"});
 
+        input_manager->generate_mappings(spec.bind_paths);
+
         spec.temporary_dirs.push_back("/data");
         spec.temporary_dirs.push_back("/cache");
         spec.temporary_dirs.push_back("/storage");
@@ -102,16 +104,6 @@ anbox::cmds::Run::Run()
         // Required for shared memory allocations. TODO(morphis): Letting the guest
         // access should be ok but needs more investigation.
         spec.dev_bind_paths.push_back("/dev/ashmem");
-        // Our uinput based event node should get root:android_input assigned on Ubuntu
-        // which is enough for our phablet user (being root inside the container) to
-        // read event data from it.
-        // FIXME(morphis): Need to reenable this once we have both sides prepared
-        // for an socket based approach.
-        // spec.dev_bind_paths.push_back({input_channel->dev_path()});
-        // Until then we forward just the host input device which needs to have
-        // proper permissions (insecure!!!) for this.
-        // $ sudo chmod 666 /dev/input/event7
-        spec.dev_bind_paths.push_back({"/dev/input/event7"});
 
         auto container = Container::create(spec);
 

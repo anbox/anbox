@@ -52,7 +52,8 @@ void QemuPipeConnectionCreator::create_connection_for(
     if (!processor)
         BOOST_THROW_EXCEPTION(std::runtime_error("Unhandled client type"));
 
-    auto const& connection = std::make_shared<SocketConnection>(messenger, next_id(), connections_, processor);
+    auto const& connection = std::make_shared<SocketConnection>(
+                messenger, messenger, next_id(), connections_, processor);
     connections_->add(connection);
     connection->read_next_message();
 

@@ -40,12 +40,16 @@ set(SOURCES
     anbox/network/socket_connection.cpp
     anbox/network/socket_messenger.cpp
     anbox/network/delegate_message_processor.h
+    anbox/network/delegate_connection_creator.h
 
     anbox/graphics/opengles_message_processor.cpp
     anbox/graphics/mir_display_connection.cpp
     anbox/graphics/mir_window.cpp
     anbox/graphics/mir_native_window_creator.cpp
     anbox/graphics/gl_renderer_server.cpp
+
+    anbox/input/manager.cpp
+    anbox/input/device.cpp
 
     anbox/support/null_message_processor.cpp
     anbox/support/qemud_message_processor.cpp

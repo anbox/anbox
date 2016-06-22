@@ -28,8 +28,8 @@
 
 namespace anbox {
 namespace graphics {
-GLRendererServer::GLRendererServer(const std::shared_ptr<InputChannel> &input_channel) :
-    window_creator_(std::make_shared<MirNativeWindowCreator>(input_channel)) {
+GLRendererServer::GLRendererServer(const std::shared_ptr<input::Manager> &input_manager) :
+    window_creator_(std::make_shared<MirNativeWindowCreator>(input_manager)) {
 
     // Force the host EGL/GLES libraries as translator implementation
     ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 1);

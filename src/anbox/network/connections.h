@@ -35,7 +35,7 @@ public:
     void add(std::shared_ptr<Connection> const& connection)
     {
         std::unique_lock<std::mutex> lock(mutex);
-        connections[connection->id()] = connection;
+        connections.insert({connection->id(), connection});
     }
 
     void remove(int id)
@@ -56,6 +56,15 @@ public:
         connections.clear();
     }
 
+    size_t size()
+    {
+        return connections.size();
+    }
+
+    std::shared_ptr<Connection> at(size_t n)
+    {
+        return connections.at(n);
+    }
 
 private:
     Connections(Connections const&) = delete;

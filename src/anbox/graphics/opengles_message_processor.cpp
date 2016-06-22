@@ -44,6 +44,7 @@ void OpenGlesMessageProcessor::connect_and_attach(const std::string &socket_path
     messenger_ = std::make_shared<network::SocketMessenger>(socket);
     renderer_ = std::make_shared<network::SocketConnection>(
                     messenger_,
+                    messenger_,
                     0,
                     std::make_shared<network::Connections<network::SocketConnection>>(),
                     std::make_shared<network::DelegateMessageProcessor>([&](const std::vector<std::uint8_t> &data) {
