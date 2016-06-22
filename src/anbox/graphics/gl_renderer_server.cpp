@@ -65,20 +65,19 @@ void GLRendererServer::start() {
     log_funcs.coarse = logger_write;
     log_funcs.fine = logger_write;
 
+    auto display = window_creator_->display();
+    const auto width = display->horizontal_resolution();
+    const auto height = display->vertical_resolution();
+
     char server_addr[256] = { 0 };
-    if (!initOpenGLRenderer(1080, 1920, true, server_addr, sizeof(server_addr), log_funcs, logger_write))
+    if (!initOpenGLRenderer(width, height, true, server_addr, sizeof(server_addr), log_funcs, logger_write))
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to setup OpenGL renderer"));
 
     socket_path_ = server_addr;
-    DEBUG("socket path %s", socket_path_);
-
-    auto display = window_creator_->display();
 
     // Create the window we use for rendering the output we get from the
     // Android container. This will internally construct a Mir surface
     // and use the host EGL/GLES libraries for rendering.
-    const auto width = display->horizontal_resolution();
-    const auto height = display->vertical_resolution();
     if (!showOpenGLSubwindow(0, 0, 0, width, height, width, height, 1.0f, 0))
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to setup GL based window"));
 }
