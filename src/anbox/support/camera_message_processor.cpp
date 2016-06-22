@@ -39,16 +39,17 @@ bool CameraMessageProcessor::process_data(const std::vector<std::uint8_t> &data)
 }
 
 void CameraMessageProcessor::process_commands() {
-    while (true) {
-        size_t size;
-        for (size = 0; size < buffer_.size(); size++) {
+    while (buffer_.size() > 0) {
+        size_t size = 0;
+        while (size < buffer_.size()) {
             if (buffer_.at(size) == 0x0)
                 break;
+            size++;
         }
 
         std::string command;
         command.insert(0, reinterpret_cast<const char*>(buffer_.data()), size);
-        buffer_.erase(buffer_.begin(), buffer_.begin() + size);
+        buffer_.erase(buffer_.begin(), buffer_.begin() + size + 1);
 
         handle_command(command);
     }
