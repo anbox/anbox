@@ -48,7 +48,7 @@
         </entry>
       </file>
       <file leaf-file-name="MainApplication.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/MainApplication.java">
+        <entry file="file://$PROJECT_DIR$/java/org/anbox/MainApplication.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
@@ -61,7 +61,7 @@
         </entry>
       </file>
       <file leaf-file-name="MainActivity.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/MainActivity.java">
+        <entry file="file://$PROJECT_DIR$/java/org/anbox/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="9" column="44" selection-start-line="9" selection-start-column="44" selection-end-line="9" selection-end-column="44" />
@@ -71,7 +71,7 @@
         </entry>
       </file>
       <file leaf-file-name="KeyButtonView.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/KeyButtonView.java">
+        <entry file="file://$PROJECT_DIR$/java/org/anbox/KeyButtonView.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -83,7 +83,7 @@
         </entry>
       </file>
       <file leaf-file-name="BootReceiver.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/BootReceiver.java">
+        <entry file="file://$PROJECT_DIR$/java/org/anbox/BootReceiver.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
@@ -93,7 +93,7 @@
         </entry>
       </file>
       <file leaf-file-name="NavigationBarView.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/NavigationBarView.java">
+        <entry file="file://$PROJECT_DIR$/java/org/anbox/NavigationBarView.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
@@ -107,7 +107,7 @@
         </entry>
       </file>
       <file leaf-file-name="NavBar.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/NavBar.java">
+        <entry file="file://$PROJECT_DIR$/java/org/anbox/NavBar.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -117,7 +117,7 @@
         </entry>
       </file>
       <file leaf-file-name="NotificationListener.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/NotificationListener.java">
+        <entry file="file://$PROJECT_DIR$/java/org/anbox/NotificationListener.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="9" column="71" selection-start-line="9" selection-start-column="71" selection-end-line="9" selection-end-column="71" />
@@ -139,11 +139,11 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/java/org/anbox/shashlikssytem/MainApplication.java" />
-        <option value="$PROJECT_DIR$/java/org/anbox/shashlikssytem/NavigationBarView.java" />
-        <option value="$PROJECT_DIR$/java/org/anbox/shashlikssytem/NotificationListener.java" />
-        <option value="$PROJECT_DIR$/java/org/anbox/shashlikssytem/MainActivity.java" />
-        <option value="$PROJECT_DIR$/java/org/anbox/shashlikssytem/BootReceiver.java" />
+        <option value="$PROJECT_DIR$/java/org/anbox/MainApplication.java" />
+        <option value="$PROJECT_DIR$/java/org/anbox/NavigationBarView.java" />
+        <option value="$PROJECT_DIR$/java/org/anbox/NotificationListener.java" />
+        <option value="$PROJECT_DIR$/java/org/anbox/MainActivity.java" />
+        <option value="$PROJECT_DIR$/java/org/anbox/BootReceiver.java" />
       </list>
     </option>
   </component>
@@ -215,10 +215,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="anbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="shashlikssytem" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -529,7 +525,7 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/NavigationBarView.java">
+    <entry file="file://$PROJECT_DIR$/java/org/anbox/NavigationBarView.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
@@ -541,7 +537,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/NavBar.java">
+    <entry file="file://$PROJECT_DIR$/java/org/anbox/NavBar.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -549,7 +545,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/NotificationListener.java">
+    <entry file="file://$PROJECT_DIR$/java/org/anbox/NotificationListener.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="9" column="71" selection-start-line="9" selection-start-column="71" selection-end-line="9" selection-end-column="71" />
@@ -557,7 +553,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/MainApplication.java">
+    <entry file="file://$PROJECT_DIR$/java/org/anbox/MainApplication.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
@@ -568,7 +564,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/MainActivity.java">
+    <entry file="file://$PROJECT_DIR$/java/org/anbox/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="9" column="44" selection-start-line="9" selection-start-column="44" selection-end-line="9" selection-end-column="44" />
@@ -576,7 +572,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/KeyButtonView.java">
+    <entry file="file://$PROJECT_DIR$/java/org/anbox/KeyButtonView.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -586,7 +582,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/java/org/anbox/shashlikssytem/BootReceiver.java">
+    <entry file="file://$PROJECT_DIR$/java/org/anbox/BootReceiver.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />

@@ -23,6 +23,6 @@ public class NotificationListener extends NotificationListenerService {
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-        Log.e("ShashlikController", "new notification");
+        Log.e("Anbox", "new notification");
     }
 }
