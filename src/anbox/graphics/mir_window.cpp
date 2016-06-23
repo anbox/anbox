@@ -45,7 +45,7 @@ public:
 
     void erase(int id)
     {
-        auto it = find_or_create(slots_.begin(), slots_.end(), id);
+        auto it = std::find(slots_.begin(), slots_.end(), id);
 
         if (it != slots_.end()) {
             auto index = std::distance(slots_.begin(), it);
