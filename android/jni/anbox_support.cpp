@@ -20,7 +20,11 @@
 
 #define LOG_TAG "AnboxSupport"
 
+#ifdef ANDROID
 #include <utils/Log.h>
+#else
+#define ALOGI(...)
+#endif
 
 extern "C" jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     ALOGI("Successfully loaded Anbox support library");
