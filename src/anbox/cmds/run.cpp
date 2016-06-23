@@ -97,6 +97,11 @@ anbox::cmds::Run::Run()
         spec.temporary_dirs.push_back("/cache");
         spec.temporary_dirs.push_back("/storage");
         spec.temporary_dirs.push_back("/dev/input");
+
+        // NOTE: We're not mapping /dev/alarm here as if its not available
+        // Android will automatically use its timerfd based fallback
+        // implementation instead.
+
         // We isolate the container from accessing binder nodes of the host
         // through the IPC namespace which gets support for binder with extra
         // patches we require.
