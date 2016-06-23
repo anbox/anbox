@@ -14,7 +14,7 @@ cp -r $OUTDIR/system/* rootfs/system/
 
 mkdir rootfs/cache
 
-cp filesystem_config.txt rootfs/
+find out -name filesystem_config.txt -exec cp {} rootfs \;
 cp anbox-init.sh rootfs/
 chmod +x rootfs/anbox-init.sh
 
