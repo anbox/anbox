@@ -21,6 +21,49 @@
 #include "anbox/input/manager.h"
 #include "anbox/input/device.h"
 
+namespace {
+class SlotFingerMapper {
+public:
+    int find_or_create(int id) {
+        auto iter = std::find(slots_.begin(), slots_.end(), id);
+        if (iter != slots_.end())
+            return std::distance(slots_.begin(), iter);
+
+        std::vector<int>::size_type i;
+        for(i = 0;i < slots_.size();i++) {
+            if (slots_[i] == -1) {
+                slots_[i] = id;
+                return i;
+            }
+        }
+
+        slots_.resize(slots_.size() + 1);
+        slots_[slots_.size() - 1] = id;
+
+        return slots_.size() - 1;
+    }
+
+    void erase(int id)
+    {
+        auto it = find_or_create(slots_.begin(), slots_.end(), id);
+
+        if (it != slots_.end()) {
+            auto index = std::distance(slots_.begin(), it);
+            slots_[index] = -1;
+            if (index == slots_.size()-1) {
+                while (slots_[index] == -1) {
+                    slots_.resize(index);
+                    index--;
+                }
+            }
+        }
+    }
+
+private:
+    std::vector<int> slots_;
+};
+}
+
 namespace anbox {
 namespace graphics {
 MirWindow::MirWindow(const std::shared_ptr<MirDisplayConnection> &display, const std::shared_ptr<input::Manager> &input_manager) :
@@ -85,58 +128,18 @@ MirWindow::MirWindow(const std::shared_ptr<MirDisplayConnection> &display, const
 MirWindow::~MirWindow() {
 }
 
-static std::vector<int> slot_to_fingerId;
-
-int find_slot(int id)
-{
-    auto iter = std::find(slot_to_fingerId.begin(), slot_to_fingerId.end(), id);
-    if (iter != slot_to_fingerId.end())
-        return std::distance(slot_to_fingerId.begin(), iter);
-
-    std::vector<int>::size_type i;
-    for(i = 0;i < slot_to_fingerId.size();i++) {
-        if (slot_to_fingerId[i] == -1) {
-            slot_to_fingerId[i] = id;
-            return i;
-        }
-    }
-
-    slot_to_fingerId.resize(slot_to_fingerId.size()+1);
-    slot_to_fingerId[slot_to_fingerId.size()-1] = id;
-
-    return slot_to_fingerId.size() - 1;
-}
-
-void erase_slot(int id)
-{
-    auto it = find(slot_to_fingerId.begin(), slot_to_fingerId.end(), id);
-
-    if (it != slot_to_fingerId.end()) {
-        auto index = std::distance(slot_to_fingerId.begin(), it);
-        slot_to_fingerId[index] = -1;
-        if (index == slot_to_fingerId.size()-1) {
-            while (slot_to_fingerId[index] == -1) {
-                slot_to_fingerId.resize(index);
-                index--;
-            }
-        }
-    }
-}
-
 void MirWindow::handle_touch_event(MirTouchEvent const* touch_event) {
     const auto point_count = mir_touch_event_point_count(touch_event);
 
-    for (int n = 0; n < point_count; n++) {
+    static SlotFingerMapper mapper;
+
+    for (size_t n = 0; n < point_count; n++) {
         const auto id = mir_touch_event_id(touch_event, n);
-        const auto slot = find_slot(id);
+        const auto slot = mapper.find_or_create(id);
         const auto x = mir_touch_event_axis_value(touch_event, n, mir_touch_axis_x);
         const auto y = mir_touch_event_axis_value(touch_event, n, mir_touch_axis_y);
-        const auto pressure = mir_touch_event_axis_value(touch_event, n, mir_touch_axis_pressure);
         const auto touch_major = mir_touch_event_axis_value(touch_event, n, mir_touch_axis_touch_major);
         const auto touch_minor = mir_touch_event_axis_value(touch_event, n, mir_touch_axis_touch_minor);
-
-        DEBUG("Event: id %d, slot %d, x %f, y %f, pressure %f",
-              id, slot, x, y, pressure);
 
         std::vector<input::Device::Event> events;
 
@@ -147,7 +150,7 @@ void MirWindow::handle_touch_event(MirTouchEvent const* touch_event) {
             events.push_back({ EV_KEY, BTN_TOUCH, 0 });
             events.push_back({ EV_KEY, BTN_TOOL_FINGER, 0 });
             events.push_back({ EV_SYN, SYN_REPORT, 0 });
-            erase_slot(id);
+            mapper.erase(id);
             break;
         case mir_touch_action_down:
             events.push_back({ EV_ABS, ABS_MT_SLOT, slot });
