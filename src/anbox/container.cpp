@@ -76,7 +76,6 @@ void Container::start() {
         "--proc", "/proc",
         "--unshare-ipc",
         "--unshare-pid",
-        "--unshare-net",
         "--unshare-uts",
         "--chdir", "/",
         "--pid-file", utils::string_format("%s/pid", config::data_path()),

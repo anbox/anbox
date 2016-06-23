@@ -57,7 +57,6 @@ int ContainerConnector::run(const std::string &path) {
                                                           NamespaceType::pid,
                                                           NamespaceType::uts,
                                                           NamespaceType::ipc,
-                                                          NamespaceType::net,
                                                       }, pid);
 
     // A few things we want to preset in our env within the container shell
