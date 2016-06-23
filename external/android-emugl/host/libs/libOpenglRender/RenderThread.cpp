@@ -85,6 +85,7 @@ intptr_t RenderThread::main() {
             break;
         }
 
+#if 0
         //
         // log received bandwidth statistics
         //
@@ -96,6 +97,7 @@ intptr_t RenderThread::main() {
             stats_totalBytes = 0;
             stats_t0 = GetCurrentTimeMS();
         }
+#endif
 
         //
         // dump stream to file if needed
