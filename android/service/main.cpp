@@ -15,19 +15,6 @@
  *
  */
 
-package org.anbox;
-
-import android.app.Application;
-
-public class MainApplication extends Application {
-    private ApplicationManager mApplicationManager;
-    private NavBar mNavBar;
-
-    public MainApplication() {
-    }
-
-    public void startServices() {
-        mApplicationManager = new ApplicationManager();
-        mNavBar = new NavBar(this);
-    }
+int main(int, char**) {
+    return 0;
 }

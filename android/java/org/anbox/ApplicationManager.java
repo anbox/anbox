@@ -15,19 +15,15 @@
  *
  */
 
-#include <JNIHelp.h>
-#include <jni.h>
+package org.anbox;
 
-#define LOG_TAG "AnboxSupport"
+import android.util.Log;
+import java.lang.ref.WeakReference;
 
-#ifdef ANDROID
-#include <utils/Log.h>
-#else
-#define ALOGI(...)
-#endif
+public class ApplicationManager {
+    static final String TAG = "AnboxApplicationManager";
 
-extern "C" jint JNI_OnLoad(JavaVM* vm, void* reserved) {
-    ALOGI("Successfully loaded Anbox support library");
-
-    return JNI_VERSION_1_4;
+    public ApplicationManager() {
+        Log.i(TAG, "Starting up native part..");
+    }
 }
