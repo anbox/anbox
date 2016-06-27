@@ -66,8 +66,8 @@ void Container::start() {
         "-m", utils::string_format("g:0:%d:1", getgid()),
         // For all other users inside the container we're using a subuid/
         // subgid range which is defined on the host.
-        "-m", "u:1:100000:100000",
-        "-m", "g:1:100000:100000",
+        "-m", "u:1:100000:65536",
+        "-m", "g:1:100000:65536",
         "--",
         // FIXME(morphis): use system or in-click path
         "/home/phablet/anbox-container",
