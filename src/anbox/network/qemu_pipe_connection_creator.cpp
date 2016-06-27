@@ -27,6 +27,7 @@
 #include "anbox/support/sensors_message_processor.h"
 #include "anbox/support/camera_message_processor.h"
 #include "anbox/support/fingerprint_message_processor.h"
+#include "anbox/support/gsm_message_processor.h"
 
 namespace ba = boost::asio;
 
@@ -56,8 +57,6 @@ void QemuPipeConnectionCreator::create_connection_for(
                 messenger, messenger, next_id(), connections_, processor);
     connections_->add(connection);
     connection->read_next_message();
-
-    DEBUG("id %i", connection->id());
 }
 
 QemuPipeConnectionCreator::client_type QemuPipeConnectionCreator::identify_client(
@@ -94,6 +93,8 @@ QemuPipeConnectionCreator::client_type QemuPipeConnectionCreator::identify_clien
         return client_type::qemud_camera;
     else if (utils::string_starts_with(identifier_and_args, "pipe:qemud:fingerprintlisten"))
         return client_type::qemud_fingerprint;
+    else if (utils::string_starts_with(identifier_and_args, "pipe:qemud:gsm"))
+        return client_type::qemud_gsm;
 
     return client_type::invalid;
 }
@@ -111,6 +112,8 @@ std::shared_ptr<MessageProcessor> QemuPipeConnectionCreator::create_processor(co
         return std::make_shared<support::CameraMessageProcessor>(messenger);
     else if (type == client_type::qemud_fingerprint)
         return std::make_shared<support::FingerprintMessageProcessor>(messenger);
+    else if (type == client_type::qemud_gsm)
+        return std::make_shared<support::GsmMessageProcessor>(messenger);
 
     return std::make_shared<support::NullMessageProcessor>();
 }

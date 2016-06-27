@@ -1,0 +1,29 @@
+include_directories(
+  ${Boost_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/src
+)
+
+macro(ANBOX_ADD_TEST test_name src)
+  add_executable(
+    ${test_name}
+    ${src}
+  )
+
+  target_link_libraries(
+    ${test_name}
+
+    anbox-core
+
+    gmock
+    gmock_main
+
+    ${ARGN}
+
+    ${Boost_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
+  )
+
+  add_test(${test_name} ${CMAKE_CURRENT_BINARY_DIR}/${test_name} --gtest_filter=*-*requires*)
+endmacro(ANBOX_ADD_TEST)
+
+add_subdirectory(anbox)

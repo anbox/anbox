@@ -50,6 +50,7 @@ public:
         qemud_sensors,
         qemud_camera,
         qemud_fingerprint,
+        qemud_gsm,
     };
 
 private:
