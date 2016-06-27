@@ -15,33 +15,16 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
-#define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
+#include "anbox/graphics/window_creator.h"
 
-#include <string>
-#include <memory>
 
 namespace anbox {
-namespace input {
-class Manager;
-} // namespace input
 namespace graphics {
-class WindowCreator;
-class GLRendererServer {
-public:
-    GLRendererServer(const std::shared_ptr<WindowCreator> &window_creator);
-    ~GLRendererServer();
+WindowCreator::WindowCreator(const std::shared_ptr<input::Manager> &input_manager) :
+    input_manager_(input_manager) {
+}
 
-    void start();
-
-    std::string socket_path() const;
-
-private:
-    std::string socket_path_;
-    std::shared_ptr<WindowCreator> window_creator_;
-};
-
+WindowCreator::~WindowCreator() {
+}
 } // namespace graphics
 } // namespace anbox
-
-#endif

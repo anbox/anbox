@@ -29,6 +29,8 @@
 #include "anbox/network/qemu_pipe_connection_creator.h"
 #include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/input/manager.h"
+#include "anbox/ubuntu/platform_server.h"
+#include "anbox/ubuntu/window_creator.h"
 
 #include <sys/prctl.h>
 
@@ -69,7 +71,8 @@ anbox::cmds::Run::Run()
 
         auto input_manager = std::make_shared<input::Manager>(rt);
 
-        auto renderer = std::make_shared<graphics::GLRendererServer>(input_manager);
+        auto window_creator = std::make_shared<ubuntu::WindowCreator>(input_manager);
+        auto renderer = std::make_shared<graphics::GLRendererServer>(window_creator);
         renderer->start();
 
         // Socket which will be used by the qemud service inside the Android

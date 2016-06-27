@@ -43,10 +43,8 @@ set(SOURCES
     anbox/network/delegate_connection_creator.h
 
     anbox/graphics/opengles_message_processor.cpp
-    anbox/graphics/mir_display_connection.cpp
-    anbox/graphics/mir_window.cpp
-    anbox/graphics/mir_native_window_creator.cpp
     anbox/graphics/gl_renderer_server.cpp
+    anbox/graphics/window_creator.cpp
 
     anbox/input/manager.cpp
     anbox/input/device.cpp
@@ -58,6 +56,11 @@ set(SOURCES
     anbox/support/sensors_message_processor.cpp
     anbox/support/camera_message_processor.cpp
     anbox/support/fingerprint_message_processor.cpp
+
+    anbox/ubuntu/platform_server.cpp
+    anbox/ubuntu/mir_display_connection.cpp
+    anbox/ubuntu/window_creator.cpp
+    anbox/ubuntu/window.cpp
 
     anbox/cmds/version.cpp
     anbox/cmds/run.cpp

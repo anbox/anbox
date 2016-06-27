@@ -15,40 +15,31 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_MIR_DISPLAY_CONNECTION_H_
-#define ANBOX_GRAPHICS_MIR_DISPLAY_CONNECTION_H_
+#ifndef ANBOX_GRAPHICS_WINDOW_CREATOR_H_
+#define ANBOX_GRAPHICS_WINDOW_CREATOR_H_
 
-#define MIR_EGL_PLATFORM
-
-#include <mirclient/mir_toolkit/mir_client_library.h>
-
-#include <EGL/egl.h>
+#include "external/android-emugl/host/libs/libOpenglRender/NativeSubWindow.h"
 
 namespace anbox {
+namespace input {
+class Manager;
+} // namespace input
 namespace graphics {
-
-class MirDisplayConnection {
+class WindowCreator : public SubWindowHandler {
 public:
-    MirDisplayConnection();
-    ~MirDisplayConnection();
+    WindowCreator(const std::shared_ptr<input::Manager> &input_manager);
+    virtual ~WindowCreator();
 
-    MirPixelFormat default_pixel_format() const;
+    struct DisplayInfo {
+        int horizontal_resolution;
+        int vertical_resolution;
+    };
 
-    MirConnection* connection() const;
-    EGLNativeDisplayType native_display() const;
+    virtual DisplayInfo display_info() const = 0;
 
-    int output_id() const;
-    int vertical_resolution() const;
-    int horizontal_resolution() const;
-
-private:
-    MirConnection *connection_;
-    int output_id_;
-    int vertical_resolution_;
-    int horizontal_resolution_;
+protected:
+    std::shared_ptr<input::Manager> input_manager_;
 };
-
 } // namespace graphics
 } // namespace anbox
-
 #endif

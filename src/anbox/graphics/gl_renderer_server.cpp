@@ -17,8 +17,7 @@
 
 #include "anbox/logger.h"
 #include "anbox/graphics/gl_renderer_server.h"
-#include "anbox/graphics/mir_native_window_creator.h"
-#include "anbox/graphics/mir_display_connection.h"
+#include "anbox/graphics/window_creator.h"
 
 #include "OpenglRender/render_api.h"
 
@@ -28,8 +27,8 @@
 
 namespace anbox {
 namespace graphics {
-GLRendererServer::GLRendererServer(const std::shared_ptr<input::Manager> &input_manager) :
-    window_creator_(std::make_shared<MirNativeWindowCreator>(input_manager)) {
+GLRendererServer::GLRendererServer(const std::shared_ptr<WindowCreator> &window_creator) :
+    window_creator_(window_creator) {
 
     // Force the host EGL/GLES libraries as translator implementation
     ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 1);
@@ -65,9 +64,9 @@ void GLRendererServer::start() {
     log_funcs.coarse = logger_write;
     log_funcs.fine = logger_write;
 
-    auto display = window_creator_->display();
-    const auto width = display->horizontal_resolution();
-    const auto height = display->vertical_resolution();
+    auto display_info = window_creator_->display_info();
+    const auto width = display_info.horizontal_resolution;
+    const auto height = display_info.vertical_resolution;
 
     char server_addr[256] = { 0 };
     if (!initOpenGLRenderer(width, height, true, server_addr, sizeof(server_addr), log_funcs, logger_write))

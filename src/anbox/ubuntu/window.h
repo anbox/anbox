@@ -15,29 +15,28 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_MIR_WINDOW_H_
-#define ANBOX_GRAPHICS_MIR_WINDOW_H_
-
-#define MIR_EGL_PLATFORM
-
-#include <mirclient/mir_toolkit/mir_client_library.h>
+#ifndef ANBOX_UBUNTU_WINDOW_H_
+#define ANBOX_UBUNTU_WINDOW_H_
 
 #include <EGL/egl.h>
 
 #include <memory>
 
+#include <mirclient/mir_toolkit/mir_client_library.h>
+
 namespace anbox {
 namespace input {
 class Manager;
 class Device;
-}
-namespace graphics {
+} // namespace input
+namespace ubuntu {
 class MirDisplayConnection;
-
-class MirWindow {
+class Window {
 public:
-    MirWindow(const std::shared_ptr<MirDisplayConnection> &display, const std::shared_ptr<input::Manager> &input_manager);
-    ~MirWindow();
+    Window(const std::shared_ptr<MirDisplayConnection> &display,
+           const std::shared_ptr<input::Manager> &input_manager,
+           int width, int height);
+    ~Window();
 
     EGLNativeWindowType native_window() const;
 
@@ -51,8 +50,7 @@ private:
     EGLNativeWindowType native_window_;
     MirSurface *surface_;
 };
-
-} // namespace graphics
+} // namespace bridge
 } // namespace anbox
 
 #endif

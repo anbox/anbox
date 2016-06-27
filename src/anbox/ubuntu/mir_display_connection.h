@@ -15,33 +15,38 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
-#define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
+#ifndef ANBOX_UBUNTU_MIR_DISPLAY_CONNECTION_H_
+#define ANBOX_UBUNTU_MIR_DISPLAY_CONNECTION_H_
 
-#include <string>
-#include <memory>
+#define MIR_EGL_PLATFORM
+
+#include <mirclient/mir_toolkit/mir_client_library.h>
+
+#include <EGL/egl.h>
 
 namespace anbox {
-namespace input {
-class Manager;
-} // namespace input
-namespace graphics {
-class WindowCreator;
-class GLRendererServer {
+namespace ubuntu {
+class MirDisplayConnection {
 public:
-    GLRendererServer(const std::shared_ptr<WindowCreator> &window_creator);
-    ~GLRendererServer();
+    MirDisplayConnection();
+    ~MirDisplayConnection();
 
-    void start();
+    MirPixelFormat default_pixel_format() const;
 
-    std::string socket_path() const;
+    MirConnection* connection() const;
+    EGLNativeDisplayType native_display() const;
+
+    int output_id() const;
+    int vertical_resolution() const;
+    int horizontal_resolution() const;
 
 private:
-    std::string socket_path_;
-    std::shared_ptr<WindowCreator> window_creator_;
+    MirConnection *connection_;
+    int output_id_;
+    int vertical_resolution_;
+    int horizontal_resolution_;
 };
-
-} // namespace graphics
+} // namespace ubuntu
 } // namespace anbox
 
 #endif

@@ -14,7 +14,7 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "anbox/graphics/mir_display_connection.h"
+#include "anbox/ubuntu/mir_display_connection.h"
 #include "anbox/logger.h"
 
 #include <boost/throw_exception.hpp>
@@ -48,7 +48,7 @@ static const MirDisplayOutput *find_active_output(
 }
 
 namespace anbox {
-namespace graphics {
+namespace ubuntu {
 MirDisplayConnection::MirDisplayConnection() :
     connection_(nullptr),
     output_id_(-1),
@@ -70,6 +70,13 @@ MirDisplayConnection::MirDisplayConnection() :
         BOOST_THROW_EXCEPTION(std::runtime_error(msg.c_str()));
     }
 
+    mir_connection_set_display_config_change_callback(
+                connection_,
+                [](MirConnection* connection, void* context) {
+        auto thiz = reinterpret_cast<MirDisplayConnection*>(context);
+        DEBUG("");
+    }, this);
+
     MirDisplayConfiguration* display_config =
         mir_connection_create_display_config(connection_);
 
@@ -82,6 +89,7 @@ MirDisplayConnection::MirDisplayConnection() :
     output_id_ = output->output_id;
 
     const MirDisplayMode *mode = &output->modes[output->current_mode];
+
     vertical_resolution_ = mode->vertical_resolution;
     horizontal_resolution_ = mode->horizontal_resolution;
 
@@ -118,5 +126,5 @@ int MirDisplayConnection::vertical_resolution() const {
 int MirDisplayConnection::horizontal_resolution() const {
     return horizontal_resolution_;
 }
-} // namespace graphics
+} // namespace ubuntu
 } // namespace anbox

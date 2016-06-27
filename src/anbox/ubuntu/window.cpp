@@ -15,11 +15,13 @@
  *
  */
 
-#include "anbox/graphics/mir_window.h"
-#include "anbox/graphics/mir_display_connection.h"
-#include "anbox/logger.h"
+#include "anbox/ubuntu/window.h"
+#include "anbox/ubuntu/mir_display_connection.h"
 #include "anbox/input/manager.h"
 #include "anbox/input/device.h"
+#include "anbox/logger.h"
+
+#include <boost/throw_exception.hpp>
 
 namespace {
 class SlotFingerMapper {
@@ -64,9 +66,12 @@ private:
 };
 }
 
+
 namespace anbox {
-namespace graphics {
-MirWindow::MirWindow(const std::shared_ptr<MirDisplayConnection> &display, const std::shared_ptr<input::Manager> &input_manager) :
+namespace ubuntu {
+Window::Window(const std::shared_ptr<MirDisplayConnection> &display,
+               const std::shared_ptr<input::Manager> &input_manager,
+               int width, int height) :
     native_window_(0),
     surface_(nullptr) {
 
@@ -76,14 +81,15 @@ MirWindow::MirWindow(const std::shared_ptr<MirDisplayConnection> &display, const
 
     auto spec = mir_connection_create_spec_for_normal_surface(
                 display->connection(),
-                display->vertical_resolution(),
-                display->horizontal_resolution(),
+                width,
+                height,
                 pixel_format);
 
     mir_surface_spec_set_name(spec, "anbox");
     mir_surface_spec_set_event_handler(spec, handle_surface_event, this);
     mir_surface_spec_set_fullscreen_on_output(spec, display->output_id());
     mir_surface_spec_set_buffer_usage(spec, mir_buffer_usage_hardware);
+    mir_surface_spec_set_shell_chrome(spec, mir_shell_chrome_normal);
 
     surface_ = mir_surface_create_sync(spec);
     mir_surface_spec_release(spec);
@@ -116,19 +122,19 @@ MirWindow::MirWindow(const std::shared_ptr<MirDisplayConnection> &display, const
     input_device_->set_abs_bit(ABS_MT_POSITION_Y);
     input_device_->set_prop_bit(INPUT_PROP_DIRECT);
     input_device_->set_abs_min(ABS_MT_POSITION_X, 0);
-    input_device_->set_abs_max(ABS_MT_POSITION_X, display->horizontal_resolution());
+    input_device_->set_abs_max(ABS_MT_POSITION_X, parameters.width);
     input_device_->set_abs_min(ABS_MT_POSITION_Y, 0);
-    input_device_->set_abs_max(ABS_MT_POSITION_Y, display->vertical_resolution());
+    input_device_->set_abs_max(ABS_MT_POSITION_Y, parameters.height);
     input_device_->set_abs_max(ABS_MT_SLOT, 10);
     input_device_->set_abs_max(ABS_MT_TRACKING_ID, 255);
     input_device_->set_key_bit(BTN_TOUCH);
     input_device_->set_key_bit(BTN_TOOL_FINGER);
 }
 
-MirWindow::~MirWindow() {
+Window::~Window() {
 }
 
-void MirWindow::handle_touch_event(MirTouchEvent const* touch_event) {
+void Window::handle_touch_event(MirTouchEvent const* touch_event) {
     const auto point_count = mir_touch_event_point_count(touch_event);
 
     static SlotFingerMapper mapper;
@@ -178,7 +184,7 @@ void MirWindow::handle_touch_event(MirTouchEvent const* touch_event) {
     }
 }
 
-void MirWindow::handle_input_event(MirInputEvent const* input_event) {
+void Window::handle_input_event(MirInputEvent const* input_event) {
     const auto type = mir_input_event_get_type(input_event);
     MirTouchEvent const* touch_event = nullptr;
     MirKeyboardEvent const* key_event = nullptr;
@@ -196,9 +202,9 @@ void MirWindow::handle_input_event(MirInputEvent const* input_event) {
     }
 }
 
-void MirWindow::handle_surface_event(MirSurface *surface, MirEvent const* event, void *context) {
+void Window::handle_surface_event(MirSurface*, MirEvent const* event, void *context) {
     const auto event_type = mir_event_get_type(event);
-    auto thiz = static_cast<MirWindow*>(context);
+    auto thiz = static_cast<Window*>(context);
 
     switch (event_type) {
     case mir_event_type_input:
@@ -209,8 +215,8 @@ void MirWindow::handle_surface_event(MirSurface *surface, MirEvent const* event,
     }
 }
 
-EGLNativeWindowType MirWindow::native_window() const {
+EGLNativeWindowType Window::native_window() const {
     return native_window_;
 }
-} // namespace graphics
+} // namespace bridge
 } // namespace anbox

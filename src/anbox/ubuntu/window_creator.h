@@ -15,40 +15,35 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_MIR_NATIVE_WINDOW_CREATOR_H_
-#define ANBOX_GRAPHICS_MIR_NATIVE_WINDOW_CREATOR_H_
+#ifndef ANBOX_UBUNTU_WINDOW_CREATOR_H_
+#define ANBOX_UBUNTU_WINDOW_CREATOR_H_
 
-#include "external/android-emugl/host/libs/libOpenglRender/NativeSubWindow.h"
+#include "anbox/graphics/window_creator.h"
 
-#include <memory>
 #include <map>
 
+#include <EGL/egl.h>
+
 namespace anbox {
-namespace input {
-class Manager;
-}
-namespace graphics {
-
+namespace ubuntu {
 class MirDisplayConnection;
-class MirWindow;
-
-class MirNativeWindowCreator : public SubWindowHandler {
+class Window;
+class WindowCreator : public graphics::WindowCreator {
 public:
-    MirNativeWindowCreator(const std::shared_ptr<input::Manager> &input_channel);
-    virtual ~MirNativeWindowCreator();
+    WindowCreator(const std::shared_ptr<input::Manager> &input_manager);
+    ~WindowCreator();
 
     EGLNativeWindowType create_window(int x, int y, int width, int height) override;
     void destroy_window(EGLNativeWindowType win) override;
 
-    std::shared_ptr<MirDisplayConnection> display() const;
+    DisplayInfo display_info() const override;
 
 private:
     std::shared_ptr<input::Manager> input_manager_;
-    std::shared_ptr<MirDisplayConnection> display_connection_;
-    std::map<EGLNativeWindowType,std::shared_ptr<MirWindow>> windows_;
+    std::shared_ptr<MirDisplayConnection> display_;
+    std::map<EGLNativeWindowType,std::shared_ptr<Window>> windows_;
 };
-
-} // namespace graphics
+} // namespace bridge
 } // namespace anbox
 
 #endif
