@@ -69,6 +69,9 @@ void GLRendererServer::start() {
     const auto height = display_info.vertical_resolution;
 
     char server_addr[256] = { 0 };
+    // The width & height we supply here are the dimensions the internal framebuffer
+    // will use. Making this static prevents us for now to resize the window we create
+    // later for the actual display.
     if (!initOpenGLRenderer(width, height, true, server_addr, sizeof(server_addr), log_funcs, logger_write))
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to setup OpenGL renderer"));
 
