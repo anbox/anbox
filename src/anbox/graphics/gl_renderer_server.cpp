@@ -33,7 +33,7 @@ GLRendererServer::GLRendererServer(const std::shared_ptr<input::Manager> &input_
 
     // Force the host EGL/GLES libraries as translator implementation
     ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 1);
-    ::setenv("ANDROID_GLESv1_LIB", "libGLESv1_CM.so.1", 1);
+    ::setenv("ANDROID_GLESv1_LIB", "libGLESv2.so.2", 1);
     ::setenv("ANDROID_GLESv2_LIB", "libGLESv2.so.2", 1);
 
     if (!initLibrary())
