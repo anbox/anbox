@@ -51,7 +51,7 @@ void SocketMessenger::send(char const* data, size_t length)
     VariableLengthArray<serialization_buffer_size> whole_message{length};
     std::copy(data, data + length, whole_message.data());
 
-    while (true) {
+    for (;;) {
         try {
             std::unique_lock<std::mutex> lg(message_lock);
             ba::write(*socket,
@@ -62,10 +62,6 @@ void SocketMessenger::send(char const* data, size_t length)
             if (err.code() == boost::asio::error::try_again)
                 continue;
         }
-        catch (const std::exception &err) {
-            ERROR("Could not write message: %s", err.what());
-        }
-
         break;
     }
 }

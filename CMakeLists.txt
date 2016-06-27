@@ -60,6 +60,7 @@ find_package(PkgConfig)
 find_package(Threads)
 find_package(EGL REQUIRED)
 find_package(GLESv2 REQUIRED)
+find_package(Protobuf REQUIRED)
 
 # TODO(morphis): make mir an optional requirement so we can also add support
 # for X11, wayland, ... at a later point if needed.

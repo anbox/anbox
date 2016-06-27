@@ -29,6 +29,9 @@
 #include "anbox/network/qemu_pipe_connection_creator.h"
 #include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/input/manager.h"
+#include "anbox/bridge/connection_creator.h"
+#include "anbox/bridge/platform_message_processor.h"
+#include "anbox/bridge/rpc_channel.h"
 #include "anbox/ubuntu/platform_server.h"
 #include "anbox/ubuntu/window_creator.h"
 
@@ -89,10 +92,22 @@ anbox::cmds::Run::Run()
             rt,
             std::make_shared<network::QemuPipeConnectionCreator>(rt, renderer->socket_path()));
 
+        auto bridge_connector = std::make_shared<network::PublishedSocketConnector>(
+            utils::string_format("%s/anbox_bridge", config::data_path()),
+            rt,
+            std::make_shared<bridge::ConnectionCreator>(rt,
+                [](const std::shared_ptr<network::MessageSender> &sender) {
+                    auto pending_calls = std::make_shared<bridge::PendingCallCache>();
+                    auto rpc_channel = std::make_shared<bridge::RpcChannel>(pending_calls, sender);
+                    auto server = std::make_shared<ubuntu::PlatformServer>(pending_calls);
+                    return std::make_shared<bridge::PlatformMessageProcessor>(sender, server, pending_calls);
+                }));
+
         auto spec = Container::Spec::Default();
         spec.rootfs_path = rootfs_;
         spec.bind_paths.insert({qemud_connector->socket_file(), "/dev/qemud"});
         spec.bind_paths.insert({qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"});
+        spec.bind_paths.insert({bridge_connector->socket_file(), "/dev/anbox_bridge"});
 
         input_manager->generate_mappings(spec.bind_paths);
 

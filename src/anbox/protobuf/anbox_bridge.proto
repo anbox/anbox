@@ -1,0 +1,43 @@
+option optimize_for = LITE_RUNTIME;
+
+package anbox.protobuf.bridge;
+
+message Invocation {
+    required uint32 id = 1;
+    required string method_name = 2;
+    required bytes parameters = 3;
+    required uint32 protocol_version = 4;
+}
+
+message Result {
+    optional uint32 id = 1;
+    optional bytes response = 2;
+    repeated bytes events = 3;
+}
+
+message StructuredError {
+  optional uint32 domain = 1;
+  optional uint32 code = 2;
+}
+
+message Void {
+  optional string error = 127;
+  optional StructuredError structured_error = 128;
+}
+
+message Notification {
+    required string package_name = 1;
+    required string category = 2;
+    required string title = 3;
+    optional string ticker_text = 4;
+    optional string text = 5;
+}
+
+message InstallApplication {
+    required string path = 1;
+}
+
+message LaunchApplication {
+    required string package_name = 1;
+    optional string activity = 2;
+}

@@ -15,9 +15,29 @@
  *
  */
 
-#include "android/service/daemon.h"
+#ifndef ANBOX_ANDROID_LOCAL_SOCKET_CONNECTION_H_
+#define ANBOX_ANDROID_LOCAL_SOCKET_CONNECTION_H_
 
-int main(int, char**) {
-    anbox::android::Daemon daemon;
-    return daemon.run();
-}
+#include <string>
+#include <vector>
+
+#include "anbox/common/fd.h"
+#include "anbox/network/message_sender.h"
+
+namespace anbox {
+namespace android {
+class LocalSocketConnection : public network::MessageSender {
+public:
+    LocalSocketConnection(const std::string &path);
+    ~LocalSocketConnection();
+
+    ssize_t read_all(std::uint8_t *buffer, const size_t &size);
+    void send(char const* data, size_t length) override;
+
+private:
+    Fd fd_;
+};
+} // namespace android
+} // namespace anbox
+
+#endif

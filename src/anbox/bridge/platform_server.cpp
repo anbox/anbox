@@ -15,9 +15,18 @@
  *
  */
 
-#include "android/service/daemon.h"
+#include "anbox/bridge/platform_server.h"
+#include "anbox/logger.h"
 
-int main(int, char**) {
-    anbox::android::Daemon daemon;
-    return daemon.run();
+#include "anbox_bridge.pb.h"
+
+namespace anbox {
+namespace bridge {
+PlatformServer::PlatformServer(const std::shared_ptr<PendingCallCache> &pending_calls) :
+    pending_calls_(pending_calls) {
 }
+
+PlatformServer::~PlatformServer() {
+}
+} // namespace bridge
+} // namespace anbox

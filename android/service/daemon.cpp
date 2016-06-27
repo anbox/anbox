@@ -16,8 +16,34 @@
  */
 
 #include "android/service/daemon.h"
+#include "android/service/host_connector.h"
 
-int main(int, char**) {
-    anbox::android::Daemon daemon;
-    return daemon.run();
+#include "core/posix/signal.h"
+
+#include <memory>
+
+#include <cstdlib>
+
+namespace anbox {
+namespace android {
+Daemon::Daemon() {
 }
+
+Daemon::~Daemon() {
+}
+
+int Daemon::run() {
+    auto trap = core::posix::trap_signals_for_process({core::posix::Signal::sig_term,
+                                                       core::posix::Signal::sig_int});
+    trap->signal_raised().connect([trap](const core::posix::Signal&) {
+        trap->stop();
+    });
+
+    auto host_connector = std::make_shared<HostConnector>();
+
+    trap->run();
+
+    return EXIT_SUCCESS;
+}
+} // namespace android
+} // namespace anbox

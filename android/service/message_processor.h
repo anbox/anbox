@@ -15,25 +15,28 @@
  *
  */
 
-#ifndef ANBOX_CMDS_SHELL_H_
-#define ANBOX_CMDS_SHELL_H_
+#ifndef ANBOX_ANDROID_MESSAGE_PROCESSOR_H_
+#define ANBOX_ANDROID_MESSAGE_PROCESSOR_H_
 
-#include <functional>
-#include <iostream>
-#include <memory>
-
-#include "anbox/cli.h"
+#include "anbox/bridge/message_processor.h"
 
 namespace anbox {
-namespace cmds {
-class Shell : public cli::CommandWithFlagsAndAction {
+namespace android {
+class Server;
+class MessageProcessor : public bridge::MessageProcessor {
 public:
-    Shell();
+    MessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
+                     const std::shared_ptr<bridge::PendingCallCache> &pending_calls,
+                     const std::shared_ptr<Server> &server);
+    ~MessageProcessor();
+
+    void dispatch(bridge::Invocation const& invocation) override;
+    void process_event_sequence(const std::string &event) override;
 
 private:
-    int pid_;
+    std::shared_ptr<Server> server_;
 };
-} // namespace cmds
 } // namespace anbox
+} // namespace network
 
 #endif

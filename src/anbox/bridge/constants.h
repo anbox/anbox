@@ -15,9 +15,19 @@
  *
  */
 
-#include "android/service/daemon.h"
+#ifndef ANBOX_BRIDGE_CONSTANTS_H_
+#define ANBOX_BRIDGE_CONSTANTS_H_
 
-int main(int, char**) {
-    anbox::android::Daemon daemon;
-    return daemon.run();
-}
+namespace anbox {
+namespace bridge {
+static constexpr const long header_size{3};
+static constexpr unsigned int const serialization_buffer_size{2048};
+
+enum MessageType {
+    invocation = 0,
+    response = 1,
+};
+} // namespace anbox
+} // namespace network
+
+#endif

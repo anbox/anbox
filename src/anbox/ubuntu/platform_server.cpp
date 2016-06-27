@@ -15,25 +15,28 @@
  *
  */
 
-#ifndef ANBOX_CMDS_SHELL_H_
-#define ANBOX_CMDS_SHELL_H_
+#include "anbox/ubuntu/platform_server.h"
+#include "anbox/logger.h"
 
-#include <functional>
-#include <iostream>
-#include <memory>
-
-#include "anbox/cli.h"
+#include "bridge.pb.h"
 
 namespace anbox {
-namespace cmds {
-class Shell : public cli::CommandWithFlagsAndAction {
-public:
-    Shell();
+namespace ubuntu {
+PlatformServer::PlatformServer(const std::shared_ptr<bridge::PendingCallCache> &pending_calls) :
+    bridge::PlatformServer(pending_calls) {
+}
 
-private:
-    int pid_;
-};
-} // namespace cmds
+PlatformServer::~PlatformServer() {
+}
+
+void PlatformServer::handle_notification(anbox::protobuf::bridge::Notification const *request,
+                                         anbox::protobuf::bridge::Void *response,
+                                         google::protobuf::Closure *done) {
+    (void) request;
+    (void) response;
+    DEBUG("");
+    done->Run();
+}
+
+} // namespace ubuntu
 } // namespace anbox
-
-#endif

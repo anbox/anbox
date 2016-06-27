@@ -15,25 +15,40 @@
  *
  */
 
-#ifndef ANBOX_CMDS_SHELL_H_
-#define ANBOX_CMDS_SHELL_H_
+#ifndef ANBOX_ANDROID_HOST_CONNECTOR_H_
+#define ANBOX_ANDROID_HOST_CONNECTOR_H_
 
-#include <functional>
-#include <iostream>
 #include <memory>
-
-#include "anbox/cli.h"
+#include <thread>
+#include <atomic>
 
 namespace anbox {
-namespace cmds {
-class Shell : public cli::CommandWithFlagsAndAction {
+namespace bridge {
+class PendingCallCache;
+} // namespace bridge
+namespace android {
+class LocalSocketConnection;
+class MessageProcessor;
+class Server;
+class HostConnector {
 public:
-    Shell();
+    HostConnector();
+    ~HostConnector();
+
+    void start();
+    void stop();
 
 private:
-    int pid_;
+    void main_loop();
+
+    std::shared_ptr<LocalSocketConnection> socket_;
+    std::shared_ptr<bridge::PendingCallCache> pending_calls_;
+    std::shared_ptr<Server> server_;
+    std::shared_ptr<MessageProcessor> message_processor_;
+    std::thread thread_;
+    std::atomic<bool> running_;
 };
-} // namespace cmds
+} // namespace android
 } // namespace anbox
 
 #endif

@@ -10,6 +10,20 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include
 )
 
+set(PROTOBUF_SOURCES
+    anbox/protobuf/anbox_bridge.proto)
+
+protobuf_generate_cpp(
+    GENERATED_PROTOBUF_SRCS GENERATED_PROTOBUF_HDRS
+    ${PROTOBUF_SOURCES})
+
+add_library(anbox-protobuf
+    ${GENERATED_PROTOBUF_SRCS}
+    ${GENERATED_PROTOBUF_HDRS}
+    anbox/protobuf/google_protobuf_guard.cpp)
+target_link_libraries(anbox-protobuf
+    ${PROTOBUF_LITE_LIBRARIES})
+
 set(SOURCES
     anbox/logger.cpp
     anbox/utils.cpp
@@ -56,6 +70,18 @@ set(SOURCES
     anbox/support/sensors_message_processor.cpp
     anbox/support/camera_message_processor.cpp
     anbox/support/fingerprint_message_processor.cpp
+    anbox/support/gsm_message_processor.cpp
+    anbox/support/at_parser.cpp
+
+    anbox/bridge/constants.h
+    anbox/bridge/connection_creator.cpp
+    anbox/bridge/message_processor.cpp
+    anbox/bridge/template_message_processor.h
+    anbox/bridge/pending_call_cache.cpp
+    anbox/bridge/make_protobuf_object.h
+    anbox/bridge/platform_message_processor.cpp
+    anbox/bridge/platform_server.cpp
+    anbox/bridge/rpc_channel.cpp
 
     anbox/ubuntu/platform_server.cpp
     anbox/ubuntu/mir_display_connection.cpp
@@ -82,7 +108,8 @@ target_link_libraries(anbox-core
 
 add_executable(anbox main.cpp)
 target_link_libraries(anbox
-    anbox-core)
+    anbox-core
+    anbox-protobuf)
 
 add_executable(anbox-container container_main.cpp)
 target_link_libraries(anbox-container

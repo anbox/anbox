@@ -15,9 +15,19 @@
  *
  */
 
-#include "android/service/daemon.h"
+#ifndef ANBOX_ANDROID_DAEMON_H_
+#define ANBOX_ANDROID_DAEMON_H_
 
-int main(int, char**) {
-    anbox::android::Daemon daemon;
-    return daemon.run();
-}
+namespace anbox {
+namespace android {
+class Daemon {
+public:
+    Daemon();
+    ~Daemon();
+
+    int run();
+};
+} // namespace android
+} // namespace anbox
+
+#endif
