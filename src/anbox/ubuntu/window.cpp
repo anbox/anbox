@@ -106,6 +106,9 @@ Window::Window(const std::shared_ptr<MirDisplayConnection> &display,
         parameters.height,
         parameters.output_id);
 
+    // Force fullscreen for now until we have proper resizing support
+    mir_surface_set_state(surface_, mir_surface_state_fullscreen);
+
     auto surface_buffer_stream = mir_surface_get_buffer_stream(surface_);
     native_window_ = reinterpret_cast<EGLNativeWindowType>(
                 mir_buffer_stream_get_egl_native_window(surface_buffer_stream));
