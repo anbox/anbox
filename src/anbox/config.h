@@ -22,8 +22,10 @@
 
 namespace anbox {
 namespace config {
-std::string BubblewrapPath();
 std::string data_path();
+std::string host_share_path();
+std::string container_share_path();
+
 } // namespace config
 } // namespace anbox
 

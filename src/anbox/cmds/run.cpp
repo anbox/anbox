@@ -32,10 +32,15 @@
 #include "anbox/bridge/connection_creator.h"
 #include "anbox/bridge/platform_message_processor.h"
 #include "anbox/bridge/rpc_channel.h"
+#include "anbox/bridge/platform_api_proxy.h"
 #include "anbox/ubuntu/platform_server.h"
 #include "anbox/ubuntu/window_creator.h"
+#include "anbox/dbus/skeleton/service.h"
 
 #include <sys/prctl.h>
+
+#include <core/dbus/bus.h>
+#include <core/dbus/asio/executor.h>
 
 namespace fs = boost::filesystem;
 
@@ -50,8 +55,15 @@ public:
 };
 }
 
-anbox::cmds::Run::Run()
-    : CommandWithFlagsAndAction{cli::Name{"run"}, cli::Usage{"run"}, cli::Description{"Run the the anbox system"}}
+anbox::cmds::Run::BusFactory anbox::cmds::Run::session_bus_factory() {
+    return []() {
+        return std::make_shared<core::dbus::Bus>(core::dbus::WellKnownBus::session);
+    };
+}
+
+anbox::cmds::Run::Run(const BusFactory& bus_factory)
+    : CommandWithFlagsAndAction{cli::Name{"run"}, cli::Usage{"run"}, cli::Description{"Run the the anbox system"}},
+      bus_factory_(bus_factory)
 {
     flag(cli::make_flag(cli::Name{"rootfs"}, cli::Description{"Path to Android rootfs"}, rootfs_));
     // Just for the purpose to allow QtMir (or unity8) to find this on our /proc/*/cmdline
@@ -92,13 +104,18 @@ anbox::cmds::Run::Run()
             rt,
             std::make_shared<network::QemuPipeConnectionCreator>(rt, renderer->socket_path()));
 
+        auto platform_proxy = std::make_shared<bridge::PlatformApiProxy>();
+
         auto bridge_connector = std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/anbox_bridge", config::data_path()),
             rt,
             std::make_shared<bridge::ConnectionCreator>(rt,
-                [](const std::shared_ptr<network::MessageSender> &sender) {
+                [&](const std::shared_ptr<network::MessageSender> &sender) {
                     auto pending_calls = std::make_shared<bridge::PendingCallCache>();
                     auto rpc_channel = std::make_shared<bridge::RpcChannel>(pending_calls, sender);
+                    // This is safe as long as we only support a single client. If we support
+                    // more than one one day we need proper dispatching to the right one.
+                    platform_proxy->set_rpc_channel(rpc_channel);
                     auto server = std::make_shared<ubuntu::PlatformServer>(pending_calls);
                     return std::make_shared<bridge::PlatformMessageProcessor>(sender, server, pending_calls);
                 }));
@@ -111,9 +128,15 @@ anbox::cmds::Run::Run()
 
         input_manager->generate_mappings(spec.bind_paths);
 
+        // A place where we can exchange files with the container
+        spec.bind_paths.insert({config::host_share_path(), config::container_share_path()});
+
+        // FIXME(morphis): those directories should be really somewhere on our
+        // persistent data directory so we keep any runtime data accross restarts.
         spec.temporary_dirs.push_back("/data");
         spec.temporary_dirs.push_back("/cache");
         spec.temporary_dirs.push_back("/storage");
+
         spec.temporary_dirs.push_back("/dev/input");
 
         // NOTE: We're not mapping /dev/alarm here as if its not available
@@ -129,6 +152,11 @@ anbox::cmds::Run::Run()
         spec.dev_bind_paths.push_back("/dev/ashmem");
 
         auto container = Container::create(spec);
+
+        auto bus = bus_factory_();
+        bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
+
+        auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, platform_proxy);
 
         rt->start();
         container->start();

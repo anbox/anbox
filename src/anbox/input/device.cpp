@@ -72,14 +72,16 @@ void Device::send_events(const std::vector<Event> &events) {
         data[n].code = event.code;
         data[n].value = event.value;
 
+#ifdef DEBUG
         DEBUG("Event: time %lld, type %d, code %d, value %d",
               data[n].sec * 1000000000LL + data[n].usec * 1000LL,
               event.type, event.code, event.value);
+#endif
 
         n++;
     }
 
-    for (auto n = 0; n < connections_->size(); n++) {
+    for (unsigned n = 0; n < connections_->size(); n++) {
         connections_->at(n)->send(reinterpret_cast<const char*>(data),
                                   events.size() * sizeof(struct CompatEvent));
     }

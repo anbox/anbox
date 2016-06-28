@@ -18,19 +18,26 @@
 #ifndef ANBOX_CMDS_RUN_H_
 #define ANBOX_CMDS_RUN_H_
 
+#include "anbox/cli.h"
+
 #include <functional>
 #include <iostream>
 #include <memory>
 
-#include "anbox/cli.h"
+#include <core/dbus/bus.h>
 
 namespace anbox {
 namespace cmds {
 class Run : public cli::CommandWithFlagsAndAction {
 public:
-    Run();
+    typedef std::function<core::dbus::Bus::Ptr()> BusFactory;
+
+    static BusFactory session_bus_factory();
+
+    Run(const BusFactory& bus_factory = session_bus_factory());
 
 private:
+    BusFactory bus_factory_;
     std::string rootfs_;
     std::string desktop_file_hint_;
 };

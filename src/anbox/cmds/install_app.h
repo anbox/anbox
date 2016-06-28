@@ -15,28 +15,25 @@
  *
  */
 
-#include "anbox/ubuntu/platform_server.h"
-#include "anbox/logger.h"
+#ifndef ANBOX_CMDS_INSTALL_APP_H_
+#define ANBOX_CMDS_INSTALL_APP_H_
 
-#include "anbox_bridge.pb.h"
+#include <functional>
+#include <iostream>
+#include <memory>
+
+#include "anbox/cli.h"
 
 namespace anbox {
-namespace ubuntu {
-PlatformServer::PlatformServer(const std::shared_ptr<bridge::PendingCallCache> &pending_calls) :
-    bridge::PlatformServer(pending_calls) {
-}
+namespace cmds {
+class InstallApp : public cli::CommandWithFlagsAndAction {
+public:
+    InstallApp();
 
-PlatformServer::~PlatformServer() {
-}
-
-void PlatformServer::handle_notification(anbox::protobuf::bridge::Notification const *request,
-                                         anbox::protobuf::bridge::Void *response,
-                                         google::protobuf::Closure *done) {
-    (void) request;
-    (void) response;
-    DEBUG("");
-    done->Run();
-}
-
-} // namespace ubuntu
+private:
+    std::string apk_;
+};
+} // namespace cmds
 } // namespace anbox
+
+#endif

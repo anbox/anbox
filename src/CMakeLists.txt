@@ -4,6 +4,8 @@ include_directories(
   ${GIO_INCLUDE_DIRS}
   ${GIO-UNIX_INCLUDE_DIRS}
   ${MIRCLIENT_INCLUDE_DIRS}
+  ${DBUS_CPP_INCLUDE_DIRS}
+  ${DBUS_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_SOURCE_DIR}/external/process-cpp-minimal/include
@@ -37,6 +39,7 @@ set(SOURCES
     anbox/namespace_attacher.cpp
     anbox/container.cpp
     anbox/container_connector.cpp
+    anbox/application_manager.h
 
     anbox/common/fd.cpp
     anbox/common/fd_sets.h
@@ -81,15 +84,23 @@ set(SOURCES
     anbox/bridge/platform_message_processor.cpp
     anbox/bridge/platform_server.cpp
     anbox/bridge/rpc_channel.cpp
+    anbox/bridge/platform_api_proxy.cpp
 
     anbox/ubuntu/platform_server.cpp
     anbox/ubuntu/mir_display_connection.cpp
     anbox/ubuntu/window_creator.cpp
     anbox/ubuntu/window.cpp
 
+    anbox/dbus/interface.h
+    anbox/dbus/skeleton/service.cpp
+    anbox/dbus/skeleton/application_manager.cpp
+    anbox/dbus/stub/application_manager.cpp
+
     anbox/cmds/version.cpp
     anbox/cmds/run.cpp
     anbox/cmds/shell.cpp
+    anbox/cmds/install_app.cpp
+    anbox/cmds/launch_app.cpp
 
     anbox/do_not_copy_or_move.h
     anbox/optional.h
@@ -101,6 +112,7 @@ target_link_libraries(anbox-core
   ${Boost_LIBRARIES}
   ${MIRCLIENT_LDFLAGS}
   ${MIRCLIENT_LIBRARIES}
+  ${DBUS_CPP_LIBRARIES}
   pthread
   process-cpp
   OpenglRender)

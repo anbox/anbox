@@ -37,6 +37,8 @@ void MessageProcessor::dispatch(bridge::Invocation const& invocation) {
         invoke(this, server_.get(), &Server::install_application, invocation);
     else if (invocation.method_name() == "launch_application")
         invoke(this, server_.get(), &Server::launch_application, invocation);
+    else if (invocation.method_name() == "set_dns_servers")
+        invoke(this, server_.get(), &Server::set_dns_servers, invocation);
 }
 
 void MessageProcessor::process_event_sequence(const std::string&) {

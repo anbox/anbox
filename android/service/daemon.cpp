@@ -40,6 +40,7 @@ int Daemon::run() {
     });
 
     auto host_connector = std::make_shared<HostConnector>();
+    host_connector->start();
 
     trap->run();
 

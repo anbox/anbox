@@ -12,7 +12,6 @@ message Invocation {
 message Result {
     optional uint32 id = 1;
     optional bytes response = 2;
-    repeated bytes events = 3;
 }
 
 message StructuredError {
@@ -40,4 +39,12 @@ message InstallApplication {
 message LaunchApplication {
     required string package_name = 1;
     optional string activity = 2;
+}
+
+message SetDnsServers {
+    required string domain = 1;
+    message Server {
+        required string address = 1;
+    }
+    repeated Server servers = 2;
 }

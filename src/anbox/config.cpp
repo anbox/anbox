@@ -18,12 +18,33 @@
 #include <cstring>
 
 #include "anbox/config.h"
+#include "anbox/utils.h"
+
+#include <boost/filesystem.hpp>
+
+namespace fs = boost::filesystem;
 
 namespace anbox {
 namespace config {
 std::string data_path() {
-    // TODO(morphis): replace with proper compile time constant
-    return "/home/phablet/.local/share/anbox/";
+    static std::string path;
+    if (path.length() == 0) {
+        const auto home_path = utils::get_env_value("HOME", "/home/phablet");
+        path = utils::string_format("%s/.local/share/anbox", home_path);
+        fs::create_directories(fs::path(path));
+    }
+    return path;
+}
+
+std::string host_share_path() {
+    static std::string path;
+    if (path.length() == 0)
+        path = utils::string_format("%s/share", data_path());
+    return path;
+}
+
+std::string container_share_path() {
+    return "/data/anbox-share";
 }
 } // namespace config
 } // namespace anbox

@@ -66,6 +66,9 @@ find_package(Protobuf REQUIRED)
 # for X11, wayland, ... at a later point if needed.
 pkg_check_modules(MIRCLIENT REQUIRED mirclient)
 
+pkg_check_modules(DBUS_CPP dbus-cpp REQUIRED)
+pkg_check_modules(DBUS dbus-1 REQUIRED)
+
 #####################################################################
 # Enable code coverage calculation with gcov/gcovr/lcov
 # Usage:

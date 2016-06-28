@@ -15,28 +15,19 @@
  *
  */
 
-#include "anbox/ubuntu/platform_server.h"
-#include "anbox/logger.h"
+#ifndef ANBOX_APPLICATION_MANAGER_H_
+#define ANBOX_APPLICATION_MANAGER_H_
 
-#include "anbox_bridge.pb.h"
+#include "anbox/do_not_copy_or_move.h"
+
+#include <string>
 
 namespace anbox {
-namespace ubuntu {
-PlatformServer::PlatformServer(const std::shared_ptr<bridge::PendingCallCache> &pending_calls) :
-    bridge::PlatformServer(pending_calls) {
-}
-
-PlatformServer::~PlatformServer() {
-}
-
-void PlatformServer::handle_notification(anbox::protobuf::bridge::Notification const *request,
-                                         anbox::protobuf::bridge::Void *response,
-                                         google::protobuf::Closure *done) {
-    (void) request;
-    (void) response;
-    DEBUG("");
-    done->Run();
-}
-
-} // namespace ubuntu
+class ApplicationManager : public DoNotCopyOrMove {
+public:
+    virtual void install(const std::string &path) = 0;
+    virtual void launch(const std::string &package, const std::string &activity) = 0;
+};
 } // namespace anbox
+
+#endif
