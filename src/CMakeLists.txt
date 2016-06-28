@@ -37,7 +37,6 @@ set(SOURCES
     anbox/namespace_attacher.cpp
     anbox/container.cpp
     anbox/container_connector.cpp
-    anbox/input_channel.cpp
 
     anbox/common/fd.cpp
     anbox/common/fd_sets.h
