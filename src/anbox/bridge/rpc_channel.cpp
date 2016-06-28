@@ -57,6 +57,7 @@ protobuf::bridge::Invocation RpcChannel::invocation_for(std::string const& metho
     invoke.set_id(next_id());
     invoke.set_method_name(method_name);
     invoke.set_parameters(buffer.data(), buffer.size());
+    invoke.set_protocol_version(1);
 
     return invoke;
 }

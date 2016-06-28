@@ -47,8 +47,6 @@ void ConnectionCreator::create_connection_for(
         return;
     }
 
-    DEBUG("");
-
     auto const messenger = std::make_shared<network::SocketMessenger>(socket);
     auto const processor = message_processor_factory_(messenger);
 

@@ -50,10 +50,12 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
     for (const auto &byte : data)
         buffer_.push_back(byte);
 
-    unsigned char const high = buffer_[0];
-    unsigned char const low = buffer_[1];
+    buffer_.shrink_to_fit();
+
+    const auto high = buffer_[0];
+    const auto low = buffer_[1];
     size_t const message_size = (high << 8) + low;
-    unsigned char const message_type = buffer_[2];
+    const auto message_type = buffer_[2];
 
     // If we don't have yet all bytes for a new message return and wait
     // until we have all.
@@ -74,10 +76,7 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
         auto result = make_protobuf_object<protobuf::bridge::Result>();
         result->ParseFromArray(buffer_.data(), message_size);
 
-        buffer_.erase(buffer_.begin(), buffer_.end() + message_size);
-
-        for (int i = 0; i != result->events_size(); ++i)
-            process_event_sequence(result->events(i));
+        buffer_.erase(buffer_.begin(), buffer_.begin() + message_size);
 
         pending_calls_->complete_response(*result);
     }

@@ -33,7 +33,8 @@ namespace anbox {
 namespace bridge {
 class ConnectionCreator : public network::ConnectionCreator {
 public:
-    typedef std::function<std::shared_ptr<network::MessageProcessor>(const std::shared_ptr<network::MessageSender>&)> MessageProcessorFactory;
+    typedef std::function<std::shared_ptr<network::MessageProcessor>(
+            const std::shared_ptr<network::MessageSender>&)> MessageProcessorFactory;
 
     ConnectionCreator(
             const std::shared_ptr<Runtime> &rt, const MessageProcessorFactory &factory);
