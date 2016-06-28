@@ -53,3 +53,7 @@ LOCAL_CFLAGS := \
     -fexceptions \
     -std=c++1y
 include $(BUILD_EXECUTABLE)
+
+# The compositor has its Android.mk in its subfolder as it should not
+# depend on any other anbox sources.
+include $(call all-makefiles-under, $(LOCAL_PATH)/android/shared_compositor)

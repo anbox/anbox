@@ -24,3 +24,10 @@ target_link_libraries(anboxd
 # for easy integration into used IDEs.
 set_target_properties(anboxd
     PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+
+set(ANBOX_SHARED_COMPOSITOR
+    shared_compositor/main.cpp
+    shared_compositor/surface_composer.cpp)
+add_executable(anbox_shared_compositor ${ANBOX_SHARED_COMPOSITOR})
+set_target_properties(anbox_shared_compositor
+    PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
