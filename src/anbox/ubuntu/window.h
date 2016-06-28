@@ -45,8 +45,10 @@ private:
 
     void handle_input_event(MirInputEvent const* input_event);
     void handle_touch_event(MirTouchEvent const* touch_event);
+    void handle_pointer_event(MirPointerEvent const* pointer_event);
 
-    std::shared_ptr<input::Device> input_device_;
+    std::shared_ptr<input::Device> touchpanel_;
+    std::shared_ptr<input::Device> pointer_;
     EGLNativeWindowType native_window_;
     MirSurface *surface_;
 };

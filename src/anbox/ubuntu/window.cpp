@@ -114,24 +114,37 @@ Window::Window(const std::shared_ptr<MirDisplayConnection> &display,
                 mir_buffer_stream_get_egl_native_window(surface_buffer_stream));
 
     // Create our touch panel input device
-    input_device_ = input_manager->create_device();
-    input_device_->set_name("mir-touchpanel");
-    input_device_->set_driver_version(1);
-    input_device_->set_input_id({ BUS_VIRTUAL, 1, 1, 1 });
-    input_device_->set_physical_location("none");
-    input_device_->set_abs_bit(ABS_MT_TRACKING_ID);
-    input_device_->set_abs_bit(ABS_MT_SLOT);
-    input_device_->set_abs_bit(ABS_MT_POSITION_X);
-    input_device_->set_abs_bit(ABS_MT_POSITION_Y);
-    input_device_->set_prop_bit(INPUT_PROP_DIRECT);
-    input_device_->set_abs_min(ABS_MT_POSITION_X, 0);
-    input_device_->set_abs_max(ABS_MT_POSITION_X, parameters.width);
-    input_device_->set_abs_min(ABS_MT_POSITION_Y, 0);
-    input_device_->set_abs_max(ABS_MT_POSITION_Y, parameters.height);
-    input_device_->set_abs_max(ABS_MT_SLOT, 10);
-    input_device_->set_abs_max(ABS_MT_TRACKING_ID, 255);
-    input_device_->set_key_bit(BTN_TOUCH);
-    input_device_->set_key_bit(BTN_TOOL_FINGER);
+    touchpanel_ = input_manager->create_device();
+    touchpanel_->set_name("mir-touchpanel");
+    touchpanel_->set_driver_version(1);
+    touchpanel_->set_input_id({ BUS_VIRTUAL, 1, 1, 1 });
+    touchpanel_->set_physical_location("none");
+    touchpanel_->set_abs_bit(ABS_MT_TRACKING_ID);
+    touchpanel_->set_abs_bit(ABS_MT_SLOT);
+    touchpanel_->set_abs_bit(ABS_MT_POSITION_X);
+    touchpanel_->set_abs_bit(ABS_MT_POSITION_Y);
+    touchpanel_->set_prop_bit(INPUT_PROP_DIRECT);
+    touchpanel_->set_abs_min(ABS_MT_POSITION_X, 0);
+    touchpanel_->set_abs_max(ABS_MT_POSITION_X, parameters.width);
+    touchpanel_->set_abs_min(ABS_MT_POSITION_Y, 0);
+    touchpanel_->set_abs_max(ABS_MT_POSITION_Y, parameters.height);
+    touchpanel_->set_abs_max(ABS_MT_SLOT, 10);
+    touchpanel_->set_abs_max(ABS_MT_TRACKING_ID, 255);
+
+    pointer_ = input_manager->create_device();
+    pointer_->set_name("mir-pointer");
+    pointer_->set_driver_version(1);
+    pointer_->set_input_id({ BUS_VIRTUAL, 1, 1, 1 });
+    pointer_->set_physical_location("none");
+    pointer_->set_key_bit(BTN_LEFT);
+    pointer_->set_key_bit(BTN_RIGHT);
+    pointer_->set_key_bit(BTN_MIDDLE);
+    pointer_->set_rel_bit(REL_X);
+    pointer_->set_rel_bit(REL_Y);
+    pointer_->set_rel_bit(REL_HWHEEL);
+    pointer_->set_rel_bit(REL_WHEEL);
+    pointer_->set_abs_bit(ABS_X);
+    pointer_->set_abs_bit(ABS_Y);
 }
 
 Window::~Window() {
@@ -183,14 +196,80 @@ void Window::handle_touch_event(MirTouchEvent const* touch_event) {
             break;
         }
 
-        input_device_->send_events(events);
+        touchpanel_->send_events(events);
     }
+}
+
+void Window::handle_pointer_event(MirPointerEvent const* pointer_event) {
+    std::vector<input::Device::Event> events;
+    static MirPointerButtons button_state = 0;
+
+    const float x = mir_pointer_event_axis_value(pointer_event, mir_pointer_axis_x);
+    const float y = mir_pointer_event_axis_value(pointer_event, mir_pointer_axis_y);
+
+    switch (mir_pointer_event_action(pointer_event)) {
+    case mir_pointer_action_button_down:
+        events.push_back({ EV_ABS, ABS_X, static_cast<std::int32_t>(x) });
+        events.push_back({ EV_ABS, ABS_Y, static_cast<std::int32_t>(y) });
+
+        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_primary)) {
+            events.push_back({ EV_KEY, BTN_LEFT, 1 });
+            events.push_back({ EV_SYN, SYN_REPORT, 0 });
+        }
+        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_secondary)) {
+            events.push_back({ EV_KEY, BTN_RIGHT, 1 });
+            events.push_back({ EV_SYN, SYN_REPORT, 0 });
+        }
+        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_tertiary)) {
+            events.push_back({ EV_KEY, BTN_MIDDLE, 1 });
+            events.push_back({ EV_SYN, SYN_REPORT, 0 });
+        }
+        break;
+    case mir_pointer_action_button_up:
+        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_primary)) {
+            events.push_back({ EV_KEY, BTN_LEFT, 0 });
+            events.push_back({ EV_SYN, SYN_REPORT, 0 });
+        }
+        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_secondary)) {
+            events.push_back({ EV_KEY, BTN_RIGHT, 0 });
+            events.push_back({ EV_SYN, SYN_REPORT, 0 });
+        }
+        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_tertiary)) {
+            events.push_back({ EV_KEY, BTN_MIDDLE, 0 });
+            events.push_back({ EV_SYN, SYN_REPORT, 0 });
+        }
+        break;
+    case mir_pointer_action_motion:
+        {
+            const float hdelta = mir_pointer_event_axis_value(pointer_event, mir_pointer_axis_hscroll);
+            const float vdelta = mir_pointer_event_axis_value(pointer_event, mir_pointer_axis_vscroll);
+            if (hdelta != 0.0 || vdelta != 0.0) {
+                events.push_back({ EV_REL, REL_HWHEEL, static_cast<std::int32_t>(hdelta) });
+                events.push_back({ EV_REL, REL_WHEEL, static_cast<std::int32_t>(vdelta) });
+                events.push_back({ EV_SYN, SYN_REPORT, 0 });
+            }
+
+            const float xdelta = mir_pointer_event_axis_value(pointer_event, mir_pointer_axis_relative_x);
+            const float ydelta = mir_pointer_event_axis_value(pointer_event, mir_pointer_axis_relative_y);
+            if (xdelta != 0.0 || ydelta != 0.0) {
+                events.push_back({ EV_REL, REL_X, static_cast<std::int32_t>(xdelta) });
+                events.push_back({ EV_REL, REL_Y, static_cast<std::int32_t>(ydelta) });
+                events.push_back({ EV_SYN, SYN_REPORT, 0 });
+            }
+        }
+        break;
+    default:
+        break;
+    }
+
+    pointer_->send_events(events);
 }
 
 void Window::handle_input_event(MirInputEvent const* input_event) {
     const auto type = mir_input_event_get_type(input_event);
     MirTouchEvent const* touch_event = nullptr;
     MirKeyboardEvent const* key_event = nullptr;
+    MirPointerEvent const* pointer_event = nullptr;
 
     switch (type) {
     case mir_input_event_type_touch:
@@ -198,6 +277,8 @@ void Window::handle_input_event(MirInputEvent const* input_event) {
         handle_touch_event(touch_event);
         break;
     case mir_input_event_type_pointer:
+        pointer_event = mir_input_event_get_pointer_event(input_event);
+        handle_pointer_event(pointer_event);
         break;
     case mir_input_event_type_key:
         key_event = mir_input_event_get_keyboard_event(input_event);
