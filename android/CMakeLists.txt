@@ -19,3 +19,8 @@ target_link_libraries(anboxd
     pthread
     process-cpp
     anbox-protobuf)
+# As we're adding Android specific bits in this project we can't
+# build this safely within default build anymore. We keep this
+# for easy integration into used IDEs.
+set_target_properties(anboxd
+    PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)

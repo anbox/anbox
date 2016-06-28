@@ -19,7 +19,9 @@
 #include <core/posix/exit.h>
 #include <core/posix/fork.h>
 
+#ifndef ANDROID
 #include "backtrace.h"
+#endif
 
 #include <iomanip>
 #include <iostream>
@@ -38,12 +40,14 @@ void redirect_stream_to_fd(int fd, int stream)
 
 void print_backtrace(std::ostream& out, const std::string& line_prefix)
 {
+#ifndef ANDROID
     core::posix::backtrace::visit_with_handler([&out, line_prefix](const core::posix::backtrace::Frame& frame)
     {
         out << line_prefix << std::dec << std::setw(2) << frame.depth() << "@" << std::hex << std::setw(14) << frame.frame_pointer() << ": "
             << (frame.symbol().is_cxx() ? frame.symbol().demangled() : frame.symbol().raw()) << std::endl;
         return true;
     });
+#endif
 }
 }
 

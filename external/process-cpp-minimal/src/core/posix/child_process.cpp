@@ -18,8 +18,10 @@
 
 #include <core/posix/child_process.h>
 
+#ifndef ANDROID
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
+#endif
 
 #include <atomic>
 #include <fstream>
@@ -33,7 +35,13 @@
 #include <sys/eventfd.h>
 #include <sys/signalfd.h>
 
+#include <assert.h>
+
+#include <sys/wait.h>
+
+#ifndef ANDROID
 namespace io = boost::iostreams;
+#endif
 
 namespace
 {
@@ -279,12 +287,14 @@ struct ChildProcess::Private
             const ChildProcess::Pipe& stdin,
             const ChildProcess::Pipe& stdout)
         : pipes{stderr, stdin, stdout},
+#ifndef ANDROID
           serr(pipes.stderr.read_fd(), io::never_close_handle),
           sin(pipes.stdin.write_fd(), io::never_close_handle),
           sout(pipes.stdout.read_fd(), io::never_close_handle),
           cerr(&serr),
           cin(&sin),
           cout(&sout),
+#endif
           original_parent_pid(::getpid()),
           original_child_pid(pid)
     {
@@ -308,12 +318,15 @@ struct ChildProcess::Private
         ChildProcess::Pipe stdout;
         ChildProcess::Pipe stderr;
     } pipes;
+
+#ifndef ANDROID
     io::stream_buffer<io::file_descriptor_source> serr;
     io::stream_buffer<io::file_descriptor_sink> sin;
     io::stream_buffer<io::file_descriptor_source> sout;
     std::istream cerr;
     std::ostream cin;
     std::istream cout;
+#endif
 
     // We need to store the original parent pid as we might have been forked
     // and with our automatic cleanup in place, it might happen that the d'tor
@@ -371,14 +384,18 @@ wait::Result ChildProcess::wait_for(const wait::Flags& flags)
     {
         result.status = wait::Result::Status::stopped;
         result.detail.if_stopped.signal = static_cast<Signal>(WSTOPSIG(status));
-    } else if (WIFCONTINUED(status))
+    }
+#ifndef ANDROID
+    else if (WIFCONTINUED(status))
     {
         result.status = wait::Result::Status::continued;
     }
+#endif
 
     return result;
 }
 
+#ifndef ANDROID
 std::istream& ChildProcess::cerr()
 {
     return d->cerr;
@@ -393,5 +410,6 @@ std::istream& ChildProcess::cout()
 {
     return d->cout;
 }
+#endif
 }
 }

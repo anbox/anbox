@@ -29,6 +29,7 @@ namespace protobuf {
 namespace bridge {
 class InstallApplication;
 class LaunchApplication;
+class SetDnsServers;
 class Void;
 } // namespace bridge
 } // namespace protobuf
@@ -45,6 +46,10 @@ public:
     void launch_application(anbox::protobuf::bridge::LaunchApplication const *request,
                             anbox::protobuf::bridge::Void *response,
                             google::protobuf::Closure *done);
+
+    void set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *request,
+                         anbox::protobuf::bridge::Void *response,
+                         google::protobuf::Closure *done);
 };
 } // namespace android
 } // namespace anbox

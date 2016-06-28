@@ -114,6 +114,7 @@ public:
      */
     wait::Result wait_for(const wait::Flags& flags);
 
+#ifndef ANDROID
     /**
      * @brief Access this process's stderr.
      */
@@ -128,6 +129,7 @@ public:
      * @brief Access this process's stdout.
      */
     std::istream& cout();
+#endif
 
 private:
     friend ChildProcess fork(const std::function<posix::exit::Status()>&, const StandardStream&);
