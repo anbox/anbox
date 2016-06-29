@@ -1,7 +1,6 @@
 LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libprocess-cpp-minimal
 LOCAL_SRC_FILES := \
     external/process-cpp-minimal/src/core/posix/process.cpp \
@@ -21,7 +20,6 @@ LOCAL_C_INCLUDES += \
 include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := EXECUTABLES
 LOCAL_MODULE := anboxd
 LOCAL_SRC_FILES := \
