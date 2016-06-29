@@ -29,7 +29,7 @@ class PendingCallCache;
 namespace android {
 class LocalSocketConnection;
 class MessageProcessor;
-class Server;
+class PlatformApi;
 class HostConnector {
 public:
     HostConnector();
@@ -43,7 +43,7 @@ private:
 
     std::shared_ptr<LocalSocketConnection> socket_;
     std::shared_ptr<bridge::PendingCallCache> pending_calls_;
-    std::shared_ptr<Server> server_;
+    std::shared_ptr<PlatformApi> platform_api_;
     std::shared_ptr<MessageProcessor> message_processor_;
     std::thread thread_;
     std::atomic<bool> running_;

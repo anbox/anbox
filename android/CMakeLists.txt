@@ -7,7 +7,7 @@ set(ANBOXD_SOURCES
     ${CMAKE_SOURCE_DIR}/src/anbox/bridge/message_processor.cpp
     ${CMAKE_SOURCE_DIR}/src/anbox/bridge/pending_call_cache.cpp
     ${CMAKE_SOURCE_DIR}/src/anbox/common/fd.cpp
-    service/server.cpp
+    service/platform_api.cpp
     service/message_processor.cpp
     service/local_socket_connection.cpp
     service/host_connector.cpp

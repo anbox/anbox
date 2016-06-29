@@ -30,7 +30,7 @@ LOCAL_SRC_FILES := \
     android/service/host_connector.cpp \
     android/service/local_socket_connection.cpp \
     android/service/message_processor.cpp \
-    android/service/server.cpp \
+    android/service/platform_api.cpp \
     src/anbox/common/fd.cpp \
     src/anbox/bridge/message_processor.cpp \
     src/anbox/bridge/pending_call_cache.cpp \

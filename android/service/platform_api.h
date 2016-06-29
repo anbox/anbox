@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_ANDROID_SERVER_H_
-#define ANBOX_ANDROID_SERVER_H_
+#ifndef ANBOX_ANDROID_PLATFORM_API_H_
+#define ANBOX_ANDROID_PLATFORM_API_H_
 
 namespace google {
 namespace protobuf {
@@ -34,10 +34,10 @@ class Void;
 } // namespace bridge
 } // namespace protobuf
 namespace android {
-class Server {
+class PlatformApi {
 public:
-    Server();
-    ~Server();
+    PlatformApi();
+    ~PlatformApi();
 
     void install_application(anbox::protobuf::bridge::InstallApplication const *request,
                              anbox::protobuf::bridge::Void *response,

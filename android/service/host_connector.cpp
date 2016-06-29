@@ -18,7 +18,7 @@
 #include "android/service/host_connector.h"
 #include "android/service/local_socket_connection.h"
 #include "android/service/message_processor.h"
-#include "android/service/server.h"
+#include "android/service/platform_api.h"
 
 #include <functional>
 #include <array>
@@ -28,8 +28,8 @@ namespace android {
 HostConnector::HostConnector() :
     socket_(std::make_shared<LocalSocketConnection>("/dev/anbox_bridge")),
     pending_calls_(std::make_shared<bridge::PendingCallCache>()),
-    server_(std::make_shared<Server>()),
-    message_processor_(std::make_shared<MessageProcessor>(socket_, pending_calls_, server_)),
+    platform_api_(std::make_shared<PlatformApi>()),
+    message_processor_(std::make_shared<MessageProcessor>(socket_, pending_calls_, platform_api_)),
     running_(false) {
 }
 

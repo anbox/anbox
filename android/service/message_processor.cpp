@@ -16,7 +16,7 @@
  */
 
 #include "android/service/message_processor.h"
-#include "android/service/server.h"
+#include "android/service/platform_api.h"
 
 #include "anbox/bridge/template_message_processor.h"
 
@@ -24,9 +24,9 @@ namespace anbox {
 namespace android {
 MessageProcessor::MessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
                                    const std::shared_ptr<bridge::PendingCallCache> &pending_calls,
-                                   const std::shared_ptr<Server> &server) :
+                                   const std::shared_ptr<PlatformApi> &platform_api) :
     bridge::MessageProcessor(sender, pending_calls),
-    server_(server) {
+    platform_api_(platform_api) {
 }
 
 MessageProcessor::~MessageProcessor() {
@@ -34,11 +34,11 @@ MessageProcessor::~MessageProcessor() {
 
 void MessageProcessor::dispatch(bridge::Invocation const& invocation) {
     if (invocation.method_name() == "install_application")
-        invoke(this, server_.get(), &Server::install_application, invocation);
+        invoke(this, platform_api_.get(), &PlatformApi::install_application, invocation);
     else if (invocation.method_name() == "launch_application")
-        invoke(this, server_.get(), &Server::launch_application, invocation);
+        invoke(this, platform_api_.get(), &PlatformApi::launch_application, invocation);
     else if (invocation.method_name() == "set_dns_servers")
-        invoke(this, server_.get(), &Server::set_dns_servers, invocation);
+        invoke(this, platform_api_.get(), &PlatformApi::set_dns_servers, invocation);
 }
 
 void MessageProcessor::process_event_sequence(const std::string&) {

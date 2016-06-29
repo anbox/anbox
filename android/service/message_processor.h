@@ -22,19 +22,19 @@
 
 namespace anbox {
 namespace android {
-class Server;
+class PlatformApi;
 class MessageProcessor : public bridge::MessageProcessor {
 public:
     MessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
                      const std::shared_ptr<bridge::PendingCallCache> &pending_calls,
-                     const std::shared_ptr<Server> &server);
+                     const std::shared_ptr<PlatformApi> &platform_api);
     ~MessageProcessor();
 
     void dispatch(bridge::Invocation const& invocation) override;
     void process_event_sequence(const std::string &event) override;
 
 private:
-    std::shared_ptr<Server> server_;
+    std::shared_ptr<PlatformApi> platform_api_;
 };
 } // namespace anbox
 } // namespace network

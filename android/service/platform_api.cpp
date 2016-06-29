@@ -15,7 +15,7 @@
  *
  */
 
-#include "android/service/server.h"
+#include "android/service/platform_api.h"
 
 #include "anbox_bridge.pb.h"
 
@@ -31,13 +31,13 @@ std::map<std::string,std::string> common_env = {
 
 namespace anbox {
 namespace android {
-Server::Server() {
+PlatformApi::PlatformApi() {
 }
 
-Server::~Server() {
+PlatformApi::~PlatformApi() {
 }
 
-void Server::install_application(anbox::protobuf::bridge::InstallApplication const *request,
+void PlatformApi::install_application(anbox::protobuf::bridge::InstallApplication const *request,
                                  anbox::protobuf::bridge::Void *response,
                                  google::protobuf::Closure *done) {
     (void) response;
@@ -54,7 +54,7 @@ void Server::install_application(anbox::protobuf::bridge::InstallApplication con
     done->Run();
 }
 
-void Server::launch_application(anbox::protobuf::bridge::LaunchApplication const *request,
+void PlatformApi::launch_application(anbox::protobuf::bridge::LaunchApplication const *request,
                                 anbox::protobuf::bridge::Void *response,
                                 google::protobuf::Closure *done) {
     (void) response;
@@ -75,7 +75,7 @@ void Server::launch_application(anbox::protobuf::bridge::LaunchApplication const
     done->Run();
 }
 
-void Server::set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *request,
+void PlatformApi::set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *request,
                              anbox::protobuf::bridge::Void *response,
                              google::protobuf::Closure *done) {
     (void) response;
