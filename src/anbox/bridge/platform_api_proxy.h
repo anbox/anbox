@@ -19,6 +19,7 @@
 #define ANBOX_ANDROID_APPLICATION_MANAGER_H_
 
 #include "anbox/application_manager.h"
+#include "anbox/common/wait_handle.h"
 
 #include <memory>
 #include <vector>
@@ -26,9 +27,7 @@
 namespace anbox {
 namespace protobuf {
 namespace bridge {
-class InstallApplication;
-class LaunchApplication;
-class SetDnsServers;
+class Void;
 } // namespace bridge
 } // namespace protobuf
 namespace bridge {
@@ -51,15 +50,20 @@ private:
 
     template<typename Response>
     struct Request {
-        Request() : response(std::make_shared<Response>()) { }
+        Request() : response(std::make_shared<Response>()), success(true) { }
         std::shared_ptr<Response> response;
+        bool success;
     };
 
-    void application_installed(Request<protobuf::bridge::InstallApplication> *request);
-    void application_launched(Request<protobuf::bridge::LaunchApplication> *request);
-    void dns_servers_set(Request<protobuf::bridge::SetDnsServers> *request);
+    void application_installed(Request<protobuf::bridge::Void> *request);
+    void application_launched(Request<protobuf::bridge::Void> *request);
+    void dns_servers_set(Request<protobuf::bridge::Void> *request);
 
+    mutable std::mutex mutex_;
     std::shared_ptr<RpcChannel> channel_;
+    common::WaitHandle install_wait_handle_;
+    common::WaitHandle launch_wait_handle_;
+    common::WaitHandle set_dns_servers_wait_handle_;
 };
 } // namespace bridge
 } // namespace anbox

@@ -62,42 +62,62 @@ void PlatformApiProxy::install(const std::string &path) {
     const auto container_path = utils::string_format("%s/%s",
         config::container_share_path(), fs::path(path).filename().string());
 
-    auto c = std::make_shared<Request<protobuf::bridge::InstallApplication>>();
+    auto c = std::make_shared<Request<protobuf::bridge::Void>>();
     protobuf::bridge::InstallApplication message;
     message.set_path(container_path);
+
+    {
+        std::lock_guard<decltype(mutex_)> lock(mutex_);
+        install_wait_handle_.expect_result();
+    }
 
     channel_->call_method("install_application",
                           &message,
                           c->response.get(),
                           google::protobuf::NewCallback(this, &PlatformApiProxy::application_installed, c.get()));
+
+    install_wait_handle_.wait_for_all();
+
+    if (c->response->has_error())
+        throw std::runtime_error(c->response->error());
 }
 
-void PlatformApiProxy::application_installed(Request<protobuf::bridge::InstallApplication> *request) {
-    DEBUG("");
+void PlatformApiProxy::application_installed(Request<protobuf::bridge::Void> *request) {
+    install_wait_handle_.result_received();
 }
 
 void PlatformApiProxy::launch(const std::string &package, const std::string &activity) {
     ensure_rpc_channel();
 
-    auto c = std::make_shared<Request<protobuf::bridge::LaunchApplication>>();
+    auto c = std::make_shared<Request<protobuf::bridge::Void>>();
     protobuf::bridge::LaunchApplication message;
     message.set_package_name(package);
     message.set_activity(activity);
+
+    {
+        std::lock_guard<decltype(mutex_)> lock(mutex_);
+        launch_wait_handle_.expect_result();
+    }
 
     channel_->call_method("launch_application",
                           &message,
                           c->response.get(),
                           google::protobuf::NewCallback(this, &PlatformApiProxy::application_launched, c.get()));
+
+    launch_wait_handle_.wait_for_all();
+
+    if (c->response->has_error())
+        throw std::runtime_error(c->response->error());
 }
 
-void PlatformApiProxy::application_launched(Request<protobuf::bridge::LaunchApplication> *request) {
-    DEBUG("");
+void PlatformApiProxy::application_launched(Request<protobuf::bridge::Void> *request) {
+    launch_wait_handle_.result_received();
 }
 
 void PlatformApiProxy::set_dns_servers(const std::string &domain, const std::vector<std::string> &servers) {
     ensure_rpc_channel();
 
-    auto c = std::make_shared<Request<protobuf::bridge::SetDnsServers>>();
+    auto c = std::make_shared<Request<protobuf::bridge::Void>>();
 
     protobuf::bridge::SetDnsServers message;
     message.set_domain(domain);
@@ -107,14 +127,24 @@ void PlatformApiProxy::set_dns_servers(const std::string &domain, const std::vec
         server_message->set_address(server);
     }
 
+    {
+        std::lock_guard<decltype(mutex_)> lock(mutex_);
+        set_dns_servers_wait_handle_.expect_result();
+    }
+
     channel_->call_method("set_dns_servers",
                           &message,
                           c->response.get(),
                           google::protobuf::NewCallback(this, &PlatformApiProxy::dns_servers_set, c.get()));
+
+    set_dns_servers_wait_handle_.wait_for_all();
+
+    if (c->response->has_error())
+        throw std::runtime_error(c->response->error());
 }
 
-void PlatformApiProxy::dns_servers_set(Request<protobuf::bridge::SetDnsServers> *request) {
-    DEBUG("");
+void PlatformApiProxy::dns_servers_set(Request<protobuf::bridge::Void> *request) {
+    set_dns_servers_wait_handle_.result_received();
 }
 } // namespace bridge
 } // namespace anbox

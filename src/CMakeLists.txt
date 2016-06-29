@@ -44,6 +44,7 @@ set(SOURCES
     anbox/common/fd.cpp
     anbox/common/fd_sets.h
     anbox/common/variable_length_array.h
+    anbox/common/wait_handle.cpp
 
     anbox/network/message_sender.h
     anbox/network/message_receiver.h
