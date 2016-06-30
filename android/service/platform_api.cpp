@@ -37,6 +37,17 @@ PlatformApi::PlatformApi() {
 PlatformApi::~PlatformApi() {
 }
 
+void PlatformApi::wait_for_process(core::posix::ChildProcess &process,
+                                   anbox::protobuf::bridge::Void *response) {
+    const auto result = process.wait_for(core::posix::wait::Flags::untraced);
+    if (result.status != core::posix::wait::Result::Status::exited ||
+        result.detail.if_exited.status != core::posix::exit::Status::success) {
+        response->set_error("Failed to install application");
+        // FIXME once we add proper error codes/domains we need to add structured error
+        // info the response here.
+    }
+}
+
 void PlatformApi::install_application(anbox::protobuf::bridge::InstallApplication const *request,
                                  anbox::protobuf::bridge::Void *response,
                                  google::protobuf::Closure *done) {
@@ -49,7 +60,7 @@ void PlatformApi::install_application(anbox::protobuf::bridge::InstallApplicatio
     };
 
     auto process = core::posix::exec("/system/bin/sh", argv, common_env, core::posix::StandardStream::empty);
-    process.wait_for(core::posix::wait::Flags::untraced);
+    wait_for_process(process, response);
 
     done->Run();
 }
@@ -70,7 +81,7 @@ void PlatformApi::launch_application(anbox::protobuf::bridge::LaunchApplication 
     };
 
     auto process = core::posix::exec("/system/bin/sh", argv, common_env, core::posix::StandardStream::empty);
-    process.wait_for(core::posix::wait::Flags::untraced);
+        wait_for_process(process, response);
 
     done->Run();
 }
@@ -91,7 +102,7 @@ void PlatformApi::set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *
         argv.push_back(request->servers(n).address());
 
     auto process = core::posix::exec("/system/bin/ndc", argv, common_env, core::posix::StandardStream::empty);
-    process.wait_for(core::posix::wait::Flags::untraced);
+    wait_for_process(process, response);
 
     done->Run();
 }

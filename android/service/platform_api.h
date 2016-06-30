@@ -24,6 +24,12 @@ class Closure;
 } // namespace protobuf
 } // namespace google
 
+namespace core {
+namespace posix {
+class ChildProcess;
+} // posix
+} // core
+
 namespace anbox {
 namespace protobuf {
 namespace bridge {
@@ -50,6 +56,10 @@ public:
     void set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *request,
                          anbox::protobuf::bridge::Void *response,
                          google::protobuf::Closure *done);
+
+private:
+    void wait_for_process(core::posix::ChildProcess &process,
+                          anbox::protobuf::bridge::Void *response);
 };
 } // namespace android
 } // namespace anbox
