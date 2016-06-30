@@ -21,6 +21,7 @@
 #include <EGL/egl.h>
 
 #include <memory>
+#include <vector>
 
 #include <mirclient/mir_toolkit/mir_client_library.h>
 
@@ -28,6 +29,7 @@ namespace anbox {
 namespace input {
 class Manager;
 class Device;
+class Event;
 } // namespace input
 namespace ubuntu {
 class MirDisplayConnection;
@@ -46,6 +48,8 @@ private:
     void handle_input_event(MirInputEvent const* input_event);
     void handle_touch_event(MirTouchEvent const* touch_event);
     void handle_pointer_event(MirPointerEvent const* pointer_event);
+    void handle_pointer_button_event(std::vector<input::Event> &events,
+                                     MirPointerEvent const* pointer_event, bool pressed);
 
     std::shared_ptr<input::Device> touchpanel_;
     std::shared_ptr<input::Device> pointer_;

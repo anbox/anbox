@@ -29,18 +29,18 @@
 
 namespace anbox {
 namespace input {
+struct Event {
+    std::uint16_t type;
+    std::uint16_t code;
+    std::int32_t value;
+};
+
 class Device : public std::enable_shared_from_this<Device> {
 public:
     static std::shared_ptr<Device> create(const std::string &path, const std::shared_ptr<Runtime> &runtime);
 
     Device();
     ~Device();
-
-    struct Event {
-        std::uint16_t type;
-        std::uint16_t code;
-        std::int32_t value;
-    };
 
     void send_events(const std::vector<Event> &events);
     void send_event(const std::uint16_t &code, const std::uint16_t &event, const std::int32_t &value);

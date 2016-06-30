@@ -136,15 +136,15 @@ Window::Window(const std::shared_ptr<MirDisplayConnection> &display,
     pointer_->set_driver_version(1);
     pointer_->set_input_id({ BUS_VIRTUAL, 1, 1, 1 });
     pointer_->set_physical_location("none");
+    pointer_->set_key_bit(BTN_MOUSE);
     pointer_->set_key_bit(BTN_LEFT);
-    pointer_->set_key_bit(BTN_RIGHT);
     pointer_->set_key_bit(BTN_MIDDLE);
+    pointer_->set_key_bit(BTN_RIGHT);
     pointer_->set_rel_bit(REL_X);
     pointer_->set_rel_bit(REL_Y);
     pointer_->set_rel_bit(REL_HWHEEL);
     pointer_->set_rel_bit(REL_WHEEL);
-    pointer_->set_abs_bit(ABS_X);
-    pointer_->set_abs_bit(ABS_Y);
+    pointer_->set_prop_bit(INPUT_PROP_POINTER);
 }
 
 Window::~Window() {
@@ -163,7 +163,7 @@ void Window::handle_touch_event(MirTouchEvent const* touch_event) {
         const auto touch_major = mir_touch_event_axis_value(touch_event, n, mir_touch_axis_touch_major);
         const auto touch_minor = mir_touch_event_axis_value(touch_event, n, mir_touch_axis_touch_minor);
 
-        std::vector<input::Device::Event> events;
+        std::vector<input::Event> events;
 
         switch (mir_touch_event_action(touch_event, n)) {
         case mir_touch_action_up:
@@ -200,8 +200,36 @@ void Window::handle_touch_event(MirTouchEvent const* touch_event) {
     }
 }
 
+void Window::handle_pointer_button_event(std::vector<input::Event> &events,
+                                         MirPointerEvent const* pointer_event, bool pressed) {
+    static uint32_t old_button_states = 0;
+    uint32_t new_button_states = mir_pointer_event_buttons(pointer_event);
+
+    MirPointerButton button_state = mir_pointer_button_primary;
+    button_state = static_cast<MirPointerButton>(new_button_states ^ old_button_states);
+
+    std::uint16_t button;
+
+    switch (button_state) {
+    case mir_pointer_button_primary:
+        button = BTN_LEFT;
+        break;
+    case mir_pointer_button_secondary:
+        button = BTN_RIGHT;
+        break;
+    case mir_pointer_button_tertiary:
+        button = BTN_MIDDLE;
+        break;
+    default:
+        break;
+    }
+
+    events.push_back({ EV_KEY, button, pressed ? 1 : 0 });
+    events.push_back({ EV_SYN, SYN_REPORT, 0 });
+}
+
 void Window::handle_pointer_event(MirPointerEvent const* pointer_event) {
-    std::vector<input::Device::Event> events;
+    std::vector<input::Event> events;
     static MirPointerButtons button_state = 0;
 
     const float x = mir_pointer_event_axis_value(pointer_event, mir_pointer_axis_x);
@@ -209,35 +237,10 @@ void Window::handle_pointer_event(MirPointerEvent const* pointer_event) {
 
     switch (mir_pointer_event_action(pointer_event)) {
     case mir_pointer_action_button_down:
-        events.push_back({ EV_ABS, ABS_X, static_cast<std::int32_t>(x) });
-        events.push_back({ EV_ABS, ABS_Y, static_cast<std::int32_t>(y) });
-
-        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_primary)) {
-            events.push_back({ EV_KEY, BTN_LEFT, 1 });
-            events.push_back({ EV_SYN, SYN_REPORT, 0 });
-        }
-        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_secondary)) {
-            events.push_back({ EV_KEY, BTN_RIGHT, 1 });
-            events.push_back({ EV_SYN, SYN_REPORT, 0 });
-        }
-        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_tertiary)) {
-            events.push_back({ EV_KEY, BTN_MIDDLE, 1 });
-            events.push_back({ EV_SYN, SYN_REPORT, 0 });
-        }
+        handle_pointer_button_event(events, pointer_event, true);
         break;
     case mir_pointer_action_button_up:
-        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_primary)) {
-            events.push_back({ EV_KEY, BTN_LEFT, 0 });
-            events.push_back({ EV_SYN, SYN_REPORT, 0 });
-        }
-        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_secondary)) {
-            events.push_back({ EV_KEY, BTN_RIGHT, 0 });
-            events.push_back({ EV_SYN, SYN_REPORT, 0 });
-        }
-        if (mir_pointer_event_button_state(pointer_event, mir_pointer_button_tertiary)) {
-            events.push_back({ EV_KEY, BTN_MIDDLE, 0 });
-            events.push_back({ EV_SYN, SYN_REPORT, 0 });
-        }
+        handle_pointer_button_event(events, pointer_event, false);
         break;
     case mir_pointer_action_motion:
         {
@@ -277,8 +280,10 @@ void Window::handle_input_event(MirInputEvent const* input_event) {
         handle_touch_event(touch_event);
         break;
     case mir_input_event_type_pointer:
+#if 0
         pointer_event = mir_input_event_get_pointer_event(input_event);
         handle_pointer_event(pointer_event);
+#endif
         break;
     case mir_input_event_type_key:
         key_event = mir_input_event_get_keyboard_event(input_event);
