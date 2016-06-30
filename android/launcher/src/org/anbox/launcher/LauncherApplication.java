@@ -20,8 +20,6 @@ package org.anbox.launcher;
 import android.app.Application;
 import android.util.Log;
 
-import org.anbox.launcher.R;
-
 public class LauncherApplication extends Application {
     static final String TAG = "LauncherApplication";
 

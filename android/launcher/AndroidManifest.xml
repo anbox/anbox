@@ -4,13 +4,13 @@
     package="org.anbox.launcher">
 
     <application
-        android:name="org.anbox.launcher.LauncherApplication"
+        android:name=".LauncherApplication"
         android:label="Anbox Launcher"
         android:hardwareAccelerated="true"
         android:largeHeap="false"
         android:supportsRtl="true">
         <activity
-            android:name="org.anbox.launcher.Launcher"
+            android:name=".Launcher"
             android:launchMode="singleTask"
             android:clearTaskOnLaunch="true"
             android:stateNotNeeded="true"

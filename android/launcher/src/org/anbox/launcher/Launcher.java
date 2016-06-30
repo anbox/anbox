@@ -18,6 +18,7 @@
 package org.anbox.launcher;
 
 import android.app.Activity;
+import android.os.Bundle;
 
 /**
  * Default launcher application.
