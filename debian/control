@@ -1,0 +1,45 @@
+Source: anbox
+Section: utils
+Priority: optional
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+XSBC-Original-Maintainer: Simon Fels <simon.fels@canonical.com>
+Build-Depends: cmake,
+               debhelper (>= 9),
+               dbus,
+               google-mock,
+               libboost-dev,
+               libboost-filesystem-dev,
+               libboost-log-dev,
+               libboost-iostreams-dev,
+               libboost-program-options-dev,
+               libboost-system-dev,
+# boost log needs exactly one symbol from boost-thread for resolving
+# thread-specific storage locations.
+               libboost-thread-dev,
+               libdbus-cpp-dev,
+               libglib2.0-dev,
+               libgtest-dev,
+               libprotobuf-dev,
+               pkg-config,
+               protobuf-compiler
+Standards-Version: 3.9.4
+Homepage: http://launchpad.net/aethercast
+# If you aren't a member of ~anbox-team but need to upload packaging changes,
+# just go ahead.  ~anbox-team will notice and sync up the code again.
+Vcs-Git: git+ssh://git.launchpad.net/anbox
+Vcs-Browser: https://git.launchpad.net/anbox
+
+Package: anbox
+Architecture: i386 amd64 armhf arm64
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+# Provides newuidmap/newgidmap setuid helpers to initialize
+# a user namespace.
+         uidmap,
+# We depend on lxc-usernsexec as helper to spawn up the user
+# namespace for our container.
+         lxc
+Description: Android in a Box
+ Runtime for Android applications which runs a full Android system
+ in a container using Linux namespaces (user, ipc, net, mount) to
+ separate the Android system fully from the host.
