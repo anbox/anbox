@@ -37,7 +37,7 @@ struct ApplicationManager {
             static inline std::string name() { return "Install"; }
             typedef anbox::dbus::interface::ApplicationManager Interface;
             typedef void ResultType;
-            static inline std::chrono::milliseconds default_timeout() { return std::chrono::seconds{1}; }
+            static inline std::chrono::milliseconds default_timeout() { return std::chrono::seconds{240}; }
         };
         struct Launch {
             static inline std::string name() { return "Launch"; }
