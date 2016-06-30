@@ -18,14 +18,19 @@
 #ifndef ANBOX_ANDROID_SURFACE_COMPOSER_H_
 #define ANBOX_ANDROID_SURFACE_COMPOSER_H_
 
+#include <gui/IGraphicBufferProducer.h>
+#include <gui/IGraphicBufferConsumer.h>
 #include <gui/ISurfaceComposer.h>
 #include <ui/Rect.h>
 #include <binder/BinderService.h>
 
 using namespace android;
 
+struct framebuffer_device_t;
+
 namespace anbox {
 namespace android {
+class Framebuffer;
 class SurfaceComposer : public BinderService<SurfaceComposer>,
                         public BnSurfaceComposer,
                         public IBinder::DeathRecipient {
@@ -33,6 +38,7 @@ public:
     static char const *getServiceName() { return "SurfaceFlinger"; }
 
     SurfaceComposer();
+    virtual ~SurfaceComposer();
 
     void binderDied(const wp<IBinder>& who) override;
 
@@ -62,6 +68,7 @@ public:
 
 private:
     sp<IBinder> mPrimaryDisplay;
+    framebuffer_device_t *mFbDev;
 };
 } // namespace android
 } // namespace anbox

@@ -25,8 +25,12 @@
 #include <gui/DisplayEventReceiver.h>
 #include <gui/IDisplayEventConnection.h>
 #include <gui/BitTube.h>
+#include <gui/BufferQueue.h>
 
 #include <hardware/hwcomposer_defs.h>
+#include <hardware/hardware.h>
+
+#include <cutils/properties.h>
 
 namespace {
 class DisplayDevice {
@@ -66,6 +70,16 @@ private:
 
 private:
     sp<BitTube> const mChannel;
+};
+
+class Surface {
+public:
+    Surface() {
+        BufferQueue::createBufferQueue(&producer, &consumer);
+    }
+
+    sp<IGraphicBufferProducer> producer;
+    sp<IGraphicBufferConsumer> consumer;
 };
 
 class Client : public BnSurfaceComposerClient {
@@ -108,6 +122,19 @@ namespace anbox {
 namespace android {
 SurfaceComposer::SurfaceComposer() :
     mPrimaryDisplay(new BBinder) {
+
+    hw_module_t const* module;
+    int err = hw_get_module(GRALLOC_HARDWARE_MODULE_ID, &module);
+    if (err != 0) {
+        ALOGE("%s module not found", GRALLOC_HARDWARE_MODULE_ID);
+        return;
+    }
+    framebuffer_open(module, &mFbDev);
+}
+
+SurfaceComposer::~SurfaceComposer() {
+    if (mFbDev)
+        framebuffer_close(mFbDev);
 }
 
 void SurfaceComposer::binderDied(const wp<IBinder>&) {
@@ -158,6 +185,18 @@ void SurfaceComposer::setTransactionState(const Vector<ComposerState>& state,
 
 void SurfaceComposer::bootFinished() {
     ALOGI("%s", __PRETTY_FUNCTION__);
+
+    // wait patiently for the window manager death
+    const String16 name("window");
+    sp<IBinder> window(defaultServiceManager()->getService(name));
+    if (window != 0) {
+        window->linkToDeath(static_cast<IBinder::DeathRecipient*>(this));
+    }
+
+    // stop boot animation
+    // formerly we would just kill the process, but we now ask it to exit so it
+    // can choose where to stop the animation.
+    property_set("service.bootanim.exit", "1");
 }
 
 bool SurfaceComposer::authenticateSurfaceTexture(const sp<IGraphicBufferProducer>& surface) const  {
@@ -174,12 +213,32 @@ status_t SurfaceComposer::getDisplayConfigs(const sp<IBinder>& display, Vector<D
 
     configs->clear();
 
+    class Density {
+        static int getDensityFromProperty(char const* propName) {
+            char property[PROPERTY_VALUE_MAX];
+            int density = 0;
+            if (property_get(propName, property, NULL) > 0) {
+                density = atoi(property);
+            }
+            return density;
+        }
+    public:
+        static int getBuildDensity()  {
+            return getDensityFromProperty("ro.sf.lcd_density"); }
+    };
+
+    float density = Density::getBuildDensity() / 160.0f;
+
+    // We will provide a single display configuration element here which is
+    // the framebuffer we're based on. No further display configurations
+    // are needed in our case.
     DisplayInfo info = DisplayInfo();
-    info.w = 0;
-    info.h = 0;
-    info.xdpi = 0;
-    info.ydpi = 0;
-    info.fps = 60;
+    info.density = density;
+    info.w = mFbDev->width;
+    info.h = mFbDev->height;
+    info.xdpi = mFbDev->xdpi;
+    info.ydpi = mFbDev->ydpi;
+    info.fps = mFbDev->fps;
     info.secure = true;
     configs->push_back(info);
 
@@ -188,11 +247,13 @@ status_t SurfaceComposer::getDisplayConfigs(const sp<IBinder>& display, Vector<D
 
 status_t SurfaceComposer::getDisplayStats(const sp<IBinder>& display, DisplayStatInfo* stats) {
     ALOGI("%s", __PRETTY_FUNCTION__);
-    return OK;
+    return NO_ERROR;
 }
 
 int SurfaceComposer::getActiveConfig(const sp<IBinder>& display) {
     ALOGI("%s", __PRETTY_FUNCTION__);
+
+    // We only provide one so it will be always our default
     return 0;
 }
 
