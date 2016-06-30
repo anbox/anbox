@@ -1,4 +1,4 @@
-LOCAL_PATH:= $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libprocess-cpp-minimal
@@ -52,6 +52,12 @@ LOCAL_CFLAGS := \
     -std=c++1y
 include $(BUILD_EXECUTABLE)
 
-# The compositor has its Android.mk in its subfolder as it should not
-# depend on any other anbox sources.
-include $(call all-makefiles-under, $(LOCAL_PATH)/android/shared_compositor)
+# Include the Android.mk files below will override LOCAL_PATH so we
+# have to take a copy of it here.
+TMP_PATH := $(LOCAL_PATH)
+
+# The compositor and launcher have their own Android.mk in their subfolders
+# as they should not depend on any other anbox sources.
+# include $(LOCAL_PATH)/android/shared_compositor/Android.mk
+include $(TMP_PATH)/android/launcher/Android.mk
+include $(TMP_PATH)/android/shared_compositor/Android.mk
