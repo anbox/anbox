@@ -15,23 +15,23 @@
  *
  */
 
-#ifndef ANBOX_SUPPORT_BOOT_PROPERTIES_MESSAGE_PROCESSOR_H_
-#define ANBOX_SUPPORT_BOOT_PROPERTIES_MESSAGE_PROCESSOR_H_
+#ifndef ANBOX_QEMU_SENSORS_MESSAGE_PROCESSOR_H_
+#define ANBOX_QEMU_SENSORS_MESSAGE_PROCESSOR_H_
 
-#include "anbox/support/qemud_message_processor.h"
+#include "anbox/qemu/qemud_message_processor.h"
 
 namespace anbox {
-namespace support {
-class BootPropertiesMessageProcessor : public QemudMessageProcessor {
+namespace qemu {
+class SensorsMessageProcessor : public QemudMessageProcessor {
 public:
-    BootPropertiesMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~BootPropertiesMessageProcessor();
+    SensorsMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
+    ~SensorsMessageProcessor();
 
 protected:
     void handle_command(const std::string &command) override;
 
 private:
-    void list_properties();
+    void list_sensors();
 };
 } // namespace graphics
 } // namespace anbox

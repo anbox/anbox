@@ -15,25 +15,29 @@
  *
  */
 
-#ifndef ANBOX_SUPPORT_SENSORS_MESSAGE_PROCESSOR_H_
-#define ANBOX_SUPPORT_SENSORS_MESSAGE_PROCESSOR_H_
-
-#include "anbox/support/qemud_message_processor.h"
+#include "anbox/logger.h"
+#include "anbox/qemu/fingerprint_message_processor.h"
 
 namespace anbox {
-namespace support {
-class SensorsMessageProcessor : public QemudMessageProcessor {
-public:
-    SensorsMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~SensorsMessageProcessor();
+namespace qemu {
+FingerprintMessageProcessor::FingerprintMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
+    QemudMessageProcessor(messenger) {
+}
 
-protected:
-    void handle_command(const std::string &command) override;
+FingerprintMessageProcessor::~FingerprintMessageProcessor() {
+}
 
-private:
-    void list_sensors();
-};
-} // namespace graphics
+void FingerprintMessageProcessor::handle_command(const std::string &command) {
+    if (command == "listen")
+        listen();
+}
+
+void FingerprintMessageProcessor::listen() {
+    char buf[12];
+    snprintf(buf, sizeof(buf), "off");
+    send_header(strlen(buf));
+    messenger_->send(buf, strlen(buf));
+    finish_message();
+}
+} // namespace qemu
 } // namespace anbox
-
-#endif

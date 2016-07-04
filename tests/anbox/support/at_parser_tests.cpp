@@ -15,14 +15,14 @@
  *
  */
 
-#include "anbox/support/at_parser.h"
+#include "anbox/qemu/at_parser.h"
 
 #include <gtest/gtest.h>
 
 #include <algorithm>
 
 TEST(AtParser, BasicCommands) {
-    anbox::support::AtParser parser;
+    anbox::qemu::AtParser parser;
 
     std::string command = "ATE0Q0V1\nATE0Q0V1\n";
     std::vector<uint8_t> data;

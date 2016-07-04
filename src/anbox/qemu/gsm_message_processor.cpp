@@ -16,8 +16,8 @@
  */
 
 #include "anbox/logger.h"
-#include "anbox/support/gsm_message_processor.h"
-#include "anbox/support/at_parser.h"
+#include "anbox/qemu/gsm_message_processor.h"
+#include "anbox/qemu/at_parser.h"
 
 #include <algorithm>
 #include <functional>
@@ -25,7 +25,7 @@
 using namespace std::placeholders;
 
 namespace anbox {
-namespace support {
+namespace qemu {
 GsmMessageProcessor::GsmMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
     messenger_(messenger),
     parser_(std::make_shared<AtParser>()) {
@@ -107,5 +107,5 @@ void GsmMessageProcessor::handle_cfun(const std::string &command) {
     else if (utils::string_starts_with(command, "+CFUN="))
         send_reply("");
 }
-} // namespace support
+} // namespace qemu
 } // namespace anbox

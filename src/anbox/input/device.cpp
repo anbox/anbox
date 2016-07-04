@@ -19,7 +19,7 @@
 #include "anbox/network/delegate_connection_creator.h"
 #include "anbox/network/delegate_message_processor.h"
 #include "anbox/network/socket_messenger.h"
-#include "anbox/support/null_message_processor.h"
+#include "anbox/qemu/null_message_processor.h"
 #include "anbox/logger.h"
 
 #include <time.h>
@@ -163,7 +163,7 @@ void Device::new_client(std::shared_ptr<boost::asio::local::stream_protocol::soc
     auto const messenger = std::make_shared<network::SocketMessenger>(socket);
     auto const& connection = std::make_shared<network::SocketConnection>(
                 messenger, messenger, next_id(), connections_,
-                std::make_shared<support::NullMessageProcessor>());
+                std::make_shared<qemu::NullMessageProcessor>());
 
     connections_->add(connection);
 

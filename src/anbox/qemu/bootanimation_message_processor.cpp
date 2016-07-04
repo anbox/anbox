@@ -16,12 +16,12 @@
  */
 
 #include "anbox/logger.h"
-#include "anbox/support/bootanimation_message_processor.h"
+#include "anbox/qemu//bootanimation_message_processor.h"
 
 #include <fstream>
 
 namespace anbox {
-namespace support {
+namespace qemu {
 BootAnimationMessageProcessor::BootAnimationMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger,
                                                              const std::string &icon_path) :
     QemudMessageProcessor(messenger),
@@ -48,5 +48,5 @@ void BootAnimationMessageProcessor::retrieve_icon() {
     }
 }
 
-} // namespace support
+} // namespace qemu
 } // namespace anbox

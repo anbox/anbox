@@ -15,34 +15,24 @@
  *
  */
 
-#ifndef ANBOX_SUPPORT_AT_PARSER_H_
-#define ANBOX_SUPPORT_AT_PARSER_H_
-
-#include <vector>
-#include <map>
-#include <string>
-#include <memory>
-
-#include "anbox/do_not_copy_or_move.h"
+#include "anbox/qemu/telephony_manager.h"
+#include "anbox/dbus/ofono.h"
+#include "anbox/logger.h"
 
 namespace anbox {
-namespace support {
-class AtParser {
-public:
-    typedef std::function<void(const std::string&)> CommandHandler;
+namespace qemu {
+TelephonyManager::TelephonyManager(const core::dbus::Bus::Ptr &bus) :
+    bus_(bus) {
+    ofono_ = core::dbus::Service::use_service(bus_, "org.ofono");
+    modem_ = ofono_->object_for_path({"/ril_0"});
 
-    AtParser();
+    auto netreg_prop_changed = modem_->get_signal<org::ofono::NetworkRegistration::Signals::PropertyChanged>();
+    netreg_prop_changed->connect([&](const org::ofono::NetworkRegistration::Signals::PropertyChanged::ArgumentType &arguments) {
+        DEBUG("org::ofono::NetworkRegistration::PropertyChanged");
+    });
+}
 
-    void register_command(const std::string &command, CommandHandler handler);
-
-    void process_data(std::vector<std::uint8_t> &data);
-
-private:
-    void processs_command(const std::string &command);
-
-    std::map<std::string,CommandHandler> handlers_;
-};
-} // namespace support
+TelephonyManager::~TelephonyManager() {
+}
+} // namespace qemu
 } // namespace anbox
-
-#endif

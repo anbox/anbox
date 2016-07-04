@@ -15,29 +15,23 @@
  *
  */
 
+#include "anbox/qemu/null_message_processor.h"
+#include "anbox/utils.h"
 #include "anbox/logger.h"
-#include "anbox/support/fingerprint_message_processor.h"
+
+#include <string.h>
 
 namespace anbox {
-namespace support {
-FingerprintMessageProcessor::FingerprintMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
-    QemudMessageProcessor(messenger) {
+namespace qemu {
+NullMessageProcessor::NullMessageProcessor() {
 }
 
-FingerprintMessageProcessor::~FingerprintMessageProcessor() {
+NullMessageProcessor::~NullMessageProcessor() {
 }
 
-void FingerprintMessageProcessor::handle_command(const std::string &command) {
-    if (command == "listen")
-        listen();
+bool NullMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
+    DEBUG("Received: %s", utils::hex_dump(data.data(), data.size()));
+    return true;
 }
-
-void FingerprintMessageProcessor::listen() {
-    char buf[12];
-    snprintf(buf, sizeof(buf), "off");
-    send_header(strlen(buf));
-    messenger_->send(buf, strlen(buf));
-    finish_message();
-}
-} // namespace support
+} // namespace qemu
 } // namespace anbox

@@ -15,23 +15,32 @@
  *
  */
 
-#include "anbox/support/null_message_processor.h"
-#include "anbox/utils.h"
 #include "anbox/logger.h"
-
-#include <string.h>
+#include "anbox/qemu/sensors_message_processor.h"
 
 namespace anbox {
-namespace support {
-NullMessageProcessor::NullMessageProcessor() {
+namespace qemu {
+SensorsMessageProcessor::SensorsMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
+    QemudMessageProcessor(messenger) {
 }
 
-NullMessageProcessor::~NullMessageProcessor() {
+SensorsMessageProcessor::~SensorsMessageProcessor() {
 }
 
-bool NullMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
-    DEBUG("Received: %s", utils::hex_dump(data.data(), data.size()));
-    return true;
+void SensorsMessageProcessor::handle_command(const std::string &command) {
+    DEBUG("command %s", command);
+    if (command == "list-sensors")
+        list_sensors();
 }
-} // namespace support
+
+void SensorsMessageProcessor::list_sensors() {
+    // We don't support sensors yet so we mark all as disabled
+    int mask = 0;
+    char buf[12];
+    snprintf(buf, sizeof(buf), "%d", mask);
+    send_header(strlen(buf));
+    messenger_->send(buf, strlen(buf));
+    finish_message();
+}
+} // namespace qemu
 } // namespace anbox

@@ -15,11 +15,11 @@
  *
  */
 
-#include "anbox/support/boot_properties_message_processor.h"
+#include "anbox/qemu//boot_properties_message_processor.h"
 #include "anbox/logger.h"
 
 namespace anbox {
-namespace support {
+namespace qemu {
 BootPropertiesMessageProcessor::BootPropertiesMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
     QemudMessageProcessor(messenger) {
 }
@@ -74,5 +74,5 @@ void BootPropertiesMessageProcessor::list_properties() {
 
     finish_message();
 }
-} // namespace support
+} // namespace qemu
 } // namespace anbox

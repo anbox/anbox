@@ -15,26 +15,25 @@
  *
  */
 
-#ifndef ANBOX_SUPPORT_TELEPHONY_MANAGER_H_
-#define ANBOX_SUPPORT_TELEPHONY_MANAGER_H_
+#ifndef ANBOX_QEMU_BOOT_PROPERTIES_MESSAGE_PROCESSOR_H_
+#define ANBOX_QEMU_BOOT_PROPERTIES_MESSAGE_PROCESSOR_H_
 
-#include <core/dbus/bus.h>
-#include <core/dbus/service.h>
-#include <core/dbus/object.h>
+#include "anbox/qemu//qemud_message_processor.h"
 
 namespace anbox {
-namespace support {
-class TelephonyManager {
+namespace qemu {
+class BootPropertiesMessageProcessor : public QemudMessageProcessor {
 public:
-    TelephonyManager(const core::dbus::Bus::Ptr &bus);
-    ~TelephonyManager();
+    BootPropertiesMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
+    ~BootPropertiesMessageProcessor();
+
+protected:
+    void handle_command(const std::string &command) override;
 
 private:
-    core::dbus::Bus::Ptr bus_;
-    core::dbus::Service::Ptr ofono_;
-    core::dbus::Object::Ptr modem_;
+    void list_properties();
 };
-} // namespace support
+} // namespace graphics
 } // namespace anbox
 
 #endif

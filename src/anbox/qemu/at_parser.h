@@ -15,21 +15,34 @@
  *
  */
 
-#ifndef ANBOX_SUPPORT_NULL_MESSAGE_PROCESSOR_H_
-#define ANBOX_SUPPORT_NULL_MESSAGE_PROCESSOR_H_
+#ifndef ANBOX_QEMU_AT_PARSER_H_
+#define ANBOX_QEMU_AT_PARSER_H_
 
-#include "anbox/network/message_processor.h"
+#include <vector>
+#include <map>
+#include <string>
+#include <memory>
+
+#include "anbox/do_not_copy_or_move.h"
 
 namespace anbox {
-namespace support {
-class NullMessageProcessor : public network::MessageProcessor {
+namespace qemu {
+class AtParser {
 public:
-    NullMessageProcessor();
-    ~NullMessageProcessor();
+    typedef std::function<void(const std::string&)> CommandHandler;
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
+    AtParser();
+
+    void register_command(const std::string &command, CommandHandler handler);
+
+    void process_data(std::vector<std::uint8_t> &data);
+
+private:
+    void processs_command(const std::string &command);
+
+    std::map<std::string,CommandHandler> handlers_;
 };
-} // namespace graphics
+} // namespace qemu
 } // namespace anbox
 
 #endif

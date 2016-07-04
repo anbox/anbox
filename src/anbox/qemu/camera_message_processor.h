@@ -15,32 +15,28 @@
  *
  */
 
-#ifndef ANBOX_SUPPORT_QEMUD_MESSAGE_PROCESSOR_H_
-#define ANBOX_SUPPORT_QEMUD_MESSAGE_PROCESSOR_H_
+#ifndef ANBOX_QEMU_CAMERA_MESSAGE_PROCESSOR_H_
+#define ANBOX_QEMU_CAMERA_MESSAGE_PROCESSOR_H_
 
 #include "anbox/network/message_processor.h"
 #include "anbox/network/socket_messenger.h"
 
 namespace anbox {
-namespace support {
-class QemudMessageProcessor : public network::MessageProcessor {
+namespace qemu {
+class CameraMessageProcessor : public network::MessageProcessor {
 public:
-    QemudMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~QemudMessageProcessor();
+    CameraMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
+    ~CameraMessageProcessor();
 
     bool process_data(const std::vector<std::uint8_t> &data) override;
-
-protected:
-    virtual void handle_command(const std::string &command) = 0;
-
-    void send_header(const size_t &size);
-    void finish_message();
-
-    std::shared_ptr<network::SocketMessenger> messenger_;
 
 private:
     void process_commands();
 
+    void handle_command(const std::string &command);
+    void list();
+
+    std::shared_ptr<network::SocketMessenger> messenger_;
     std::vector<std::uint8_t> buffer_;
 };
 } // namespace graphics

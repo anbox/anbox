@@ -30,15 +30,14 @@
 #include "anbox/network/socket_messenger.h"
 
 namespace anbox {
-namespace network {
-
-class QemuPipeConnectionCreator : public ConnectionCreator {
+namespace qemu {
+class PipeConnectionCreator : public network::ConnectionCreator {
 public:
-    QemuPipeConnectionCreator(
+    PipeConnectionCreator(
             const std::shared_ptr<Runtime> &rt,
             const std::string &renderer_socket_path,
             const std::string &boot_animation_icon_path);
-    ~QemuPipeConnectionCreator() noexcept;
+    ~PipeConnectionCreator() noexcept;
 
     void create_connection_for(
         std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket) override;
@@ -58,18 +57,18 @@ public:
 private:
     int next_id();
 
-    client_type identify_client(std::shared_ptr<SocketMessenger> const& messenger);
-    std::shared_ptr<MessageProcessor> create_processor(
-            const client_type &type, const std::shared_ptr<SocketMessenger> &messenger);
+    client_type identify_client(std::shared_ptr<network::SocketMessenger> const& messenger);
+    std::shared_ptr<network::MessageProcessor> create_processor(
+            const client_type &type, const std::shared_ptr<network::SocketMessenger> &messenger);
 
     std::shared_ptr<Runtime> runtime_;
     std::atomic<int> next_connection_id_;
-    std::shared_ptr<Connections<SocketConnection>> const connections_;
+    std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;
 
     std::string renderer_socket_path_;
     std::string boot_animation_icon_path_;
 };
+} // namespace qemu
 } // namespace anbox
-} // namespace network
 
 #endif

@@ -15,14 +15,14 @@
  *
  */
 
-#ifndef ANBOX_SUPPORT_GSM_MESSAGE_PROCESSOR_H_
-#define ANBOX_SUPPORT_GSM_MESSAGE_PROCESSOR_H_
+#ifndef ANBOX_QEMU_GSM_MESSAGE_PROCESSOR_H_
+#define ANBOX_QEMU_GSM_MESSAGE_PROCESSOR_H_
 
 #include "anbox/network/message_processor.h"
 #include "anbox/network/socket_messenger.h"
 
 namespace anbox {
-namespace support {
+namespace qemu {
 class AtParser;
 class GsmMessageProcessor : public network::MessageProcessor {
 public:

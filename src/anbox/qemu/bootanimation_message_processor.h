@@ -15,13 +15,13 @@
  *
  */
 
-#ifndef ANBOX_SUPPORT_BOOT_ANIMATION_MESSAGE_PROCESSOR_H_
-#define ANBOX_SUPPORT_BOOT_ANIMATION_MESSAGE_PROCESSOR_H_
+#ifndef ANBOX_QEMU_BOOT_ANIMATION_MESSAGE_PROCESSOR_H_
+#define ANBOX_QEMU_BOOT_ANIMATION_MESSAGE_PROCESSOR_H_
 
-#include "anbox/support/qemud_message_processor.h"
+#include "anbox/qemu//qemud_message_processor.h"
 
 namespace anbox {
-namespace support {
+namespace qemu {
 class BootAnimationMessageProcessor : public QemudMessageProcessor {
 public:
     BootAnimationMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger,

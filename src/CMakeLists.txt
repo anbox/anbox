@@ -52,7 +52,6 @@ set(SOURCES
     anbox/network/message_processor.h
     anbox/network/connector.h
     anbox/network/connection_creator.h
-    anbox/network/qemu_pipe_connection_creator.cpp
     anbox/network/published_socket_connector.cpp
     anbox/network/connections.h
     anbox/network/socket_connection.cpp
@@ -67,16 +66,17 @@ set(SOURCES
     anbox/input/manager.cpp
     anbox/input/device.cpp
 
-    anbox/support/null_message_processor.cpp
-    anbox/support/qemud_message_processor.cpp
-    anbox/support/boot_properties_message_processor.cpp
-    anbox/support/hwcontrol_message_processor.cpp
-    anbox/support/sensors_message_processor.cpp
-    anbox/support/camera_message_processor.cpp
-    anbox/support/fingerprint_message_processor.cpp
-    anbox/support/gsm_message_processor.cpp
-    anbox/support/at_parser.cpp
-    anbox/support/bootanimation_message_processor.cpp
+    anbox/qemu/pipe_connection_creator.cpp
+    anbox/qemu/null_message_processor.cpp
+    anbox/qemu/qemud_message_processor.cpp
+    anbox/qemu/boot_properties_message_processor.cpp
+    anbox/qemu/hwcontrol_message_processor.cpp
+    anbox/qemu/sensors_message_processor.cpp
+    anbox/qemu/camera_message_processor.cpp
+    anbox/qemu/fingerprint_message_processor.cpp
+    anbox/qemu/gsm_message_processor.cpp
+    anbox/qemu/at_parser.cpp
+    anbox/qemu/bootanimation_message_processor.cpp
 
     anbox/bridge/constants.h
     anbox/bridge/connection_creator.cpp

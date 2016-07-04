@@ -27,7 +27,7 @@
 #include "anbox/common/dispatcher.h"
 #include "anbox/cmds/run.h"
 #include "anbox/network/published_socket_connector.h"
-#include "anbox/network/qemu_pipe_connection_creator.h"
+#include "anbox/qemu/pipe_connection_creator.h"
 #include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/input/manager.h"
 #include "anbox/bridge/connection_creator.h"
@@ -109,9 +109,9 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         auto qemu_pipe_connector = std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/qemu_pipe", config::data_path()),
             rt,
-            std::make_shared<network::QemuPipeConnectionCreator>(rt,
-                                                                 renderer->socket_path(),
-                                                                 icon_));
+            std::make_shared<qemu::PipeConnectionCreator>(rt,
+                                                          renderer->socket_path(),
+                                                          icon_));
 
         auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 

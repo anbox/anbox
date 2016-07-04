@@ -18,52 +18,52 @@
 #include <string>
 
 #include "anbox/logger.h"
-#include "anbox/network/qemu_pipe_connection_creator.h"
 #include "anbox/network/socket_messenger.h"
 #include "anbox/graphics/opengles_message_processor.h"
-#include "anbox/support/boot_properties_message_processor.h"
-#include "anbox/support/null_message_processor.h"
-#include "anbox/support/hwcontrol_message_processor.h"
-#include "anbox/support/sensors_message_processor.h"
-#include "anbox/support/camera_message_processor.h"
-#include "anbox/support/fingerprint_message_processor.h"
-#include "anbox/support/gsm_message_processor.h"
-#include "anbox/support/bootanimation_message_processor.h"
+#include "anbox/qemu/pipe_connection_creator.h"
+#include "anbox/qemu/boot_properties_message_processor.h"
+#include "anbox/qemu/null_message_processor.h"
+#include "anbox/qemu/hwcontrol_message_processor.h"
+#include "anbox/qemu/sensors_message_processor.h"
+#include "anbox/qemu/camera_message_processor.h"
+#include "anbox/qemu/fingerprint_message_processor.h"
+#include "anbox/qemu/gsm_message_processor.h"
+#include "anbox/qemu/bootanimation_message_processor.h"
 
 namespace ba = boost::asio;
 
 namespace anbox {
-namespace network {
-QemuPipeConnectionCreator::QemuPipeConnectionCreator(const std::shared_ptr<Runtime> &rt,
-                                                     const std::string &renderer_socket_path,
-                                                     const std::string &boot_animation_icon_path) :
+namespace qemu {
+PipeConnectionCreator::PipeConnectionCreator(const std::shared_ptr<Runtime> &rt,
+                                             const std::string &renderer_socket_path,
+                                             const std::string &boot_animation_icon_path) :
     runtime_(rt),
     next_connection_id_(0),
-    connections_(std::make_shared<Connections<SocketConnection>>()),
+    connections_(std::make_shared<network::Connections<network::SocketConnection>>()),
     renderer_socket_path_(renderer_socket_path),
     boot_animation_icon_path_(boot_animation_icon_path) {
 }
 
-QemuPipeConnectionCreator::~QemuPipeConnectionCreator() {
+PipeConnectionCreator::~PipeConnectionCreator() {
 }
 
-void QemuPipeConnectionCreator::create_connection_for(
+void PipeConnectionCreator::create_connection_for(
         std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket) {
 
-    auto const messenger = std::make_shared<SocketMessenger>(socket);
+    auto const messenger = std::make_shared<network::SocketMessenger>(socket);
     const auto type = identify_client(messenger);
     auto const processor = create_processor(type, messenger);
     if (!processor)
         BOOST_THROW_EXCEPTION(std::runtime_error("Unhandled client type"));
 
-    auto const& connection = std::make_shared<SocketConnection>(
+    auto const& connection = std::make_shared<network::SocketConnection>(
                 messenger, messenger, next_id(), connections_, processor);
     connections_->add(connection);
     connection->read_next_message();
 }
 
-QemuPipeConnectionCreator::client_type QemuPipeConnectionCreator::identify_client(
-        std::shared_ptr<SocketMessenger> const& messenger) {
+PipeConnectionCreator::client_type PipeConnectionCreator::identify_client(
+        std::shared_ptr<network::SocketMessenger> const& messenger) {
 
     // The client will identify itself as first thing by writing a string
     // in the format 'pipe:<name>[:<arguments>]\0' to the channel.
@@ -104,31 +104,30 @@ QemuPipeConnectionCreator::client_type QemuPipeConnectionCreator::identify_clien
     return client_type::invalid;
 }
 
-std::shared_ptr<MessageProcessor> QemuPipeConnectionCreator::create_processor(const client_type &type, const std::shared_ptr<SocketMessenger> &messenger) {
+std::shared_ptr<network::MessageProcessor> PipeConnectionCreator::create_processor(const client_type &type, const std::shared_ptr<network::SocketMessenger> &messenger) {
     if (type == client_type::opengles)
         return std::make_shared<graphics::OpenGlesMessageProcessor>(renderer_socket_path_, runtime_, messenger);
     else if (type == client_type::qemud_boot_properties)
-        return std::make_shared<support::BootPropertiesMessageProcessor>(messenger);
+        return std::make_shared<qemu::BootPropertiesMessageProcessor>(messenger);
     else if (type == client_type::qemud_hw_control)
-        return std::make_shared<support::HwControlMessageProcessor>(messenger);
+        return std::make_shared<qemu::HwControlMessageProcessor>(messenger);
     else if (type == client_type::qemud_sensors)
-        return std::make_shared<support::SensorsMessageProcessor>(messenger);
+        return std::make_shared<qemu::SensorsMessageProcessor>(messenger);
     else if (type == client_type::qemud_camera)
-        return std::make_shared<support::CameraMessageProcessor>(messenger);
+        return std::make_shared<qemu::CameraMessageProcessor>(messenger);
     else if (type == client_type::qemud_fingerprint)
-        return std::make_shared<support::FingerprintMessageProcessor>(messenger);
+        return std::make_shared<qemu::FingerprintMessageProcessor>(messenger);
     else if (type == client_type::qemud_gsm)
-        return std::make_shared<support::GsmMessageProcessor>(messenger);
+        return std::make_shared<qemu::GsmMessageProcessor>(messenger);
     else if (type == client_type::bootanimation)
-        return std::make_shared<support::BootAnimationMessageProcessor>(messenger, boot_animation_icon_path_);
+        return std::make_shared<qemu::BootAnimationMessageProcessor>(messenger, boot_animation_icon_path_);
 
-    return std::make_shared<support::NullMessageProcessor>();
+    return std::make_shared<qemu::NullMessageProcessor>();
 }
 
-int QemuPipeConnectionCreator::next_id()
+int PipeConnectionCreator::next_id()
 {
     return next_connection_id_.fetch_add(1);
 }
-
+} // namespace qemu
 } // namespace anbox
-} // namespace network

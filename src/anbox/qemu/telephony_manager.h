@@ -15,24 +15,26 @@
  *
  */
 
-#include "anbox/support/telephony_manager.h"
-#include "anbox/dbus/ofono.h"
-#include "anbox/logger.h"
+#ifndef ANBOX_QEMU_TELEPHONY_MANAGER_H_
+#define ANBOX_QEMU_TELEPHONY_MANAGER_H_
+
+#include <core/dbus/bus.h>
+#include <core/dbus/service.h>
+#include <core/dbus/object.h>
 
 namespace anbox {
-namespace support {
-TelephonyManager::TelephonyManager(const core::dbus::Bus::Ptr &bus) :
-    bus_(bus) {
-    ofono_ = core::dbus::Service::use_service(bus_, "org.ofono");
-    modem_ = ofono_->object_for_path({"/ril_0"});
+namespace qemu {
+class TelephonyManager {
+public:
+    TelephonyManager(const core::dbus::Bus::Ptr &bus);
+    ~TelephonyManager();
 
-    auto netreg_prop_changed = modem_->get_signal<org::ofono::NetworkRegistration::Signals::PropertyChanged>();
-    netreg_prop_changed->connect([&](const org::ofono::NetworkRegistration::Signals::PropertyChanged::ArgumentType &arguments) {
-        DEBUG("org::ofono::NetworkRegistration::PropertyChanged");
-    });
-}
-
-TelephonyManager::~TelephonyManager() {
-}
-} // namespace support
+private:
+    core::dbus::Bus::Ptr bus_;
+    core::dbus::Service::Ptr ofono_;
+    core::dbus::Object::Ptr modem_;
+};
+} // namespace qemu
 } // namespace anbox
+
+#endif

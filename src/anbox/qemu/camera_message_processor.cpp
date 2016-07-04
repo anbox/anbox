@@ -16,10 +16,10 @@
  */
 
 #include "anbox/logger.h"
-#include "anbox/support/camera_message_processor.h"
+#include "anbox/qemu/camera_message_processor.h"
 
 namespace anbox {
-namespace support {
+namespace qemu {
 CameraMessageProcessor::CameraMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
     messenger_(messenger) {
 }
@@ -65,5 +65,5 @@ void CameraMessageProcessor::list() {
     snprintf(buf, 5, "\n");
     messenger_->send(buf, strlen(buf));
 }
-} // namespace support
+} // namespace qemu
 } // namespace anbox
