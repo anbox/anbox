@@ -15,28 +15,28 @@
  *
  */
 
-#include "anbox/ubuntu/platform_server.h"
-#include "anbox/logger.h"
+#ifndef ANBOX_SUPPORT_BOOT_ANIMATION_MESSAGE_PROCESSOR_H_
+#define ANBOX_SUPPORT_BOOT_ANIMATION_MESSAGE_PROCESSOR_H_
 
-#include "anbox_bridge.pb.h"
+#include "anbox/support/qemud_message_processor.h"
 
 namespace anbox {
-namespace ubuntu {
-PlatformServer::PlatformServer(const std::shared_ptr<bridge::PendingCallCache> &pending_calls) :
-    bridge::PlatformServer(pending_calls) {
-}
+namespace support {
+class BootAnimationMessageProcessor : public QemudMessageProcessor {
+public:
+    BootAnimationMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger,
+                                  const std::string &icon_path);
+    ~BootAnimationMessageProcessor();
 
-PlatformServer::~PlatformServer() {
-}
+protected:
+    void handle_command(const std::string &command) override;
 
-void PlatformServer::handle_notification(anbox::protobuf::bridge::Notification const *request,
-                                         anbox::protobuf::bridge::Void *response,
-                                         google::protobuf::Closure *done) {
-    (void) request;
-    (void) response;
-    DEBUG("");
-    done->Run();
-}
+private:
+    void retrieve_icon();
 
-} // namespace ubuntu
+    std::string icon_path_;
+};
+} // namespace graphics
 } // namespace anbox
+
+#endif

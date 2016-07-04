@@ -15,39 +15,43 @@
  *
  */
 
-#ifndef ANBOX_BRIDGE_PLATFORM_SERVER_H_
-#define ANBOX_BRIDGE_PLATFORM_SERVER_H_
+#ifndef ANBOX_ANDROID_PLATFORM_API_STUB_H_
+#define ANBOX_ANDROID_PLATFORM_API_STUB_H_
+
+#include "anbox/common/wait_handle.h"
 
 #include <memory>
-
-namespace google {
-namespace protobuf {
-class Closure;
-} // namespace protobuf
-} // namespace google
 
 namespace anbox {
 namespace protobuf {
 namespace bridge {
-class Notification;
 class Void;
 } // namespace bridge
 } // namespace protobuf
 namespace bridge {
-class PendingCallCache;
-class PlatformServer {
+class RpcChannel;
+} // namespace bridge
+class PlatformApiStub {
 public:
-    PlatformServer(const std::shared_ptr<PendingCallCache> &pending_calls);
-    virtual ~PlatformServer();
+    PlatformApiStub(const std::shared_ptr<bridge::RpcChannel> &rpc_channel);
 
-    virtual void handle_notification(anbox::protobuf::bridge::Notification const *request,
-                                     anbox::protobuf::bridge::Void *response,
-                                     google::protobuf::Closure *done) = 0;
+    void boot_finished();
 
 private:
-    std::shared_ptr<PendingCallCache> pending_calls_;
+    template<typename Response>
+    struct Request {
+        Request() : response(std::make_shared<Response>()), success(true) { }
+        std::shared_ptr<Response> response;
+        bool success;
+    };
+
+    void handle_boot_finished_response(Request<protobuf::bridge::Void> *request);
+
+    mutable std::mutex mutex_;
+    common::WaitHandle boot_finished_wait_handle_;
+
+    std::shared_ptr<bridge::RpcChannel> rpc_channel_;
 };
-} // namespace bridge
 } // namespace anbox
 
 #endif

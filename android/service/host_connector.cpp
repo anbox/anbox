@@ -18,18 +18,22 @@
 #include "android/service/host_connector.h"
 #include "android/service/local_socket_connection.h"
 #include "android/service/message_processor.h"
-#include "android/service/platform_api.h"
+#include "android/service/android_api_skeleton.h"
+#include "android/service/platform_api_stub.h"
+
+#include "anbox/bridge/rpc_channel.h"
 
 #include <functional>
 #include <array>
 
 namespace anbox {
-namespace android {
 HostConnector::HostConnector() :
     socket_(std::make_shared<LocalSocketConnection>("/dev/anbox_bridge")),
     pending_calls_(std::make_shared<bridge::PendingCallCache>()),
-    platform_api_(std::make_shared<PlatformApi>()),
-    message_processor_(std::make_shared<MessageProcessor>(socket_, pending_calls_, platform_api_)),
+    android_api_skeleton_(std::make_shared<AndroidApiSkeleton>()),
+    message_processor_(std::make_shared<MessageProcessor>(socket_, pending_calls_, android_api_skeleton_)),
+    rpc_channel_(std::make_shared<bridge::RpcChannel>(pending_calls_, socket_)),
+    platform_api_stub_(std::make_shared<PlatformApiStub>(rpc_channel_)),
     running_(false) {
 }
 
@@ -61,7 +65,7 @@ void HostConnector::main_loop() {
         // MessageProcessor wants an vector so give it what it wants until
         // we refactor this.
         std::vector<std::uint8_t> data;
-        for (auto n = 0; n < bytes_read; n++)
+        for (unsigned n = 0; n < bytes_read; n++)
             data.push_back(buffer[n]);
 
         if (!message_processor_->process_data(data))
@@ -70,5 +74,8 @@ void HostConnector::main_loop() {
 
     // FIXME notify our core that we've stopped
 }
-} // namespace android
+
+std::shared_ptr<anbox::PlatformApiStub> HostConnector::platform_api_stub() const {
+    return platform_api_stub_;
+}
 } // namespace anbox

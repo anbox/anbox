@@ -36,7 +36,8 @@ class QemuPipeConnectionCreator : public ConnectionCreator {
 public:
     QemuPipeConnectionCreator(
             const std::shared_ptr<Runtime> &rt,
-            const std::string &renderer_socket_path);
+            const std::string &renderer_socket_path,
+            const std::string &boot_animation_icon_path);
     ~QemuPipeConnectionCreator() noexcept;
 
     void create_connection_for(
@@ -51,6 +52,7 @@ public:
         qemud_camera,
         qemud_fingerprint,
         qemud_gsm,
+        bootanimation,
     };
 
 private:
@@ -65,6 +67,7 @@ private:
     std::shared_ptr<Connections<SocketConnection>> const connections_;
 
     std::string renderer_socket_path_;
+    std::string boot_animation_icon_path_;
 };
 } // namespace anbox
 } // namespace network

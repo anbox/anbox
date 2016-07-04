@@ -45,6 +45,7 @@ set(SOURCES
     anbox/common/fd_sets.h
     anbox/common/variable_length_array.h
     anbox/common/wait_handle.cpp
+    anbox/common/dispatcher.cpp
 
     anbox/network/message_sender.h
     anbox/network/message_receiver.h
@@ -75,6 +76,7 @@ set(SOURCES
     anbox/support/fingerprint_message_processor.cpp
     anbox/support/gsm_message_processor.cpp
     anbox/support/at_parser.cpp
+    anbox/support/bootanimation_message_processor.cpp
 
     anbox/bridge/constants.h
     anbox/bridge/connection_creator.cpp
@@ -83,11 +85,11 @@ set(SOURCES
     anbox/bridge/pending_call_cache.cpp
     anbox/bridge/make_protobuf_object.h
     anbox/bridge/platform_message_processor.cpp
-    anbox/bridge/platform_server.cpp
+    anbox/bridge/platform_api_skeleton.cpp
     anbox/bridge/rpc_channel.cpp
-    anbox/bridge/platform_api_proxy.cpp
+    anbox/bridge/android_api_stub.cpp
 
-    anbox/ubuntu/platform_server.cpp
+    anbox/ubuntu/platform_api_skeleton.cpp
     anbox/ubuntu/mir_display_connection.cpp
     anbox/ubuntu/window_creator.cpp
     anbox/ubuntu/window.cpp

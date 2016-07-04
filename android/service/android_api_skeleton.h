@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_ANDROID_PLATFORM_API_H_
-#define ANBOX_ANDROID_PLATFORM_API_H_
+#ifndef ANBOX_PLATFORM_API_SKELETON_H_
+#define ANBOX_PLATFORM_API_SKELETON_H_
 
 namespace google {
 namespace protobuf {
@@ -39,11 +39,10 @@ class SetDnsServers;
 class Void;
 } // namespace bridge
 } // namespace protobuf
-namespace android {
-class PlatformApi {
+class AndroidApiSkeleton {
 public:
-    PlatformApi();
-    ~PlatformApi();
+    AndroidApiSkeleton();
+    ~AndroidApiSkeleton();
 
     void install_application(anbox::protobuf::bridge::InstallApplication const *request,
                              anbox::protobuf::bridge::Void *response,
@@ -61,7 +60,6 @@ private:
     void wait_for_process(core::posix::ChildProcess &process,
                           anbox::protobuf::bridge::Void *response);
 };
-} // namespace android
 } // namespace anbox
 
 #endif

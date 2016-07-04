@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_ANDROID_APPLICATION_MANAGER_H_
-#define ANBOX_ANDROID_APPLICATION_MANAGER_H_
+#ifndef ANBOX_BRIDGE_ANDROID_API_STUB_H_
+#define ANBOX_BRIDGE_ANDROID_API_STUB_H_
 
 #include "anbox/application_manager.h"
 #include "anbox/common/wait_handle.h"
@@ -32,10 +32,10 @@ class Void;
 } // namespace protobuf
 namespace bridge {
 class RpcChannel;
-class PlatformApiProxy : public anbox::ApplicationManager {
+class AndroidApiStub : public anbox::ApplicationManager {
 public:
-    PlatformApiProxy();
-    ~PlatformApiProxy();
+    AndroidApiStub();
+    ~AndroidApiStub();
 
     void set_rpc_channel(const std::shared_ptr<RpcChannel> &channel);
     void reset_rpc_channel();

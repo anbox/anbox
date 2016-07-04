@@ -15,18 +15,20 @@
  *
  */
 
-#include "anbox/bridge/platform_server.h"
-#include "anbox/logger.h"
+#include <binder/IPCThreadState.h>
+#include <binder/ProcessState.h>
+#include <binder/IServiceManager.h>
 
-#include "anbox_bridge.pb.h"
+#include "android/service/platform_service_interface.h"
 
-namespace anbox {
-namespace bridge {
-PlatformServer::PlatformServer(const std::shared_ptr<PendingCallCache> &pending_calls) :
-    pending_calls_(pending_calls) {
+int main(int, char**) {
+    auto binder = android::defaultServiceManager()->getService(android::String16("anbox.PlatformService"));
+    if (not binder.get())
+        return 0;
+
+    android::ProcessState::self()->startThreadPool();
+
+    android::sp<android::BpPlatformService> platform_service = new android::BpPlatformService(binder);
+
+    return platform_service->boot_finished();
 }
-
-PlatformServer::~PlatformServer() {
-}
-} // namespace bridge
-} // namespace anbox

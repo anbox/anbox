@@ -24,6 +24,7 @@
 #include "anbox/container.h"
 #include "anbox/config.h"
 #include "anbox/pid_persister.h"
+#include "anbox/common/dispatcher.h"
 #include "anbox/cmds/run.h"
 #include "anbox/network/published_socket_connector.h"
 #include "anbox/network/qemu_pipe_connection_creator.h"
@@ -32,8 +33,8 @@
 #include "anbox/bridge/connection_creator.h"
 #include "anbox/bridge/platform_message_processor.h"
 #include "anbox/bridge/rpc_channel.h"
-#include "anbox/bridge/platform_api_proxy.h"
-#include "anbox/ubuntu/platform_server.h"
+#include "anbox/bridge/android_api_stub.h"
+#include "anbox/ubuntu/platform_api_skeleton.h"
 #include "anbox/ubuntu/window_creator.h"
 #include "anbox/dbus/skeleton/service.h"
 
@@ -69,6 +70,11 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
     // Just for the purpose to allow QtMir (or unity8) to find this on our /proc/*/cmdline
     // for proper confinement etc.
     flag(cli::make_flag(cli::Name{"desktop_file_hint"}, cli::Description{"Desktop file hint for QtMir/Unity8"}, desktop_file_hint_));
+    flag(cli::make_flag(cli::Name{"apk"}, cli::Description{"Android application to install on startup"}, apk_));
+    flag(cli::make_flag(cli::Name{"package"}, cli::Description{"Specifies the package the activity should be launched from."}, package_));
+    flag(cli::make_flag(cli::Name{"activity"}, cli::Description{"Activity to start from specified package"}, activity_));
+    flag(cli::make_flag(cli::Name{"icon"}, cli::Description{"Icon of the application to run"}, icon_));
+
     action([this](const cli::Command::Context &ctx) {
         if (rootfs_.empty() || !fs::is_directory(fs::path(rootfs_))) {
             ctx.cout << "Not valid rootfs path provided" << std::endl;
@@ -83,6 +89,7 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         });
 
         auto rt = Runtime::create();
+        auto dispatcher = anbox::common::create_dispatcher_for_runtime(rt);
 
         auto input_manager = std::make_shared<input::Manager>(rt);
 
@@ -102,9 +109,11 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         auto qemu_pipe_connector = std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/qemu_pipe", config::data_path()),
             rt,
-            std::make_shared<network::QemuPipeConnectionCreator>(rt, renderer->socket_path()));
+            std::make_shared<network::QemuPipeConnectionCreator>(rt,
+                                                                 renderer->socket_path(),
+                                                                 icon_));
 
-        auto platform_proxy = std::make_shared<bridge::PlatformApiProxy>();
+        auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
         auto bridge_connector = std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/anbox_bridge", config::data_path()),
@@ -115,8 +124,28 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
                     auto rpc_channel = std::make_shared<bridge::RpcChannel>(pending_calls, sender);
                     // This is safe as long as we only support a single client. If we support
                     // more than one one day we need proper dispatching to the right one.
-                    platform_proxy->set_rpc_channel(rpc_channel);
-                    auto server = std::make_shared<ubuntu::PlatformServer>(pending_calls);
+                    android_api_stub->set_rpc_channel(rpc_channel);
+
+                    dispatcher->dispatch([&]() {
+                        // FIXME make this configurable or once we have a bridge let the host
+                        // act as a DNS proxy.
+                        android_api_stub->set_dns_servers("anbox", std::vector<std::string>{ "8.8.8.8" });
+                    });
+
+                    auto server = std::make_shared<ubuntu::PlatformApiSekeleton>(pending_calls);
+                    // FIXME Implement a delegate or use signals from properties-cpp
+                    server->on_boot_finished([&](){
+                        DEBUG("Boot finished.");
+                        dispatcher->dispatch([&]() {
+                            if (!apk_.empty()) {
+                                DEBUG("Installing %s ..", apk_);
+                                android_api_stub->install(apk_);
+                            }
+                            if (!package_.empty() || !activity_.empty())
+                                android_api_stub->launch(package_, activity_);
+                        });
+                    });
+
                     return std::make_shared<bridge::PlatformMessageProcessor>(sender, server, pending_calls);
                 }));
 
@@ -156,7 +185,7 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         auto bus = bus_factory_();
         bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
 
-        auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, platform_proxy);
+        auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, android_api_stub);
 
         rt->start();
         container->start();

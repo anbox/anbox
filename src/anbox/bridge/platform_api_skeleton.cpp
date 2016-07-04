@@ -15,17 +15,18 @@
  *
  */
 
-#ifndef ANBOX_ANDROID_DAEMON_H_
-#define ANBOX_ANDROID_DAEMON_H_
+#include "anbox/bridge/platform_api_skeleton.h"
+#include "anbox/logger.h"
+
+#include "anbox_bridge.pb.h"
 
 namespace anbox {
-class Daemon {
-public:
-    Daemon();
-    ~Daemon();
+namespace bridge {
+PlatformApiSkeleton::PlatformApiSkeleton(const std::shared_ptr<PendingCallCache> &pending_calls) :
+    pending_calls_(pending_calls) {
+}
 
-    int run();
-};
+PlatformApiSkeleton::~PlatformApiSkeleton() {
+}
+} // namespace bridge
 } // namespace anbox
-
-#endif

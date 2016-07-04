@@ -22,11 +22,11 @@
 
 namespace anbox {
 namespace bridge {
-class PlatformServer;
+class PlatformApiSkeleton;
 class PlatformMessageProcessor : public MessageProcessor {
 public:
     PlatformMessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
-                             const std::shared_ptr<PlatformServer> &server,
+                             const std::shared_ptr<PlatformApiSkeleton> &server,
                              const std::shared_ptr<PendingCallCache> &pending_calls);
     ~PlatformMessageProcessor();
 
@@ -34,7 +34,7 @@ public:
     void process_event_sequence(const std::string &event) override;
 
 private:
-    std::shared_ptr<PlatformServer> server_;
+    std::shared_ptr<PlatformApiSkeleton> server_;
 };
 } // namespace anbox
 } // namespace network

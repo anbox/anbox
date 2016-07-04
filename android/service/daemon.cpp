@@ -17,6 +17,7 @@
 
 #include "android/service/daemon.h"
 #include "android/service/host_connector.h"
+#include "android/service/platform_service.h"
 
 #include "core/posix/signal.h"
 
@@ -24,8 +25,11 @@
 
 #include <cstdlib>
 
+#include <binder/IPCThreadState.h>
+#include <binder/ProcessState.h>
+#include <binder/IServiceManager.h>
+
 namespace anbox {
-namespace android {
 Daemon::Daemon() {
 }
 
@@ -42,9 +46,16 @@ int Daemon::run() {
     auto host_connector = std::make_shared<HostConnector>();
     host_connector->start();
 
+    android::defaultServiceManager()->addService(
+                android::String16(android::PlatformService::service_name()),
+                new android::PlatformService(host_connector->platform_api_stub()));
+
+    android::ProcessState::self()->startThreadPool();
+
     trap->run();
+
+    android::IPCThreadState::self()->joinThreadPool();
 
     return EXIT_SUCCESS;
 }
-} // namespace android
 } // namespace anbox

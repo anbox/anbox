@@ -40,6 +40,10 @@ private:
     BusFactory bus_factory_;
     std::string rootfs_;
     std::string desktop_file_hint_;
+    std::string apk_;
+    std::string package_;
+    std::string activity_;
+    std::string icon_;
 };
 } // namespace cmds
 } // namespace anbox

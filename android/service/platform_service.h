@@ -15,23 +15,29 @@
  *
  */
 
-#ifndef ANBOX_UBUNTU_PLATFORM_SERVER_H_
-#define ANBOX_UBUNTU_PLATFORM_SERVER_H_
+#ifndef ANBOX_ANDROID_PLATFORM_SERVICE_H_
+#define ANBOX_ANDROID_PLATFORM_SERVICE_H_
 
-#include "anbox/bridge/platform_server.h"
+#include "android/service/platform_service_interface.h"
+
+#include <memory>
 
 namespace anbox {
-namespace ubuntu {
-class PlatformServer : public bridge::PlatformServer {
-public:
-    PlatformServer(const std::shared_ptr<bridge::PendingCallCache> &pending_calls);
-    virtual ~PlatformServer();
-
-    void handle_notification(anbox::protobuf::bridge::Notification const *request,
-                             anbox::protobuf::bridge::Void *response,
-                             google::protobuf::Closure *done) override;
-};
-} // namespace bridge
+class PlatformApiStub;
 } // namespace anbox
+
+namespace android {
+class PlatformService : public BnPlatformService {
+public:
+    static const char* service_name() { return "anbox.PlatformService"; }
+
+    PlatformService(const std::shared_ptr<anbox::PlatformApiStub> &platform_api_stub);
+
+    status_t boot_finished() override;
+
+private:
+    std::shared_ptr<anbox::PlatformApiStub> platform_api_stub_;
+};
+} // namespace android
 
 #endif

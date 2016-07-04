@@ -25,7 +25,6 @@
 #include "anbox/network/message_sender.h"
 
 namespace anbox {
-namespace android {
 class LocalSocketConnection : public network::MessageSender {
 public:
     LocalSocketConnection(const std::string &path);
@@ -37,7 +36,6 @@ public:
 private:
     Fd fd_;
 };
-} // namespace android
 } // namespace anbox
 
 #endif

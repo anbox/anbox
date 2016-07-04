@@ -15,7 +15,7 @@
  *
  */
 
-#include "anbox/bridge/platform_api_proxy.h"
+#include "anbox/bridge/android_api_stub.h"
 #include "anbox/bridge/rpc_channel.h"
 #include "anbox/utils.h"
 #include "anbox/config.h"
@@ -29,26 +29,26 @@ namespace fs = boost::filesystem;
 
 namespace anbox {
 namespace bridge {
-PlatformApiProxy::PlatformApiProxy() {
+AndroidApiStub::AndroidApiStub() {
 }
 
-PlatformApiProxy::~PlatformApiProxy() {
+AndroidApiStub::~AndroidApiStub() {
 }
 
-void PlatformApiProxy::set_rpc_channel(const std::shared_ptr<RpcChannel> &channel) {
+void AndroidApiStub::set_rpc_channel(const std::shared_ptr<RpcChannel> &channel) {
     channel_ = channel;
 }
 
-void PlatformApiProxy::reset_rpc_channel() {
+void AndroidApiStub::reset_rpc_channel() {
     channel_.reset();
 }
 
-void PlatformApiProxy::ensure_rpc_channel() {
+void AndroidApiStub::ensure_rpc_channel() {
     if (!channel_)
         throw std::runtime_error("No remote client connected");
 }
 
-void PlatformApiProxy::install(const std::string &path) {
+void AndroidApiStub::install(const std::string &path) {
     ensure_rpc_channel();
 
     const auto target_path = utils::string_format("%s/%s",
@@ -74,7 +74,7 @@ void PlatformApiProxy::install(const std::string &path) {
     channel_->call_method("install_application",
                           &message,
                           c->response.get(),
-                          google::protobuf::NewCallback(this, &PlatformApiProxy::application_installed, c.get()));
+                          google::protobuf::NewCallback(this, &AndroidApiStub::application_installed, c.get()));
 
     install_wait_handle_.wait_for_all();
 
@@ -82,11 +82,11 @@ void PlatformApiProxy::install(const std::string &path) {
         throw std::runtime_error(c->response->error());
 }
 
-void PlatformApiProxy::application_installed(Request<protobuf::bridge::Void> *request) {
+void AndroidApiStub::application_installed(Request<protobuf::bridge::Void> *request) {
     install_wait_handle_.result_received();
 }
 
-void PlatformApiProxy::launch(const std::string &package, const std::string &activity) {
+void AndroidApiStub::launch(const std::string &package, const std::string &activity) {
     ensure_rpc_channel();
 
     auto c = std::make_shared<Request<protobuf::bridge::Void>>();
@@ -102,7 +102,7 @@ void PlatformApiProxy::launch(const std::string &package, const std::string &act
     channel_->call_method("launch_application",
                           &message,
                           c->response.get(),
-                          google::protobuf::NewCallback(this, &PlatformApiProxy::application_launched, c.get()));
+                          google::protobuf::NewCallback(this, &AndroidApiStub::application_launched, c.get()));
 
     launch_wait_handle_.wait_for_all();
 
@@ -110,11 +110,11 @@ void PlatformApiProxy::launch(const std::string &package, const std::string &act
         throw std::runtime_error(c->response->error());
 }
 
-void PlatformApiProxy::application_launched(Request<protobuf::bridge::Void> *request) {
+void AndroidApiStub::application_launched(Request<protobuf::bridge::Void> *request) {
     launch_wait_handle_.result_received();
 }
 
-void PlatformApiProxy::set_dns_servers(const std::string &domain, const std::vector<std::string> &servers) {
+void AndroidApiStub::set_dns_servers(const std::string &domain, const std::vector<std::string> &servers) {
     ensure_rpc_channel();
 
     auto c = std::make_shared<Request<protobuf::bridge::Void>>();
@@ -135,7 +135,7 @@ void PlatformApiProxy::set_dns_servers(const std::string &domain, const std::vec
     channel_->call_method("set_dns_servers",
                           &message,
                           c->response.get(),
-                          google::protobuf::NewCallback(this, &PlatformApiProxy::dns_servers_set, c.get()));
+                          google::protobuf::NewCallback(this, &AndroidApiStub::dns_servers_set, c.get()));
 
     set_dns_servers_wait_handle_.wait_for_all();
 
@@ -143,7 +143,7 @@ void PlatformApiProxy::set_dns_servers(const std::string &domain, const std::vec
         throw std::runtime_error(c->response->error());
 }
 
-void PlatformApiProxy::dns_servers_set(Request<protobuf::bridge::Void> *request) {
+void AndroidApiStub::dns_servers_set(Request<protobuf::bridge::Void> *request) {
     set_dns_servers_wait_handle_.result_received();
 }
 } // namespace bridge

@@ -25,11 +25,12 @@
 namespace anbox {
 namespace bridge {
 class PendingCallCache;
+class RpcChannel;
 } // namespace bridge
-namespace android {
 class LocalSocketConnection;
 class MessageProcessor;
-class PlatformApi;
+class AndroidApiSkeleton;
+class PlatformApiStub;
 class HostConnector {
 public:
     HostConnector();
@@ -38,17 +39,20 @@ public:
     void start();
     void stop();
 
+    std::shared_ptr<anbox::PlatformApiStub> platform_api_stub() const;
+
 private:
     void main_loop();
 
     std::shared_ptr<LocalSocketConnection> socket_;
     std::shared_ptr<bridge::PendingCallCache> pending_calls_;
-    std::shared_ptr<PlatformApi> platform_api_;
+    std::shared_ptr<AndroidApiSkeleton> android_api_skeleton_;
     std::shared_ptr<MessageProcessor> message_processor_;
+    std::shared_ptr<bridge::RpcChannel> rpc_channel_;
+    std::shared_ptr<anbox::PlatformApiStub> platform_api_stub_;
     std::thread thread_;
     std::atomic<bool> running_;
 };
-} // namespace android
 } // namespace anbox
 
 #endif

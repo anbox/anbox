@@ -16,7 +16,7 @@
  */
 
 #include "anbox/bridge/platform_message_processor.h"
-#include "anbox/bridge/platform_server.h"
+#include "anbox/bridge/platform_api_skeleton.h"
 #include "anbox/bridge/template_message_processor.h"
 
 #include "anbox_bridge.pb.h"
@@ -24,7 +24,7 @@
 namespace anbox {
 namespace bridge {
 PlatformMessageProcessor::PlatformMessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
-                                                   const std::shared_ptr<PlatformServer> &server,
+                                                   const std::shared_ptr<PlatformApiSkeleton> &server,
                                                    const std::shared_ptr<PendingCallCache> &pending_calls) :
     MessageProcessor(sender, pending_calls),
     server_(server) {
@@ -34,9 +34,10 @@ PlatformMessageProcessor::~PlatformMessageProcessor() {
 }
 
 void PlatformMessageProcessor::dispatch(Invocation const& invocation) {
-    if (invocation.method_name() == "handle_notification") {
-        invoke(this, server_.get(), &PlatformServer::handle_notification, invocation);
-    }
+    if (invocation.method_name() == "handle_notification")
+        invoke(this, server_.get(), &PlatformApiSkeleton::handle_notification, invocation);
+    else if (invocation.method_name() == "boot_finished")
+        invoke(this, server_.get(), &PlatformApiSkeleton::boot_finished, invocation);
 }
 
 void PlatformMessageProcessor::process_event_sequence(const std::string&) {

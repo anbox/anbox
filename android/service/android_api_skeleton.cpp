@@ -15,7 +15,7 @@
  *
  */
 
-#include "android/service/platform_api.h"
+#include "android/service/android_api_skeleton.h"
 
 #include "anbox_bridge.pb.h"
 
@@ -30,14 +30,13 @@ std::map<std::string,std::string> common_env = {
 }
 
 namespace anbox {
-namespace android {
-PlatformApi::PlatformApi() {
+AndroidApiSkeleton::AndroidApiSkeleton() {
 }
 
-PlatformApi::~PlatformApi() {
+AndroidApiSkeleton::~AndroidApiSkeleton() {
 }
 
-void PlatformApi::wait_for_process(core::posix::ChildProcess &process,
+void AndroidApiSkeleton::wait_for_process(core::posix::ChildProcess &process,
                                    anbox::protobuf::bridge::Void *response) {
     const auto result = process.wait_for(core::posix::wait::Flags::untraced);
     if (result.status != core::posix::wait::Result::Status::exited ||
@@ -48,7 +47,7 @@ void PlatformApi::wait_for_process(core::posix::ChildProcess &process,
     }
 }
 
-void PlatformApi::install_application(anbox::protobuf::bridge::InstallApplication const *request,
+void AndroidApiSkeleton::install_application(anbox::protobuf::bridge::InstallApplication const *request,
                                  anbox::protobuf::bridge::Void *response,
                                  google::protobuf::Closure *done) {
     (void) response;
@@ -65,7 +64,7 @@ void PlatformApi::install_application(anbox::protobuf::bridge::InstallApplicatio
     done->Run();
 }
 
-void PlatformApi::launch_application(anbox::protobuf::bridge::LaunchApplication const *request,
+void AndroidApiSkeleton::launch_application(anbox::protobuf::bridge::LaunchApplication const *request,
                                 anbox::protobuf::bridge::Void *response,
                                 google::protobuf::Closure *done) {
     (void) response;
@@ -86,7 +85,7 @@ void PlatformApi::launch_application(anbox::protobuf::bridge::LaunchApplication 
     done->Run();
 }
 
-void PlatformApi::set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *request,
+void AndroidApiSkeleton::set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *request,
                              anbox::protobuf::bridge::Void *response,
                              google::protobuf::Closure *done) {
     (void) response;
@@ -107,4 +106,3 @@ void PlatformApi::set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *
     done->Run();
 }
 } // namespace anbox
-} // namespace network

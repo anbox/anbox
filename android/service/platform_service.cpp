@@ -15,17 +15,23 @@
  *
  */
 
-#ifndef ANBOX_ANDROID_DAEMON_H_
-#define ANBOX_ANDROID_DAEMON_H_
+#include "android/service/platform_service.h"
+#include "android/service/platform_api_stub.h"
+#include "anbox/bridge/rpc_channel.h"
 
-namespace anbox {
-class Daemon {
-public:
-    Daemon();
-    ~Daemon();
+#define LOG_TAG "Anboxd"
+#include <cutils/log.h>
 
-    int run();
-};
-} // namespace anbox
+using namespace android;
 
-#endif
+namespace android {
+PlatformService::PlatformService(const std::shared_ptr<anbox::PlatformApiStub> &platform_api_stub) :
+    platform_api_stub_(platform_api_stub) {
+}
+
+status_t PlatformService::boot_finished() {
+    ALOGI("!!!!!!!!!!!!!!!!!!!!!!! BOOOT FINISHED --- ANBOXD");
+    platform_api_stub_->boot_finished();
+    return OK;
+}
+} // namespace android

@@ -23,6 +23,9 @@
 #include <unistd.h>
 #include <errno.h>
 
+#define LOG_TAG "Anbox"
+#include <cutils/log.h>
+
 namespace {
 bool socket_error_is_transient(int error_code) {
     return (error_code == EINTR);
@@ -30,7 +33,6 @@ bool socket_error_is_transient(int error_code) {
 }
 
 namespace anbox {
-namespace android {
 LocalSocketConnection::LocalSocketConnection(const std::string &path) :
     fd_(Fd::invalid) {
 
@@ -52,11 +54,14 @@ LocalSocketConnection::~LocalSocketConnection() {
 
 ssize_t LocalSocketConnection::read_all(std::uint8_t *buffer, const size_t &size) {
     ssize_t bytes_read = ::recv(fd_, reinterpret_cast<void*>(buffer), size, 0);
+    ALOGI("Read %d bytes", bytes_read);
     return bytes_read;
 }
 
 void LocalSocketConnection::send(char const* data, size_t length) {
     size_t bytes_written{0};
+
+    ALOGI("Writing %d bytes", length);
 
     while(bytes_written < length) {
         ssize_t const result = ::send(fd_,
@@ -73,5 +78,4 @@ void LocalSocketConnection::send(char const* data, size_t length) {
         bytes_written += result;
     }
 }
-} // namespace android
 } // namespace anbox

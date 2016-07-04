@@ -28,17 +28,20 @@
 #include "anbox/support/camera_message_processor.h"
 #include "anbox/support/fingerprint_message_processor.h"
 #include "anbox/support/gsm_message_processor.h"
+#include "anbox/support/bootanimation_message_processor.h"
 
 namespace ba = boost::asio;
 
 namespace anbox {
 namespace network {
 QemuPipeConnectionCreator::QemuPipeConnectionCreator(const std::shared_ptr<Runtime> &rt,
-                                                     const std::string &renderer_socket_path) :
+                                                     const std::string &renderer_socket_path,
+                                                     const std::string &boot_animation_icon_path) :
     runtime_(rt),
     next_connection_id_(0),
     connections_(std::make_shared<Connections<SocketConnection>>()),
-    renderer_socket_path_(renderer_socket_path) {
+    renderer_socket_path_(renderer_socket_path),
+    boot_animation_icon_path_(boot_animation_icon_path) {
 }
 
 QemuPipeConnectionCreator::~QemuPipeConnectionCreator() {
@@ -95,6 +98,8 @@ QemuPipeConnectionCreator::client_type QemuPipeConnectionCreator::identify_clien
         return client_type::qemud_fingerprint;
     else if (utils::string_starts_with(identifier_and_args, "pipe:qemud:gsm"))
         return client_type::qemud_gsm;
+    else if (utils::string_starts_with(identifier_and_args, "pipe:anbox:bootanimation"))
+        return client_type::bootanimation;
 
     return client_type::invalid;
 }
@@ -114,6 +119,8 @@ std::shared_ptr<MessageProcessor> QemuPipeConnectionCreator::create_processor(co
         return std::make_shared<support::FingerprintMessageProcessor>(messenger);
     else if (type == client_type::qemud_gsm)
         return std::make_shared<support::GsmMessageProcessor>(messenger);
+    else if (type == client_type::bootanimation)
+        return std::make_shared<support::BootAnimationMessageProcessor>(messenger, boot_animation_icon_path_);
 
     return std::make_shared<support::NullMessageProcessor>();
 }

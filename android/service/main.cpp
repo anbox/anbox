@@ -18,6 +18,6 @@
 #include "android/service/daemon.h"
 
 int main(int, char**) {
-    anbox::android::Daemon daemon;
+    anbox::Daemon daemon;
     return daemon.run();
 }
