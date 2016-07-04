@@ -27,6 +27,7 @@
 #include "anbox/cmds/shell.h"
 #include "anbox/cmds/install_app.h"
 #include "anbox/cmds/launch_app.h"
+#include "anbox/cmds/reset.h"
 
 #include <boost/filesystem.hpp>
 
@@ -40,7 +41,8 @@ Daemon::Daemon() :
        .command(std::make_shared<cmds::Run>())
        .command(std::make_shared<cmds::Shell>())
        .command(std::make_shared<cmds::InstallApp>())
-       .command(std::make_shared<cmds::LaunchApp>());
+       .command(std::make_shared<cmds::LaunchApp>())
+       .command(std::make_shared<cmds::Reset>());
 }
 
 int Daemon::Run(const std::vector<std::string> &arguments)
@@ -64,7 +66,7 @@ void Daemon::ensure_data_path() {
 
     for (const auto &path: paths) {
         if (!fs::is_directory(fs::path(path)))
-            fs::create_directories(fs::path(config::host_share_path()));
+            fs::create_directories(fs::path(path));
     }
 }
 } // namespace anbox

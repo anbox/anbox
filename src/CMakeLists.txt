@@ -104,6 +104,7 @@ set(SOURCES
     anbox/cmds/shell.cpp
     anbox/cmds/install_app.cpp
     anbox/cmds/launch_app.cpp
+    anbox/cmds/reset.cpp
 
     anbox/do_not_copy_or_move.h
     anbox/optional.h
