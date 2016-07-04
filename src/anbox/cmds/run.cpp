@@ -160,11 +160,9 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         // A place where we can exchange files with the container
         spec.bind_paths.insert({config::host_share_path(), config::container_share_path()});
 
-        // FIXME(morphis): those directories should be really somewhere on our
-        // persistent data directory so we keep any runtime data accross restarts.
-        spec.temporary_dirs.push_back("/data");
-        spec.temporary_dirs.push_back("/cache");
-        spec.temporary_dirs.push_back("/storage");
+        spec.bind_paths.insert({ config::host_android_data_path(), "/data" });
+        spec.bind_paths.insert({ config::host_android_cache_path(), "/cache" });
+        spec.bind_paths.insert({ config::host_android_storage_path(), "/storage" });
 
         spec.temporary_dirs.push_back("/dev/input");
 

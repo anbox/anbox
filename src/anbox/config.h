@@ -25,7 +25,9 @@ namespace config {
 std::string data_path();
 std::string host_share_path();
 std::string container_share_path();
-
+std::string host_android_data_path();
+std::string host_android_cache_path();
+std::string host_android_storage_path();
 } // namespace config
 } // namespace anbox
 

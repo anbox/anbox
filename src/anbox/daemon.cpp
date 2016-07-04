@@ -54,10 +54,17 @@ catch(std::exception &err) {
 }
 
 void Daemon::ensure_data_path() {
-    if (!fs::is_directory(fs::path(config::data_path())))
-        fs::create_directories(fs::path(config::data_path()));
+    std::vector<std::string> paths = {
+        config::data_path(),
+        config::host_share_path(),
+        config::host_android_data_path(),
+        config::host_android_cache_path(),
+        config::host_android_storage_path()
+    };
 
-    if (!fs::is_directory(fs::path(config::host_share_path())))
-        fs::create_directories(fs::path(config::host_share_path()));
+    for (const auto &path: paths) {
+        if (!fs::is_directory(fs::path(path)))
+            fs::create_directories(fs::path(config::host_share_path()));
+    }
 }
 } // namespace anbox

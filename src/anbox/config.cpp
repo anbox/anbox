@@ -46,5 +46,26 @@ std::string host_share_path() {
 std::string container_share_path() {
     return "/data/anbox-share";
 }
+
+std::string host_android_data_path() {
+    static std::string path;
+    if (path.length() == 0)
+        path = utils::string_format("%s/android-data", data_path());
+    return path;
+}
+
+std::string host_android_cache_path() {
+    static std::string path;
+    if (path.length() == 0)
+        path = utils::string_format("%s/android-cache", data_path());
+    return path;
+}
+
+std::string host_android_storage_path() {
+    static std::string path;
+    if (path.length() == 0)
+        path = utils::string_format("%s/android-storage", data_path());
+    return path;
+}
 } // namespace config
 } // namespace anbox
