@@ -88,7 +88,6 @@ void *gles1_dispatch_get_proc_func(const char *name, void *userData)
     // To make it consistent with the guest, redirect any unsupported functions
     // to gles1_unimplemented.
     if (!func) {
-        fprintf(stderr, "ERROR: Failed to find symbol for %s\n", name);
         func = (void *)gles1_unimplemented;
     }
     return func;
