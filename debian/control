@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 XSBC-Original-Maintainer: Simon Fels <simon.fels@canonical.com>
 Build-Depends: cmake,
+               cmake-data,
                debhelper (>= 9),
                dbus,
                google-mock,

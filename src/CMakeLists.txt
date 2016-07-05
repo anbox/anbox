@@ -6,6 +6,7 @@ include_directories(
   ${MIRCLIENT_INCLUDE_DIRS}
   ${DBUS_CPP_INCLUDE_DIRS}
   ${DBUS_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_SOURCE_DIR}/external/process-cpp-minimal/include
@@ -119,19 +120,19 @@ target_link_libraries(anbox-core
   ${DBUS_CPP_LIBRARIES}
   pthread
   process-cpp
-  OpenglRender)
+  OpenglRender
+  anbox-protobuf)
 
 add_executable(anbox main.cpp)
 target_link_libraries(anbox
-    anbox-core
-    anbox-protobuf)
+    anbox-core)
 
 add_executable(anbox-container container_main.cpp)
 target_link_libraries(anbox-container
     bwrap)
 
 install(
-  TARGETS anbox
-  RUNTIME DESTINATION sbin
+  TARGETS anbox anbox-container
+  RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib/static)
