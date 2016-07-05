@@ -36,7 +36,6 @@ set(SOURCES
     anbox/daemon.cpp
     anbox/config.cpp
     anbox/not_reachable.cpp
-    anbox/pid_persister.cpp
     anbox/namespace_attacher.cpp
     anbox/container.cpp
     anbox/container_connector.cpp
