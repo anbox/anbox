@@ -137,10 +137,12 @@ Window::Window(const std::shared_ptr<MirDisplayConnection> &display,
     pointer_->set_driver_version(1);
     pointer_->set_input_id({ BUS_VIRTUAL, 1, 1, 1 });
     pointer_->set_physical_location("none");
+#if 0
     pointer_->set_key_bit(BTN_MOUSE);
     pointer_->set_key_bit(BTN_LEFT);
     pointer_->set_key_bit(BTN_MIDDLE);
     pointer_->set_key_bit(BTN_RIGHT);
+#endif
     pointer_->set_rel_bit(REL_X);
     pointer_->set_rel_bit(REL_Y);
     pointer_->set_rel_bit(REL_HWHEEL);
