@@ -23,7 +23,6 @@
 #include "anbox/runtime.h"
 #include "anbox/container.h"
 #include "anbox/config.h"
-#include "anbox/pid_persister.h"
 #include "anbox/common/dispatcher.h"
 #include "anbox/cmds/run.h"
 #include "anbox/network/published_socket_connector.h"
