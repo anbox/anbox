@@ -17,8 +17,9 @@ Build-Depends: cmake,
 # boost log needs exactly one symbol from boost-thread for resolving
 # thread-specific storage locations.
                libboost-thread-dev,
+               libcap-dev,
                libdbus-1-dev,
-               libdbus-cpp-dev (>= 5.0.0),
+               libdbus-cpp-dev,
                libegl1-mesa-dev,
                libgles2-mesa-dev,
                libglib2.0-dev,
