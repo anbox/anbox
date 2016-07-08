@@ -18,6 +18,8 @@ Build-Depends: cmake,
 # thread-specific storage locations.
                libboost-thread-dev,
                libdbus-cpp-dev,
+               libegl1-mesa-dev,
+               libgles2-mesa-dev,
                libglib2.0-dev,
                libgtest-dev,
                libprotobuf-dev,
