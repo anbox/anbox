@@ -1,8 +1,9 @@
 #!/bin/bash
 
-TOPDIR=`pwd`
+TOPDIR=`echo $ANDROID_BUILD_TOP`
 PRODUCT_NAME=generic_arm64
 OUTDIR=out/target/product/$PRODUCT_NAME
+CURDIR=`pwd`
 
 if [ -d rootfs ] ; then
 	rm -rf rootfs
@@ -20,6 +21,12 @@ if [ ! -e rootfs/filesystem_config.txt ] ; then
 	echo "ERROR: $ make target-files-package"
 	echo "ERROR: to generate it as part of the Android build."
 	rm -rf rootfs
+	exit 1
+fi
+
+if [ -z "$TOPDIR" ] || [ "$CURDIR" != "$TOPDIR" ] ; then
+	echo "ERROR: You have to execute this script from the ANDROID_BUILD_TOP"
+	echo "ERROR: directory."
 	exit 1
 fi
 
