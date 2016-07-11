@@ -69,8 +69,7 @@ void Container::start() {
         "-m", "u:1:100000:65536",
         "-m", "g:1:100000:65536",
         "--",
-        // FIXME(morphis): use system or in-click path
-        "/home/phablet/anbox-container",
+        "/usr/bin/anbox-container",
         "--bind", spec_.rootfs_path, "/",
         "--dev", "/dev",
         "--proc", "/proc",
