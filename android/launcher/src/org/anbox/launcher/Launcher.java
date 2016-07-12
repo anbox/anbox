@@ -19,6 +19,7 @@ package org.anbox.launcher;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.provider.Settings;
 
 /**
  * Default launcher application.
@@ -29,6 +30,13 @@ public final class Launcher extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Make sure the screen stays on forever
+        Settings.System.putInt(
+            getContentResolver(),
+            Settings.System.SCREEN_OFF_TIMEOUT,
+            Integer.MAX_VALUE);
+
         setContentView(R.layout.activity_launcher);
     }
 }

@@ -3,6 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.anbox.launcher">
 
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+
     <application
         android:name=".LauncherApplication"
         android:label="Anbox Launcher"
