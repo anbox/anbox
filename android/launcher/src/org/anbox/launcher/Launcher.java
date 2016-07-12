@@ -29,6 +29,6 @@ public final class Launcher extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LauncherApplication app = ((LauncherApplication)getApplication());
+        setContentView(R.layout.activity_launcher);
     }
 }
