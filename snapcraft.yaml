@@ -1,0 +1,55 @@
+name: anbox
+version: 1
+summary: Android in a Box
+description: |
+  Runtime for Android applications which runs a full Android system
+  in a container using Linux namespaces (user, ipc, net, mount) to
+  separate the Android system fully from the host.
+confinement: devmode
+
+apps:
+    anbox:
+        command: usr/bin/anbox
+
+parts:
+    anbox:
+        plugin: cmake
+        source: .
+        configflags:
+          # FIXME: Anbox currently has some paths with hard coded prefixes. Once
+          # that is fixed we can avoid using a prefix here.
+          - -DCMAKE_INSTALL_PREFIX:PATH=/usr
+          # FIXME: When building in release mode we get a lot of error which cause
+          # the build to fail.
+          - -DCMAKE_BUILD_TYPE=debug
+        build-packages:
+          - build-essential
+          - cmake
+          - cmake-data
+          - debhelper
+          - dbus
+          - google-mock
+          - libboost-dev
+          - libboost-filesystem-dev
+          - libboost-log-dev
+          - libboost-iostreams-dev
+          - libboost-program-options-dev
+          - libboost-system-dev
+          - libboost-thread-dev
+          - libcap-dev
+          - libdbus-1-dev
+          - libdbus-cpp-dev
+          - libegl1-mesa-dev
+          - libgles2-mesa-dev
+          - libglib2.0-dev
+          - libgtest-dev
+          - libprotobuf-dev
+          - pkg-config
+          - protobuf-compiler
+        stage-packages:
+          - lxc1
+        snap:
+          - usr/bin/anbox
+          - usr/bin/anbox-container
+          - usr/bin/lxc-usernsexec
+          - usr/lib/*-linux-*/
