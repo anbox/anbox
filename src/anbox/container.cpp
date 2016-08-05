@@ -69,7 +69,7 @@ void Container::start() {
         "-m", "u:1:100000:65536",
         "-m", "g:1:100000:65536",
         "--",
-        "/usr/bin/anbox-container",
+        utils::string_format("%s/usr/bin/anbox-container", utils::get_env_value("SNAP", "")),
         "--bind", spec_.rootfs_path, "/",
         "--dev", "/dev",
         "--proc", "/proc",
@@ -112,7 +112,9 @@ void Container::start() {
         { "PATH", "/usr/bin" },
     };
 
-    child_ = core::posix::exec("/usr/bin/lxc-usernsexec", args, env, core::posix::StandardStream::empty);
+    child_ = core::posix::exec(
+                utils::string_format("%s/usr/bin/lxc-usernsexec", utils::get_env_value("SNAP", "")),
+                args, env, core::posix::StandardStream::empty);
     child_group_ = child_.process_group_or_throw();
 }
 
