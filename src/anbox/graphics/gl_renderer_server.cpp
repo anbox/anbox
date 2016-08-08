@@ -31,9 +31,9 @@ GLRendererServer::GLRendererServer(const std::shared_ptr<WindowCreator> &window_
     window_creator_(window_creator) {
 
     // Force the host EGL/GLES libraries as translator implementation
-    ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 1);
-    ::setenv("ANDROID_GLESv1_LIB", "libGLESv2.so.2", 1);
-    ::setenv("ANDROID_GLESv2_LIB", "libGLESv2.so.2", 1);
+    ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 0);
+    ::setenv("ANDROID_GLESv1_LIB", "libGLESv2.so.2", 0);
+    ::setenv("ANDROID_GLESv2_LIB", "libGLESv2.so.2", 0);
 
     if (!initLibrary())
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize OpenGL renderer"));
