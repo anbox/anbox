@@ -36,6 +36,7 @@ public:
     };
 
     virtual DisplayInfo display_info() const = 0;
+    virtual EGLNativeDisplayType native_display() const = 0;
 
 protected:
     std::shared_ptr<input::Manager> input_manager_;

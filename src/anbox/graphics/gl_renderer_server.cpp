@@ -72,7 +72,7 @@ void GLRendererServer::start() {
     // The width & height we supply here are the dimensions the internal framebuffer
     // will use. Making this static prevents us for now to resize the window we create
     // later for the actual display.
-    if (!initOpenGLRenderer(width, height, true, server_addr, sizeof(server_addr), log_funcs, logger_write))
+    if (!initOpenGLRenderer(window_creator_->native_display(), width, height, true, server_addr, sizeof(server_addr), log_funcs, logger_write))
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to setup OpenGL renderer"));
 
     socket_path_ = server_addr;

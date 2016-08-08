@@ -10,6 +10,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <EGL/egl.h>
+
 /* list of constants to be passed to setStreamMode */
 #define RENDER_API_STREAM_MODE_DEFAULT   0
 #define RENDER_API_STREAM_MODE_TCP       1
@@ -23,7 +25,7 @@ typedef void (*emugl_crash_func_t)(const char* format, ...);
 #define LIST_RENDER_API_FUNCTIONS(X) \
   X(int, initLibrary, (), ()) \
   X(int, setStreamMode, (int mode), (mode)) \
-  X(int, initOpenGLRenderer, (int width, int height, bool useSubWindow, char* addr, size_t addrLen, emugl_logger_struct logfuncs, emugl_crash_func_t crashfunc), (width, height, useSubWindow, addr, addrLen, logfuncs, crashfunc)) \
+  X(int, initOpenGLRenderer, (EGLNativeDisplayType native_display, int width, int height, bool useSubWindow, char* addr, size_t addrLen, emugl_logger_struct logfuncs, emugl_crash_func_t crashfunc), (width, height, useSubWindow, addr, addrLen, logfuncs, crashfunc)) \
   X(void, getHardwareStrings, (const char** vendor, const char** renderer, const char** version), (vendor, renderer, version)) \
   X(void, setPostCallback, (OnPostFn onPost, void* onPostContext), (onPost, onPostContext)) \
   X(bool, showOpenGLSubwindow, (FBNativeWindowType window, int wx, int wy, int ww, int wh, int fbw, int fbh, float dpr, float zRot), (window, wx, wy, ww, wh, fbw, fbh, dpr, zRot)) \

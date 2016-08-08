@@ -14,7 +14,9 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/GLESv2_dec
     ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/GLESv2_dec
     ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/renderControl_dec
-    ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/renderControl_dec)
+    ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/renderControl_dec
+    ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/Translator/include
+    ${MIRCLIENT_INCLUDE_DIRS})
 
 add_subdirectory(host)
 add_subdirectory(shared)

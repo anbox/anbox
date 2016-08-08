@@ -74,7 +74,7 @@ public:
     // own sub-windows. If false, this means the caller will use
     // setPostCallback() instead to retrieve the content.
     // Returns true on success, false otherwise.
-    static bool initialize(int width, int height, bool useSubWindow);
+    static bool initialize(EGLNativeDisplayType nativeDisplay, int width, int height, bool useSubWindow);
 
     // Setup a sub-window to display the content of the emulated GPU
     // on-top of an existing UI window. |p_window| is the platform-specific

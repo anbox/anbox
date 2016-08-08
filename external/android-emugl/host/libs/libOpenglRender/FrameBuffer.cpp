@@ -165,7 +165,7 @@ void FrameBuffer::finalize(){
     s_egl.eglDestroySurface(m_eglDisplay, m_pbufSurface);
 }
 
-bool FrameBuffer::initialize(int width, int height, bool useSubWindow)
+bool FrameBuffer::initialize(EGLNativeDisplayType nativeDisplay, int width, int height, bool useSubWindow)
 {
     GL_LOG("FrameBuffer::initialize");
     if (s_theFrameBuffer != NULL) {
@@ -184,7 +184,7 @@ bool FrameBuffer::initialize(int width, int height, bool useSubWindow)
     //
     // Initialize backend EGL display
     //
-    fb->m_eglDisplay = s_egl.eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    fb->m_eglDisplay = s_egl.eglGetDisplay(nativeDisplay);
     if (fb->m_eglDisplay == EGL_NO_DISPLAY) {
         ERR("Failed to Initialize backend EGL display\n");
         delete fb;

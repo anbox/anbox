@@ -54,5 +54,9 @@ void WindowCreator::destroy_window(EGLNativeWindowType win) {
 WindowCreator::DisplayInfo WindowCreator::display_info() const {
     return {display_->horizontal_resolution(), display_->vertical_resolution()};
 }
+
+EGLNativeDisplayType WindowCreator::native_display() const {
+    return  display_->native_display();
+}
 } // namespace bridge
 } // namespace anbox

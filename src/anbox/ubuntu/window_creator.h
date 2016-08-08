@@ -37,6 +37,7 @@ public:
     void destroy_window(EGLNativeWindowType win) override;
 
     DisplayInfo display_info() const override;
+    EGLNativeDisplayType native_display() const override;
 
 private:
     std::shared_ptr<input::Manager> input_manager_;

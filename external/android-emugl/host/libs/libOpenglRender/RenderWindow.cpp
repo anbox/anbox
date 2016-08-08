@@ -72,6 +72,7 @@ struct RenderWindowMessage {
     union {
         // CMD_INITIALIZE
         struct {
+            EGLNativeDisplayType nativeDisplay;
             int width;
             int height;
             bool useSubWindow;
@@ -120,7 +121,8 @@ struct RenderWindowMessage {
                 D("CMD_INITIALIZE w=%d h=%d\n", msg.init.width, msg.init.height);
                 GL_LOG("RenderWindow: CMD_INITIALIZE w=%d h=%d",
                        msg.init.width, msg.init.height);
-                result = FrameBuffer::initialize(msg.init.width,
+                result = FrameBuffer::initialize(msg.init.nativeDisplay,
+                                                 msg.init.width,
                                                  msg.init.height,
                                                  msg.init.useSubWindow);
                 break;
@@ -312,7 +314,8 @@ private:
 
 }  // namespace
 
-RenderWindow::RenderWindow(int width,
+RenderWindow::RenderWindow(EGLNativeDisplayType native_display,
+                           int width,
                            int height,
                            bool use_thread,
                            bool use_sub_window) :
@@ -328,6 +331,7 @@ RenderWindow::RenderWindow(int width,
 
     RenderWindowMessage msg;
     msg.cmd = CMD_INITIALIZE;
+    msg.init.nativeDisplay = native_display;
     msg.init.width = width;
     msg.init.height = height;
     msg.init.useSubWindow = use_sub_window;
