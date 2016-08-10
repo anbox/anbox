@@ -50,16 +50,16 @@ public:
     void set_input_id(const struct input_id &id);
     void set_physical_location(const std::string &physical_location);
     void set_unique_id(const std::string &unique_id);
-    void set_key_bit(const std::uint8_t &bit);
-    void set_abs_bit(const std::uint8_t &bit);
-    void set_rel_bit(const std::uint8_t &bit);
-    void set_sw_bit(const std::uint8_t &bit);
-    void set_led_bit(const std::uint8_t &bit);
-    void set_ff_bit(const std::uint8_t &bit);
-    void set_prop_bit(const std::uint8_t &bit);
+    void set_key_bit(const std::uint64_t &bit);
+    void set_abs_bit(const std::uint64_t &bit);
+    void set_rel_bit(const std::uint64_t &bit);
+    void set_sw_bit(const std::uint64_t &bit);
+    void set_led_bit(const std::uint64_t &bit);
+    void set_ff_bit(const std::uint64_t &bit);
+    void set_prop_bit(const std::uint64_t &bit);
 
-    void set_abs_min(const std::uint8_t &bit, const std::uint32_t &value);
-    void set_abs_max(const std::uint8_t &bit, const std::uint32_t &value);
+    void set_abs_min(const std::uint64_t &bit, const std::uint32_t &value);
+    void set_abs_max(const std::uint64_t &bit, const std::uint32_t &value);
 
     std::string socket_path() const;
 
@@ -86,7 +86,7 @@ private:
         std::uint32_t abs_min[ABS_CNT];
     };
 
-    void set_bit(std::uint8_t *array, const std::uint8_t &bit);
+    void set_bit(std::uint8_t *array, const std::uint64_t &bit);
 
     std::shared_ptr<network::PublishedSocketConnector> connector_;
     std::atomic<int> next_connection_id_;

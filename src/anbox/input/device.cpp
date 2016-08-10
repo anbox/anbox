@@ -106,43 +106,43 @@ void Device::set_physical_location(const std::string &physical_location) {
     snprintf(info_.physical_location, 80, "%s", physical_location.c_str());
 }
 
-void Device::set_key_bit(const std::uint8_t &bit) {
+void Device::set_key_bit(const std::uint64_t &bit) {
     set_bit(info_.key_bitmask, bit);
 }
 
-void Device::set_abs_bit(const std::uint8_t &bit) {
+void Device::set_abs_bit(const std::uint64_t &bit) {
     set_bit(info_.abs_bitmask, bit);
 }
 
-void Device::set_rel_bit(const std::uint8_t &bit) {
+void Device::set_rel_bit(const std::uint64_t &bit) {
     set_bit(info_.rel_bitmask, bit);
 }
 
-void Device::set_sw_bit(const std::uint8_t &bit) {
+void Device::set_sw_bit(const std::uint64_t &bit) {
     set_bit(info_.sw_bitmask, bit);
 }
 
-void Device::set_led_bit(const std::uint8_t &bit) {
+void Device::set_led_bit(const std::uint64_t &bit) {
     set_bit(info_.led_bitmask, bit);
 }
 
-void Device::set_ff_bit(const std::uint8_t &bit) {
+void Device::set_ff_bit(const std::uint64_t &bit) {
     set_bit(info_.ff_bitmask, bit);
 }
 
-void Device::set_prop_bit(const std::uint8_t &bit) {
+void Device::set_prop_bit(const std::uint64_t &bit) {
     set_bit(info_.prop_bitmask, bit);
 }
 
-void Device::set_abs_min(const std::uint8_t &bit, const std::uint32_t &value) {
+void Device::set_abs_min(const std::uint64_t &bit, const std::uint32_t &value) {
     info_.abs_min[bit] = value;
 }
 
-void Device::set_abs_max(const std::uint8_t &bit, const std::uint32_t &value) {
+void Device::set_abs_max(const std::uint64_t &bit, const std::uint32_t &value) {
     info_.abs_max[bit] = value;
 }
 
-void Device::set_bit(std::uint8_t *array, const std::uint8_t &bit) {
+void Device::set_bit(std::uint8_t *array, const std::uint64_t &bit) {
     array[bit/8] |= (1 << (bit % 8));
 }
 
