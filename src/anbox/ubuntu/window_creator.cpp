@@ -68,20 +68,25 @@ void WindowCreator::process_events() {
     }
 }
 
-EGLNativeWindowType WindowCreator::create_window(int x, int y, int width, int height) {
-    DEBUG("x %i y %i width %i height %i", x, y, width, height);
-
+EGLNativeWindowType WindowCreator::create_window(int x, int y, int width, int height)
+try {
     if (windows_.size() == 1) {
         WARNING("Tried to create another window but we currently only allow one");
         return 0;
     }
 
     auto window = std::make_shared<Window>(input_manager_, width, height);
-    windows_.insert({window->native_window(), window});
+    if (not window)
+        BOOST_THROW_EXCEPTION(std::bad_alloc());
 
+    windows_.insert({window->native_window(), window});
     current_window_ = window;
 
     return window->native_window();
+}
+catch (std::exception &err) {
+    DEBUG("Failed to create window: %s", err.what());
+    return 0;
 }
 
 void WindowCreator::destroy_window(EGLNativeWindowType win) {

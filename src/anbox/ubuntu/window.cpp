@@ -342,8 +342,10 @@ Window::Window(const std::shared_ptr<input::Manager> &input_manager,
                               width,
                               height,
                               SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
-    if (!window_)
-        BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create new window"));
+    if (!window_) {
+        const auto message = utils::string_format("Failed to create window: %s", SDL_GetError());
+        BOOST_THROW_EXCEPTION(std::runtime_error(message));
+    }
 
 
     SDL_SysWMinfo info;
