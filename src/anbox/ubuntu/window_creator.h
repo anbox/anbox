@@ -21,8 +21,10 @@
 #include "anbox/graphics/window_creator.h"
 
 #include <map>
+#include <thread>
 
 #include <EGL/egl.h>
+#include <SDL.h>
 
 namespace anbox {
 namespace ubuntu {
@@ -40,9 +42,13 @@ public:
     EGLNativeDisplayType native_display() const override;
 
 private:
+    void process_events();
+    void process_window_event(const SDL_Event &event);
+
     std::shared_ptr<input::Manager> input_manager_;
-    std::shared_ptr<MirDisplayConnection> display_;
     std::map<EGLNativeWindowType,std::shared_ptr<Window>> windows_;
+    std::shared_ptr<Window> current_window_;
+    std::thread event_thread;
 };
 } // namespace bridge
 } // namespace anbox

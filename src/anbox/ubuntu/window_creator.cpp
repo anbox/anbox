@@ -17,7 +17,6 @@
 
 #include "anbox/ubuntu/window_creator.h"
 #include "anbox/ubuntu/window.h"
-#include "anbox/ubuntu/mir_display_connection.h"
 #include "anbox/logger.h"
 
 #include <boost/throw_exception.hpp>
@@ -26,19 +25,61 @@ namespace anbox {
 namespace ubuntu {
 WindowCreator::WindowCreator(const std::shared_ptr<input::Manager> &input_manager) :
     graphics::WindowCreator(input_manager),
-    input_manager_(input_manager),
-    display_(std::make_shared<MirDisplayConnection>()) {
+    input_manager_(input_manager) {
+
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
+        BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize SDL"));
+
+    event_thread = std::thread(&WindowCreator::process_events, this);
 }
 
 WindowCreator::~WindowCreator() {
 }
 
+void WindowCreator::process_window_event(const SDL_Event &event) {
+}
+
+void WindowCreator::process_events() {
+    while(true) {
+        SDL_Event event;
+        while (SDL_WaitEvent(&event)) {
+            switch (event.type) {
+            case SDL_QUIT:
+                // FIXME once one of our windows is closed we need to decide what
+                // to do base on the configuration we're running in.
+                break;
+            case SDL_WINDOWEVENT:
+                process_window_event(event);
+                break;
+            case SDL_FINGERUP:
+            case SDL_FINGERMOTION:
+            case SDL_FINGERDOWN:
+            case SDL_MOUSEMOTION:
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+            case SDL_MOUSEWHEEL:
+            case SDL_KEYDOWN:
+            case SDL_KEYUP:
+                if (current_window_)
+                    current_window_->process_input_event(event);
+                break;
+            }
+        }
+    }
+}
+
 EGLNativeWindowType WindowCreator::create_window(int x, int y, int width, int height) {
     DEBUG("x %i y %i width %i height %i", x, y, width, height);
 
-    auto window = std::make_shared<Window>(display_, input_manager_,
-                                           width, height);
+    if (windows_.size() == 1) {
+        WARNING("Tried to create another window but we currently only allow one");
+        return 0;
+    }
+
+    auto window = std::make_shared<Window>(input_manager_, width, height);
     windows_.insert({window->native_window(), window});
+
+    current_window_ = window;
 
     return window->native_window();
 }
@@ -52,11 +93,12 @@ void WindowCreator::destroy_window(EGLNativeWindowType win) {
 }
 
 WindowCreator::DisplayInfo WindowCreator::display_info() const {
-    return {display_->horizontal_resolution(), display_->vertical_resolution()};
+    // FIXME: force for now until we have real detection for this
+    return {1280, 720};
 }
 
 EGLNativeDisplayType WindowCreator::native_display() const {
-    return  display_->native_display();
+    return  0;
 }
 } // namespace bridge
 } // namespace anbox

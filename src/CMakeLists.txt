@@ -6,6 +6,7 @@ include_directories(
   ${MIRCLIENT_INCLUDE_DIRS}
   ${DBUS_CPP_INCLUDE_DIRS}
   ${DBUS_INCLUDE_DIRS}
+  ${SDL2_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
@@ -90,7 +91,6 @@ set(SOURCES
     anbox/bridge/android_api_stub.cpp
 
     anbox/ubuntu/platform_api_skeleton.cpp
-    anbox/ubuntu/mir_display_connection.cpp
     anbox/ubuntu/window_creator.cpp
     anbox/ubuntu/window.cpp
 
@@ -117,6 +117,7 @@ target_link_libraries(anbox-core
   ${MIRCLIENT_LDFLAGS}
   ${MIRCLIENT_LIBRARIES}
   ${DBUS_CPP_LIBRARIES}
+  ${SDL2_LIBRARIES}
   pthread
   process-cpp
   OpenglRender

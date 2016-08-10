@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 
-#include <mirclient/mir_toolkit/mir_client_library.h>
+#include <SDL.h>
 
 namespace anbox {
 namespace input {
@@ -32,29 +32,23 @@ class Device;
 class Event;
 } // namespace input
 namespace ubuntu {
-class MirDisplayConnection;
 class Window {
 public:
-    Window(const std::shared_ptr<MirDisplayConnection> &display,
-           const std::shared_ptr<input::Manager> &input_manager,
+    Window(const std::shared_ptr<input::Manager> &input_manager,
            int width, int height);
     ~Window();
+
+    void process_input_event(const SDL_Event &event);
 
     EGLNativeWindowType native_window() const;
 
 private:
-    static void handle_surface_event(MirSurface *surface, MirEvent const* event, void *context);
-
-    void handle_input_event(MirInputEvent const* input_event);
-    void handle_touch_event(MirTouchEvent const* touch_event);
-    void handle_pointer_event(MirPointerEvent const* pointer_event);
-    void handle_pointer_button_event(std::vector<input::Event> &events,
-                                     MirPointerEvent const* pointer_event, bool pressed);
-
     std::shared_ptr<input::Device> touchpanel_;
     std::shared_ptr<input::Device> pointer_;
+    std::shared_ptr<input::Device> keyboard_;
+    EGLNativeDisplayType native_display_;
     EGLNativeWindowType native_window_;
-    MirSurface *surface_;
+    SDL_Window *window_;
 };
 } // namespace bridge
 } // namespace anbox
