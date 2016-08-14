@@ -1,10 +1,9 @@
 #!/bin/bash
 
 TOPDIR=`echo $ANDROID_BUILD_TOP`
-PRODUCT_NAME=generic_arm64
-OUTDIR=out/target/product/$PRODUCT_NAME
+OUTDIR=`echo $ANDROID_PRODUCT_OUT`
 CURDIR=`pwd`
-TARGET=anbox-rootfs
+TARGET=rootfs
 
 if [ -d $TARGET ] ; then
 	rm -rf $TARGET
