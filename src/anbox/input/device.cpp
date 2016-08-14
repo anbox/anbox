@@ -154,8 +154,7 @@ std::string Device::socket_path() const {
     return connector_->socket_file();
 }
 
-int Device::next_id()
-{
+int Device::next_id() {
     return next_connection_id_++;
 }
 

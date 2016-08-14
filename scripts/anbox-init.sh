@@ -57,5 +57,9 @@ prepare_filesystem &
 echo "Waiting for filesystem being prepared ..."
 wait $!
 
+ln -sf /dev/sockets/qemu_pipe /dev/qemu_pipe
+ln -sf /dev/sockets/qemud /dev/qemud
+ln -sf /dev/sockets/anbox_bridge /dev/anbox_bridge
+
 echo "Starting real init now ..."
 /init

@@ -39,22 +39,13 @@ std::shared_ptr<Device> Manager::create_device() {
     return device;
 }
 
-void Manager::generate_mappings(std::map<std::string,std::string> &target) {
-    for (const auto &iter : devices_) {
-        target.insert({
-                          iter.second->socket_path(),
-                          (boost::format("/dev/input/event%1%") % iter.first).str(),
-                      });
-    }
-}
-
 std::uint32_t Manager::next_id() {
     static std::uint32_t next_id = 0;
     return next_id++;
 }
 
 std::string Manager::build_device_path(const std::uint32_t &id) {
-    return (boost::format("%1%/input_device_%2%") % config::data_path() % id).str();
+    return (boost::format("%1%/event%2%") % config::host_input_device_path() % id).str();
 }
 
 } // namespace input

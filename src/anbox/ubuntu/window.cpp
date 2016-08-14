@@ -461,7 +461,7 @@ void Window::process_input_event(const SDL_Event &event) {
         mouse_events.push_back({ EV_SYN, SYN_REPORT, 0 });
         break;
     case SDL_MOUSEWHEEL:
-        mouse_events.push_back({ EV_REL, REL_WHEEL, static_cast<std::int32_t>(event.wheel.direction) });
+        mouse_events.push_back({ EV_REL, REL_WHEEL, static_cast<std::int32_t>(event.wheel.y) });
         break;
     case SDL_KEYDOWN: {
         const auto code = convert_sdl_scancode_to_evdev(event.key.keysym.scancode);

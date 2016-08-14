@@ -25,29 +25,34 @@ namespace anbox {
 namespace ubuntu {
 WindowCreator::WindowCreator(const std::shared_ptr<input::Manager> &input_manager) :
     graphics::WindowCreator(input_manager),
-    input_manager_(input_manager) {
+    input_manager_(input_manager),
+    event_thread_running_(false) {
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize SDL"));
 
-    event_thread = std::thread(&WindowCreator::process_events, this);
+    event_thread_ = std::thread(&WindowCreator::process_events, this);
 }
 
 WindowCreator::~WindowCreator() {
+    event_thread_running_ = false;
+    event_thread_.join();
 }
 
 void WindowCreator::process_window_event(const SDL_Event &event) {
 }
 
 void WindowCreator::process_events() {
-    while(true) {
+    event_thread_running_ = true;
+
+    while(event_thread_running_) {
         SDL_Event event;
-        while (SDL_WaitEvent(&event)) {
+        while (SDL_WaitEventTimeout(&event, 100)) {
             switch (event.type) {
             case SDL_QUIT:
-                // FIXME once one of our windows is closed we need to decide what
-                // to do base on the configuration we're running in.
-                break;
+                // FIXME: We exit here only as long as we don't have multi window
+                // support.
+                BOOST_THROW_EXCEPTION(std::runtime_error("User closed main application window"));
             case SDL_WINDOWEVENT:
                 process_window_event(event);
                 break;

@@ -32,8 +32,6 @@ public:
 
     std::shared_ptr<Device> create_device();
 
-    void generate_mappings(std::map<std::string,std::string> &target);
-
 private:
     std::uint32_t next_id();
     std::string build_device_path(const std::uint32_t &id);

@@ -15,24 +15,33 @@
  *
  */
 
-#include <boost/filesystem.hpp>
+#ifndef ANBOX_CONTAINER_CONTAINER_H_
+#define ANBOX_CONTAINER_CONTAINER_H_
 
-#include "core/posix/signal.h"
+#include <string>
+#include <vector>
 
-#include "anbox/logger.h"
-#include "anbox/config.h"
-#include "anbox/container_connector.h"
-#include "anbox/cmds/shell.h"
+namespace anbox {
+namespace container {
+class Container {
+public:
+    virtual ~Container();
 
-namespace fs = boost::filesystem;
+    enum class State {
+        inactive,
+        running,
+    };
 
-anbox::cmds::Shell::Shell()
-    : CommandWithFlagsAndAction{cli::Name{"shell"}, cli::Usage{"shell"}, cli::Description{"Open a shell within the Anbox container"}},
-      pid_(-1)
-{
-    flag(cli::make_flag(cli::Name{"pid"}, cli::Description{"PID of container to attach to"}, pid_));
-    action([this](const cli::Command::Context &) {
-        ContainerConnector connector(pid_);
-        return connector.run("/system/bin/sh");
-    });
-}
+    // Start the container in background
+    virtual void start() = 0;
+
+    // Stop a running container
+    virtual void stop() = 0;
+
+    // Get the current container state
+    virtual State state() = 0;
+};
+} // namespace container
+} // namespace anbox
+
+#endif

@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_CMDS_SHELL_H_
-#define ANBOX_CMDS_SHELL_H_
+#ifndef ANBOX_CMDS_CONTAINER_MANAGER_H_
+#define ANBOX_CMDS_CONTAINER_MANAGER_H_
 
 #include <functional>
 #include <iostream>
@@ -26,12 +26,9 @@
 
 namespace anbox {
 namespace cmds {
-class Shell : public cli::CommandWithFlagsAndAction {
+class ContainerManager : public cli::CommandWithFlagsAndAction {
 public:
-    Shell();
-
-private:
-    int pid_;
+    ContainerManager();
 };
 } // namespace cmds
 } // namespace anbox

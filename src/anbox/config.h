@@ -22,12 +22,21 @@
 
 namespace anbox {
 namespace config {
+std::string in_snap_dir(const std::string &path);
+std::string in_snap_data_dir(const std::string &path);
+std::string in_snap_user_data_dir(const std::string &path);
 std::string data_path();
+std::string rootfs_path();
+std::string log_path();
+std::string socket_path();
+std::string container_config_path();
+std::string container_socket_path();
 std::string host_share_path();
-std::string container_share_path();
+std::string host_input_device_path();
 std::string host_android_data_path();
 std::string host_android_cache_path();
 std::string host_android_storage_path();
+std::string container_android_share_path();
 } // namespace config
 } // namespace anbox
 

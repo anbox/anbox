@@ -48,7 +48,8 @@ private:
     std::shared_ptr<input::Manager> input_manager_;
     std::map<EGLNativeWindowType,std::shared_ptr<Window>> windows_;
     std::shared_ptr<Window> current_window_;
-    std::thread event_thread;
+    std::thread event_thread_;
+    bool event_thread_running_;
 };
 } // namespace bridge
 } // namespace anbox

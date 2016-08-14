@@ -24,10 +24,11 @@
 
 #include "anbox/cmds/version.h"
 #include "anbox/cmds/run.h"
-#include "anbox/cmds/shell.h"
 #include "anbox/cmds/install_app.h"
 #include "anbox/cmds/launch_app.h"
 #include "anbox/cmds/reset.h"
+#include "anbox/cmds/container_manager.h"
+#include "anbox/cmds/start_container.h"
 
 #include <boost/filesystem.hpp>
 
@@ -39,34 +40,19 @@ Daemon::Daemon() :
 
     cmd.command(std::make_shared<cmds::Version>())
        .command(std::make_shared<cmds::Run>())
-       .command(std::make_shared<cmds::Shell>())
        .command(std::make_shared<cmds::InstallApp>())
        .command(std::make_shared<cmds::LaunchApp>())
-       .command(std::make_shared<cmds::Reset>());
+       .command(std::make_shared<cmds::Reset>())
+       .command(std::make_shared<cmds::ContainerManager>())
+       .command(std::make_shared<cmds::StartContainer>());
 }
 
 int Daemon::Run(const std::vector<std::string> &arguments)
 try {
-    ensure_data_path();
     return cmd.run({std::cin, std::cout, arguments});
 }
 catch(std::exception &err) {
     ERROR("%s", err.what());
     return EXIT_FAILURE;
-}
-
-void Daemon::ensure_data_path() {
-    std::vector<std::string> paths = {
-        config::data_path(),
-        config::host_share_path(),
-        config::host_android_data_path(),
-        config::host_android_cache_path(),
-        config::host_android_storage_path()
-    };
-
-    for (const auto &path: paths) {
-        if (!fs::is_directory(fs::path(path)))
-            fs::create_directories(fs::path(path));
-    }
 }
 } // namespace anbox

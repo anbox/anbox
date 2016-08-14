@@ -60,7 +60,7 @@ void AndroidApiStub::install(const std::string &path) {
     fs::copy(path, target_path);
 
     const auto container_path = utils::string_format("%s/%s",
-        config::container_share_path(), fs::path(path).filename().string());
+        config::container_android_share_path(), fs::path(path).filename().string());
 
     auto c = std::make_shared<Request<protobuf::bridge::Void>>();
     protobuf::bridge::InstallApplication message;

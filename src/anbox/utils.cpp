@@ -27,6 +27,8 @@
 
 #include "anbox/utils.h"
 
+namespace fs = boost::filesystem;
+
 namespace anbox {
 namespace utils {
 
@@ -139,5 +141,11 @@ std::string get_env_value(const std::string &name, const std::string &default_va
     return std::string(value);
 }
 
+void ensure_paths(const std::vector<std::string> &paths) {
+    for (const auto &path: paths) {
+        if (!fs::is_directory(fs::path(path)))
+            fs::create_directories(fs::path(path));
+    }
+}
 } // namespace utils
 } // namespace anbox

@@ -32,8 +32,6 @@ public:
     int Run(const std::vector<std::string> &arguments);
 
 private:
-    void ensure_data_path();
-
     cli::CommandWithSubcommands cmd;
 };
 } // namespace anbox

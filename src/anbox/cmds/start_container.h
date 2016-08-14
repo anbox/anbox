@@ -15,24 +15,22 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONNECTOR_H_
-#define ANBOX_CONTAINER_CONNECTOR_H_
+#ifndef ANBOX_CMDS_START_CONTAINER_H_
+#define ANBOX_CMDS_START_CONTAINER_H_
 
+#include <functional>
+#include <iostream>
 #include <memory>
 
+#include "anbox/cli.h"
+
 namespace anbox {
-class NamespaceAttacher;
-class ContainerConnector {
+namespace cmds {
+class StartContainer : public cli::CommandWithFlagsAndAction {
 public:
-    ContainerConnector(int pid = -1);
-    ~ContainerConnector();
-
-    int run(const std::string &path);
-
-private:
-    int pid_;
-    std::shared_ptr<NamespaceAttacher> namespaces_;
+    StartContainer();
 };
-} // namespace
+} // namespace cmds
+} // namespace anbox
 
 #endif

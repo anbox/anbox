@@ -21,7 +21,6 @@
 
 #include "anbox/logger.h"
 #include "anbox/runtime.h"
-#include "anbox/container.h"
 #include "anbox/config.h"
 #include "anbox/common/dispatcher.h"
 #include "anbox/cmds/run.h"
@@ -36,6 +35,7 @@
 #include "anbox/ubuntu/platform_api_skeleton.h"
 #include "anbox/ubuntu/window_creator.h"
 #include "anbox/dbus/skeleton/service.h"
+#include "anbox/container/client.h"
 
 #include <sys/prctl.h>
 
@@ -65,7 +65,6 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
     : CommandWithFlagsAndAction{cli::Name{"run"}, cli::Usage{"run"}, cli::Description{"Run the the anbox system"}},
       bus_factory_(bus_factory)
 {
-    flag(cli::make_flag(cli::Name{"rootfs"}, cli::Description{"Path to Android rootfs"}, rootfs_));
     // Just for the purpose to allow QtMir (or unity8) to find this on our /proc/*/cmdline
     // for proper confinement etc.
     flag(cli::make_flag(cli::Name{"desktop_file_hint"}, cli::Description{"Desktop file hint for QtMir/Unity8"}, desktop_file_hint_));
@@ -75,17 +74,16 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
     flag(cli::make_flag(cli::Name{"icon"}, cli::Description{"Icon of the application to run"}, icon_));
 
     action([this](const cli::Command::Context &ctx) {
-        if (rootfs_.empty() || !fs::is_directory(fs::path(rootfs_))) {
-            ctx.cout << "Not valid rootfs path provided" << std::endl;
-            return EXIT_FAILURE;
-        }
-
         auto trap = core::posix::trap_signals_for_process({core::posix::Signal::sig_term,
                                                            core::posix::Signal::sig_int});
         trap->signal_raised().connect([trap](const core::posix::Signal &signal) {
             INFO("Signal %i received. Good night.", static_cast<int>(signal));
             trap->stop();
         });
+
+        utils::ensure_paths({
+                                config::socket_path(),
+                            });
 
         auto rt = Runtime::create();
         auto dispatcher = anbox::common::create_dispatcher_for_runtime(rt);
@@ -99,14 +97,14 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         // Socket which will be used by the qemud service inside the Android
         // container for things like sensors, vibrtator etc.
         auto qemud_connector = std::make_shared<network::PublishedSocketConnector>(
-            utils::string_format("%s/qemud", config::data_path()),
+            utils::string_format("%s/qemud", config::socket_path()),
             rt,
             std::make_shared<NullConnectionCreator>());
 
         // The qemu pipe is used as a very fast communication channel between guest
         // and host for things like the GLES emulation/translation, the RIL or ADB.
         auto qemu_pipe_connector = std::make_shared<network::PublishedSocketConnector>(
-            utils::string_format("%s/qemu_pipe", config::data_path()),
+            utils::string_format("%s/qemu_pipe", config::socket_path()),
             rt,
             std::make_shared<qemu::PipeConnectionCreator>(rt,
                                                           renderer->socket_path(),
@@ -115,7 +113,7 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
         auto bridge_connector = std::make_shared<network::PublishedSocketConnector>(
-            utils::string_format("%s/anbox_bridge", config::data_path()),
+            utils::string_format("%s/anbox_bridge", config::socket_path()),
             rt,
             std::make_shared<bridge::ConnectionCreator>(rt,
                 [&](const std::shared_ptr<network::MessageSender> &sender) {
@@ -148,36 +146,8 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
                     return std::make_shared<bridge::PlatformMessageProcessor>(sender, server, pending_calls);
                 }));
 
-        auto spec = Container::Spec::Default();
-        spec.rootfs_path = rootfs_;
-        spec.bind_paths.insert({qemud_connector->socket_file(), "/dev/qemud"});
-        spec.bind_paths.insert({qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"});
-        spec.bind_paths.insert({bridge_connector->socket_file(), "/dev/anbox_bridge"});
+        container::Client container(rt);
 
-        input_manager->generate_mappings(spec.bind_paths);
-
-        // A place where we can exchange files with the container
-        spec.bind_paths.insert({config::host_share_path(), config::container_share_path()});
-
-        spec.bind_paths.insert({ config::host_android_data_path(), "/data" });
-        spec.bind_paths.insert({ config::host_android_cache_path(), "/cache" });
-        spec.bind_paths.insert({ config::host_android_storage_path(), "/storage" });
-
-        spec.temporary_dirs.push_back("/dev/input");
-
-        // NOTE: We're not mapping /dev/alarm here as if its not available
-        // Android will automatically use its timerfd based fallback
-        // implementation instead.
-
-        // We isolate the container from accessing binder nodes of the host
-        // through the IPC namespace which gets support for binder with extra
-        // patches we require.
-        spec.dev_bind_paths.push_back("/dev/binder");
-        // Required for shared memory allocations. TODO(morphis): Letting the guest
-        // access should be ok but needs more investigation.
-        spec.dev_bind_paths.push_back("/dev/ashmem");
-
-        auto container = Container::create(spec);
 
         auto bus = bus_factory_();
         bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
@@ -185,11 +155,7 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, android_api_stub);
 
         rt->start();
-        container->start();
-
         trap->run();
-
-        container->stop();
         rt->stop();
 
         return EXIT_SUCCESS;

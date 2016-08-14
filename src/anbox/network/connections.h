@@ -29,19 +29,34 @@ template<class Connection>
 class Connections
 {
 public:
+    class Observer {
+    public:
+        virtual void connection_added(int id) = 0;
+        virtual void connection_removed(int id) = 0;
+    };
+
     Connections() {}
     ~Connections() { clear(); }
+
+    void set_observer(const std::shared_ptr<Observer> &o)
+    {
+        observer = o;
+    }
 
     void add(std::shared_ptr<Connection> const& connection)
     {
         std::unique_lock<std::mutex> lock(mutex);
         connections.insert({connection->id(), connection});
+        if (observer)
+            observer->connection_added(connection->id());
     }
 
     void remove(int id)
     {
         std::unique_lock<std::mutex> lock(mutex);
         connections.erase(id);
+        if (observer)
+            observer->connection_removed(id);
     }
 
     bool includes(int id) const
@@ -72,6 +87,7 @@ private:
 
     std::mutex mutex;
     std::map<int, std::shared_ptr<Connection>> connections;
+    std::shared_ptr<Observer> observer;
 };
 } // namespace anbox
 } // namespace network

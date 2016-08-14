@@ -15,36 +15,33 @@
  *
  */
 
-#ifndef ANBOX_CMDS_RUN_H_
-#define ANBOX_CMDS_RUN_H_
+#ifndef ANBOX_CONTAINER_LXC_CONTAINER_H_
+#define ANBOX_CONTAINER_LXC_CONTAINER_H_
 
-#include "anbox/cli.h"
+#include "anbox/container/container.h"
 
-#include <functional>
-#include <iostream>
-#include <memory>
+#include <string>
 
-#include <core/dbus/bus.h>
+#include <lxc/lxccontainer.h>
 
 namespace anbox {
-namespace cmds {
-class Run : public cli::CommandWithFlagsAndAction {
+namespace container {
+class LxcContainer : public Container {
 public:
-    typedef std::function<core::dbus::Bus::Ptr()> BusFactory;
+    LxcContainer();
+    ~LxcContainer();
 
-    static BusFactory session_bus_factory();
-
-    Run(const BusFactory& bus_factory = session_bus_factory());
+    void start() override;
+    void stop() override;
+    State state() override;
 
 private:
-    BusFactory bus_factory_;
-    std::string desktop_file_hint_;
-    std::string apk_;
-    std::string package_;
-    std::string activity_;
-    std::string icon_;
+    void set_config_item(const std::string &key, const std::string &value);
+
+    State state_;
+    lxc_container *container_;
 };
-} // namespace cmds
+} // namespace container
 } // namespace anbox
 
 #endif

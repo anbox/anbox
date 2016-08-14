@@ -7,6 +7,7 @@ include_directories(
   ${DBUS_CPP_INCLUDE_DIRS}
   ${DBUS_INCLUDE_DIRS}
   ${SDL2_INCLUDE_DIRS}
+  ${LXC_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
@@ -37,9 +38,6 @@ set(SOURCES
     anbox/daemon.cpp
     anbox/config.cpp
     anbox/not_reachable.cpp
-    anbox/namespace_attacher.cpp
-    anbox/container.cpp
-    anbox/container_connector.cpp
     anbox/application_manager.h
 
     anbox/common/fd.cpp
@@ -48,6 +46,12 @@ set(SOURCES
     anbox/common/wait_handle.cpp
     anbox/common/dispatcher.cpp
 
+    anbox/container/service.cpp
+    anbox/container/client.cpp
+    anbox/container/container.cpp
+    anbox/container/lxc_container.cpp
+
+    anbox/network/credentials.cpp
     anbox/network/message_sender.h
     anbox/network/message_receiver.h
     anbox/network/message_processor.h
@@ -59,6 +63,8 @@ set(SOURCES
     anbox/network/socket_messenger.cpp
     anbox/network/delegate_message_processor.h
     anbox/network/delegate_connection_creator.h
+    anbox/network/local_socket_messenger.cpp
+    anbox/network/socket_helper.cpp
 
     anbox/graphics/opengles_message_processor.cpp
     anbox/graphics/gl_renderer_server.cpp
@@ -101,10 +107,11 @@ set(SOURCES
 
     anbox/cmds/version.cpp
     anbox/cmds/run.cpp
-    anbox/cmds/shell.cpp
     anbox/cmds/install_app.cpp
     anbox/cmds/launch_app.cpp
     anbox/cmds/reset.cpp
+    anbox/cmds/container_manager.cpp
+    anbox/cmds/start_container.cpp
 
     anbox/do_not_copy_or_move.h
     anbox/optional.h
@@ -114,10 +121,9 @@ add_library(anbox-core ${SOURCES})
 target_link_libraries(anbox-core
   ${Boost_LDFLAGS}
   ${Boost_LIBRARIES}
-  ${MIRCLIENT_LDFLAGS}
-  ${MIRCLIENT_LIBRARIES}
   ${DBUS_CPP_LIBRARIES}
   ${SDL2_LIBRARIES}
+  ${LXC_LIBRARIES}
   pthread
   process-cpp
   OpenglRender
@@ -127,12 +133,8 @@ add_executable(anbox main.cpp)
 target_link_libraries(anbox
     anbox-core)
 
-add_executable(anbox-container container_main.cpp)
-target_link_libraries(anbox-container
-    bwrap)
-
 install(
-  TARGETS anbox anbox-container
+  TARGETS anbox
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib/static)

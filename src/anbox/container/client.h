@@ -15,36 +15,23 @@
  *
  */
 
-#ifndef ANBOX_CMDS_RUN_H_
-#define ANBOX_CMDS_RUN_H_
+#ifndef ANBOX_CONTAINER_CLIENT_H_
+#define ANBOX_CONTAINER_CLIENT_H_
 
-#include "anbox/cli.h"
-
-#include <functional>
-#include <iostream>
-#include <memory>
-
-#include <core/dbus/bus.h>
+#include "anbox/network/local_socket_messenger.h"
+#include "anbox/runtime.h"
 
 namespace anbox {
-namespace cmds {
-class Run : public cli::CommandWithFlagsAndAction {
+namespace container {
+class Client {
 public:
-    typedef std::function<core::dbus::Bus::Ptr()> BusFactory;
-
-    static BusFactory session_bus_factory();
-
-    Run(const BusFactory& bus_factory = session_bus_factory());
+    Client(const std::shared_ptr<Runtime> &rt);
+    ~Client();
 
 private:
-    BusFactory bus_factory_;
-    std::string desktop_file_hint_;
-    std::string apk_;
-    std::string package_;
-    std::string activity_;
-    std::string icon_;
+    network::LocalSocketMessenger messenger_;
 };
-} // namespace cmds
+} // namespace container
 } // namespace anbox
 
 #endif

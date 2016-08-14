@@ -40,6 +40,8 @@ std::string hex_dump(const uint8_t *data, uint32_t size);
 
 std::string get_env_value(const std::string &name, const std::string &default_value = "");
 
+void ensure_paths(const std::vector<std::string> &paths);
+
 template<typename... Types>
 static std::string string_format(const std::string& fmt_str, Types&&... args);
 } // namespace utils

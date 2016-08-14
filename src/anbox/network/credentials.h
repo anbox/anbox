@@ -15,36 +15,29 @@
  *
  */
 
-#ifndef ANBOX_CMDS_RUN_H_
-#define ANBOX_CMDS_RUN_H_
+#ifndef ANBOX_NETWORK_CREDENTIALS_H_
+#define ANBOX_NETWORK_CREDENTIALS_H_
 
-#include "anbox/cli.h"
-
-#include <functional>
-#include <iostream>
-#include <memory>
-
-#include <core/dbus/bus.h>
+#include <sys/types.h>
 
 namespace anbox {
-namespace cmds {
-class Run : public cli::CommandWithFlagsAndAction {
+namespace network {
+class Credentials {
 public:
-    typedef std::function<core::dbus::Bus::Ptr()> BusFactory;
+    Credentials(pid_t pid, uid_t uid, gid_t gid);
 
-    static BusFactory session_bus_factory();
-
-    Run(const BusFactory& bus_factory = session_bus_factory());
+    pid_t pid() const;
+    uid_t uid() const;
+    gid_t gid() const;
 
 private:
-    BusFactory bus_factory_;
-    std::string desktop_file_hint_;
-    std::string apk_;
-    std::string package_;
-    std::string activity_;
-    std::string icon_;
+    Credentials() = delete;
+
+    pid_t pid_;
+    uid_t uid_;
+    gid_t gid_;
 };
-} // namespace cmds
+} // namespace network
 } // namespace anbox
 
 #endif

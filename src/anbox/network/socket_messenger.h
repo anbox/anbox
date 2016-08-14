@@ -24,6 +24,7 @@
 #include "anbox/common/fd_sets.h"
 #include "anbox/network/message_sender.h"
 #include "anbox/network/message_receiver.h"
+#include "anbox/network/credentials.h"
 
 namespace anbox {
 namespace network {
@@ -32,7 +33,9 @@ class SocketMessenger : public MessageSender,
 public:
     SocketMessenger(std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket);
 
-    void send(char const* data, size_t length);
+    Credentials creds() const;
+
+    void send(char const* data, size_t length) override;
 
     void async_receive_msg(AnboxReadHandler const& handle, boost::asio::mutable_buffers_1 const &buffer) override;
     boost::system::error_code receive_msg(boost::asio::mutable_buffers_1 const& buffer) override;

@@ -15,8 +15,12 @@
  *
  */
 
-extern "C" int bwrap_main(int argc, char **argv);
+#include "anbox/container/service.h"
 
 int main(int argc, char **argv) {
-    return bwrap_main(argc, argv);
+    (void) argc;
+    (void) argv;
+    anbox::container::Service service;
+
+    return 0;
 }

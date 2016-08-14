@@ -46,6 +46,18 @@ SocketMessenger::SocketMessenger(std::shared_ptr<ba::local::stream_protocol::soc
     socket->set_option(option);
 }
 
+Credentials SocketMessenger::creds() const {
+    struct ucred cr;
+    socklen_t cl = sizeof(cr);
+
+    auto status = getsockopt(socket_fd, SOL_SOCKET, SO_PEERCRED, &cr, &cl);
+
+    if (status)
+        BOOST_THROW_EXCEPTION(std::runtime_error("Failed to query client socket credentials"));
+
+    return {cr.pid, cr.uid, cr.gid};
+}
+
 void SocketMessenger::send(char const* data, size_t length)
 {
     VariableLengthArray<serialization_buffer_size> whole_message{length};
