@@ -16,12 +16,18 @@ include_directories(
 )
 
 protobuf_generate_cpp(
+    GENERATED_PROTOBUF_RPC_SRCS GENERATED_PROTOBUF_RPC_HDRS
+    anbox/protobuf/anbox_rpc.proto)
+
+protobuf_generate_cpp(
     GENERATED_PROTOBUF_BRIDGE_SRCS GENERATED_PROTOBUF_BRIDGE_HDRS
     anbox/protobuf/anbox_bridge.proto)
 
 add_library(anbox-protobuf
     ${GENERATED_PROTOBUF_BRIDGE_SRCS}
     ${GENERATED_PROTOBUF_BRIDGE_HDRS}
+    ${GENERATED_PROTOBUF_RPC_SRCS}
+    ${GENERATED_PROTOBUF_RPC_HDRS}
     anbox/protobuf/google_protobuf_guard.cpp)
 target_link_libraries(anbox-protobuf
     ${PROTOBUF_LITE_LIBRARIES})
@@ -63,6 +69,14 @@ set(SOURCES
     anbox/network/local_socket_messenger.cpp
     anbox/network/socket_helper.cpp
 
+    anbox/rpc/channel.cpp
+    anbox/rpc/pending_call_cache.cpp
+    anbox/rpc/constants.h
+    anbox/rpc/connection_creator.cpp
+    anbox/rpc/message_processor.cpp
+    anbox/rpc/template_message_processor.h
+    anbox/rpc/make_protobuf_object.h
+
     anbox/graphics/opengles_message_processor.cpp
     anbox/graphics/gl_renderer_server.cpp
     anbox/graphics/window_creator.cpp
@@ -82,15 +96,8 @@ set(SOURCES
     anbox/qemu/at_parser.cpp
     anbox/qemu/bootanimation_message_processor.cpp
 
-    anbox/bridge/constants.h
-    anbox/bridge/connection_creator.cpp
-    anbox/bridge/message_processor.cpp
-    anbox/bridge/template_message_processor.h
-    anbox/bridge/pending_call_cache.cpp
-    anbox/bridge/make_protobuf_object.h
     anbox/bridge/platform_message_processor.cpp
     anbox/bridge/platform_api_skeleton.cpp
-    anbox/bridge/rpc_channel.cpp
     anbox/bridge/android_api_stub.cpp
 
     anbox/ubuntu/platform_api_skeleton.cpp

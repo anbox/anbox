@@ -18,13 +18,15 @@
 #include "anbox/ubuntu/platform_api_skeleton.h"
 #include "anbox/common/dispatcher.h"
 #include "anbox/bridge/android_api_stub.h"
+#include "anbox/rpc/pending_call_cache.h"
 #include "anbox/logger.h"
 
+#include "anbox_rpc.pb.h"
 #include "anbox_bridge.pb.h"
 
 namespace anbox {
 namespace ubuntu {
-PlatformApiSekeleton::PlatformApiSekeleton(const std::shared_ptr<bridge::PendingCallCache> &pending_calls) :
+PlatformApiSekeleton::PlatformApiSekeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls) :
     bridge::PlatformApiSkeleton(pending_calls) {
 }
 
@@ -32,17 +34,17 @@ PlatformApiSekeleton::~PlatformApiSekeleton() {
 }
 
 void PlatformApiSekeleton::handle_notification(anbox::protobuf::bridge::Notification const *request,
-                                         anbox::protobuf::bridge::Void *response,
-                                         google::protobuf::Closure *done) {
+                                               anbox::protobuf::rpc::Void *response,
+                                               google::protobuf::Closure *done) {
     (void) request;
     (void) response;
     DEBUG("");
     done->Run();
 }
 
-void PlatformApiSekeleton::boot_finished(anbox::protobuf::bridge::Void const *request,
-                                   anbox::protobuf::bridge::Void *response,
-                                   google::protobuf::Closure *done) {
+void PlatformApiSekeleton::boot_finished(anbox::protobuf::rpc::Void const *request,
+                                         anbox::protobuf::rpc::Void *response,
+                                         google::protobuf::Closure *done) {
     (void) request;
     (void) response;
 

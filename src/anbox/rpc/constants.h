@@ -15,11 +15,11 @@
  *
  */
 
-#ifndef ANBOX_BRIDGE_CONSTANTS_H_
-#define ANBOX_BRIDGE_CONSTANTS_H_
+#ifndef ANBOX_RPC_CONSTANTS_H_
+#define ANBOX_RPC_CONSTANTS_H_
 
 namespace anbox {
-namespace bridge {
+namespace rpc {
 static constexpr const long header_size{3};
 static constexpr unsigned int const serialization_buffer_size{2048};
 
@@ -27,7 +27,7 @@ enum MessageType {
     invocation = 0,
     response = 1,
 };
-} // namespace anbox
+} // namespace rpc
 } // namespace network
 
 #endif

@@ -15,12 +15,12 @@
  *
  */
 
-#ifndef ANBOX_BRIDGE_MESSAGE_PROCESSOR_H_
-#define ANBOX_BRIDGE_MESSAGE_PROCESSOR_H_
+#ifndef ANBOX_RPC_MESSAGE_PROCESSOR_H_
+#define ANBOX_RPC_MESSAGE_PROCESSOR_H_
 
 #include "anbox/network/message_processor.h"
 #include "anbox/network/message_sender.h"
-#include "anbox/bridge/pending_call_cache.h"
+#include "anbox/rpc/pending_call_cache.h"
 
 #include <memory>
 
@@ -29,22 +29,22 @@
 
 namespace anbox {
 namespace protobuf {
-namespace bridge {
+namespace rpc {
 class Invocation;
-} // namespace bridge
+} // namespace rpc
 } // namespace protobuf
-namespace bridge {
+namespace rpc {
 class Invocation
 {
 public:
-    Invocation(anbox::protobuf::bridge::Invocation const& invocation) :
+    Invocation(anbox::protobuf::rpc::Invocation const& invocation) :
         invocation_(invocation) {}
 
     const ::std::string& method_name() const;
     const ::std::string& parameters() const;
     google::protobuf::uint32 id() const;
 private:
-    anbox::protobuf::bridge::Invocation const& invocation_;
+    anbox::protobuf::rpc::Invocation const& invocation_;
 };
 
 class MessageProcessor : public network::MessageProcessor {
@@ -65,7 +65,7 @@ private:
     std::vector<std::uint8_t> buffer_;
     std::shared_ptr<PendingCallCache> pending_calls_;
 };
-} // namespace bridge
+} // namespace rpc
 } // namespace anbox
 
 #endif

@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_BRIDGE_RPC_CHANNEL_H_
-#define ANBOX_BRIDGE_RPC_CHANNEL_H_
+#ifndef ANBOX_RPC_CHANNEL_H_
+#define ANBOX_RPC_CHANNEL_H_
 
 #include <memory>
 #include <atomic>
@@ -32,20 +32,20 @@ class MessageLite;
 
 namespace anbox {
 namespace protobuf {
-namespace bridge {
+namespace rpc {
 class Invocation;
-} // namespace bridge
+} // namespace rpc
 } // namespace protobuf
 namespace network {
 class MessageSender;
 } // namespace network
-namespace bridge {
+namespace rpc {
 class PendingCallCache;
-class RpcChannel {
+class Channel {
 public:
-    RpcChannel(const std::shared_ptr<PendingCallCache> &pending_calls,
+    Channel(const std::shared_ptr<PendingCallCache> &pending_calls,
                const std::shared_ptr<network::MessageSender> &sender);
-    ~RpcChannel();
+    ~Channel();
 
     void call_method(std::string const& method_name,
                      google::protobuf::MessageLite const *parameters,
@@ -53,10 +53,10 @@ public:
                      google::protobuf::Closure *complete);
 
 private:
-    protobuf::bridge::Invocation invocation_for(
+    protobuf::rpc::Invocation invocation_for(
         std::string const& method_name,
         google::protobuf::MessageLite const* request);
-    void send_message(anbox::protobuf::bridge::Invocation const& invocation);
+    void send_message(anbox::protobuf::rpc::Invocation const& invocation);
     int next_id();
     void notify_disconnected();
 
@@ -65,7 +65,7 @@ private:
     std::shared_ptr<network::MessageSender> sender_;
     std::mutex write_mutex_;
 };
-} // namespace bridge
+} // namespace rpc
 } // namespace anbox
 
 #endif

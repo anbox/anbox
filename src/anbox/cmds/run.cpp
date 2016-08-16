@@ -28,9 +28,9 @@
 #include "anbox/qemu/pipe_connection_creator.h"
 #include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/input/manager.h"
-#include "anbox/bridge/connection_creator.h"
+#include "anbox/rpc/connection_creator.h"
+#include "anbox/rpc/channel.h"
 #include "anbox/bridge/platform_message_processor.h"
-#include "anbox/bridge/rpc_channel.h"
 #include "anbox/bridge/android_api_stub.h"
 #include "anbox/ubuntu/platform_api_skeleton.h"
 #include "anbox/ubuntu/window_creator.h"
@@ -115,10 +115,10 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         auto bridge_connector = std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/anbox_bridge", config::socket_path()),
             rt,
-            std::make_shared<bridge::ConnectionCreator>(rt,
+            std::make_shared<rpc::ConnectionCreator>(rt,
                 [&](const std::shared_ptr<network::MessageSender> &sender) {
-                    auto pending_calls = std::make_shared<bridge::PendingCallCache>();
-                    auto rpc_channel = std::make_shared<bridge::RpcChannel>(pending_calls, sender);
+                    auto pending_calls = std::make_shared<rpc::PendingCallCache>();
+                    auto rpc_channel = std::make_shared<rpc::Channel>(pending_calls, sender);
                     // This is safe as long as we only support a single client. If we support
                     // more than one one day we need proper dispatching to the right one.
                     android_api_stub->set_rpc_channel(rpc_channel);

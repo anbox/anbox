@@ -4,8 +4,8 @@ include_directories(
   ${CMAKE_BINARY_DIR}/src)
 
 set(ANBOXD_SOURCES
-    ${CMAKE_SOURCE_DIR}/src/anbox/bridge/message_processor.cpp
-    ${CMAKE_SOURCE_DIR}/src/anbox/bridge/pending_call_cache.cpp
+    ${CMAKE_SOURCE_DIR}/src/anbox/rpc/message_processor.cpp
+    ${CMAKE_SOURCE_DIR}/src/anbox/rpc/pending_call_cache.cpp
     ${CMAKE_SOURCE_DIR}/src/anbox/common/fd.cpp
     service/platform_service.cpp
     service/platform_service_interface.cpp

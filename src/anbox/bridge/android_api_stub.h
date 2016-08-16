@@ -26,18 +26,20 @@
 
 namespace anbox {
 namespace protobuf {
-namespace bridge {
+namespace rpc {
 class Void;
 } // namespace bridge
 } // namespace protobuf
+namespace rpc {
+class Channel;
+} // namespace rpc
 namespace bridge {
-class RpcChannel;
 class AndroidApiStub : public anbox::ApplicationManager {
 public:
     AndroidApiStub();
     ~AndroidApiStub();
 
-    void set_rpc_channel(const std::shared_ptr<RpcChannel> &channel);
+    void set_rpc_channel(const std::shared_ptr<rpc::Channel> &channel);
     void reset_rpc_channel();
 
     void install(const std::string &path) override;
@@ -55,12 +57,12 @@ private:
         bool success;
     };
 
-    void application_installed(Request<protobuf::bridge::Void> *request);
-    void application_launched(Request<protobuf::bridge::Void> *request);
-    void dns_servers_set(Request<protobuf::bridge::Void> *request);
+    void application_installed(Request<protobuf::rpc::Void> *request);
+    void application_launched(Request<protobuf::rpc::Void> *request);
+    void dns_servers_set(Request<protobuf::rpc::Void> *request);
 
     mutable std::mutex mutex_;
-    std::shared_ptr<RpcChannel> channel_;
+    std::shared_ptr<rpc::Channel> channel_;
     common::WaitHandle install_wait_handle_;
     common::WaitHandle launch_wait_handle_;
     common::WaitHandle set_dns_servers_wait_handle_;

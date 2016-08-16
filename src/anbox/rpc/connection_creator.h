@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_BRIDGE_CONNECTION_CREATOR_H_
-#define ANBOX_BRIDGE_CONNECTION_CREATOR_H_
+#ifndef ANBOX_RPC_CONNECTION_CREATOR_H_
+#define ANBOX_RPC_CONNECTION_CREATOR_H_
 
 #include <boost/asio.hpp>
 
@@ -30,7 +30,7 @@
 #include "anbox/network/socket_messenger.h"
 
 namespace anbox {
-namespace bridge {
+namespace rpc {
 class ConnectionCreator : public network::ConnectionCreator {
 public:
     typedef std::function<std::shared_ptr<network::MessageProcessor>(
@@ -51,7 +51,7 @@ private:
     std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;
     MessageProcessorFactory message_processor_factory_;
 };
+} // namespace rpc
 } // namespace anbox
-} // namespace network
 
 #endif

@@ -16,29 +16,29 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "anbox/bridge/pending_call_cache.h"
+#include "anbox/rpc/pending_call_cache.h"
 
-#include "anbox_bridge.pb.h"
+#include "anbox_rpc.pb.h"
 
 namespace anbox {
-namespace bridge {
+namespace rpc {
 PendingCallCache::PendingCallCache() {
 }
 
-void PendingCallCache::save_completion_details(anbox::protobuf::bridge::Invocation const &invocation,
+void PendingCallCache::save_completion_details(anbox::protobuf::rpc::Invocation const &invocation,
                                                google::protobuf::MessageLite *response,
                                                google::protobuf::Closure *complete) {
     std::unique_lock<std::mutex> lock(mutex_);
     pending_calls_[invocation.id()] = PendingCall(response, complete);
 }
 
-void PendingCallCache::populate_message_for_result(anbox::protobuf::bridge::Result &result,
+void PendingCallCache::populate_message_for_result(anbox::protobuf::rpc::Result &result,
                                  std::function<void(google::protobuf::MessageLite*)> const& populator) {
     std::unique_lock<std::mutex> lock(mutex_);
     populator(pending_calls_.at(result.id()).response);
 }
 
-void PendingCallCache::complete_response(anbox::protobuf::bridge::Result& result) {
+void PendingCallCache::complete_response(anbox::protobuf::rpc::Result& result) {
     PendingCall completion;
 
     {
@@ -68,5 +68,5 @@ bool PendingCallCache::empty() const {
     std::unique_lock<std::mutex> lock(mutex_);
     return pending_calls_.empty();
 }
-} // namespace bridge
+} // namespace rpc
 } // namespace anbox

@@ -16,8 +16,8 @@
  */
 
 
-#include "anbox/bridge/connection_creator.h"
-#include "anbox/bridge/message_processor.h"
+#include "anbox/rpc/connection_creator.h"
+#include "anbox/rpc/message_processor.h"
 #include "anbox/network/socket_messenger.h"
 #include "anbox/logger.h"
 
@@ -26,7 +26,7 @@
 namespace ba = boost::asio;
 
 namespace anbox {
-namespace bridge {
+namespace rpc {
 ConnectionCreator::ConnectionCreator(const std::shared_ptr<Runtime> &rt, const MessageProcessorFactory &factory) :
     runtime_(rt),
     next_connection_id_(0),
@@ -61,5 +61,5 @@ int ConnectionCreator::next_id()
     return next_connection_id_.fetch_add(1);
 }
 
+} // namespace rpc
 } // namespace anbox
-} // namespace network

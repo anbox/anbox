@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef ANBOX_BRIDGE_PENDING_CALL_CACHE_
-#define ANBOX_BRIDGE_PENDING_CALL_CACHE_
+#ifndef ANBOX_RPC_PENDING_CALL_CACHE_
+#define ANBOX_RPC_PENDING_CALL_CACHE_
 
 #include <functional>
 #include <mutex>
@@ -32,22 +32,22 @@ class MessageLite;
 
 namespace anbox {
 namespace protobuf {
-namespace bridge {
+namespace rpc {
 class Invocation;
 class Result;
-} // namespace bridge
+} // namespace rpc
 } // namespace protobuf
-namespace bridge {
+namespace rpc {
 class PendingCallCache {
 public:
     PendingCallCache();
 
-    void save_completion_details(anbox::protobuf::bridge::Invocation const &invocation,
+    void save_completion_details(anbox::protobuf::rpc::Invocation const &invocation,
                                  google::protobuf::MessageLite *response,
                                  google::protobuf::Closure *complete);
-    void populate_message_for_result(anbox::protobuf::bridge::Result &result,
+    void populate_message_for_result(anbox::protobuf::rpc::Result &result,
                                      std::function<void(google::protobuf::MessageLite*)> const& populator);
-    void complete_response(anbox::protobuf::bridge::Result& result);
+    void complete_response(anbox::protobuf::rpc::Result& result);
     void force_completion();
     bool empty() const;
 
@@ -71,7 +71,7 @@ private:
     std::mutex mutable mutex_;
     std::map<int, PendingCall> pending_calls_;
 };
-} // namespace bridge
+} // namespace rpc
 } // namespace anbox
 
 #endif

@@ -28,28 +28,32 @@ class Closure;
 
 namespace anbox {
 namespace protobuf {
+namespace rpc {
+class Void;
+} // namespace rpc
 namespace bridge {
 class Notification;
-class Void;
 } // namespace bridge
 } // namespace protobuf
-namespace bridge {
+namespace rpc {
 class PendingCallCache;
+} // namespace rpc
+namespace bridge {
 class PlatformApiSkeleton {
 public:
-    PlatformApiSkeleton(const std::shared_ptr<PendingCallCache> &pending_calls);
+    PlatformApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls);
     virtual ~PlatformApiSkeleton();
 
-    virtual void boot_finished(anbox::protobuf::bridge::Void const *request,
-                               anbox::protobuf::bridge::Void *response,
+    virtual void boot_finished(anbox::protobuf::rpc::Void const *request,
+                               anbox::protobuf::rpc::Void *response,
                                google::protobuf::Closure *done) = 0;
 
     virtual void handle_notification(anbox::protobuf::bridge::Notification const *request,
-                                     anbox::protobuf::bridge::Void *response,
+                                     anbox::protobuf::rpc::Void *response,
                                      google::protobuf::Closure *done) = 0;
 
 private:
-    std::shared_ptr<PendingCallCache> pending_calls_;
+    std::shared_ptr<rpc::PendingCallCache> pending_calls_;
 };
 } // namespace bridge
 } // namespace anbox

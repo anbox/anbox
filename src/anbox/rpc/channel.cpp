@@ -17,42 +17,42 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "anbox/bridge/rpc_channel.h"
-#include "anbox/bridge/pending_call_cache.h"
-#include "anbox/bridge/constants.h"
+#include "anbox/rpc/channel.h"
+#include "anbox/rpc/pending_call_cache.h"
+#include "anbox/rpc/constants.h"
 #include "anbox/common/variable_length_array.h"
 #include "anbox/network/message_sender.h"
 
-#include "anbox_bridge.pb.h"
+#include "anbox_rpc.pb.h"
 
 namespace anbox {
-namespace bridge {
-RpcChannel::RpcChannel(const std::shared_ptr<PendingCallCache> &pending_calls,
-                       const std::shared_ptr<network::MessageSender> &sender) :
+namespace rpc {
+Channel::Channel(const std::shared_ptr<PendingCallCache> &pending_calls,
+                 const std::shared_ptr<network::MessageSender> &sender) :
     pending_calls_(pending_calls),
     sender_(sender) {
 }
 
-RpcChannel::~RpcChannel() {
+Channel::~Channel() {
 }
 
-void RpcChannel::call_method(std::string const& method_name,
-                             google::protobuf::MessageLite const *parameters,
-                             google::protobuf::MessageLite *response,
-                             google::protobuf::Closure *complete) {
+void Channel::call_method(std::string const& method_name,
+                          google::protobuf::MessageLite const *parameters,
+                          google::protobuf::MessageLite *response,
+                          google::protobuf::Closure *complete) {
     auto const &invocation = invocation_for(method_name, parameters);
     pending_calls_->save_completion_details(invocation, response, complete);
     send_message(invocation);
 }
 
-protobuf::bridge::Invocation RpcChannel::invocation_for(std::string const& method_name,
-                                                        google::protobuf::MessageLite const* request) {
+protobuf::rpc::Invocation Channel::invocation_for(std::string const& method_name,
+                                                  google::protobuf::MessageLite const* request) {
 
     anbox::VariableLengthArray<2048> buffer{static_cast<size_t>(request->ByteSize())};
 
     request->SerializeWithCachedSizesToArray(buffer.data());
 
-    anbox::protobuf::bridge::Invocation invoke;
+    anbox::protobuf::rpc::Invocation invoke;
 
     invoke.set_id(next_id());
     invoke.set_method_name(method_name);
@@ -62,7 +62,7 @@ protobuf::bridge::Invocation RpcChannel::invocation_for(std::string const& metho
     return invoke;
 }
 
-void RpcChannel::send_message(anbox::protobuf::bridge::Invocation const& invocation) {
+void Channel::send_message(anbox::protobuf::rpc::Invocation const& invocation) {
     const size_t size = invocation.ByteSize();
     const unsigned char header_bytes[header_size] = {
         static_cast<unsigned char>((size >> 8) & 0xff),
@@ -84,12 +84,12 @@ void RpcChannel::send_message(anbox::protobuf::bridge::Invocation const& invocat
     }
 }
 
-void RpcChannel::notify_disconnected() {
+void Channel::notify_disconnected() {
     pending_calls_->force_completion();
 }
 
-int RpcChannel::next_id() {
+int Channel::next_id() {
     return next_message_id_.fetch_add(1);
 }
-} // namespace bridge
+} // namespace rpc
 } // namespace anbox

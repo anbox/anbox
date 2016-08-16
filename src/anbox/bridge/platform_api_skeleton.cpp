@@ -22,7 +22,7 @@
 
 namespace anbox {
 namespace bridge {
-PlatformApiSkeleton::PlatformApiSkeleton(const std::shared_ptr<PendingCallCache> &pending_calls) :
+PlatformApiSkeleton::PlatformApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls) :
     pending_calls_(pending_calls) {
 }
 

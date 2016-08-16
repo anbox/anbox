@@ -16,13 +16,13 @@
  * Authored by: Alberto Aguirre <alberto.aguirre@canonical.com>
  */
 
-#ifndef ANBOX_BRIDGE_MAKE_PROTOBUF_OBJECT_H_
-#define ANBOX_BRIDGE_MAKE_PROTOBUF_OBJECT_H_
+#ifndef ANBOX_RPC_MAKE_PROTOBUF_OBJECT_H_
+#define ANBOX_RPC_MAKE_PROTOBUF_OBJECT_H_
 
 #include <memory>
 
 namespace anbox {
-namespace bridge {
+namespace rpc {
 template <typename ProtobufType>
 auto make_protobuf_object() {
     return std::unique_ptr<ProtobufType>{ProtobufType::default_instance().New()};
@@ -34,7 +34,7 @@ auto make_protobuf_object(ProtobufType const& from) {
     object->CopyFrom(from);
     return object;
 }
-} // namespace bridge
+} // namespace rpc
 } // namespace anbox
 
 #endif

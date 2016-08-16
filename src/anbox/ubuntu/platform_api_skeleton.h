@@ -27,18 +27,21 @@ class Dispatcher;
 namespace bridge {
 class AndroidApiStub;
 } // namespace bridge
+namespace rpc {
+class PendingCallCache;
+} // namespace rpc;
 namespace ubuntu {
 class PlatformApiSekeleton : public bridge::PlatformApiSkeleton {
 public:
-    PlatformApiSekeleton(const std::shared_ptr<bridge::PendingCallCache> &pending_calls);
+    PlatformApiSekeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls);
     virtual ~PlatformApiSekeleton();
 
     void handle_notification(anbox::protobuf::bridge::Notification const *request,
-                             anbox::protobuf::bridge::Void *response,
+                             anbox::protobuf::rpc::Void *response,
                              google::protobuf::Closure *done) override;
 
-    void boot_finished(anbox::protobuf::bridge::Void const *request,
-                       anbox::protobuf::bridge::Void *response,
+    void boot_finished(anbox::protobuf::rpc::Void const *request,
+                       anbox::protobuf::rpc::Void *response,
                        google::protobuf::Closure *done) override;
 
     void on_boot_finished(const std::function<void()> &action);

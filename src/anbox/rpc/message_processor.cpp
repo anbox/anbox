@@ -15,16 +15,16 @@
  *
  */
 
-#include "anbox/bridge/message_processor.h"
-#include "anbox/bridge/template_message_processor.h"
-#include "anbox/bridge/make_protobuf_object.h"
-#include "anbox/bridge/constants.h"
+#include "anbox/rpc/message_processor.h"
+#include "anbox/rpc/template_message_processor.h"
+#include "anbox/rpc/make_protobuf_object.h"
+#include "anbox/rpc/constants.h"
 #include "anbox/common/variable_length_array.h"
 
-#include "anbox_bridge.pb.h"
+#include "anbox_rpc.pb.h"
 
 namespace anbox {
-namespace bridge {
+namespace rpc {
 const ::std::string& Invocation::method_name() const {
     return invocation_.method_name();
 }
@@ -65,7 +65,7 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
     buffer_.erase(buffer_.begin(), buffer_.begin() + header_size);
 
     if (message_type == MessageType::invocation) {
-        anbox::protobuf::bridge::Invocation raw_invocation;
+        anbox::protobuf::rpc::Invocation raw_invocation;
         raw_invocation.ParseFromArray(buffer_.data(), message_size);
 
         buffer_.erase(buffer_.begin(), buffer_.begin() + message_size);
@@ -73,7 +73,7 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
         dispatch(Invocation(raw_invocation));
     }
     else if (message_type == MessageType::response) {
-        auto result = make_protobuf_object<protobuf::bridge::Result>();
+        auto result = make_protobuf_object<protobuf::rpc::Result>();
         result->ParseFromArray(buffer_.data(), message_size);
 
         buffer_.erase(buffer_.begin(), buffer_.begin() + message_size);
@@ -90,7 +90,7 @@ void MessageProcessor::send_response(::google::protobuf::uint32 id, google::prot
 
     response->SerializeWithCachedSizesToArray(send_response_buffer.data());
 
-    anbox::protobuf::bridge::Result send_response_result;
+    anbox::protobuf::rpc::Result send_response_result;
     send_response_result.set_id(id);
     send_response_result.set_response(send_response_buffer.data(), send_response_buffer.size());
 

@@ -16,17 +16,17 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef ANBOX_BRIDGE_TEMPLATE_MESSAGE_PROCESSOR_H_
-#define ANBOX_BRIDGE_TEMPLATE_MESSAGE_PROCESSOR_H_
+#ifndef ANBOX_RPC_TEMPLATE_MESSAGE_PROCESSOR_H_
+#define ANBOX_RPC_TEMPLATE_MESSAGE_PROCESSOR_H_
 
 #include <google/protobuf/stubs/common.h>
 
-#include "anbox/bridge/message_processor.h"
+#include "anbox/rpc/message_processor.h"
 
-#include "anbox_bridge.pb.h"
+#include "anbox_rpc.pb.h"
 
 namespace anbox {
-namespace bridge {
+namespace rpc {
 // Utility metafunction result_ptr_t<> allows invoke() to pick the right
 // send_response() overload. The base template resolves to the prototype
 // "send_response(::google::protobuf::uint32 id, ::google::protobuf::Message* response)"
@@ -39,7 +39,7 @@ template<typename ResultType> struct result_ptr_t
 template<class Self, class Bridge, class BridgeX, class ParameterMessage, class ResultMessage>
 void invoke(
     Self* self,
-    Bridge* bridge,
+    Bridge* rpc,
     void (BridgeX::*function)(
         ParameterMessage const* request,
         ResultMessage* response,
@@ -63,7 +63,7 @@ void invoke(
                     invocation.id(),
                     &result_message));
 
-        (bridge->*function)(
+        (rpc->*function)(
             &parameter_message,
             &result_message,
             callback.get());
@@ -74,7 +74,7 @@ void invoke(
         self->send_response(invocation.id(), &result_message);
     }
 }
-} // namespace bridge
+} // namespace rpc
 } // namespace anbox
 
 #endif

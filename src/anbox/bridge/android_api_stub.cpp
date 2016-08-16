@@ -16,11 +16,12 @@
  */
 
 #include "anbox/bridge/android_api_stub.h"
-#include "anbox/bridge/rpc_channel.h"
+#include "anbox/rpc/channel.h"
 #include "anbox/utils.h"
 #include "anbox/config.h"
 #include "anbox/logger.h"
 
+#include "anbox_rpc.pb.h"
 #include "anbox_bridge.pb.h"
 
 #include <boost/filesystem.hpp>
@@ -35,7 +36,7 @@ AndroidApiStub::AndroidApiStub() {
 AndroidApiStub::~AndroidApiStub() {
 }
 
-void AndroidApiStub::set_rpc_channel(const std::shared_ptr<RpcChannel> &channel) {
+void AndroidApiStub::set_rpc_channel(const std::shared_ptr<rpc::Channel> &channel) {
     channel_ = channel;
 }
 
@@ -62,7 +63,7 @@ void AndroidApiStub::install(const std::string &path) {
     const auto container_path = utils::string_format("%s/%s",
         config::container_android_share_path(), fs::path(path).filename().string());
 
-    auto c = std::make_shared<Request<protobuf::bridge::Void>>();
+    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
     protobuf::bridge::InstallApplication message;
     message.set_path(container_path);
 
@@ -82,14 +83,14 @@ void AndroidApiStub::install(const std::string &path) {
         throw std::runtime_error(c->response->error());
 }
 
-void AndroidApiStub::application_installed(Request<protobuf::bridge::Void> *request) {
+void AndroidApiStub::application_installed(Request<protobuf::rpc::Void> *request) {
     install_wait_handle_.result_received();
 }
 
 void AndroidApiStub::launch(const std::string &package, const std::string &activity) {
     ensure_rpc_channel();
 
-    auto c = std::make_shared<Request<protobuf::bridge::Void>>();
+    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
     protobuf::bridge::LaunchApplication message;
     message.set_package_name(package);
     message.set_activity(activity);
@@ -110,14 +111,14 @@ void AndroidApiStub::launch(const std::string &package, const std::string &activ
         throw std::runtime_error(c->response->error());
 }
 
-void AndroidApiStub::application_launched(Request<protobuf::bridge::Void> *request) {
+void AndroidApiStub::application_launched(Request<protobuf::rpc::Void> *request) {
     launch_wait_handle_.result_received();
 }
 
 void AndroidApiStub::set_dns_servers(const std::string &domain, const std::vector<std::string> &servers) {
     ensure_rpc_channel();
 
-    auto c = std::make_shared<Request<protobuf::bridge::Void>>();
+    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
 
     protobuf::bridge::SetDnsServers message;
     message.set_domain(domain);
@@ -143,7 +144,7 @@ void AndroidApiStub::set_dns_servers(const std::string &domain, const std::vecto
         throw std::runtime_error(c->response->error());
 }
 
-void AndroidApiStub::dns_servers_set(Request<protobuf::bridge::Void> *request) {
+void AndroidApiStub::dns_servers_set(Request<protobuf::rpc::Void> *request) {
     set_dns_servers_wait_handle_.result_received();
 }
 } // namespace bridge
