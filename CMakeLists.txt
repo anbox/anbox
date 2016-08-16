@@ -66,6 +66,7 @@ pkg_check_modules(SDL2 sdl2)
 
 pkg_check_modules(DBUS_CPP dbus-cpp REQUIRED)
 pkg_check_modules(DBUS dbus-1 REQUIRED)
+pkg_check_modules(LXC lxc REQUIRED)
 
 #####################################################################
 # Enable code coverage calculation with gcov/gcovr/lcov
