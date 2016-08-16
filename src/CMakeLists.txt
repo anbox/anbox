@@ -15,16 +15,13 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include
 )
 
-set(PROTOBUF_SOURCES
+protobuf_generate_cpp(
+    GENERATED_PROTOBUF_BRIDGE_SRCS GENERATED_PROTOBUF_BRIDGE_HDRS
     anbox/protobuf/anbox_bridge.proto)
 
-protobuf_generate_cpp(
-    GENERATED_PROTOBUF_SRCS GENERATED_PROTOBUF_HDRS
-    ${PROTOBUF_SOURCES})
-
 add_library(anbox-protobuf
-    ${GENERATED_PROTOBUF_SRCS}
-    ${GENERATED_PROTOBUF_HDRS}
+    ${GENERATED_PROTOBUF_BRIDGE_SRCS}
+    ${GENERATED_PROTOBUF_BRIDGE_HDRS}
     anbox/protobuf/google_protobuf_guard.cpp)
 target_link_libraries(anbox-protobuf
     ${PROTOBUF_LITE_LIBRARIES})
