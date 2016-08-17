@@ -15,40 +15,44 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CLIENT_H_
-#define ANBOX_CONTAINER_CLIENT_H_
+#ifndef ANBOX_CONTAINER_MANAGEMENT_API_SKELETON_H_
+#define ANBOX_CONTAINER_MANAGEMENT_API_SKELETON_H_
 
-#include "anbox/runtime.h"
-#include "anbox/container/configuration.h"
+#include <memory>
+
+namespace google {
+namespace protobuf {
+class Closure;
+} // namespace protobuf
+} // namespace google
 
 namespace anbox {
+namespace protobuf {
+namespace rpc {
+class Void;
+} // namespace rpc
+namespace container {
+class StartContainer;
+} // namespace container
+} // namespace protobuf
 namespace rpc {
 class PendingCallCache;
-class Channel;
-class MessageProcessor;
 } // namespace rpc
-namespace network {
-class LocalSocketMessenger;
-} // namespace network
 namespace container {
-class ManagementApiStub;
-class Client {
+class Container;
+class ManagementApiSkeleton {
 public:
-    Client(const std::shared_ptr<Runtime> &rt);
-    ~Client();
+    ManagementApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
+                          const std::shared_ptr<Container> &container);
+    ~ManagementApiSkeleton();
 
-    void start_container(const Configuration &configuration);
+    void start_container(anbox::protobuf::container::StartContainer const *request,
+                         anbox::protobuf::rpc::Void *response,
+                         google::protobuf::Closure *done);
 
 private:
-    void read_next_message();
-    void on_read_size(const boost::system::error_code& ec, std::size_t bytes_read);
-
-    std::shared_ptr<network::LocalSocketMessenger> messenger_;
     std::shared_ptr<rpc::PendingCallCache> pending_calls_;
-    std::shared_ptr<rpc::Channel> rpc_channel_;
-    std::shared_ptr<ManagementApiStub> management_api_;
-    std::shared_ptr<rpc::MessageProcessor> processor_;
-    std::array<std::uint8_t, 8192> buffer_;
+    std::shared_ptr<Container> container_;
 };
 } // namespace container
 } // namespace anbox

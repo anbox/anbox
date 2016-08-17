@@ -147,7 +147,23 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
                 }));
 
         container::Client container(rt);
+        container::Configuration container_configuration;
+        container_configuration.bind_mounts = {
+            { qemud_connector->socket_file(), "/dev/qemud" },
+            { qemu_pipe_connector->socket_file(), "/dev/qemu_pipe" },
+            { bridge_connector->socket_file(), "/dev/anbox_bridge" },
+            { config::host_share_path(), config::container_android_share_path()},
+            { config::host_android_data_path(), "/data" },
+            { config::host_android_cache_path(), "/cache" },
+            { config::host_android_storage_path(), "/storage" },
+            { config::host_input_device_path(), "/dev/input" },
+            { "/dev/binder", "/dev/binder" },
+            { "/dev/ashmem", "/dev/ashmem" },
+        };
 
+        dispatcher->dispatch([&]() {
+            container.start_container(container_configuration);
+        });
 
         auto bus = bus_factory_();
         bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));

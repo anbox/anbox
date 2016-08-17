@@ -23,11 +23,18 @@ protobuf_generate_cpp(
     GENERATED_PROTOBUF_BRIDGE_SRCS GENERATED_PROTOBUF_BRIDGE_HDRS
     anbox/protobuf/anbox_bridge.proto)
 
+protobuf_generate_cpp(
+    GENERATED_PROTOBUF_CONTAINER_SRCS GENERATED_PROTOBUF_CONTAINER_HDRS
+    anbox/protobuf/anbox_container.proto)
+
+
 add_library(anbox-protobuf
     ${GENERATED_PROTOBUF_BRIDGE_SRCS}
     ${GENERATED_PROTOBUF_BRIDGE_HDRS}
     ${GENERATED_PROTOBUF_RPC_SRCS}
     ${GENERATED_PROTOBUF_RPC_HDRS}
+    ${GENERATED_PROTOBUF_CONTAINER_SRCS}
+    ${GENERATED_PROTOBUF_CONTAINER_HDRS}
     anbox/protobuf/google_protobuf_guard.cpp)
 target_link_libraries(anbox-protobuf
     ${PROTOBUF_LITE_LIBRARIES})
@@ -51,8 +58,12 @@ set(SOURCES
 
     anbox/container/service.cpp
     anbox/container/client.cpp
+    anbox/container/configuration.h
     anbox/container/container.cpp
     anbox/container/lxc_container.cpp
+    anbox/container/management_api_stub.cpp
+    anbox/container/management_api_skeleton.cpp
+    anbox/container/management_api_message_processor.cpp
 
     anbox/network/credentials.cpp
     anbox/network/message_sender.h

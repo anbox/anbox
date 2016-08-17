@@ -20,7 +20,11 @@
 #include "anbox/network/delegate_message_processor.h"
 #include "anbox/network/socket_messenger.h"
 #include "anbox/qemu/null_message_processor.h"
+#include "anbox/rpc/pending_call_cache.h"
+#include "anbox/rpc/channel.h"
 #include "anbox/container/lxc_container.h"
+#include "anbox/container/management_api_message_processor.h"
+#include "anbox/container/management_api_skeleton.h"
 #include "anbox/config.h"
 #include "anbox/logger.h"
 
@@ -40,8 +44,6 @@ std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt) {
     // Make sure others can connect to our socket
     ::chmod(config::container_socket_path().c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 
-    sp->connections_->set_observer(sp);
-
     DEBUG("Everything setup. Waiting for incoming connections.");
 
     return sp;
@@ -54,29 +56,7 @@ Service::Service(const std::shared_ptr<Runtime> &rt) :
 }
 
 Service::~Service() {
-}
-
-void Service::connection_added(int id) {
-}
-
-void Service::connection_removed(int id) {
-    stop_container();
-}
-
-void Service::start_container() {
-    if (backend_)
-        BOOST_THROW_EXCEPTION(std::runtime_error("Container is already running"));
-
-    backend_ = std::make_shared<LxcContainer>();
-    backend_->start();
-}
-
-void Service::stop_container() {
-    if (not backend_)
-        return;
-
-    backend_->stop();
-    backend_.reset();
+    DEBUG("");
 }
 
 int Service::next_id() {
@@ -90,23 +70,21 @@ void Service::new_client(std::shared_ptr<boost::asio::local::stream_protocol::so
     }
 
     auto const messenger = std::make_shared<network::SocketMessenger>(socket);
+
+    DEBUG("Got connection from pid %d", messenger->creds().pid());
+
+    auto pending_calls = std::make_shared<rpc::PendingCallCache>();
+    auto rpc_channel = std::make_shared<rpc::Channel>(pending_calls, messenger);
+    auto server = std::make_shared<container::ManagementApiSkeleton>(
+                pending_calls, std::make_shared<LxcContainer>());
+    auto processor = std::make_shared<container::ManagementApiMessageProcessor>(
+                messenger, pending_calls, server);
+
     auto const& connection = std::make_shared<network::SocketConnection>(
-                messenger, messenger, next_id(), connections_,
-                std::make_shared<qemu::NullMessageProcessor>());
+                messenger, messenger, next_id(), connections_, processor);
 
     connections_->add(connection);
     connection->read_next_message();
-
-    // To get access to the sockets the application manager
-    // services creates we need to make sure we're running
-    // against the right runtime directory here. Its a bit
-    // hacky but works for now.
-    auto creds = messenger->creds();
-    setenv("XDG_RUNTIME_DIR", utils::string_format("/run/user/%d", creds.uid()).c_str(), 1);
-
-    DEBUG("Got connection from pid %d", creds.pid());
-
-    start_container();
 }
 } // namespace container
 } // namespace anbox

@@ -15,40 +15,45 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CLIENT_H_
-#define ANBOX_CONTAINER_CLIENT_H_
+#ifndef ANBOX_CONTAINER_MANAGEMENT_API_STUB_H_
+#define ANBOX_CONTAINER_MANAGEMENT_API_STUB_H_
 
-#include "anbox/runtime.h"
+#include "anbox/do_not_copy_or_move.h"
 #include "anbox/container/configuration.h"
+#include "anbox/common/wait_handle.h"
+
+#include <memory>
 
 namespace anbox {
+namespace protobuf {
 namespace rpc {
-class PendingCallCache;
-class Channel;
-class MessageProcessor;
+class Void;
 } // namespace rpc
-namespace network {
-class LocalSocketMessenger;
-} // namespace network
+} // namespace protobuf
+namespace rpc {
+class Channel;
+} // namespace rpc
 namespace container {
-class ManagementApiStub;
-class Client {
+class ManagementApiStub : public DoNotCopyOrMove {
 public:
-    Client(const std::shared_ptr<Runtime> &rt);
-    ~Client();
+    ManagementApiStub(const std::shared_ptr<rpc::Channel> &channel);
+    ~ManagementApiStub();
 
     void start_container(const Configuration &configuration);
 
 private:
-    void read_next_message();
-    void on_read_size(const boost::system::error_code& ec, std::size_t bytes_read);
+    template<typename Response>
+    struct Request {
+        Request() : response(std::make_shared<Response>()), success(true) { }
+        std::shared_ptr<Response> response;
+        bool success;
+    };
 
-    std::shared_ptr<network::LocalSocketMessenger> messenger_;
-    std::shared_ptr<rpc::PendingCallCache> pending_calls_;
-    std::shared_ptr<rpc::Channel> rpc_channel_;
-    std::shared_ptr<ManagementApiStub> management_api_;
-    std::shared_ptr<rpc::MessageProcessor> processor_;
-    std::array<std::uint8_t, 8192> buffer_;
+    void container_started(Request<protobuf::rpc::Void> *request);
+
+    mutable std::mutex mutex_;
+    std::shared_ptr<rpc::Channel> channel_;
+    common::WaitHandle start_wait_handle_;
 };
 } // namespace container
 } // namespace anbox

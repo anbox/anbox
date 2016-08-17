@@ -80,15 +80,6 @@ void SocketConnection::on_read_size(const boost::system::error_code& error, std:
     else
         connections_->remove(id());
 }
-
-void SocketConnection::on_response_sent(bs::error_code const& error, std::size_t)
-{
-    if (error)
-    {
-        connections_->remove(id());
-        BOOST_THROW_EXCEPTION(std::runtime_error(error.message()));
-    }
-}
 } // namespace anbox
 } // namespace network
 

@@ -48,7 +48,6 @@ public:
     void read_next_message();
 
 private:
-    void on_response_sent(boost::system::error_code const& error, std::size_t);
     void on_read_size(const boost::system::error_code& ec, std::size_t bytes_read);
 
     std::shared_ptr<MessageReceiver> const message_receiver_;

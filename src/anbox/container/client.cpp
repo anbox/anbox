@@ -16,16 +16,53 @@
  */
 
 #include "anbox/container/client.h"
+#include "anbox/container/management_api_stub.h"
+#include "anbox/network/local_socket_messenger.h"
+#include "anbox/rpc/pending_call_cache.h"
+#include "anbox/rpc/channel.h"
+#include "anbox/rpc/message_processor.h"
 #include "anbox/config.h"
 #include "anbox/logger.h"
+
+namespace ba = boost::asio;
+namespace bs = boost::system;
 
 namespace anbox {
 namespace container {
 Client::Client(const std::shared_ptr<Runtime> &rt) :
-    messenger_(config::container_socket_path(), rt) {
+    messenger_(std::make_shared<network::LocalSocketMessenger>(config::container_socket_path(), rt)),
+    pending_calls_(std::make_shared<rpc::PendingCallCache>()),
+    rpc_channel_(std::make_shared<rpc::Channel>(pending_calls_, messenger_)),
+    management_api_(std::make_shared<ManagementApiStub>(rpc_channel_)),
+    processor_(std::make_shared<rpc::MessageProcessor>(messenger_, pending_calls_)) {
+
+    read_next_message();
 }
 
 Client::~Client() {
+}
+
+void Client::start_container(const Configuration &configuration) {
+    management_api_->start_container(configuration);
+}
+
+void Client::read_next_message()
+{
+    auto callback = std::bind(&Client::on_read_size,
+                        this, std::placeholders::_1, std::placeholders::_2);
+    messenger_->async_receive_msg(callback, ba::buffer(buffer_));
+}
+
+void Client::on_read_size(const boost::system::error_code& error, std::size_t bytes_read)
+{
+    if (error)
+        BOOST_THROW_EXCEPTION(std::runtime_error(error.message()));
+
+    std::vector<std::uint8_t> data(bytes_read);
+    std::copy(buffer_.data(), buffer_.data() + bytes_read, data.data());
+
+    if (processor_->process_data(data))
+        read_next_message();
 }
 } // namespace container
 } // namespace anbox

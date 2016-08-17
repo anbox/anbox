@@ -15,33 +15,28 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_LXC_CONTAINER_H_
-#define ANBOX_CONTAINER_LXC_CONTAINER_H_
+#ifndef ANBOX_CONTAINER_MANAGEMENT_API_MESSAGE_PROCESSOR_H_
+#define ANBOX_CONTAINER_MANAGEMENT_API_MESSAGE_PROCESSOR_H_
 
-#include "anbox/container/container.h"
-
-#include <string>
-
-#include <lxc/lxccontainer.h>
+#include "anbox/rpc/message_processor.h"
 
 namespace anbox {
 namespace container {
-class LxcContainer : public Container {
+class ManagementApiSkeleton;
+class ManagementApiMessageProcessor : public rpc::MessageProcessor {
 public:
-    LxcContainer();
-    ~LxcContainer();
+    ManagementApiMessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
+                             const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
+                             const std::shared_ptr<ManagementApiSkeleton> &server);
+    ~ManagementApiMessageProcessor();
 
-    void start(const Configuration &configuration) override;
-    void stop() override;
-    State state() override;
+    void dispatch(rpc::Invocation const& invocation) override;
+    void process_event_sequence(const std::string &event) override;
 
 private:
-    void set_config_item(const std::string &key, const std::string &value);
-
-    State state_;
-    lxc_container *container_;
+    std::shared_ptr<ManagementApiSkeleton> server_;
 };
-} // namespace container
 } // namespace anbox
+} // namespace network
 
 #endif

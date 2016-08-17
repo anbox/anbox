@@ -37,11 +37,7 @@ anbox::cmds::StartContainer::StartContainer()
 
         rt->start();
 
-        auto container = std::make_shared<container::LxcContainer>();
-        container->start();
-
         trap->run();
-        container->stop();
         rt->stop();
 
         return 0;

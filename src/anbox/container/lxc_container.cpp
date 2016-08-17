@@ -24,15 +24,14 @@
 #include <map>
 
 #include <boost/throw_exception.hpp>
+#include <boost/filesystem.hpp>
 
 #include <sys/wait.h>
 #include <sys/capability.h>
 #include <sys/types.h>
 #include <sys/prctl.h>
 
-namespace {
-static constexpr char *kAndroidShellCommand{"/system/bin/ls"};
-}
+namespace fs = boost::filesystem;
 
 namespace anbox {
 namespace container {
@@ -46,16 +45,19 @@ LxcContainer::LxcContainer() :
         config::host_android_data_path(),
         config::host_android_cache_path(),
         config::host_android_storage_path(),
-        config::host_input_device_path(),
     });
 }
 
 LxcContainer::~LxcContainer() {
+    DEBUG("");
+
+    stop();
+
     if (container_)
         lxc_container_put(container_);
 }
 
-void LxcContainer::start() {
+void LxcContainer::start(const Configuration &configuration) {
     if (getuid() != 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("You have to start the container as root"));
 
@@ -112,30 +114,21 @@ void LxcContainer::start() {
     set_config_item("lxc.aa_profile", "unconfined");
 #endif
 
-    std::map<std::string,std::string> bind_mount_dirs = {
-        { config::host_share_path(), config::container_android_share_path() },
-        { config::host_android_data_path(), "data" },
-        { config::host_android_cache_path(), "cache" },
-        { config::host_android_storage_path(), "storage" },
-        { config::host_input_device_path(), "dev/input" },
-    };
+    for (const auto &bind_mount : configuration.bind_mounts) {
+        std::string create_type = "file";
 
-    for (const auto &item : bind_mount_dirs) {
+        if (fs::is_directory(bind_mount.first))
+            create_type = "dir";
+
+        auto target_path = bind_mount.second;
+        // LXC wants target paths relative to the container rootfs so
+        // prividing an absolute path doesn't work.
+        if (utils::string_starts_with(target_path, "/"))
+            target_path.erase(0, 1);
+
         set_config_item("lxc.mount.entry",
-            utils::string_format("%s %s none bind,create=dir,optional 0 0", item.first, item.second));
-    }
-
-    std::map<std::string,std::string> bind_mount_files = {
-        { "/dev/binder", "dev/binder" },
-        { "/dev/ashmem", "dev/ashmem" },
-        { utils::string_format("%s/qemu_pipe", config::socket_path()), "dev/qemu_pipe" },
-        { utils::string_format("%s/qemud", config::socket_path()), "dev/qemud" },
-        { utils::string_format("%s/anbox_bridge", config::socket_path()), "dev/anbox_bridge" },
-    };
-
-    for (const auto &item : bind_mount_files) {
-        set_config_item("lxc.mount.entry",
-            utils::string_format("%s %s none bind,create=file,optional 0 0", item.first, item.second));
+            utils::string_format("%s %s none bind,create=%s,optional 0 0",
+                                 bind_mount.first, target_path, create_type));
     }
 
     if (!container_->save_config(container_, nullptr))
@@ -143,6 +136,8 @@ void LxcContainer::start() {
 
     if (not container_->start(container_, 0, nullptr))
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to start container"));
+
+    state_ = Container::State::running;
 
     DEBUG("Container successfully started");
 }
@@ -153,6 +148,8 @@ void LxcContainer::stop() {
 
     if (not container_->stop(container_))
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to stop container"));
+
+    state_ = Container::State::inactive;
 
     DEBUG("Container successfully stopped");
 }

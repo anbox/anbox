@@ -19,6 +19,7 @@
 #include "anbox/input/device.h"
 #include "anbox/runtime.h"
 #include "anbox/config.h"
+#include "anbox/utils.h"
 
 #include <boost/format.hpp>
 
@@ -26,6 +27,7 @@ namespace anbox {
 namespace input {
 Manager::Manager(const std::shared_ptr<Runtime> &runtime) :
     runtime_(runtime) {
+    utils::ensure_paths({ config::host_input_device_path() });
 }
 
 Manager::~Manager() {

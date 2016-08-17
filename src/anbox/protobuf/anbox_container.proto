@@ -1,0 +1,15 @@
+option optimize_for = LITE_RUNTIME;
+
+package anbox.protobuf.container;
+
+message Configuration {
+    message BindMount {
+        required string source = 1;
+        required string target = 2;
+    }
+    repeated BindMount bind_mounts = 1;
+}
+
+message StartContainer {
+    required Configuration configuration = 1;
+}

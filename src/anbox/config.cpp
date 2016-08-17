@@ -41,14 +41,14 @@ std::string in_snap_dir(const std::string &path) {
 }
 
 std::string in_snap_data_dir(const std::string &path) {
-    return prefix_dir_from_env(path, "SNAP_DATA");
+    return prefix_dir_from_env(path, "SNAP_COMMON");
 }
 
 std::string in_snap_user_data_dir(const std::string &path) {
-    return prefix_dir_from_env(path, "SNAP_USER_DATA");
+    return prefix_dir_from_env(path, "SNAP_USER_COMMON");
 }
 
-std::string home_path() {
+std::string home_dir() {
     static std::string path;
     if (path.empty()) {
         path = utils::get_env_value("HOME", "");
@@ -69,7 +69,7 @@ std::string runtime_dir() {
 }
 
 std::string state_dir() {
-    static std::string path = "/var/lib";
+    static std::string path = in_snap_data_dir("/var/lib");
     return path;
 }
 
@@ -85,7 +85,7 @@ std::string socket_path() {
 }
 
 std::string data_path() {
-    static std::string path = utils::string_format("%s/.local/share/anbox/data", home_path());
+    static std::string path = utils::string_format("%s/.anbox/data", home_dir());
     return path;
 }
 
@@ -104,13 +104,13 @@ std::string container_socket_path() {
     return path;
 }
 
-std::string host_share_path() {
-    static std::string path = utils::string_format("%s/android-share", data_path());
+std::string host_input_device_path() {
+    static std::string path = utils::string_format("%s/anbox/input-devices", runtime_dir());
     return path;
 }
 
-std::string host_input_device_path() {
-    static std::string path = utils::string_format("%s/input-devices", data_path());
+std::string host_share_path() {
+    static std::string path = utils::string_format("%s/android-share", data_path());
     return path;
 }
 

@@ -20,6 +20,7 @@
 #include "anbox/rpc/make_protobuf_object.h"
 #include "anbox/rpc/constants.h"
 #include "anbox/common/variable_length_array.h"
+#include "anbox/logger.h"
 
 #include "anbox_rpc.pb.h"
 
@@ -63,6 +64,8 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
         return true;
 
     buffer_.erase(buffer_.begin(), buffer_.begin() + header_size);
+
+    DEBUG("type %d", message_type);
 
     if (message_type == MessageType::invocation) {
         anbox::protobuf::rpc::Invocation raw_invocation;

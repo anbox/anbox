@@ -15,33 +15,16 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONTAINER_H_
-#define ANBOX_CONTAINER_CONTAINER_H_
-
-#include "anbox/container/configuration.h"
+#ifndef ANBOX_CONTAINER_CONFIGURATION_H_
+#define ANBOX_CONTAINER_CONFIGURATION_H_
 
 #include <string>
 #include <map>
 
 namespace anbox {
 namespace container {
-class Container {
-public:
-    virtual ~Container();
-
-    enum class State {
-        inactive,
-        running,
-    };
-
-    // Start the container in background
-    virtual void start(const Configuration &configuration) = 0;
-
-    // Stop a running container
-    virtual void stop() = 0;
-
-    // Get the current container state
-    virtual State state() = 0;
+struct Configuration {
+    std::map<std::string,std::string> bind_mounts;
 };
 } // namespace container
 } // namespace anbox
