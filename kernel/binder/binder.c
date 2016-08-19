@@ -3695,7 +3695,16 @@ static int __init binder_init(void)
 	return ret;
 }
 
-device_initcall(binder_init);
+static void __exit binder_exit(void)
+{
+	misc_deregister(&binder_miscdev);
+
+	if (binder_deferred_workqueue)
+		destroy_workqueue(binder_deferred_workqueue);
+}
+
+module_init(binder_init);
+module_exit(binder_exit);
 
 #define CREATE_TRACE_POINTS
 #include "binder_trace.h"
