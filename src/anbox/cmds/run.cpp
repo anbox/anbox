@@ -83,6 +83,11 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
 
         utils::ensure_paths({
                                 config::socket_path(),
+                                config::host_share_path(),
+                                config::host_android_data_path(),
+                                config::host_android_cache_path(),
+                                config::host_android_storage_path(),
+                                config::host_input_device_path(),
                             });
 
         auto rt = Runtime::create();
