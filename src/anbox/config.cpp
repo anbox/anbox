@@ -29,7 +29,7 @@ std::string prefix_dir_from_env(const std::string &path, const std::string &env_
     static auto snap_data_path = anbox::utils::get_env_value(env_var, "");
     auto result = path;
     if (!snap_data_path.empty())
-        result = anbox::utils::string_format("%s/%s", snap_data_path, path);
+        result = anbox::utils::string_format("%s%s", snap_data_path, path);
     return result;
 }
 }
@@ -69,7 +69,7 @@ std::string runtime_dir() {
 }
 
 std::string state_dir() {
-    static std::string path = in_snap_data_dir("/var/lib");
+    static std::string path = "/var/lib";
     return path;
 }
 
@@ -90,7 +90,7 @@ std::string data_path() {
 }
 
 std::string rootfs_path() {
-    static std::string path = in_snap_dir(utils::string_format("%s/anbox/rootfs", state_dir()));
+    static std::string path = in_snap_data_dir(utils::string_format("%s/anbox/rootfs", state_dir()));
     return path;
 }
 
