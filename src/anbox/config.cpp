@@ -108,29 +108,5 @@ std::string host_input_device_path() {
     static std::string path = utils::string_format("%s/anbox/input-devices", runtime_dir());
     return path;
 }
-
-std::string host_share_path() {
-    static std::string path = utils::string_format("%s/android-share", data_path());
-    return path;
-}
-
-std::string host_android_data_path() {
-    static std::string path = utils::string_format("%s/android-data", data_path());
-    return path;
-}
-
-std::string host_android_cache_path() {
-    static std::string path  = utils::string_format("%s/android-cache", data_path());
-    return path;
-}
-
-std::string host_android_storage_path() {
-    static std::string path = utils::string_format("%s/android-storage", data_path());
-    return path;
-}
-
-std::string container_android_share_path() {
-    return "/data/anbox-share";
-}
 } // namespace config
 } // namespace anbox

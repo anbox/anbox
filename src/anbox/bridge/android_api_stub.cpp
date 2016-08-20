@@ -52,16 +52,14 @@ void AndroidApiStub::ensure_rpc_channel() {
 void AndroidApiStub::install(const std::string &path) {
     ensure_rpc_channel();
 
-    const auto target_path = utils::string_format("%s/%s",
-        config::host_share_path(), fs::path(path).filename().string());
+    const auto target_path = utils::string_format("/data/anbox-share/%s", fs::path(path).filename().string());
 
     if (fs::exists(target_path))
         fs::remove(target_path);
 
     fs::copy(path, target_path);
 
-    const auto container_path = utils::string_format("%s/%s",
-        config::container_android_share_path(), fs::path(path).filename().string());
+    const auto container_path = utils::string_format("/data/anbox-share/%s", fs::path(path).filename().string());
 
     auto c = std::make_shared<Request<protobuf::rpc::Void>>();
     protobuf::bridge::InstallApplication message;

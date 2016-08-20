@@ -83,10 +83,6 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
 
         utils::ensure_paths({
                                 config::socket_path(),
-                                config::host_share_path(),
-                                config::host_android_data_path(),
-                                config::host_android_cache_path(),
-                                config::host_android_storage_path(),
                                 config::host_input_device_path(),
                             });
 
@@ -157,10 +153,6 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
             { qemud_connector->socket_file(), "/dev/qemud" },
             { qemu_pipe_connector->socket_file(), "/dev/qemu_pipe" },
             { bridge_connector->socket_file(), "/dev/anbox_bridge" },
-            { config::host_share_path(), config::container_android_share_path()},
-            { config::host_android_data_path(), "/data" },
-            { config::host_android_cache_path(), "/cache" },
-            { config::host_android_storage_path(), "/storage" },
             { config::host_input_device_path(), "/dev/input" },
             { "/dev/binder", "/dev/binder" },
             { "/dev/ashmem", "/dev/ashmem" },
