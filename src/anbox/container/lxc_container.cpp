@@ -41,10 +41,6 @@ LxcContainer::LxcContainer() :
     utils::ensure_paths({
         config::container_config_path(),
         config::log_path(),
-        config::host_share_path(),
-        config::host_android_data_path(),
-        config::host_android_cache_path(),
-        config::host_android_storage_path(),
     });
 }
 
