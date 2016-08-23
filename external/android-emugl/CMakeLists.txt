@@ -7,7 +7,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include
     ${CMAKE_SOURCE_DIR}/external/android-emugl/shared/OpenglCodecCommon
     ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs
-    ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/Translator/include
     ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include/libOpenglRender
     ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/GLESv1_dec
     ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/GLESv1_dec
@@ -15,6 +14,7 @@ include_directories(
     ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/GLESv2_dec
     ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/renderControl_dec
     ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/renderControl_dec
+    ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/Translator/
     ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/Translator/include
     ${MIRCLIENT_INCLUDE_DIRS})
 

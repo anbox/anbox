@@ -92,14 +92,8 @@ private:
 // eg.
 //     on x86_64, EMUGL_LIBNAME("foo") --> "lib64foo"
 
-#if defined(__x86_64__)
-#  define EMUGL_LIBNAME(name) "lib64" name
-#elif defined(__i386__)
+
 #  define EMUGL_LIBNAME(name) "lib" name
-#else
-/* This header is included by target w/o using EMUGL_LIBNAME().  Don't #error, leave it undefined */
-#  define EMUGL_LIBNAME(name) "lib" name
-#endif
 
 }  // namespace emugl
 
