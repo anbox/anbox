@@ -71,8 +71,6 @@ void HostConnector::main_loop() {
         if (!message_processor_->process_data(data))
             break;
     }
-
-    // FIXME notify our core that we've stopped
 }
 
 std::shared_ptr<anbox::PlatformApiStub> HostConnector::platform_api_stub() const {
