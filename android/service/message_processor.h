@@ -18,18 +18,18 @@
 #ifndef ANBOX_ANDROID_MESSAGE_PROCESSOR_H_
 #define ANBOX_ANDROID_MESSAGE_PROCESSOR_H_
 
-#include "anbox/bridge/message_processor.h"
+#include "anbox/rpc/message_processor.h"
 
 namespace anbox {
 class AndroidApiSkeleton;
-class MessageProcessor : public bridge::MessageProcessor {
+class MessageProcessor : public rpc::MessageProcessor {
 public:
     MessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
-                     const std::shared_ptr<bridge::PendingCallCache> &pending_calls,
+                     const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
                      const std::shared_ptr<AndroidApiSkeleton> &platform_api);
     ~MessageProcessor();
 
-    void dispatch(bridge::Invocation const& invocation) override;
+    void dispatch(rpc::Invocation const& invocation) override;
     void process_event_sequence(const std::string &event) override;
 
 private:

@@ -17,7 +17,7 @@
 
 #include "android/service/platform_service.h"
 #include "android/service/platform_api_stub.h"
-#include "anbox/bridge/rpc_channel.h"
+#include "anbox/rpc/channel.h"
 
 #define LOG_TAG "Anboxd"
 #include <cutils/log.h>

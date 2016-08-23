@@ -16,20 +16,21 @@
  */
 
 #include "android/service/platform_api_stub.h"
-#include "anbox/bridge/rpc_channel.h"
+#include "anbox/rpc/channel.h"
 
+#include "anbox_rpc.pb.h"
 #include "anbox_bridge.pb.h"
 
 #define LOG_TAG "Anbox"
 #include <cutils/log.h>
 
 namespace anbox {
-PlatformApiStub::PlatformApiStub(const std::shared_ptr<bridge::RpcChannel> &rpc_channel) :
+PlatformApiStub::PlatformApiStub(const std::shared_ptr<rpc::Channel> &rpc_channel) :
     rpc_channel_(rpc_channel) {
 }
 
 void PlatformApiStub::boot_finished() {
-    auto c = std::make_shared<Request<protobuf::bridge::Void>>();
+    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
 
     ALOGI("Boot finished");
 
@@ -38,7 +39,7 @@ void PlatformApiStub::boot_finished() {
         boot_finished_wait_handle_.expect_result();
     }
 
-    protobuf::bridge::Void message;
+    protobuf::rpc::Void message;
 
     rpc_channel_->call_method(
         "boot_finished",
@@ -50,7 +51,7 @@ void PlatformApiStub::boot_finished() {
     ALOGI("Boot finished sent successfully!");
 }
 
-void PlatformApiStub::handle_boot_finished_response(Request<protobuf::bridge::Void>*) {
+void PlatformApiStub::handle_boot_finished_response(Request<protobuf::rpc::Void>*) {
     ALOGI("handle_boot_finished_response");
     boot_finished_wait_handle_.result_received();
 }

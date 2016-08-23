@@ -17,6 +17,7 @@
 
 #include "android/service/android_api_skeleton.h"
 
+#include "anbox_rpc.pb.h"
 #include "anbox_bridge.pb.h"
 
 #include <core/posix/exec.h>
@@ -37,7 +38,7 @@ AndroidApiSkeleton::~AndroidApiSkeleton() {
 }
 
 void AndroidApiSkeleton::wait_for_process(core::posix::ChildProcess &process,
-                                   anbox::protobuf::bridge::Void *response) {
+                                   anbox::protobuf::rpc::Void *response) {
     const auto result = process.wait_for(core::posix::wait::Flags::untraced);
     if (result.status != core::posix::wait::Result::Status::exited ||
         result.detail.if_exited.status != core::posix::exit::Status::success) {
@@ -48,7 +49,7 @@ void AndroidApiSkeleton::wait_for_process(core::posix::ChildProcess &process,
 }
 
 void AndroidApiSkeleton::install_application(anbox::protobuf::bridge::InstallApplication const *request,
-                                 anbox::protobuf::bridge::Void *response,
+                                 anbox::protobuf::rpc::Void *response,
                                  google::protobuf::Closure *done) {
     (void) response;
 
@@ -65,7 +66,7 @@ void AndroidApiSkeleton::install_application(anbox::protobuf::bridge::InstallApp
 }
 
 void AndroidApiSkeleton::launch_application(anbox::protobuf::bridge::LaunchApplication const *request,
-                                anbox::protobuf::bridge::Void *response,
+                                anbox::protobuf::rpc::Void *response,
                                 google::protobuf::Closure *done) {
     (void) response;
 
@@ -86,7 +87,7 @@ void AndroidApiSkeleton::launch_application(anbox::protobuf::bridge::LaunchAppli
 }
 
 void AndroidApiSkeleton::set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *request,
-                             anbox::protobuf::bridge::Void *response,
+                             anbox::protobuf::rpc::Void *response,
                              google::protobuf::Closure *done) {
     (void) response;
 

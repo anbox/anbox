@@ -34,9 +34,10 @@ LOCAL_SRC_FILES := \
     android/service/platform_api_stub.cpp \
     src/anbox/common/fd.cpp \
     src/anbox/common/wait_handle.cpp \
-    src/anbox/bridge/message_processor.cpp \
-    src/anbox/bridge/pending_call_cache.cpp \
-    src/anbox/bridge/rpc_channel.cpp \
+    src/anbox/rpc/message_processor.cpp \
+    src/anbox/rpc/pending_call_cache.cpp \
+    src/anbox/rpc/channel.cpp \
+    src/anbox/protobuf/anbox_rpc.proto \
     src/anbox/protobuf/anbox_bridge.proto
 proto_header_dir := $(call local-generated-sources-dir)/proto/$(LOCAL_PATH)/src/anbox/protobuf
 LOCAL_C_INCLUDES += \

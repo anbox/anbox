@@ -18,20 +18,23 @@
 #include "android/service/message_processor.h"
 #include "android/service/android_api_skeleton.h"
 
-#include "anbox/bridge/template_message_processor.h"
+#include "anbox/rpc/template_message_processor.h"
+
+#include "anbox_rpc.pb.h"
+#include "anbox_bridge.pb.h"
 
 namespace anbox {
 MessageProcessor::MessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
-                                   const std::shared_ptr<bridge::PendingCallCache> &pending_calls,
+                                   const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
                                    const std::shared_ptr<AndroidApiSkeleton> &platform_api) :
-    bridge::MessageProcessor(sender, pending_calls),
+    rpc::MessageProcessor(sender, pending_calls),
     platform_api_(platform_api) {
 }
 
 MessageProcessor::~MessageProcessor() {
 }
 
-void MessageProcessor::dispatch(bridge::Invocation const& invocation) {
+void MessageProcessor::dispatch(rpc::Invocation const& invocation) {
     if (invocation.method_name() == "install_application")
         invoke(this, platform_api_.get(), &AndroidApiSkeleton::install_application, invocation);
     else if (invocation.method_name() == "launch_application")

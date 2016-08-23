@@ -23,10 +23,10 @@
 #include <atomic>
 
 namespace anbox {
-namespace bridge {
+namespace rpc {
 class PendingCallCache;
-class RpcChannel;
-} // namespace bridge
+class Channel;
+} // namespace rpc
 class LocalSocketConnection;
 class MessageProcessor;
 class AndroidApiSkeleton;
@@ -45,10 +45,10 @@ private:
     void main_loop();
 
     std::shared_ptr<LocalSocketConnection> socket_;
-    std::shared_ptr<bridge::PendingCallCache> pending_calls_;
+    std::shared_ptr<rpc::PendingCallCache> pending_calls_;
     std::shared_ptr<AndroidApiSkeleton> android_api_skeleton_;
     std::shared_ptr<MessageProcessor> message_processor_;
-    std::shared_ptr<bridge::RpcChannel> rpc_channel_;
+    std::shared_ptr<rpc::Channel> rpc_channel_;
     std::shared_ptr<anbox::PlatformApiStub> platform_api_stub_;
     std::thread thread_;
     std::atomic<bool> running_;

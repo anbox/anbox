@@ -24,16 +24,16 @@
 
 namespace anbox {
 namespace protobuf {
-namespace bridge {
+namespace rpc {
 class Void;
-} // namespace bridge
+} // namespace rpc
 } // namespace protobuf
-namespace bridge {
-class RpcChannel;
-} // namespace bridge
+namespace rpc {
+class Channel;
+} // namespace rpc
 class PlatformApiStub {
 public:
-    PlatformApiStub(const std::shared_ptr<bridge::RpcChannel> &rpc_channel);
+    PlatformApiStub(const std::shared_ptr<rpc::Channel> &rpc_channel);
 
     void boot_finished();
 
@@ -45,12 +45,12 @@ private:
         bool success;
     };
 
-    void handle_boot_finished_response(Request<protobuf::bridge::Void> *request);
+    void handle_boot_finished_response(Request<protobuf::rpc::Void> *request);
 
     mutable std::mutex mutex_;
     common::WaitHandle boot_finished_wait_handle_;
 
-    std::shared_ptr<bridge::RpcChannel> rpc_channel_;
+    std::shared_ptr<rpc::Channel> rpc_channel_;
 };
 } // namespace anbox
 
