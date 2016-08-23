@@ -68,9 +68,6 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
     // Just for the purpose to allow QtMir (or unity8) to find this on our /proc/*/cmdline
     // for proper confinement etc.
     flag(cli::make_flag(cli::Name{"desktop_file_hint"}, cli::Description{"Desktop file hint for QtMir/Unity8"}, desktop_file_hint_));
-    flag(cli::make_flag(cli::Name{"apk"}, cli::Description{"Android application to install on startup"}, apk_));
-    flag(cli::make_flag(cli::Name{"package"}, cli::Description{"Specifies the package the activity should be launched from."}, package_));
-    flag(cli::make_flag(cli::Name{"activity"}, cli::Description{"Activity to start from specified package"}, activity_));
     flag(cli::make_flag(cli::Name{"icon"}, cli::Description{"Icon of the application to run"}, icon_));
 
     action([this](const cli::Command::Context &ctx) {
@@ -131,19 +128,6 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
                     });
 
                     auto server = std::make_shared<ubuntu::PlatformApiSekeleton>(pending_calls);
-                    // FIXME Implement a delegate or use signals from properties-cpp
-                    server->on_boot_finished([&](){
-                        DEBUG("Boot finished.");
-                        dispatcher->dispatch([&]() {
-                            if (!apk_.empty()) {
-                                DEBUG("Installing %s ..", apk_);
-                                android_api_stub->install(apk_);
-                            }
-                            if (!package_.empty() || !activity_.empty())
-                                android_api_stub->launch(package_, activity_);
-                        });
-                    });
-
                     return std::make_shared<bridge::PlatformMessageProcessor>(sender, server, pending_calls);
                 }));
 
