@@ -74,14 +74,3 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils \
     libutils
 include $(BUILD_EXECUTABLE)
-
-# Include the Android.mk files below will override LOCAL_PATH so we
-# have to take a copy of it here.
-TMP_PATH := $(LOCAL_PATH)
-
-# The compositor and launcher have their own Android.mk in their subfolders
-# as they should not depend on any other anbox sources.
-# include $(LOCAL_PATH)/android/shared_compositor/Android.mk
-include $(TMP_PATH)/android/launcher/Android.mk
-include $(TMP_PATH)/android/shared_compositor/Android.mk
-include $(TMP_PATH)/android/bootanimation/Android.mk
