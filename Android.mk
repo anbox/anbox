@@ -74,3 +74,13 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils \
     libutils
 include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE_RELATIVE_PATH := hw
+LOCAL_SHARED_LIBRARIES := liblog
+LOCAL_SRC_FILES := \
+    android/hwcomposer/hwcomposer.cpp
+LOCAL_MODULE := hwcomposer.anbox
+LOCAL_CFLAGS:= -DLOG_TAG=\"hwcomposer\"
+LOCAL_MODULE_TAGS := optional
+include $(BUILD_SHARED_LIBRARY)
