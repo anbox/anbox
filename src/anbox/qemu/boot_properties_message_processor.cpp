@@ -16,7 +16,8 @@
  */
 
 #include "anbox/qemu//boot_properties_message_processor.h"
-#include "anbox/logger.h"
+#include "anbox/graphics/density.h"
+#include "anbox/utils.h"
 
 namespace anbox {
 namespace qemu {
@@ -31,8 +32,6 @@ BootPropertiesMessageProcessor::~BootPropertiesMessageProcessor() {
 void BootPropertiesMessageProcessor::handle_command(const std::string &command) {
     if (command == "list")
         list_properties();
-    else
-        DEBUG("Unknown command '%s'", command);
 }
 
 void BootPropertiesMessageProcessor::list_properties() {
@@ -55,7 +54,7 @@ void BootPropertiesMessageProcessor::list_properties() {
 
         // TODO(morphis): Using HDPI here for now but should be adjusted to the device
         // we're running on.
-        "ro.sf.lcd_density=200",
+        utils::string_format("ro.sf.lcd_density=%d", static_cast<int>(graphics::DensityType::high)),
 
         // libhwui detects that we support certain GLESv3 extensions which
         // we don't yet support in our host channel so we have to disable
@@ -65,6 +64,10 @@ void BootPropertiesMessageProcessor::list_properties() {
         // This will give us a virtual on screen navigation area at the bottom
         // of the screen we really need to navigate through the system.
         "qemu.hw.mainkeys=0",
+
+        // To let surfaceflinger load our hwcomposer implementation we specify
+        // the correct subkey of the module here.
+        // "ro.hardware.hwcomposer=anbox",
     };
 
     for (const auto &prop : properties) {
