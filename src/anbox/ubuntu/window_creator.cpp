@@ -21,6 +21,9 @@
 
 #include <boost/throw_exception.hpp>
 
+#include <sys/types.h>
+#include <signal.h>
+
 namespace anbox {
 namespace ubuntu {
 WindowCreator::WindowCreator(const std::shared_ptr<input::Manager> &input_manager) :
@@ -50,9 +53,10 @@ void WindowCreator::process_events() {
         while (SDL_WaitEventTimeout(&event, 100)) {
             switch (event.type) {
             case SDL_QUIT:
-                // FIXME: We exit here only as long as we don't have multi window
-                // support.
-                BOOST_THROW_EXCEPTION(std::runtime_error("User closed main application window"));
+                // This is the best way to reliable terminate the whole application for now. It will
+                // trigger a correct shutdown in the main part.
+                ::kill(getpid(), SIGTERM);
+                break;
             case SDL_WINDOWEVENT:
                 process_window_event(event);
                 break;
