@@ -57,8 +57,10 @@ void LxcContainer::start(const Configuration &configuration) {
     if (getuid() != 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("You have to start the container as root"));
 
-    if (container_ && container_->is_running(container_))
-        BOOST_THROW_EXCEPTION(std::runtime_error("Container already started"));
+    if (container_ && container_->is_running(container_)) {
+        BOOST_THROW_EXCEPTION(std::runtime_error("Container already started, stopping it now"));
+        container_->stop(container_);
+    }
 
     if (!container_) {
         DEBUG("Containers are stored in %s", config::container_config_path());
@@ -69,6 +71,11 @@ void LxcContainer::start(const Configuration &configuration) {
         container_ = lxc_container_new("default", config::container_config_path().c_str());
         if (!container_)
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create LXC container instance"));
+
+        // If container is still running (for example after a crash) we stop it here to ensure
+        // its configuration is synchronized.
+        if (container_->is_running(container_))
+            container_->stop(container_);
     }
 
     // We drop all not needed capabilities
