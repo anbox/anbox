@@ -121,13 +121,14 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
                     // more than one one day we need proper dispatching to the right one.
                     android_api_stub->set_rpc_channel(rpc_channel);
 
-                    dispatcher->dispatch([&]() {
-                        // FIXME make this configurable or once we have a bridge let the host
-                        // act as a DNS proxy.
-                        android_api_stub->set_dns_servers("anbox", std::vector<std::string>{ "8.8.8.8" });
-                    });
-
                     auto server = std::make_shared<ubuntu::PlatformApiSekeleton>(pending_calls);
+                    server->on_boot_finished([&]() {
+                        dispatcher->dispatch([&]() {
+                            // FIXME make this configurable or once we have a bridge let the host
+                            // act as a DNS proxy.
+                            android_api_stub->set_dns_servers("anbox", std::vector<std::string>{ "8.8.8.8" });
+                        });
+                    });
                     return std::make_shared<bridge::PlatformMessageProcessor>(sender, server, pending_calls);
                 }));
 
