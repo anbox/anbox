@@ -91,6 +91,7 @@ set(SOURCES
     anbox/graphics/opengles_message_processor.cpp
     anbox/graphics/gl_renderer_server.cpp
     anbox/graphics/window_creator.cpp
+    anbox/graphics/density.h
 
     anbox/input/manager.cpp
     anbox/input/device.cpp
