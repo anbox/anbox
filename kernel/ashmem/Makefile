@@ -14,6 +14,9 @@ KERNEL_SRC ?= /lib/modules/$(shell uname -r)/build
 all:
 	$(MAKE) -C $(KERNEL_SRC) V=0 M=$$PWD
 
+install:
+	cp ashmem_linux.ko $(DESTDIR)/
+
 clean:
 	rm -rf deps.h *.o *.ko *.mod.c *.symvers *.order .*.cmd .tmp_versions
 endif
