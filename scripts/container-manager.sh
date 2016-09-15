@@ -20,4 +20,4 @@ fi
 # this path.
 mkdir -p $SNAP_COMMON/lxc
 
-exec $SNAP/bin/anbox.wrapper container-manager
+exec $SNAP/bin/anbox-wrapper.sh container-manager
