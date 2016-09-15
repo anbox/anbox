@@ -68,6 +68,10 @@ void BootPropertiesMessageProcessor::list_properties() {
         // To let surfaceflinger load our hwcomposer implementation we specify
         // the correct subkey of the module here.
         // "ro.hardware.hwcomposer=anbox",
+
+        // Android has builtin detection (inside Zygote) for proper container
+        // detection support
+        "ro.boot.container=1",
     };
 
     for (const auto &prop : properties) {
