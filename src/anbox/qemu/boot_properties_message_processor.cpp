@@ -61,9 +61,8 @@ void BootPropertiesMessageProcessor::list_properties() {
         // those things here.
         "ro.hwui.use_gpu_pixel_buffers=0",
 
-        // This will give us a virtual on screen navigation area at the bottom
-        // of the screen we really need to navigate through the system.
-        "qemu.hw.mainkeys=0",
+        // Disable on-screen virtual keys as we can use the hardware keyboard
+        "qemu.hw.mainkeys=1",
 
         // To let surfaceflinger load our hwcomposer implementation we specify
         // the correct subkey of the module here.
