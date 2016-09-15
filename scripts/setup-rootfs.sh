@@ -13,4 +13,4 @@ fi
 
 echo "Copying rootfs into $ROOTFS_PATH .."
 mkdir -p $ROOTFS_PATH
-tar xf $SNAP/anbox-android-rootfs.tar -C $ROOTFS_PATH/ --strip-components=1
+tar xf $SNAP/android-rootfs.tar -C $ROOTFS_PATH/ --strip-components=1
