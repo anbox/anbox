@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_CMDS_INSTALL_APP_H_
-#define ANBOX_CMDS_INSTALL_APP_H_
+#ifndef ANBOX_CMDS_INSTALL_H_
+#define ANBOX_CMDS_INSTALL_H_
 
 #include <functional>
 #include <iostream>
@@ -26,9 +26,9 @@
 
 namespace anbox {
 namespace cmds {
-class InstallApp : public cli::CommandWithFlagsAndAction {
+class Install : public cli::CommandWithFlagsAndAction {
 public:
-    InstallApp();
+    Install();
 
 private:
     std::string apk_;

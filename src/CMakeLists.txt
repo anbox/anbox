@@ -123,8 +123,8 @@ set(SOURCES
 
     anbox/cmds/version.cpp
     anbox/cmds/run.cpp
-    anbox/cmds/install_app.cpp
-    anbox/cmds/launch_app.cpp
+    anbox/cmds/install.cpp
+    anbox/cmds/launch.cpp
     anbox/cmds/container_manager.cpp
 
     anbox/do_not_copy_or_move.h

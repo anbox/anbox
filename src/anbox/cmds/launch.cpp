@@ -15,7 +15,7 @@
  *
  */
 
-#include "anbox/cmds/install_app.h"
+#include "anbox/cmds/launch.h"
 #include "anbox/dbus/stub/application_manager.h"
 
 #include <core/dbus/asio/executor.h>
@@ -24,22 +24,20 @@
 
 namespace fs = boost::filesystem;
 
-anbox::cmds::InstallApp::InstallApp()
-    : CommandWithFlagsAndAction{cli::Name{"install-app"}, cli::Usage{"install-app"}, cli::Description{"Install specified application in the Android container"}}
+anbox::cmds::Launch::Launch()
+    : CommandWithFlagsAndAction{cli::Name{"launch"}, cli::Usage{"launch"}, cli::Description{"Launch specified application in the Android container"}}
 {
-    flag(cli::make_flag(cli::Name{"apk"}, cli::Description{"Path to APK to install"}, apk_));
+    flag(cli::make_flag(cli::Name{"package"}, cli::Description{"Package the application is part of"}, package_));
+    flag(cli::make_flag(cli::Name{"activity"}, cli::Description{"Activity of the application to start"}, activity_));
     action([this](const cli::Command::Context&) {
-        if (apk_.length() == 0)
-            BOOST_THROW_EXCEPTION(std::runtime_error("No APK to install specified"));
-
-        if (!fs::is_regular_file(apk_))
-            BOOST_THROW_EXCEPTION(std::runtime_error("Specified APK file does not exist"));
+        if (package_.empty() || activity_.empty())
+            BOOST_THROW_EXCEPTION(std::runtime_error("No package or activity specified"));
 
         auto bus = std::make_shared<core::dbus::Bus>(core::dbus::WellKnownBus::session);
         bus->install_executor(core::dbus::asio::make_executor(bus));
         auto stub = dbus::stub::ApplicationManager::create_for_bus(bus);
 
-        stub->install(apk_);
+        stub->launch(package_, activity_);
 
         return EXIT_SUCCESS;
     });

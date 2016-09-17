@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_CMDS_LAUNCH_APP_H_
-#define ANBOX_CMDS_LAUNCH_APP_H_
+#ifndef ANBOX_CMDS_LAUNCH_H_
+#define ANBOX_CMDS_LAUNCH_H_
 
 #include <functional>
 #include <iostream>
@@ -26,9 +26,9 @@
 
 namespace anbox {
 namespace cmds {
-class LaunchApp : public cli::CommandWithFlagsAndAction {
+class Launch : public cli::CommandWithFlagsAndAction {
 public:
-    LaunchApp();
+    Launch();
 
 private:
     std::string package_;
