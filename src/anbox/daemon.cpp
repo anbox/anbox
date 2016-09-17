@@ -26,9 +26,7 @@
 #include "anbox/cmds/run.h"
 #include "anbox/cmds/install_app.h"
 #include "anbox/cmds/launch_app.h"
-#include "anbox/cmds/reset.h"
 #include "anbox/cmds/container_manager.h"
-#include "anbox/cmds/start_container.h"
 
 #include <boost/filesystem.hpp>
 
@@ -42,9 +40,7 @@ Daemon::Daemon() :
        .command(std::make_shared<cmds::Run>())
        .command(std::make_shared<cmds::InstallApp>())
        .command(std::make_shared<cmds::LaunchApp>())
-       .command(std::make_shared<cmds::Reset>())
-       .command(std::make_shared<cmds::ContainerManager>())
-       .command(std::make_shared<cmds::StartContainer>());
+       .command(std::make_shared<cmds::ContainerManager>());
 }
 
 int Daemon::Run(const std::vector<std::string> &arguments)
