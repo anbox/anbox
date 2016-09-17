@@ -30,7 +30,6 @@ PlatformService::PlatformService(const std::shared_ptr<anbox::PlatformApiStub> &
 }
 
 status_t PlatformService::boot_finished() {
-    ALOGI("!!!!!!!!!!!!!!!!!!!!!!! BOOOT FINISHED --- ANBOXD");
     platform_api_stub_->boot_finished();
     return OK;
 }
