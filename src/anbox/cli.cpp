@@ -141,8 +141,10 @@ void cli::CommandWithSubcommands::help(std::ostream& out)
     if (commands_.size() > 0)
     {
         out << std::endl << pattern::commands << std::endl;
-        for (const auto& cmd : commands_)
-            out << boost::format(pattern::command) % cmd.second->name() % cmd.second->description() << std::endl;
+        for (const auto& cmd : commands_) {
+            if (cmd.second)
+                out << boost::format(pattern::command) % cmd.second->name() % cmd.second->description() << std::endl;
+        }
     }
 }
 
@@ -169,7 +171,15 @@ int cli::CommandWithSubcommands::run(const cli::Command::Context& ctxt)
         po::store(parsed, vm);
         po::notify(vm);
 
-        return commands_[vm["command"].as<std::string>()]->run(cli::Command::Context
+        auto cmd = commands_[vm["command"].as<std::string>()];
+        if (!cmd)
+        {
+            ctxt.cout << "Unknown command '" << vm["command"].as<std::string>() << "'" << std::endl;
+            help(ctxt.cout);
+            return EXIT_FAILURE;
+        }
+
+        return cmd->run(cli::Command::Context
         {
             ctxt.cin,
             ctxt.cout,
