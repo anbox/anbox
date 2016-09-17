@@ -22,6 +22,7 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE_CLASS := EXECUTABLES
 LOCAL_MODULE := anboxd
+LOCAL_INIT_RC := android/anboxd.rc
 LOCAL_SRC_FILES := \
     android/service/main.cpp \
     android/service/daemon.cpp \

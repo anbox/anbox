@@ -1,0 +1,2 @@
+service anboxd /system/bin/anboxd
+    class boot
