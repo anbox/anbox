@@ -71,13 +71,6 @@ void Device::send_events(const std::vector<Event> &events) {
         data[n].type = event.type;
         data[n].code = event.code;
         data[n].value = event.value;
-
-#ifdef DEBUG
-        DEBUG("Event: time %lld, type %d, code %d, value %d",
-              data[n].sec * 1000000000LL + data[n].usec * 1000LL,
-              event.type, event.code, event.value);
-#endif
-
         n++;
     }
 
