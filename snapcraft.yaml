@@ -6,43 +6,40 @@ description: |
   in a container using Linux namespaces (user, ipc, net, mount) to
   separate the Android system fully from the host.
 confinement: devmode
+grade: devel
 
 apps:
   anbox:
-    command: bin/anbox-wrapper.sh
+    command: bin/anbox-wrapper.sh run
   container-manager:
-    command: bin/anbox-wrapper.sh container-manager
+    command: bin/container-manager.sh
     # daemon: simple
-  setup-rootfs:
-    command: bin/setup-rootfs.sh
-  shell:
-    command: bin/container-shell.sh
-  sh:
-    command: bin/shell.sh
-  start-container:
-    command: bin/start-container.sh
 
 parts:
   android-rootfs:
-    plugin: dump
+    plugin: copy
     source: .
-    snap:
-      - anbox-android-rootfs.tar
+    files:
+      android-rootfs.tar: android-rootfs.tar
   anbox-common:
-    plugin: dump
+    plugin: copy
     source: .
-    organize:
+    files:
       scripts/snap-wrapper.sh: bin/anbox-wrapper.sh
-      scripts/setup-rootfs.sh: bin/setup-rootfs.sh
-      scripts/container-shell.sh: bin/container-shell.sh
-      scripts/shell.sh: bin/shell.sh
-      scripts/start-container.sh: bin/start-container.sh
+      scripts/container-manager.sh: bin/container-manager.sh
     snap:
       - bin/anbox-wrapper.sh
-      - bin/setup-rootfs.sh
-      - bin/container-shell.sh
-      - bin/shell.sh
-      - bin/start-container.sh
+      - bin/container-manager.sh
+  kernel-module-binder:
+    plugin: make
+    source: kernel/binder
+    snap:
+      - binder_linux.ko
+  kernel-module-ashmem:
+    plugin: make
+    source: kernel/ashmem
+    snap:
+      - ashmem_linux.ko
   lxc:
     source: git://github.com/morphis/lxc
     source-branch: snappy-support
@@ -63,7 +60,7 @@ parts:
       - --disable-api-docs
       - --disable-bash
       - --disable-cgmanager
-      # FIXME: Enable again once stacked AppArmor support landed
+      # FIXME: Enable again once stacked AppArmor support has landed
       - --disable-apparmor
       - --disable-seccomp
       - --enable-capabilities
