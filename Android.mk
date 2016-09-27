@@ -78,11 +78,19 @@ include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE_RELATIVE_PATH := hw
-LOCAL_SHARED_LIBRARIES := liblog
+LOCAL_SHARED_LIBRARIES := \
+    liblog \
+    lib_renderControl_enc \
+    libOpenglSystemCommon
 LOCAL_SRC_FILES := \
     android/hwcomposer/hwcomposer.cpp
 LOCAL_MODULE := hwcomposer.anbox
 LOCAL_CFLAGS:= -DLOG_TAG=\"hwcomposer\"
+LOCAL_C_INCLUDES += \
+    $(LOCAL_PATH)/../device/generic/goldfish/opengl/host/include/libOpenglRender \
+    $(LOCAL_PATH)/../device/generic/goldfish/opengl/shared/OpenglCodecCommon \
+    $(LOCAL_PATH)/../device/generic/goldfish/opengl/system/renderControl_enc \
+    $(LOCAL_PATH)/../device/generic/goldfish/opengl/system/OpenglSystemCommon
 LOCAL_MODULE_TAGS := optional
 include $(BUILD_SHARED_LIBRARY)
 

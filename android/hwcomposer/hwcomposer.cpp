@@ -21,6 +21,25 @@
 #define LOG_NDEBUG 0
 #include <cutils/log.h>
 
+#include "HostConnection.h"
+#include "gralloc_cb.h"
+
+#define DEFINE_HOST_CONNECTION() \
+    HostConnection *hostCon = HostConnection::get(); \
+    renderControl_encoder_context_t *rcEnc = (hostCon ? hostCon->rcEncoder() : NULL)
+
+#define DEFINE_AND_VALIDATE_HOST_CONNECTION() \
+    HostConnection *hostCon = HostConnection::get(); \
+    if (!hostCon) { \
+        ALOGE("hwcomposer.anbox: Failed to get host connection\n"); \
+        return -EIO; \
+    } \
+    renderControl_encoder_context_t *rcEnc = hostCon->rcEncoder(); \
+    if (!rcEnc) { \
+        ALOGE("hwcomposer.anbox: Failed to get renderControl encoder context\n"); \
+        return -EIO; \
+    }
+
 struct HwcContext {
     hwc_composer_device_1_t device;
 
@@ -82,6 +101,9 @@ static int hwc_prepare(hwc_composer_device_1_t* dev, size_t numDisplays,
         // imply that the framebuffer target layer must be topmost.
         for (; i < num_hw_layers; i++) {
           hwc_layer_1_t* layer = &displays[0]->hwLayers[num_hw_layers - 1 - i];
+
+          dump_layer(layer);
+
           if (layer->flags & HWC_SKIP_LAYER) {
             // All layers below and including this one will be drawn into the
             // framebuffer. Stop marking further layers as HWC_OVERLAY.
@@ -110,6 +132,35 @@ static int hwc_prepare(hwc_composer_device_1_t* dev, size_t numDisplays,
     return 0;
 }
 
+/*
+ * We're using "implicit" synchronization, so make sure we aren't passing any
+ * sync object descriptors around.
+ */
+static void check_sync_fds(size_t numDisplays, hwc_display_contents_1_t** displays)
+{
+    unsigned int i, j;
+    for (i = 0; i < numDisplays; i++) {
+        hwc_display_contents_1_t* list = displays[i];
+        if (list->retireFenceFd >= 0) {
+            ALOGW("retireFenceFd[%u] was %d", i, list->retireFenceFd);
+            list->retireFenceFd = -1;
+        }
+
+        for (j = 0; j < list->numHwLayers; j++) {
+            hwc_layer_1_t* layer = &list->hwLayers[j];
+            if (layer->acquireFenceFd >= 0) {
+                ALOGW("acquireFenceFd[%u][%u] was %d, closing", i, j, layer->acquireFenceFd);
+                close(layer->acquireFenceFd);
+                layer->acquireFenceFd = -1;
+            }
+            if (layer->releaseFenceFd >= 0) {
+                ALOGW("releaseFenceFd[%u][%u] was %d", i, j, layer->releaseFenceFd);
+                layer->releaseFenceFd = -1;
+            }
+        }
+    }
+}
+
 static int hwc_set(hwc_composer_device_1_t* dev, size_t numDisplays,
                    hwc_display_contents_1_t** displays) {
     auto context = reinterpret_cast<HwcContext*>(dev);
@@ -119,13 +170,27 @@ static int hwc_set(hwc_composer_device_1_t* dev, size_t numDisplays,
     if (displays == NULL || displays[0] == NULL)
         return -EFAULT;
 
-    // FIXME Here is the point where we have to collect all layers and sent
-    // them over to the Anbox rendering process
+    DEFINE_AND_VALIDATE_HOST_CONNECTION();
 
-    for (size_t i = 0 ; i < displays[0]->numHwLayers ; i++)
-        dump_layer(&displays[0]->hwLayers[i]);
+    for (size_t i = 0 ; i < displays[0]->numHwLayers ; i++) {
+        const auto layer = &displays[0]->hwLayers[i];
 
-    displays[0]->retireFenceFd = -1;
+        dump_layer(layer);
+
+        // FIXME this is just dirty ... but layer->handle is a const native_handle_t and canBePosted
+        // can't be called with a const.
+        auto cb = const_cast<cb_handle_t*>(reinterpret_cast<const cb_handle_t*>(layer->handle));
+        if (!cb_handle_t::validate(cb)) {
+            ALOGE("Buffer handle is invalid\n");
+            return -EINVAL;
+        }
+
+        ALOGI("Posting buffer %p\n", cb->hostHandle);
+        rcEnc->rcFBPost(rcEnc, cb->hostHandle);
+        hostCon->flush();
+    }
+
+    check_sync_fds(numDisplays, displays);
 
     return 0;
 }
@@ -135,61 +200,6 @@ static int hwc_event_control(hwc_composer_device_1* dev, int disp,
     ALOGI("%s", __PRETTY_FUNCTION__);
 
     return -EFAULT;
-}
-
-static int hwc_get_display_configs(hwc_composer_device_1* dev, int disp,
-                                   uint32_t* configs, size_t* numConfigs) {
-    ALOGI("%s", __PRETTY_FUNCTION__);
-
-    if (disp != 0)
-        return -EINVAL;
-
-    if (*numConfigs > 0) {
-        // Config[0] will be passed in to getDisplayAttributes as the disp
-        // parameter. The ARC display supports only 1 configuration.
-        configs[0] = 0;
-        *numConfigs = 1;
-    }
-
-      return 0;
-}
-
-static int hwc_get_display_attributes(hwc_composer_device_1* dev,
-                                      int disp, uint32_t config,
-                                      const uint32_t* attributes,
-                                      int32_t* values) {
-    ALOGI("%s", __PRETTY_FUNCTION__);
-
-    if (disp != 0 || config != 0)
-        return -EINVAL;
-
-    auto context = reinterpret_cast<HwcContext*>(dev);
-
-    while (*attributes != HWC_DISPLAY_NO_ATTRIBUTE) {
-        switch (*attributes) {
-            case HWC_DISPLAY_VSYNC_PERIOD:
-                *values = 1;
-                break;
-            case HWC_DISPLAY_WIDTH:
-                *values = 1280;
-                break;
-            case HWC_DISPLAY_HEIGHT:
-                *values = 720;
-                break;
-            case HWC_DISPLAY_DPI_X:
-                *values = 1000 * 120;
-                break;
-            case HWC_DISPLAY_DPI_Y:
-                *values = 1000 * 120;
-                break;
-            default:
-              ALOGE("Unknown attribute value 0x%02x", *attributes);
-        }
-        ++attributes;
-        ++values;
-    }
-
-    return 0;
 }
 
 static void hwc_register_procs(hwc_composer_device_1* dev,
@@ -223,7 +233,7 @@ static int hwc_device_open(const hw_module_t* module, const char* name, hw_devic
 
     auto dev = new HwcContext;
     dev->device.common.tag = HARDWARE_DEVICE_TAG;
-    dev->device.common.version = HWC_DEVICE_API_VERSION_1_3;
+    dev->device.common.version = HWC_DEVICE_API_VERSION_1_0;
     dev->device.common.module = const_cast<hw_module_t*>(module);
     dev->device.common.close = hwc_device_close;
     dev->device.prepare = hwc_prepare;
@@ -231,9 +241,9 @@ static int hwc_device_open(const hw_module_t* module, const char* name, hw_devic
     dev->device.eventControl = hwc_event_control;
     dev->device.blank = hwc_blank;
     dev->device.query = hwc_query;
-    dev->device.getDisplayConfigs = hwc_get_display_configs;
-    dev->device.getDisplayAttributes = hwc_get_display_attributes;
     dev->device.registerProcs = hwc_register_procs;
+    // FIXME: eventually implement to dump specific information
+    dev->device.dump = nullptr;
 
     *device = &dev->device.common;
 
