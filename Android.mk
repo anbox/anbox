@@ -85,3 +85,9 @@ LOCAL_MODULE := hwcomposer.anbox
 LOCAL_CFLAGS:= -DLOG_TAG=\"hwcomposer\"
 LOCAL_MODULE_TAGS := optional
 include $(BUILD_SHARED_LIBRARY)
+
+# Include the Android.mk files below will override LOCAL_PATH so we
+# have to take a copy of it here.
+TMP_PATH := $(LOCAL_PATH)
+
+include $(TMP_PATH)/android/app_manager/Android.mk
