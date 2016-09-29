@@ -66,54 +66,52 @@ static EGLint rcQueryEGLString(EGLenum name, void* buffer, EGLint bufferSize)
 static EGLint rcGetGLString(EGLenum name, void* buffer, EGLint bufferSize)
 {
     RenderThreadInfo *tInfo = RenderThreadInfo::get();
-    const char *str = NULL;
-    int len = 0;
-    if (tInfo && tInfo->currContext.Ptr()) {
-        if (tInfo->currContext->isGL2()) {
-            str = (const char *)s_gles2.glGetString(name);
-        }
-        else {
-            str = (const char *)s_gles1.glGetString(name);
-        }
-        if (str) {
-            len = strlen(str) + 1;
-        }
+    std::string result;
+
+    if (tInfo && tInfo->currContext) {
+        const char *str = nullptr;
+        if (tInfo->currContext->isGL2())
+            str = reinterpret_cast<const char*>(s_gles2.glGetString(name));
+        else
+            str = reinterpret_cast<const char*>(s_gles1.glGetString(name));
+
+        if (str)
+            result += str;
     }
 
-    // We add the maximum supported GL protocol number into GL_EXTENSIONS
-    const char* glProtocolStr = NULL;
-    if (name == GL_EXTENSIONS) {
-        glProtocolStr = ChecksumCalculatorThreadInfo::getMaxVersionString();
-        if (len==0) len = 1; // the last byte
-        len += strlen(glProtocolStr) + 1;
-    }
+    // We're forcing version 2.0 no matter what the host provides as
+    // our emulation layer isn't prepared for anything newer (yet).
+    // This goes in parallel with filtering the extension set for
+    // any unwanted extensions. If we don't force the right version
+    // here certain parts of the system will assume API conditions
+    // which aren't met.
+    if (name == GL_VERSION)
+        result = "OpenGL ES 2.0";
+    else if (name == GL_EXTENSIONS) {
+        std::string approved_extensions = result;
+        std::vector<std::string> unsupported_extensions = {
+            // Leaving this enabled gives crippeled text rendering when
+            // using the host mesa GLES drivers.
+            "GL_EXT_unpack_subimage",
+        };
 
-    if (name == GL_VERSION) {
-        // We're forcing version 2.0 no matter what the host provides as
-        // our emulation layer isn't prepared for anything newer (yet).
-        // This goes in parallel with filtering the extension set for
-        // any unwanted extensions. If we don't force the right version
-        // here certain parts of the system will assume API conditions
-        // which aren't met.
-        static const char *version = "OpenGL ES 2.0";
-        str = version;
-        len = strlen(str) + 1;
-    }
-    if (!buffer || len > bufferSize) {
-        return -len;
-    }
-
-    if (name == GL_EXTENSIONS) {
-        snprintf((char *)buffer, bufferSize, "%s%s ", str ? str : "", glProtocolStr);
-    } else if (str) {
-        strcpy((char *)buffer, str);
-    } else {
-        if (bufferSize >= 1) {
-            ((char*)buffer)[0] = '\0';
+        for (const auto &extension : unsupported_extensions) {
+            size_t start_pos = approved_extensions.find(extension);
+            if(start_pos == std::string::npos)
+                continue;
+            approved_extensions.replace(start_pos, extension.length(), "");
         }
-        len = 0;
+
+        result = approved_extensions;
     }
-    return len;
+
+    int nextBufferSize = result.size() + 1;
+
+    if (!buffer || nextBufferSize > bufferSize)
+        return -nextBufferSize;
+
+    snprintf(static_cast<char*>(buffer), nextBufferSize, "%s", result.c_str());
+    return nextBufferSize;
 }
 
 static EGLint rcGetNumConfigs(uint32_t* p_numAttribs)
