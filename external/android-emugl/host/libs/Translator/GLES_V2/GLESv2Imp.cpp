@@ -2082,7 +2082,7 @@ static void s_unUseCurrentProgram() {
     if (!localCurrentProgram) return;
 
     ObjectDataPtr objData = ctx->shareGroup()->getObjectData(SHADER,localCurrentProgram);
-    SET_ERROR_IF(objData.Ptr()->getDataType()!=PROGRAM_DATA,GL_INVALID_OPERATION);
+    SET_ERROR_IF(!objData.Ptr() || objData.Ptr()->getDataType()!=PROGRAM_DATA,GL_INVALID_OPERATION);
     ProgramData* programData = (ProgramData*)objData.Ptr();
     programData->setInUse(false);
     if (programData->getDeleteStatus()) { glDeleteProgram(localCurrentProgram); }
@@ -2094,7 +2094,7 @@ GL_APICALL void  GL_APIENTRY glUseProgram(GLuint program){
         const GLuint globalProgramName = ctx->shareGroup()->getGlobalName(SHADER,program);
         SET_ERROR_IF(program!=0 && globalProgramName==0,GL_INVALID_VALUE);
         ObjectDataPtr objData = ctx->shareGroup()->getObjectData(SHADER,program);
-        SET_ERROR_IF(objData.Ptr() && (objData.Ptr()->getDataType()!=PROGRAM_DATA),GL_INVALID_OPERATION);
+        SET_ERROR_IF(!objData.Ptr() || (objData.Ptr()->getDataType()!=PROGRAM_DATA),GL_INVALID_OPERATION);
 
         s_unUseCurrentProgram();
 
