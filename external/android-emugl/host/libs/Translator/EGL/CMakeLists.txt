@@ -24,3 +24,7 @@ target_link_libraries(EGL_translator
     ${EGL_LIBRARIES}
     ${GLESv2_LDFLAGS}
     ${GLESv2_LIBRARIES})
+
+install(
+  TARGETS EGL_translator
+  LIBRARY DESTINATION ${ANBOX_TRANSLATOR_INSTALL_DIR})
