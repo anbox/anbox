@@ -30,16 +30,16 @@ namespace graphics {
 GLRendererServer::GLRendererServer(const std::shared_ptr<WindowCreator> &window_creator) :
     window_creator_(window_creator) {
 
-#if 0
-    // Force the host EGL/GLES libraries as translator implementation
-    ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 0);
-    ::setenv("ANDROID_GLESv1_LIB", "libGLESv2.so.2", 0);
-    ::setenv("ANDROID_GLESv2_LIB", "libGLESv2.so.2", 0);
-#else
-    ::setenv("ANDROID_EGL_LIB", utils::string_format("%s/libEGL_translator.so", TRANSLATOR_INSTALL_DIR).c_str(), 0);
-    ::setenv("ANDROID_GLESv1_LIB", utils::string_format("%s/libGLES_CM_translator.so", TRANSLATOR_INSTALL_DIR).c_str(), 0);
-    ::setenv("ANDROID_GLESv2_LIB", utils::string_format("%s/libGLES_V2_translator.so", TRANSLATOR_INSTALL_DIR).c_str(), 0);
-#endif
+    if (utils::is_env_set("USE_HOST_GLES")) {
+        // Force the host EGL/GLES libraries as translator implementation
+        ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 0);
+        ::setenv("ANDROID_GLESv1_LIB", "libGLESv2.so.2", 0);
+        ::setenv("ANDROID_GLESv2_LIB", "libGLESv2.so.2", 0);
+    } else {
+        ::setenv("ANDROID_EGL_LIB", utils::string_format("%s/libEGL_translator.so", TRANSLATOR_INSTALL_DIR).c_str(), 0);
+        ::setenv("ANDROID_GLESv1_LIB", utils::string_format("%s/libGLES_CM_translator.so", TRANSLATOR_INSTALL_DIR).c_str(), 0);
+        ::setenv("ANDROID_GLESv2_LIB", utils::string_format("%s/libGLES_V2_translator.so", TRANSLATOR_INSTALL_DIR).c_str(), 0);
+    }
 
     if (!initLibrary())
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize OpenGL renderer"));
