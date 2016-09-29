@@ -60,6 +60,7 @@ GLuint createShader(GLint shaderType, const char* shaderText) {
 // the texture, hence a trivial vertex shader that only supports clockwise
 // rotation.
 const char kVertexShaderSource[] =
+#if WITHOUT_TRANSLATOR_SUPPORT
     "#version 100\n"
     "const int _translator_gl_MaxVertexUniformVectors = 256;\n"
     "const int _translator_gl_MaxFragmentUniformVectors = 256;\n"
@@ -68,6 +69,7 @@ const char kVertexShaderSource[] =
     "#define gl_MaxFragmentUniformVectors _translator_gl_MaxFragmentUniformVectors\n"
     "#define gl_MaxVaryingVectors _translator_gl_MaxVaryingVectors\n"
     "#line 1\n"
+#endif
     "attribute vec4 position;\n"
     "attribute vec2 inCoord;\n"
     "varying lowp vec2 outCoord;\n"
@@ -85,6 +87,7 @@ const char kVertexShaderSource[] =
 
 // Similarly, just interpolate texture coordinates.
 const char kFragmentShaderSource[] =
+#if WITHOUT_TRANSLATOR_SUPPORT
     "#version 100\n"
     "const int _translator_gl_MaxVertexUniformVectors = 256;\n"
     "const int _translator_gl_MaxFragmentUniformVectors = 256;\n"
@@ -93,6 +96,7 @@ const char kFragmentShaderSource[] =
     "#define gl_MaxFragmentUniformVectors _translator_gl_MaxFragmentUniformVectors\n"
     "#define gl_MaxVaryingVectors _translator_gl_MaxVaryingVectors\n"
     "#line 1\n"
+#endif
     "varying lowp vec2 outCoord;\n"
     "uniform sampler2D texture;\n"
 
