@@ -88,7 +88,7 @@ static EGLint rcGetGLString(EGLenum name, void* buffer, EGLint bufferSize)
         len += strlen(glProtocolStr) + 1;
     }
 
-    if (name = GL_VERSION) {
+    if (name == GL_VERSION) {
         // We're forcing version 2.0 no matter what the host provides as
         // our emulation layer isn't prepared for anything newer (yet).
         // This goes in parallel with filtering the extension set for
