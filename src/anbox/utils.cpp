@@ -141,6 +141,10 @@ std::string get_env_value(const std::string &name, const std::string &default_va
     return std::string(value);
 }
 
+bool is_env_set(const std::string &name) {
+    return getenv(name.c_str()) != nullptr;
+}
+
 void ensure_paths(const std::vector<std::string> &paths) {
     for (const auto &path: paths) {
         if (!fs::is_directory(fs::path(path)))

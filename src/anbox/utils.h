@@ -39,6 +39,7 @@ bool string_starts_with(const std::string &text, const std::string &prefix);
 std::string hex_dump(const uint8_t *data, uint32_t size);
 
 std::string get_env_value(const std::string &name, const std::string &default_value = "");
+bool is_env_set(const std::string &name);
 
 void ensure_paths(const std::vector<std::string> &paths);
 

@@ -64,14 +64,16 @@ void BootPropertiesMessageProcessor::list_properties() {
         // Disable on-screen virtual keys as we can use the hardware keyboard
         "qemu.hw.mainkeys=1",
 
-        // To let surfaceflinger load our hwcomposer implementation we specify
-        // the correct subkey of the module here.
-        // "ro.hardware.hwcomposer=anbox",
-
         // Android has builtin detection (inside Zygote) for proper container
         // detection support
         "ro.boot.container=1",
     };
+
+    if (utils::is_env_set("USE_HWCOMPOSER")) {
+        // To let surfaceflinger load our hwcomposer implementation we specify
+        // the correct subkey of the module here.
+        properties.push_back("ro.hardware.hwcomposer=anbox");
+    }
 
     for (const auto &prop : properties) {
         send_header(prop.length());
