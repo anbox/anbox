@@ -56,11 +56,6 @@ void BootPropertiesMessageProcessor::list_properties() {
         // we're running on.
         utils::string_format("ro.sf.lcd_density=%d", static_cast<int>(graphics::DensityType::high)),
 
-        // libhwui detects that we support certain GLESv3 extensions which
-        // we don't yet support in our host channel so we have to disable
-        // those things here.
-        "ro.hwui.use_gpu_pixel_buffers=0",
-
         // Disable on-screen virtual keys as we can use the hardware keyboard
         "qemu.hw.mainkeys=1",
 
