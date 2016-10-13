@@ -67,6 +67,9 @@ void BootPropertiesMessageProcessor::list_properties() {
         // Android has builtin detection (inside Zygote) for proper container
         // detection support
         "ro.boot.container=1",
+
+        // Mark us as a device without telephony support (as we don't have a RIL)
+        "ro.radio.noril=yes",
     };
 
     if (utils::is_env_set("USE_HWCOMPOSER")) {
