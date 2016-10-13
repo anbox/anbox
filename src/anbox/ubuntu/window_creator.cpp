@@ -17,6 +17,8 @@
 
 #include "anbox/ubuntu/window_creator.h"
 #include "anbox/ubuntu/window.h"
+#include "anbox/input/manager.h"
+#include "anbox/input/device.h"
 #include "anbox/logger.h"
 
 #include <boost/throw_exception.hpp>
@@ -34,6 +36,16 @@ WindowCreator::WindowCreator(const std::shared_ptr<input::Manager> &input_manage
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize SDL"));
+
+#if 0
+    SDL_DisplayMode display_mode;
+    // FIXME statically just check the first (primary) display for its mode;
+    // once we get multi-monitor support we need to do this better.
+    if (SDL_GetCurrentDisplayMode(0, &display_mode) == 0) {
+        display_info_.horizontal_resolution = display_mode.w;
+        display_info_.vertical_resolution = display_mode.h;
+    }
+#endif
 
     event_thread_ = std::thread(&WindowCreator::process_events, this);
 
@@ -69,18 +81,6 @@ void WindowCreator::process_events() {
             case SDL_WINDOWEVENT:
                 process_window_event(event);
                 break;
-            case SDL_FINGERUP:
-            case SDL_FINGERMOTION:
-            case SDL_FINGERDOWN:
-            case SDL_MOUSEMOTION:
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP:
-            case SDL_MOUSEWHEEL:
-            case SDL_KEYDOWN:
-            case SDL_KEYUP:
-                if (current_window_)
-                    current_window_->process_input_event(event);
-                break;
             }
         }
     }
@@ -88,17 +88,11 @@ void WindowCreator::process_events() {
 
 EGLNativeWindowType WindowCreator::create_window(int x, int y, int width, int height)
 try {
-    if (windows_.size() == 1) {
-        WARNING("Tried to create another window but we currently only allow one");
-        return 0;
-    }
-
-    auto window = std::make_shared<Window>(input_manager_, width, height);
+    auto window = std::make_shared<Window>(x, y, width, height);
     if (not window)
         BOOST_THROW_EXCEPTION(std::bad_alloc());
 
     windows_.insert({window->native_window(), window});
-    current_window_ = window;
 
     return window->native_window();
 }

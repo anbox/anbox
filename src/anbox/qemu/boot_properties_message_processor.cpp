@@ -54,7 +54,7 @@ void BootPropertiesMessageProcessor::list_properties() {
 
         // TODO(morphis): Using HDPI here for now but should be adjusted to the device
         // we're running on.
-        utils::string_format("ro.sf.lcd_density=%d", static_cast<int>(graphics::DensityType::high)),
+        utils::string_format("ro.sf.lcd_density=%d", static_cast<int>(graphics::DensityType::medium)),
 
         // Disable on-screen virtual keys as we can use the hardware keyboard
         "qemu.hw.mainkeys=1",

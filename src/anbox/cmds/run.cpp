@@ -140,7 +140,7 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
             // { qemud_connector->socket_file(), "/dev/qemud" },
             { qemu_pipe_connector->socket_file(), "/dev/qemu_pipe" },
             { bridge_connector->socket_file(), "/dev/anbox_bridge" },
-            { config::host_input_device_path(), "/dev/input" },
+            { "/dev/input", "/dev/input" },
             { "/dev/binder", "/dev/binder" },
             { "/dev/ashmem", "/dev/ashmem" },
         };

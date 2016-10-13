@@ -21,11 +21,7 @@
 #include "TimeUtils.h"
 
 #include "TcpStream.h"
-#ifdef _WIN32
-#include "Win32PipeStream.h"
-#else
 #include "UnixStream.h"
-#endif
 
 #include "DispatchTables.h"
 
@@ -142,15 +138,6 @@ RENDER_APICALL int RENDER_APIENTRY initOpenGLRenderer(
     return true;
 }
 
-RENDER_APICALL void RENDER_APIENTRY setPostCallback(
-        OnPostFn onPost, void* onPostContext) {
-    if (s_renderWindow) {
-        s_renderWindow->setPostCallback(onPost, onPostContext);
-    } else {
-        ERR("Calling setPostCallback() before creating render window!");
-    }
-}
-
 RENDER_APICALL void RENDER_APIENTRY getHardwareStrings(
         const char** vendor,
         const char** renderer,
@@ -228,53 +215,7 @@ RENDER_APICALL bool RENDER_APIENTRY destroyOpenGLSubwindow(void)
     return false;
 }
 
-RENDER_APICALL void RENDER_APIENTRY setOpenGLDisplayRotation(float zRot)
-{
-    RenderWindow* window = s_renderWindow;
-
-    if (window) {
-        window->setRotation(zRot);
-        return;
-    }
-    // XXX: should be implemented by sending the renderer process
-    //      a request
-    ERR("%s not implemented for separate renderer process !!!\n",
-            __FUNCTION__);
-}
-
-RENDER_APICALL void RENDER_APIENTRY setOpenGLDisplayTranslation(float px, float py)
-{
-    RenderWindow* window = s_renderWindow;
-
-    if (window) {
-        window->setTranslation(px, py);
-        return;
-    }
-    // XXX: should be implemented by sending the renderer process
-    //      a request
-    ERR("%s not implemented for separate renderer process !!!\n",
-            __FUNCTION__);
-}
-
-RENDER_APICALL void RENDER_APIENTRY repaintOpenGLDisplay(void)
-{
-    RenderWindow* window = s_renderWindow;
-
-    if (window) {
-        window->repaint();
-        return;
-    }
-    // XXX: should be implemented by sending the renderer process
-    //      a request
-    ERR("%s not implemented for separate renderer process !!!\n",
-            __FUNCTION__);
-}
-
-
-/* NOTE: For now, always use TCP mode by default, until the emulator
- *        has been updated to support Unix and Win32 pipes
- */
-#define  DEFAULT_STREAM_MODE  RENDER_API_STREAM_MODE_TCP
+#define DEFAULT_STREAM_MODE RENDER_API_STREAM_MODE_UNIX
 
 int gRendererStreamMode = DEFAULT_STREAM_MODE;
 
@@ -285,11 +226,7 @@ IOStream *createRenderThread(int p_stream_buffer_size, unsigned int clientFlags)
     if (gRendererStreamMode == RENDER_API_STREAM_MODE_TCP) {
         stream = new TcpStream(p_stream_buffer_size);
     } else {
-#ifdef _WIN32
-        stream = new Win32PipeStream(p_stream_buffer_size);
-#else /* !_WIN32 */
         stream = new UnixStream(p_stream_buffer_size);
-#endif
     }
 
     if (!stream) {
@@ -311,29 +248,4 @@ IOStream *createRenderThread(int p_stream_buffer_size, unsigned int clientFlags)
     stream->commitBuffer(sizeof(unsigned int));
 
     return stream;
-}
-
-RENDER_APICALL int RENDER_APIENTRY setStreamMode(int mode)
-{
-    switch (mode) {
-        case RENDER_API_STREAM_MODE_DEFAULT:
-            mode = DEFAULT_STREAM_MODE;
-            break;
-
-        case RENDER_API_STREAM_MODE_TCP:
-            break;
-
-#ifndef _WIN32
-        case RENDER_API_STREAM_MODE_UNIX:
-            break;
-#else /* _WIN32 */
-        case RENDER_API_STREAM_MODE_PIPE:
-            break;
-#endif /* _WIN32 */
-        default:
-            // Invalid stream mode
-            return false;
-    }
-    gRendererStreamMode = mode;
-    return true;
 }

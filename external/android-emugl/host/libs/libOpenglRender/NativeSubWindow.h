@@ -35,8 +35,6 @@ public:
 
 void registerSubWindowHandler(const std::shared_ptr<SubWindowHandler> &handler);
 
-typedef void (*SubWindowRepaintCallback)(void*);
-
 // Create a new sub-window that will be used to display the content of the
 // emulated GPU on top of the regular UI window.
 // |p_window| is the platform-specific handle to the main UI window.
@@ -55,24 +53,10 @@ EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
                                     int x,
                                     int y,
                                     int width,
-                                    int height,
-                                    SubWindowRepaintCallback repaint_callback,
-                                    void* repaint_callback_param);
+                                    int height);
 
 // Destroy a sub-window previously created through createSubWindow() above.
 void destroySubWindow(EGLNativeWindowType win);
-
-// Moves a sub-window previously created through createSubWindow() above.
-// |p_parent_window| is the platform-specific handle to the main UI window.
-// |p_sub_window| is the platform-specific handle to the EGL subwindow.
-// |x|,|y|,|width|,|height| are the new location and dimensions of the
-// subwindow.
-int moveSubWindow(FBNativeWindowType p_parent_window,
-                  EGLNativeWindowType p_sub_window,
-                  int x,
-                  int y,
-                  int width,
-                  int height);
 
 #ifdef __cplusplus
 }

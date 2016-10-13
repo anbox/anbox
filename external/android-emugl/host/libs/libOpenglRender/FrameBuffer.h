@@ -58,6 +58,8 @@ struct FrameBufferCaps {
     EGLint eglMinor;
 };
 
+struct FrameBufferWindow;
+
 // The FrameBuffer class holds the global state of the emulation library on
 // top of the underlying EGL/GLES implementation. It should probably be
 // named "Display" instead of "FrameBuffer".
@@ -76,32 +78,8 @@ public:
     // Returns true on success, false otherwise.
     static bool initialize(EGLNativeDisplayType nativeDisplay, int width, int height, bool useSubWindow);
 
-    // Setup a sub-window to display the content of the emulated GPU
-    // on-top of an existing UI window. |p_window| is the platform-specific
-    // parent window handle. |wx|, |wy|, |ww| and |wh| are the
-    // dimensions in pixels of the sub-window, relative to the parent window's
-    // coordinate. |fbw| and |fbh| are the dimensions used to initialize
-    // the framebuffer, which may be different from the dimensions of the
-    // sub-window (in which case scaling will be applied automatically).
-    // |dpr| is the device pixel ratio of the monitor, which is needed for
-    // proper panning on high-density displays (like retina)
-    // |zRot| is a rotation angle in degrees, (clockwise in the Y-upwards GL
-    // coordinate space).
-    //
-    // If a sub-window already exists, this function updates the subwindow
-    // and framebuffer properties to match the given values.
-    //
-    // Return true on success, false otherwise.
-    //
-    // NOTE: This can return false for software-only EGL engines like OSMesa.
-    bool setupSubWindow(FBNativeWindowType p_window,
-                        int wx, int wy,
-                        int ww, int wh,
-                        int fbw, int fbh, float dpr, float zRot);
-
-    // Remove the sub-window created by setupSubWindow(), if any.
-    // Return true on success, false otherwise.
-    bool removeSubWindow();
+    FrameBufferWindow* createWindow(int x, int y, int width, int height);
+    void destroyWindow(FrameBufferWindow *window);
 
     // Finalize the instance.
     void finalize();
@@ -112,12 +90,6 @@ public:
 
     // Return the capabilities of the underlying display.
     const FrameBufferCaps &getCaps() const { return m_caps; }
-
-    // Return the emulated GPU display width in pixels.
-    int getWidth() const { return m_framebufferWidth; }
-
-    // Return the emulated GPU display height in pixels.
-    int getHeight() const { return m_framebufferHeight; }
 
     // Return the list of configs available from this display.
     const FbConfigList* getConfigs() const { return m_configs; }
@@ -259,35 +231,10 @@ public:
     // |needLock| is used to indicate whether the operation requires
     // acquiring/releasing the FrameBuffer instance's lock. It should be
     // false only when called internally.
-    bool post(HandleType p_colorbuffer, bool needLock = true);
-
-    // Re-post the last ColorBuffer that was displayed through post().
-    // This is useful if you detect that the sub-window content needs to
-    // be re-displayed for any reason.
-    bool repost();
+    bool post(FrameBufferWindow *window, HandleType p_colorbuffer, bool needLock = true);
 
     // Return the host EGLDisplay used by this instance.
     EGLDisplay getDisplay() const { return m_eglDisplay; }
-
-    // Change the rotation of the displayed GPU sub-window.
-    void setDisplayRotation(float zRot) {
-        m_zRot = zRot;
-        repost();
-    }
-
-    // Changes what coordinate of this framebuffer will be displayed at the
-    // corner of the GPU sub-window. Specifically, |px| and |py| = 0 means
-    // align the bottom-left of the framebuffer with the bottom-left of the
-    // sub-window, and |px| and |py| = 1 means align the top right of the
-    // framebuffer with the top right of the sub-window. Intermediate values
-    // interpolate between these states.
-    void setDisplayTranslation(float px, float py) {
-
-        // Sanity check the values to ensure they are between 0 and 1
-        m_px = px > 1 ? 1 : (px < 0 ? 0 : px);
-        m_py = py > 1 ? 1 : (py < 0 ? 0 : py);
-        repost();
-    }
 
     // Return a TextureDraw instance that can be used with this surfaces
     // and windows created by this instance.
@@ -305,18 +252,11 @@ private:
     ~FrameBuffer();
     HandleType genHandle();
 
-    bool bindSubwin_locked();
+    bool bindWindow_locked(FrameBufferWindow *window);
 
 private:
     static FrameBuffer *s_theFrameBuffer;
     static HandleType s_nextHandle;
-    int m_x;
-    int m_y;
-    int m_framebufferWidth;
-    int m_framebufferHeight;
-    int m_windowWidth;
-    int m_windowHeight;
-    float m_dpr;
     bool m_useSubWindow;
     emugl::Mutex m_lock;
     FbConfigList* m_configs;
@@ -328,7 +268,6 @@ private:
     ColorBufferMap m_colorbuffers;
     ColorBuffer::Helper* m_colorBufferHelper;
 
-    EGLSurface m_eglSurface;
     EGLContext m_eglContext;
     EGLSurface m_pbufSurface;
     EGLContext m_pbufContext;
@@ -336,22 +275,13 @@ private:
     EGLContext m_prevContext;
     EGLSurface m_prevReadSurf;
     EGLSurface m_prevDrawSurf;
-    EGLNativeWindowType m_subWin;
     TextureDraw* m_textureDraw;
     EGLConfig  m_eglConfig;
     HandleType m_lastPostedColorBuffer;
-    float      m_zRot;
-    float      m_px;
-    float      m_py;
-    bool       m_eglContextInitialized;
 
     int m_statsNumFrames;
     long long m_statsStartTime;
     bool m_fpsStats;
-
-    OnPostFn m_onPost;
-    void* m_onPostContext;
-    unsigned char* m_fbImage;
 
     const char* m_glVendor;
     const char* m_glRenderer;

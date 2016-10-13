@@ -75,11 +75,6 @@ public:
                             const char** renderer,
                             const char** version);
 
-    // Specify a function that will be called everytime a new frame is
-    // displayed. This is relatively slow but allows one to capture the
-    // output.
-    void setPostCallback(OnPostFn onPost, void* onPostContext);
-
     // Start displaying the emulated framebuffer using a sub-window of a
     // parent |window| id. |wx|, |wy|, |ww| and |wh| are the position
     // and dimension of the sub-window, relative to its parent.

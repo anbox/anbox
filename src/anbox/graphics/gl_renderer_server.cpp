@@ -45,13 +45,11 @@ GLRendererServer::GLRendererServer(const std::shared_ptr<WindowCreator> &window_
     if (!initLibrary())
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize OpenGL renderer"));
 
-    setStreamMode(RENDER_API_STREAM_MODE_UNIX);
-
     registerSubWindowHandler(window_creator_);
 }
 
 GLRendererServer::~GLRendererServer() {
-    destroyOpenGLSubwindow();
+    // destroyOpenGLSubwindow();
     stopOpenGLRenderer();
 }
 
@@ -84,11 +82,13 @@ void GLRendererServer::start() {
 
     socket_path_ = server_addr;
 
+#if 0
     // Create the window we use for rendering the output we get from the
     // Android container. This will internally construct a Mir surface
     // and use the host EGL/GLES libraries for rendering.
     if (!showOpenGLSubwindow(0, 0, 0, width, height, width, height, 1.0f, 0))
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to setup GL based window"));
+#endif
 }
 
 std::string GLRendererServer::socket_path() const {

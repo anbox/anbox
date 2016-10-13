@@ -2,6 +2,7 @@ set(SOURCES
     ColorBuffer.cpp
     FbConfig.cpp
     FrameBuffer.cpp
+    LayerManager.cpp
     NativeSubWindow_delegate.cpp
     ReadBuffer.cpp
     RenderContext.cpp
@@ -9,7 +10,7 @@ set(SOURCES
     RenderServer.cpp
     RenderThread.cpp
     RenderThreadInfo.cpp
-    render_api.cpp
+    RenderApi.cpp
     RenderWindow.cpp
     SocketStream.cpp
     TcpStream.cpp

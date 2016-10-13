@@ -15,31 +15,49 @@
  *
  */
 
-#ifndef ANBOX_UBUNTU_WINDOW_H_
-#define ANBOX_UBUNTU_WINDOW_H_
-
-#include <EGL/egl.h>
+#ifndef LAYER_MANAGER_H_
+#define LAYER_MANAGER_H_
 
 #include <memory>
+
+#include <map>
 #include <vector>
+#include <string>
 
-#include <SDL.h>
+#include "FrameBuffer.h"
 
-namespace anbox {
-namespace ubuntu {
-class Window {
+struct LayerRect {
+    int top;
+    int left;
+    int right;
+    int bottom;
+};
+
+struct LayerInfo {
+    std::string name;
+    LayerRect source_crop;
+    LayerRect display_frame;
+    HandleType buffer_handle;
+};
+
+class LayerManager {
 public:
-    Window(int x, int y, int width, int height);
-    ~Window();
+    static std::shared_ptr<LayerManager> get();
 
-    EGLNativeWindowType native_window() const;
+    ~LayerManager();
+
+    void post_layer(const LayerInfo &layer);
+    void finish_cycle();
 
 private:
-    EGLNativeDisplayType native_display_;
-    EGLNativeWindowType native_window_;
-    SDL_Window *window_;
+    LayerManager();
+
+    struct Layer {
+        FrameBufferWindow *window;
+        bool updated;
+    };
+
+    std::map<std::string,Layer> layers_;
 };
-} // namespace bridge
-} // namespace anbox
 
 #endif

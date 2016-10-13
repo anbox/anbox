@@ -154,9 +154,6 @@ static char* getGLES1ExtensionString(EGLDisplay p_dpy)
 
 void FrameBuffer::finalize(){
     m_colorbuffers.clear();
-    if (m_useSubWindow) {
-        removeSubWindow();
-    }
     m_windows.clear();
     m_contexts.clear();
     s_egl.eglMakeCurrent(m_eglDisplay, NULL, NULL, NULL);
@@ -431,32 +428,19 @@ bool FrameBuffer::initialize(EGLNativeDisplayType nativeDisplay, int width, int 
 }
 
 FrameBuffer::FrameBuffer(int p_width, int p_height, bool useSubWindow) :
-    m_framebufferWidth(p_width),
-    m_framebufferHeight(p_height),
-    m_windowWidth(p_width),
-    m_windowHeight(p_height),
     m_useSubWindow(useSubWindow),
     m_configs(NULL),
     m_eglDisplay(EGL_NO_DISPLAY),
     m_colorBufferHelper(new ColorBufferHelper(this)),
-    m_eglSurface(EGL_NO_SURFACE),
     m_eglContext(EGL_NO_CONTEXT),
     m_pbufContext(EGL_NO_CONTEXT),
     m_prevContext(EGL_NO_CONTEXT),
     m_prevReadSurf(EGL_NO_SURFACE),
     m_prevDrawSurf(EGL_NO_SURFACE),
-    m_subWin((EGLNativeWindowType)0),
     m_textureDraw(NULL),
     m_lastPostedColorBuffer(0),
-    m_zRot(0.0f),
-    m_px(0),
-    m_py(0),
-    m_eglContextInitialized(false),
     m_statsNumFrames(0),
     m_statsStartTime(0LL),
-    m_onPost(NULL),
-    m_onPostContext(NULL),
-    m_fbImage(NULL),
     m_glVendor(NULL),
     m_glRenderer(NULL),
     m_glVersion(NULL)
@@ -468,147 +452,68 @@ FrameBuffer::~FrameBuffer() {
     delete m_textureDraw;
     delete m_configs;
     delete m_colorBufferHelper;
-    free(m_fbImage);
 }
 
-void FrameBuffer::setPostCallback(OnPostFn onPost, void* onPostContext)
-{
-    emugl::Mutex::AutoLock mutex(m_lock);
-    m_onPost = onPost;
-    m_onPostContext = onPostContext;
-    if (m_onPost && !m_fbImage) {
-        m_fbImage = (unsigned char*)malloc(4 * m_framebufferWidth * m_framebufferHeight);
-        if (!m_fbImage) {
-            ERR("out of memory, cancelling OnPost callback");
-            m_onPost = NULL;
-            m_onPostContext = NULL;
-            return;
-        }
+struct FrameBufferWindow {
+    EGLNativeWindowType native_window = 0;
+    EGLSurface surface = EGL_NO_SURFACE;
+};
+
+FrameBufferWindow* FrameBuffer::createWindow(int x, int y, int width, int height) {
+    m_lock.lock();
+
+    auto native_window = createSubWindow(0, x, y, width, height);
+    if (!native_window) {
+        m_lock.unlock();
+        return nullptr;
     }
-}
 
-static void subWindowRepaint(void* param) {
-    auto fb = static_cast<FrameBuffer*>(param);
-    fb->repost();
-}
+    auto window = new FrameBufferWindow;
+    window->native_window = native_window;
 
-bool FrameBuffer::setupSubWindow(FBNativeWindowType p_window,
-                                 int wx,
-                                 int wy,
-                                 int ww,
-                                 int wh,
-                                 int fbw,
-                                 int fbh,
-                                 float dpr,
-                                 float zRot) {
-    bool success = false;
-
-    if (!m_useSubWindow) {
-        ERR("%s: Cannot create native sub-window in this configuration\n",
-            __FUNCTION__);
-        return false;
+    window->surface = s_egl.eglCreateWindowSurface(
+                m_eglDisplay, m_eglConfig, window->native_window, nullptr);
+    if (window->surface == EGL_NO_SURFACE) {
+        destroyWindow(window);
+        m_lock.unlock();
+        return nullptr;
     }
+
+    if (!bindWindow_locked(window)) {
+        destroyWindow(window);
+        m_lock.unlock();
+        return nullptr;
+    }
+
+    s_gles2.glViewport(0, 0, width, height);
+    s_gles2.glClear(GL_COLOR_BUFFER_BIT |
+                    GL_DEPTH_BUFFER_BIT |
+                    GL_STENCIL_BUFFER_BIT);
+    s_egl.eglSwapBuffers(m_eglDisplay, window->surface);
+
+    unbind_locked();
+
+    m_lock.unlock();
+
+    return window;
+}
+
+void FrameBuffer::destroyWindow(FrameBufferWindow *window) {
+    if (!window)
+        return;
 
     m_lock.lock();
 
-    // If the subwindow doesn't exist, create it with the appropriate dimensions
-    if (!m_subWin) {
+    s_egl.eglMakeCurrent(m_eglDisplay, nullptr, nullptr, nullptr);
 
-        // Create native subwindow for FB display output
-        m_x = wx;
-        m_y = wy;
-        m_windowWidth = ww;
-        m_windowHeight = wh;
+    if (window->surface != EGL_NO_SURFACE)
+        s_egl.eglDestroySurface(m_eglDisplay, window->surface);
 
-        m_subWin = createSubWindow(p_window, m_x, m_y,
-                                   m_windowWidth, m_windowHeight, subWindowRepaint, this);
-        if (m_subWin) {
-            m_nativeWindow = p_window;
+    destroySubWindow(window->native_window);
 
-            // create EGLSurface from the generated subwindow
-            m_eglSurface = s_egl.eglCreateWindowSurface(m_eglDisplay,
-                                                        m_eglConfig,
-                                                        m_subWin,
-                                                        NULL);
-
-            if (m_eglSurface == EGL_NO_SURFACE) {
-                // NOTE: This can typically happen with software-only renderers like OSMesa.
-                destroySubWindow(m_subWin);
-                m_subWin = (EGLNativeWindowType)0;
-            } else {
-                m_px = 0;
-                m_py = 0;
-
-                success = true;
-            }
-        }
-    }
-
-    // At this point, if the subwindow doesn't exist, it is because it either couldn't be created
-    // in the first place or the EGLSurface couldn't be created.
-    if (m_subWin && bindSubwin_locked()) {
-
-        // Only attempt to update window geometry if anything has actually changed.
-        if (!(m_x == wx &&
-              m_y == wy &&
-              m_windowWidth == ww &&
-              m_windowHeight == wh)) {
-
-            m_x = wx;
-            m_y = wy;
-            m_windowWidth = ww;
-            m_windowHeight = wh;
-
-            success = ::moveSubWindow(m_nativeWindow, m_subWin,
-                                      m_x, m_y, m_windowWidth, m_windowHeight);
-
-        // Otherwise, ensure that at least viewport parameters are properly updated.
-        } else {
-            success = true;
-        }
-
-        if (success) {
-            // Subwin creation or movement was successful,
-            // update viewport and z rotation and draw
-            // the last posted color buffer.
-            s_gles2.glViewport(0, 0, fbw * dpr, fbh * dpr);
-            m_dpr = dpr;
-            m_zRot = zRot;
-            if (m_lastPostedColorBuffer) {
-                post(m_lastPostedColorBuffer, false);
-            } else {
-                s_gles2.glClear(GL_COLOR_BUFFER_BIT |
-                                GL_DEPTH_BUFFER_BIT |
-                                GL_STENCIL_BUFFER_BIT);
-                s_egl.eglSwapBuffers(m_eglDisplay, m_eglSurface);
-            }
-        }
-        unbind_locked();
-    }
+    delete window;
 
     m_lock.unlock();
-    return success;
-}
-
-bool FrameBuffer::removeSubWindow() {
-    if (!m_useSubWindow) {
-        ERR("%s: Cannot remove native sub-window in this configuration\n",
-            __FUNCTION__);
-        return false;
-    }
-    bool removed = false;
-    m_lock.lock();
-    if (m_subWin) {
-        s_egl.eglMakeCurrent(m_eglDisplay, NULL, NULL, NULL);
-        s_egl.eglDestroySurface(m_eglDisplay, m_eglSurface);
-        destroySubWindow(m_subWin);
-
-        m_eglSurface = EGL_NO_SURFACE;
-        m_subWin = (EGLNativeWindowType)0;
-        removed = true;
-    }
-    m_lock.unlock();
-    return removed;
 }
 
 HandleType FrameBuffer::genHandle()
@@ -1021,23 +926,16 @@ bool FrameBuffer::bind_locked()
     return true;
 }
 
-bool FrameBuffer::bindSubwin_locked()
+bool FrameBuffer::bindWindow_locked(FrameBufferWindow *window)
 {
     EGLContext prevContext = s_egl.eglGetCurrentContext();
     EGLSurface prevReadSurf = s_egl.eglGetCurrentSurface(EGL_READ);
     EGLSurface prevDrawSurf = s_egl.eglGetCurrentSurface(EGL_DRAW);
 
-    if (!s_egl.eglMakeCurrent(m_eglDisplay, m_eglSurface,
-                              m_eglSurface, m_eglContext)) {
+    if (!s_egl.eglMakeCurrent(m_eglDisplay, window->surface,
+                              window->surface, m_eglContext)) {
         ERR("eglMakeCurrent failed\n");
         return false;
-    }
-
-    //
-    // initialize GL state in eglContext if not yet initilaized
-    //
-    if (!m_eglContextInitialized) {
-        m_eglContextInitialized = true;
     }
 
     m_prevContext = prevContext;
@@ -1059,63 +957,36 @@ bool FrameBuffer::unbind_locked()
     return true;
 }
 
-bool FrameBuffer::post(HandleType p_colorbuffer, bool needLock)
+bool FrameBuffer::post(FrameBufferWindow *window, HandleType p_colorbuffer, bool needLock)
 {
-    if (needLock) {
+    if (!window)
+        return false;
+
+    printf("%s window %p\n", __func__, window);
+
+    if (needLock)
         m_lock.lock();
-    }
-    bool ret = false;
+
+    bool ret;
 
     ColorBufferMap::iterator c( m_colorbuffers.find(p_colorbuffer) );
-    if (c == m_colorbuffers.end()) {
+    if (c == m_colorbuffers.end())
         goto EXIT;
-    }
 
     m_lastPostedColorBuffer = p_colorbuffer;
 
-    if (m_subWin) {
-        // bind the subwindow eglSurface
-        if (!bindSubwin_locked()) {
-            ERR("FrameBuffer::post(): eglMakeCurrent failed\n");
-            goto EXIT;
-        }
+    if (!bindWindow_locked(window))
+        goto EXIT;
 
-        // get the viewport
-        GLint vp[4];
-        s_gles2.glGetIntegerv(GL_VIEWPORT, vp);
+    s_gles2.glClear(GL_COLOR_BUFFER_BIT);
 
-        // divide by device pixel ratio because windowing coordinates ignore DPR,
-        // but the framebuffer includes DPR
-        vp[2] = vp[2] / m_dpr;
-        vp[3] = vp[3] / m_dpr;
-
-        // find the x and y values at the origin when "fully scrolled"
-        // multiply by 2 because the texture goes from -1 to 1, not 0 to 1
-        float fx = 2.f * (vp[2] - m_windowWidth) / (float) vp[2];
-        float fy = 2.f * (vp[3] - m_windowHeight) / (float) vp[3];
-
-        // finally, compute translation values
-        float dx = m_px * fx;
-        float dy = m_py * fy;
-
-        //
-        // render the color buffer to the window
-        //
-        if (m_zRot != 0.0f) {
-            s_gles2.glClear(GL_COLOR_BUFFER_BIT);
-        }
-        ret = (*c).second.cb->post(m_zRot, dx, dy);
-        if (ret) {
-            s_egl.eglSwapBuffers(m_eglDisplay, m_eglSurface);
-        }
-
-        // restore previous binding
-        unbind_locked();
-    } else {
-        // If there is no sub-window, don't display anything, the client will
-        // rely on m_onPost to get the pixels instead.
-        ret = true;
+    ret = (*c).second.cb->post(0.0f, 0, 0);
+    if (ret) {
+        s_egl.eglSwapBuffers(m_eglDisplay, window->surface);
     }
+
+    // restore previous binding
+    unbind_locked();
 
     //
     // output FPS statistics
@@ -1131,30 +1002,12 @@ bool FrameBuffer::post(HandleType p_colorbuffer, bool needLock)
         }
     }
 
-    //
-    // Send framebuffer (without FPS overlay) to callback
-    //
-    if (m_onPost) {
-        (*c).second.cb->readback(m_fbImage);
-        m_onPost(m_onPostContext,
-                 m_framebufferWidth,
-                 m_framebufferHeight,
-                 -1,
-                 GL_RGBA,
-                 GL_UNSIGNED_BYTE,
-                 m_fbImage);
-    }
-
 EXIT:
+    if (!ret)
+        printf("post: FAILED\n");
+
     if (needLock) {
         m_lock.unlock();
     }
     return ret;
-}
-
-bool FrameBuffer::repost() {
-    if (m_lastPostedColorBuffer) {
-        return post(m_lastPostedColorBuffer);
-    }
-    return false;
 }

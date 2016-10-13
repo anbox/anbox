@@ -42,3 +42,6 @@ rcUpdateColorBuffer
 
 rcCloseColorBuffer
     flag flushOnEncode
+
+rcPostLayer
+    len name (strlen(name) + 1)

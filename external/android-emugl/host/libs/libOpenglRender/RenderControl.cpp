@@ -20,8 +20,12 @@
 #include "FrameBuffer.h"
 #include "RenderThreadInfo.h"
 #include "ChecksumCalculatorThreadInfo.h"
+#include "LayerManager.h"
 
 #include "OpenGLESDispatch/EGLDispatch.h"
+
+#include <map>
+#include <string>
 
 static const GLint rendererVersion = 1;
 
@@ -156,10 +160,12 @@ static EGLint rcGetFBParam(EGLint param)
 
     switch(param) {
         case FB_WIDTH:
-            ret = fb->getWidth();
+            // FIXME DISPLAY MANAGER!!
+            ret = 1920;
             break;
         case FB_HEIGHT:
-            ret = fb->getHeight();
+        // FIXME DISPLAY MANAGER!!
+            ret = 1080;
             break;
         case FB_XDPI:
             ret = 72; // XXX: should be implemented
@@ -306,7 +312,7 @@ static void rcFBPost(uint32_t colorBuffer)
         return;
     }
 
-    fb->post(colorBuffer);
+    fb->post(nullptr, colorBuffer);
 }
 
 static void rcFBSetSwapInterval(EGLint interval)
@@ -392,6 +398,56 @@ static void rcSelectChecksumCalculator(uint32_t protocol, uint32_t reserved) {
     ChecksumCalculatorThreadInfo::setVersion(protocol);
 }
 
+int rcGetNumDisplays() {
+    return 1;
+}
+
+int rcGetDisplayWidth(uint32_t display_id) {
+    printf("%s: display_id=%d\n", __func__, display_id);
+    return 1920;
+}
+
+int rcGetDisplayHeight(uint32_t display_id) {
+    printf("%s: display_id=%d\n", __func__, display_id);
+    return 1080;
+}
+
+int rcGetDisplayDpiX(uint32_t display_id) {
+    printf("%s: display_id=%d\n", __func__, display_id);
+    return 120;
+}
+
+int rcGetDisplayDpiY(uint32_t display_id) {
+    printf("%s: display_id=%d\n", __func__, display_id);
+    return 120;
+}
+
+int rcGetDisplayVsyncPeriod(uint32_t display_id) {
+    printf("%s: display_id=%d\n", __func__, display_id);
+    return 1;
+}
+
+void rcPostLayer(const char *name, uint32_t color_buffer,
+                 int32_t sourceCropLeft, int32_t sourceCropTop,
+                 int32_t sourceCropRight, int32_t sourceCropBottom,
+                 int32_t displayFrameLeft, int32_t displayFrameTop,
+                 int32_t displayFrameRight, int32_t displayFrameBottom) {
+
+    printf("%s: name='%s' color_buffer=%d {%d,%d,%d,%d}, {%d,%d,%d,%d}\n",
+           __func__, name, color_buffer,
+           sourceCropLeft, sourceCropTop, sourceCropRight, sourceCropBottom,
+           displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom);
+
+    LayerRect source_crop{sourceCropLeft, sourceCropTop, sourceCropRight, sourceCropBottom};
+    LayerRect display_frame{displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom};
+    LayerManager::get()->post_layer({name, source_crop, display_frame, color_buffer});
+}
+
+void rcPostAllLayersDone()
+{
+    LayerManager::get()->finish_cycle();
+}
+
 void initRenderControlContext(renderControl_decoder_context_t *dec)
 {
     dec->rcGetRendererVersion = rcGetRendererVersion;
@@ -423,4 +479,12 @@ void initRenderControlContext(renderControl_decoder_context_t *dec)
     dec->rcCreateClientImage = rcCreateClientImage;
     dec->rcDestroyClientImage = rcDestroyClientImage;
     dec->rcSelectChecksumCalculator = rcSelectChecksumCalculator;
+    dec->rcGetNumDisplays = rcGetNumDisplays;
+    dec->rcGetDisplayWidth = rcGetDisplayWidth;
+    dec->rcGetDisplayHeight = rcGetDisplayHeight;
+    dec->rcGetDisplayDpiX = rcGetDisplayDpiX;
+    dec->rcGetDisplayDpiY = rcGetDisplayDpiY;
+    dec->rcGetDisplayVsyncPeriod = rcGetDisplayVsyncPeriod;
+    dec->rcPostLayer = rcPostLayer;
+    dec->rcPostAllLayersDone = rcPostAllLayersDone;
 }

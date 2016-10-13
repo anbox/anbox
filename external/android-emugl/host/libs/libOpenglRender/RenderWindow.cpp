@@ -138,69 +138,6 @@ struct RenderWindowMessage {
                 result = true;
                 break;
 
-            case CMD_SET_POST_CALLBACK:
-                D("CMD_SET_POST_CALLBACK\n");
-                fb = FrameBuffer::getFB();
-                fb->setPostCallback(msg.set_post_callback.on_post,
-                                    msg.set_post_callback.on_post_context);
-                result = true;
-                break;
-
-            case CMD_SETUP_SUBWINDOW:
-                D("CMD_SETUP_SUBWINDOW: parent=%p wx=%d wy=%d ww=%d wh=%d fbw=%d fbh=%d dpr=%f rotation=%f\n",
-                    (void*)msg.subwindow.parent,
-                    msg.subwindow.wx,
-                    msg.subwindow.wy,
-                    msg.subwindow.ww,
-                    msg.subwindow.wh,
-                    msg.subwindow.fbw,
-                    msg.subwindow.fbh,
-                    msg.subwindow.dpr,
-                    msg.subwindow.rotation);
-                result = FrameBuffer::getFB()->setupSubWindow(
-                        msg.subwindow.parent,
-                        msg.subwindow.wx,
-                        msg.subwindow.wy,
-                        msg.subwindow.ww,
-                        msg.subwindow.wh,
-                        msg.subwindow.fbw,
-                        msg.subwindow.fbh,
-                        msg.subwindow.dpr,
-                        msg.subwindow.rotation);
-                break;
-
-            case CMD_REMOVE_SUBWINDOW:
-                D("CMD_REMOVE_SUBWINDOW\n");
-                result = FrameBuffer::getFB()->removeSubWindow();
-                break;
-
-            case CMD_SET_ROTATION:
-                D("CMD_SET_ROTATION rotation=%f\n", msg.rotation);
-                fb = FrameBuffer::getFB();
-                if (fb) {
-                    fb->setDisplayRotation(msg.rotation);
-                    result = true;
-                }
-                break;
-
-            case CMD_SET_TRANSLATION:
-                D("CMD_SET_TRANSLATION translation=%f,%f\n", msg.trans.px, msg.trans.py);
-                fb = FrameBuffer::getFB();
-                if (fb) {
-                    fb->setDisplayTranslation(msg.trans.px, msg.trans.py);
-                    result = true;
-                }
-                break;
-
-            case CMD_REPAINT:
-                D("CMD_REPAINT\n");
-                fb = FrameBuffer::getFB();
-                if (fb) {
-                    fb->repost();
-                    result = true;
-                }
-                break;
-
             default:
                 ;
         }
@@ -368,16 +305,6 @@ bool RenderWindow::getHardwareStrings(const char** vendor,
       *vendor, *renderer, *version);
 
     return true;
-}
-
-void RenderWindow::setPostCallback(OnPostFn onPost, void* onPostContext) {
-    D("Entering\n");
-    RenderWindowMessage msg;
-    msg.cmd = CMD_SET_POST_CALLBACK;
-    msg.set_post_callback.on_post = onPost;
-    msg.set_post_callback.on_post_context = onPostContext;
-    (void) processMessage(msg);
-    D("Exiting\n");
 }
 
 bool RenderWindow::setupSubWindow(FBNativeWindowType window,

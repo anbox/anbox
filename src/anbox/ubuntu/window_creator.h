@@ -27,6 +27,9 @@
 #include <SDL.h>
 
 namespace anbox {
+namespace input {
+class Device;
+} // namespace input
 namespace ubuntu {
 class MirDisplayConnection;
 class Window;
