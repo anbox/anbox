@@ -9,6 +9,5 @@ LOCAL_PRIVILEGED_MODULE := true
 LOCAL_OVERRIDES_PACKAGES := \
 	Home \
 	Launcher2 \
-	Launcher3 \
-	SystemUI
+	Launcher3
 include $(BUILD_PACKAGE)
