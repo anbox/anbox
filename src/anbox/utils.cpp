@@ -151,5 +151,14 @@ void ensure_paths(const std::vector<std::string> &paths) {
             fs::create_directories(fs::path(path));
     }
 }
+
+std::string prefix_dir_from_env(const std::string &path, const std::string &env_var) {
+    static auto snap_data_path = anbox::utils::get_env_value(env_var, "");
+    auto result = path;
+    if (!snap_data_path.empty())
+        result = anbox::utils::string_format("%s%s", snap_data_path, path);
+    return result;
+}
+
 } // namespace utils
 } // namespace anbox

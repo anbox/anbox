@@ -24,28 +24,18 @@
 
 namespace fs = boost::filesystem;
 
-namespace {
-std::string prefix_dir_from_env(const std::string &path, const std::string &env_var) {
-    static auto snap_data_path = anbox::utils::get_env_value(env_var, "");
-    auto result = path;
-    if (!snap_data_path.empty())
-        result = anbox::utils::string_format("%s%s", snap_data_path, path);
-    return result;
-}
-}
-
 namespace anbox {
 namespace config {
 std::string in_snap_dir(const std::string &path) {
-    return prefix_dir_from_env(path, "SNAP");
+    return utils::prefix_dir_from_env(path, "SNAP");
 }
 
 std::string in_snap_data_dir(const std::string &path) {
-    return prefix_dir_from_env(path, "SNAP_COMMON");
+    return utils::prefix_dir_from_env(path, "SNAP_COMMON");
 }
 
 std::string in_snap_user_data_dir(const std::string &path) {
-    return prefix_dir_from_env(path, "SNAP_USER_COMMON");
+    return utils::prefix_dir_from_env(path, "SNAP_USER_COMMON");
 }
 
 std::string home_dir() {
