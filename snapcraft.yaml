@@ -14,6 +14,8 @@ apps:
   container-manager:
     command: bin/container-manager.sh
     # daemon: simple
+  shell:
+    command: bin/container-shell.sh
 
 parts:
   android-rootfs:
@@ -27,9 +29,11 @@ parts:
     files:
       scripts/snap-wrapper.sh: bin/anbox-wrapper.sh
       scripts/container-manager.sh: bin/container-manager.sh
+      scripts/container-shell.sh: bin/container-shell.sh
     snap:
       - bin/anbox-wrapper.sh
       - bin/container-manager.sh
+      - bin/container-shell.sh
   kernel-module-binder:
     plugin: make
     source: kernel/binder
