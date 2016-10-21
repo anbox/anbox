@@ -50,6 +50,7 @@ private:
     std::shared_ptr<Window> current_window_;
     std::thread event_thread_;
     bool event_thread_running_;
+    graphics::WindowCreator::DisplayInfo display_info_;
 };
 } // namespace bridge
 } // namespace anbox

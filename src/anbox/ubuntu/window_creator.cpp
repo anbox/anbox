@@ -29,12 +29,21 @@ namespace ubuntu {
 WindowCreator::WindowCreator(const std::shared_ptr<input::Manager> &input_manager) :
     graphics::WindowCreator(input_manager),
     input_manager_(input_manager),
-    event_thread_running_(false) {
+    event_thread_running_(false),
+    display_info_({1920, 1080}) {
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize SDL"));
 
     event_thread_ = std::thread(&WindowCreator::process_events, this);
+
+    SDL_DisplayMode display_mode;
+    // FIXME statically just check the first (primary) display for its mode;
+    // once we get multi-monitor support we need to do this better.
+    if (SDL_GetCurrentDisplayMode(0, &display_mode) == 0) {
+        display_info_.horizontal_resolution = display_mode.w;
+        display_info_.vertical_resolution = display_mode.h;
+    }
 }
 
 WindowCreator::~WindowCreator() {
@@ -107,8 +116,7 @@ void WindowCreator::destroy_window(EGLNativeWindowType win) {
 }
 
 WindowCreator::DisplayInfo WindowCreator::display_info() const {
-    // FIXME: force for now until we have real detection for this
-    return {1280, 720};
+    return display_info_;
 }
 
 EGLNativeDisplayType WindowCreator::native_display() const {
