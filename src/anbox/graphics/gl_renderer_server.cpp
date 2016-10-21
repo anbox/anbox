@@ -36,9 +36,10 @@ GLRendererServer::GLRendererServer(const std::shared_ptr<WindowCreator> &window_
         ::setenv("ANDROID_GLESv1_LIB", "libGLESv2.so.2", 0);
         ::setenv("ANDROID_GLESv2_LIB", "libGLESv2.so.2", 0);
     } else {
-        ::setenv("ANDROID_EGL_LIB", utils::string_format("%s/libEGL_translator.so", TRANSLATOR_INSTALL_DIR).c_str(), 0);
-        ::setenv("ANDROID_GLESv1_LIB", utils::string_format("%s/libGLES_CM_translator.so", TRANSLATOR_INSTALL_DIR).c_str(), 0);
-        ::setenv("ANDROID_GLESv2_LIB", utils::string_format("%s/libGLES_V2_translator.so", TRANSLATOR_INSTALL_DIR).c_str(), 0);
+        auto translator_dir = utils::prefix_dir_from_env(TRANSLATOR_INSTALL_DIR, "SNAP");
+        ::setenv("ANDROID_EGL_LIB", utils::string_format("%s/libEGL_translator.so", translator_dir).c_str(), 0);
+        ::setenv("ANDROID_GLESv1_LIB", utils::string_format("%s/libGLES_CM_translator.so", translator_dir).c_str(), 0);
+        ::setenv("ANDROID_GLESv2_LIB", utils::string_format("%s/libGLES_V2_translator.so", translator_dir).c_str(), 0);
     }
 
     if (!initLibrary())
