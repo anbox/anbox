@@ -13,7 +13,7 @@ apps:
     command: bin/anbox-wrapper.sh run
   container-manager:
     command: bin/container-manager.sh
-    # daemon: simple
+    daemon: simple
   shell:
     command: bin/container-shell.sh
 
