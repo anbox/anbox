@@ -6,5 +6,6 @@ $SNAP/bin/lxc-attach \
 	--clear-env \
 	--set-var PATH=/system/bin:/system/sbin:/system/xbin \
 	--set-var ANDROID_DATA=/data \
+	--set-var ANDROID_ROOT=/system \
 	-- \
 	/system/bin/sh
