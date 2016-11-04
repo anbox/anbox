@@ -45,7 +45,7 @@
 namespace fs = boost::filesystem;
 
 namespace {
-class NullConnectionCreator : public anbox::network::ConnectionCreator {
+class NullConnectionCreator : public anbox::network::ConnectionCreator<boost::asio::local::stream_protocol> {
 public:
     void create_connection_for(
             std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket) override {
@@ -94,10 +94,12 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
 
         // Socket which will be used by the qemud service inside the Android
         // container for things like sensors, vibrtator etc.
+#if 0
         auto qemud_connector = std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/qemud", config::socket_path()),
             rt,
             std::make_shared<NullConnectionCreator>());
+#endif
 
         // The qemu pipe is used as a very fast communication channel between guest
         // and host for things like the GLES emulation/translation, the RIL or ADB.
@@ -135,7 +137,7 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         container::Client container(rt);
         container::Configuration container_configuration;
         container_configuration.bind_mounts = {
-            { qemud_connector->socket_file(), "/dev/qemud" },
+            // { qemud_connector->socket_file(), "/dev/qemud" },
             { qemu_pipe_connector->socket_file(), "/dev/qemu_pipe" },
             { bridge_connector->socket_file(), "/dev/anbox_bridge" },
             { config::host_input_device_path(), "/dev/input" },

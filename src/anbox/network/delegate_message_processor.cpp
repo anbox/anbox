@@ -15,26 +15,22 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_LOCAL_SOCKET_MESSENGER_H_
-#define ANBOX_NETWORK_LOCAL_SOCKET_MESSENGER_H_
-
-#include "anbox/network/base_socket_messenger.h"
-#include "anbox/runtime.h"
-
-#include <boost/asio/local/stream_protocol.hpp>
+#include "anbox/network/delegate_message_processor.h"
 
 namespace anbox {
 namespace network {
-class LocalSocketMessenger : public BaseSocketMessenger<boost::asio::local::stream_protocol> {
-public:
-    LocalSocketMessenger(std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket);
-    LocalSocketMessenger(const std::string &path, const std::shared_ptr<Runtime> &rt);
-    ~LocalSocketMessenger();
+DelegateMessageProcessor::DelegateMessageProcessor(std::function<bool(const std::vector<std::uint8_t>&)> process_data) :
+    process_data_(process_data) {
+}
 
-private:
-    std::shared_ptr<boost::asio::local::stream_protocol::socket> socket_;
-};
+DelegateMessageProcessor::~DelegateMessageProcessor() {
+}
+
+bool DelegateMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
+    if (!process_data_)
+        return false;
+
+    return process_data_(data);
+}
 } // namespace network
 } // namespace anbox
-
-#endif

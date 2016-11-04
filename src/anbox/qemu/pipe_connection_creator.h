@@ -31,7 +31,7 @@
 
 namespace anbox {
 namespace qemu {
-class PipeConnectionCreator : public network::ConnectionCreator {
+class PipeConnectionCreator : public network::ConnectionCreator<boost::asio::local::stream_protocol> {
 public:
     PipeConnectionCreator(
             const std::shared_ptr<Runtime> &rt,
@@ -40,7 +40,7 @@ public:
     ~PipeConnectionCreator() noexcept;
 
     void create_connection_for(
-        std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket) override;
+        std::shared_ptr<boost::asio::basic_stream_socket<boost::asio::local::stream_protocol>> const& socket) override;
 
     enum class client_type {
         invalid,
@@ -51,6 +51,7 @@ public:
         qemud_camera,
         qemud_fingerprint,
         qemud_gsm,
+        qemud_adb,
         bootanimation,
     };
 

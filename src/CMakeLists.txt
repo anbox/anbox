@@ -75,10 +75,13 @@ set(SOURCES
     anbox/network/connections.h
     anbox/network/socket_connection.cpp
     anbox/network/socket_messenger.cpp
-    anbox/network/delegate_message_processor.h
+    anbox/network/delegate_message_processor.cpp
     anbox/network/delegate_connection_creator.h
+    anbox/network/base_socket_messenger.cpp
     anbox/network/local_socket_messenger.cpp
+    anbox/network/tcp_socket_messenger.cpp
     anbox/network/socket_helper.cpp
+    anbox/network/tcp_socket_connector.cpp
 
     anbox/rpc/channel.cpp
     anbox/rpc/pending_call_cache.cpp
@@ -107,6 +110,7 @@ set(SOURCES
     anbox/qemu/gsm_message_processor.cpp
     anbox/qemu/at_parser.cpp
     anbox/qemu/bootanimation_message_processor.cpp
+    anbox/qemu/adb_message_processor.cpp
 
     anbox/bridge/platform_message_processor.cpp
     anbox/bridge/platform_api_skeleton.cpp

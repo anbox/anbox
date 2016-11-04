@@ -18,7 +18,7 @@
 #include "anbox/container/service.h"
 #include "anbox/network/delegate_connection_creator.h"
 #include "anbox/network/delegate_message_processor.h"
-#include "anbox/network/socket_messenger.h"
+#include "anbox/network/local_socket_messenger.h"
 #include "anbox/qemu/null_message_processor.h"
 #include "anbox/rpc/pending_call_cache.h"
 #include "anbox/rpc/channel.h"
@@ -33,7 +33,7 @@ namespace container {
 std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt) {
     auto sp = std::make_shared<Service>(rt);
 
-    auto delegate_connector = std::make_shared<network::DelegateConnectionCreator>(
+    auto delegate_connector = std::make_shared<network::DelegateConnectionCreator<boost::asio::local::stream_protocol>>(
             [sp](std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket) {
         sp->new_client(socket);
     });
@@ -69,7 +69,7 @@ void Service::new_client(std::shared_ptr<boost::asio::local::stream_protocol::so
         return;
     }
 
-    auto const messenger = std::make_shared<network::SocketMessenger>(socket);
+    auto const messenger = std::make_shared<network::LocalSocketMessenger>(socket);
 
     DEBUG("Got connection from pid %d", messenger->creds().pid());
 
@@ -82,6 +82,7 @@ void Service::new_client(std::shared_ptr<boost::asio::local::stream_protocol::so
 
     auto const& connection = std::make_shared<network::SocketConnection>(
                 messenger, messenger, next_id(), connections_, processor);
+    connection->set_name("container-service");
 
     connections_->add(connection);
     connection->read_next_message();

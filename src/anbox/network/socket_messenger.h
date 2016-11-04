@@ -21,7 +21,6 @@
 
 #include <mutex>
 
-#include "anbox/common/fd_sets.h"
 #include "anbox/network/message_sender.h"
 #include "anbox/network/message_receiver.h"
 #include "anbox/network/credentials.h"
@@ -31,22 +30,10 @@ namespace network {
 class SocketMessenger : public MessageSender,
                         public MessageReceiver {
 public:
-    SocketMessenger(std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket);
-
-    Credentials creds() const;
-
-    void send(char const* data, size_t length) override;
-
-    void async_receive_msg(AnboxReadHandler const& handle, boost::asio::mutable_buffers_1 const &buffer) override;
-    boost::system::error_code receive_msg(boost::asio::mutable_buffers_1 const& buffer) override;
-    size_t available_bytes() override;
-
-
-private:
-    std::shared_ptr<boost::asio::local::stream_protocol::socket> socket;
-    anbox::Fd socket_fd;
-
-    std::mutex message_lock;
+    virtual Credentials creds() const = 0;
+    virtual unsigned short local_port() const = 0;
+    virtual void set_no_delay() = 0;
+    virtual void close() = 0;
 };
 } // namespace network
 } // namespace anbox

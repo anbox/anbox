@@ -18,13 +18,17 @@
 #include "anbox/network/local_socket_messenger.h"
 #include "anbox/network/socket_helper.h"
 #include "anbox/utils.h"
+#include "anbox/logger.h"
 
 #include <boost/system/error_code.hpp>
 
 namespace anbox {
 namespace network {
-LocalSocketMessenger::LocalSocketMessenger(const std::string &path,
-                                           const std::shared_ptr<Runtime> &rt) :
+LocalSocketMessenger::LocalSocketMessenger(std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket) :
+    BaseSocketMessenger(socket) {
+}
+
+LocalSocketMessenger::LocalSocketMessenger(const std::string &path, const std::shared_ptr<Runtime> &rt) :
     socket_(std::make_shared<boost::asio::local::stream_protocol::socket>(rt->service())) {
 
     boost::system::error_code err;
@@ -34,26 +38,10 @@ LocalSocketMessenger::LocalSocketMessenger(const std::string &path,
         BOOST_THROW_EXCEPTION(std::runtime_error(msg));
     }
 
-    messenger_ = std::make_shared<SocketMessenger>(socket_);
+    setup(socket_);
 }
 
 LocalSocketMessenger::~LocalSocketMessenger() {
-}
-
-void LocalSocketMessenger::send(char const* data, size_t length) {
-    messenger_->send(data, length);
-}
-
-void LocalSocketMessenger::async_receive_msg(AnboxReadHandler const& handle, boost::asio::mutable_buffers_1 const &buffer) {
-    messenger_->async_receive_msg(handle, buffer);
-}
-
-boost::system::error_code LocalSocketMessenger::receive_msg(boost::asio::mutable_buffers_1 const& buffer) {
-    return messenger_->receive_msg(buffer);
-}
-
-size_t LocalSocketMessenger::available_bytes() {
-    return messenger_->available_bytes();
 }
 } // namespace network
 } // namespace anbox

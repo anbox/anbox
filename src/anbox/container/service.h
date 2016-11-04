@@ -42,7 +42,7 @@ private:
     std::shared_ptr<common::Dispatcher> dispatcher_;
     std::shared_ptr<network::PublishedSocketConnector> connector_;
     std::atomic<int> next_connection_id_;
-    std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;
+    std::shared_ptr<network::Connections<network::SocketConnection>> connections_;
     std::shared_ptr<Container> backend_;
 };
 } // namespace container

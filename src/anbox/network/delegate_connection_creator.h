@@ -25,21 +25,22 @@
 
 namespace anbox {
 namespace network {
-class DelegateConnectionCreator : public ConnectionCreator {
+template<typename stream_protocol>
+class DelegateConnectionCreator : public ConnectionCreator<stream_protocol> {
 public:
-    DelegateConnectionCreator(std::function<void(std::shared_ptr<boost::asio::local::stream_protocol::socket> const&)> delegate) :
+    DelegateConnectionCreator(std::function<void(std::shared_ptr<boost::asio::basic_stream_socket<stream_protocol>> const&)> delegate) :
         delegate_(delegate) {
     }
 
     void create_connection_for(
-            std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket) override {
+            std::shared_ptr<boost::asio::basic_stream_socket<stream_protocol>> const& socket) override {
         if (delegate_)
             delegate_(socket);
         else
             socket->close();
     }
 private:
-    std::function<void(std::shared_ptr<boost::asio::local::stream_protocol::socket> const&)> delegate_;
+    std::function<void(std::shared_ptr<boost::asio::basic_stream_socket<stream_protocol>> const&)> delegate_;
 };
 } // namespace network
 } // namespace anbox

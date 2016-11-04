@@ -18,7 +18,7 @@
 #include "anbox/input/device.h"
 #include "anbox/network/delegate_connection_creator.h"
 #include "anbox/network/delegate_message_processor.h"
-#include "anbox/network/socket_messenger.h"
+#include "anbox/network/local_socket_messenger.h"
 #include "anbox/qemu/null_message_processor.h"
 #include "anbox/logger.h"
 
@@ -29,7 +29,7 @@ namespace input {
 std::shared_ptr<Device> Device::create(const std::string &path, const std::shared_ptr<Runtime> &runtime) {
     auto sp = std::make_shared<Device>();
 
-    auto delegate_connector = std::make_shared<network::DelegateConnectionCreator>(
+    auto delegate_connector = std::make_shared<network::DelegateConnectionCreator<boost::asio::local::stream_protocol>>(
             [sp](std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket) {
         sp->new_client(socket);
     });
@@ -152,11 +152,11 @@ int Device::next_id() {
 }
 
 void Device::new_client(std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket) {
-    auto const messenger = std::make_shared<network::SocketMessenger>(socket);
+    auto const messenger = std::make_shared<network::LocalSocketMessenger>(socket);
     auto const& connection = std::make_shared<network::SocketConnection>(
                 messenger, messenger, next_id(), connections_,
                 std::make_shared<qemu::NullMessageProcessor>());
-
+    connection->set_name("input-device");
     connections_->add(connection);
 
     // Send all necessary information about our device so that the remote

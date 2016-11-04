@@ -18,7 +18,7 @@
 
 #include "anbox/rpc/connection_creator.h"
 #include "anbox/rpc/message_processor.h"
-#include "anbox/network/socket_messenger.h"
+#include "anbox/network/local_socket_messenger.h"
 #include "anbox/logger.h"
 
 #include <string>
@@ -47,11 +47,12 @@ void ConnectionCreator::create_connection_for(
         return;
     }
 
-    auto const messenger = std::make_shared<network::SocketMessenger>(socket);
+    auto const messenger = std::make_shared<network::LocalSocketMessenger>(socket);
     auto const processor = message_processor_factory_(messenger);
 
     auto const& connection = std::make_shared<network::SocketConnection>(
                 messenger, messenger, next_id(), connections_, processor);
+    connection->set_name("rpc");
     connections_->add(connection);
     connection->read_next_message();
 }

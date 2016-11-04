@@ -42,6 +42,10 @@ public:
 
     ~SocketConnection() noexcept;
 
+    void set_name(const std::string &name) { name_ = name; }
+
+    std::shared_ptr<MessageSender> message_sender() const { return message_sender_; }
+
     int id() const { return id_; }
 
     void send(char const* data, size_t length);
@@ -50,12 +54,13 @@ public:
 private:
     void on_read_size(const boost::system::error_code& ec, std::size_t bytes_read);
 
-    std::shared_ptr<MessageReceiver> const message_receiver_;
-    std::shared_ptr<MessageSender>  const message_sender_;
-    int const id_;
-    std::shared_ptr<Connections<SocketConnection>> const connections_;
-    std::shared_ptr<MessageProcessor> const processor_;
+    std::shared_ptr<MessageReceiver> message_receiver_;
+    std::shared_ptr<MessageSender>  message_sender_;
+    int id_;
+    std::shared_ptr<Connections<SocketConnection>> connections_;
+    std::shared_ptr<MessageProcessor> processor_;
     std::array<std::uint8_t, 8192> buffer_;
+    std::string name_;
 };
 } // namespace anbox
 } // namespace network

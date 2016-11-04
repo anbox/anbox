@@ -25,10 +25,11 @@
 #include "anbox/do_not_copy_or_move.h"
 namespace anbox {
 namespace network {
+template<typename stream_protocol>
 class ConnectionCreator : public DoNotCopyOrMove {
 public:
     virtual void create_connection_for(
-        std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket) = 0;
+        std::shared_ptr<boost::asio::basic_stream_socket<stream_protocol>> const& socket) = 0;
 };
 } // namespace anbox
 } // namespace network

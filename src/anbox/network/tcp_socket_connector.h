@@ -15,10 +15,10 @@
  *
  */
 
-#ifndef ANBOX_PUBLISHEDSOCKETCONNECTOR_H
-#define ANBOX_PUBLISHEDSOCKETCONNECTOR_H
+#ifndef ANBOX_TCPSOCKETCONNECTOR_H
+#define ANBOX_TCPSOCKETCONNECTOR_H
 
-#include <boost/asio/local/stream_protocol.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
 #include "anbox/do_not_copy_or_move.h"
 #include "anbox/runtime.h"
@@ -28,27 +28,29 @@
 
 namespace anbox {
 namespace network {
-class PublishedSocketConnector : public DoNotCopyOrMove,
-                                 public Connector {
+class TcpSocketConnector : public DoNotCopyOrMove,
+                           public Connector {
 public:
-    explicit PublishedSocketConnector(
-            const std::string& socket_file,
+    explicit TcpSocketConnector(
+            const boost::asio::ip::address_v4 &address,
+            unsigned short port,
             const std::shared_ptr<Runtime> &rt,
-            const std::shared_ptr<ConnectionCreator<boost::asio::local::stream_protocol>> &connection_creator);
-    ~PublishedSocketConnector() noexcept;
+            const std::shared_ptr<ConnectionCreator<boost::asio::ip::tcp>> &connection_creator);
+    ~TcpSocketConnector() noexcept;
 
-    std::string socket_file() const { return socket_file_; }
+    unsigned short port() const { return port_; }
 
 private:
     void start_accept();
     void on_new_connection(
-        std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket,
+        std::shared_ptr<boost::asio::ip::tcp::socket> const& socket,
         boost::system::error_code const& err);
 
-    const std::string socket_file_;
+    boost::asio::ip::address_v4 address_;
+    unsigned short port_;
     std::shared_ptr<Runtime> runtime_;
-    std::shared_ptr<ConnectionCreator<boost::asio::local::stream_protocol>> connection_creator_;
-    boost::asio::local::stream_protocol::acceptor acceptor_;
+    std::shared_ptr<ConnectionCreator<boost::asio::ip::tcp>> connection_creator_;
+    boost::asio::ip::tcp::acceptor acceptor_;
 };
 } // namespace network
 } // namespace anbox
