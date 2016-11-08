@@ -65,13 +65,11 @@ void BootPropertiesMessageProcessor::list_properties() {
 
         // Mark us as a device without telephony support (as we don't have a RIL)
         "ro.radio.noril=yes",
-    };
 
-    if (utils::is_env_set("USE_HWCOMPOSER")) {
         // To let surfaceflinger load our hwcomposer implementation we specify
         // the correct subkey of the module here.
-        properties.push_back("ro.hardware.hwcomposer=anbox");
-    }
+        "ro.hardware.hwcomposer=anbox"
+    };
 
     for (const auto &prop : properties) {
         send_header(prop.length());
