@@ -44,6 +44,13 @@ EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
     return current_handler->create_window(x, y, width, height);
 }
 
+void updateSubWindow(EGLNativeWindowType win, int x, int y, int width, int height) {
+    if (!current_handler)
+        return;
+
+    return current_handler->update_window(win, x, y, width, height);
+}
+
 void destroySubWindow(EGLNativeWindowType win) {
     if (!current_handler)
         return;

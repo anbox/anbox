@@ -91,6 +91,15 @@ catch (std::exception &err) {
     return 0;
 }
 
+void WindowCreator::update_window(EGLNativeWindowType win, int x, int y, int width, int height) {
+    auto iter = windows_.find(win);
+    if (iter == windows_.end())
+        return;
+
+    iter->second->resize(width, height);
+    iter->second->update_position(x, y);
+}
+
 void WindowCreator::destroy_window(EGLNativeWindowType win) {
     auto iter = windows_.find(win);
     if (iter == windows_.end())

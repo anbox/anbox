@@ -79,6 +79,7 @@ public:
     static bool initialize(EGLNativeDisplayType nativeDisplay);
 
     FrameBufferWindow* createWindow(int x, int y, int width, int height);
+    void updateWindow(FrameBufferWindow *window, int x, int y, int width, int height);
     void destroyWindow(FrameBufferWindow *window);
 
     // Finalize the instance.

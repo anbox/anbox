@@ -39,6 +39,7 @@ public:
     ~WindowCreator();
 
     EGLNativeWindowType create_window(int x, int y, int width, int height) override;
+    void update_window(EGLNativeWindowType win, int x, int y, int width, int height) override;
     void destroy_window(EGLNativeWindowType win) override;
 
     DisplayInfo display_info() const override;

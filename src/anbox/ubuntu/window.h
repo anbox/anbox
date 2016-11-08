@@ -32,6 +32,9 @@ public:
     Window(int x, int y, int width, int height);
     ~Window();
 
+    void resize(int width, int height);
+    int update_position(int x, int y);
+
     EGLNativeWindowType native_window() const;
 
 private:

@@ -82,13 +82,16 @@ void LayerManager::post_layer(const LayerInfo &layer) {
             l.second.updated = true;
         }
     }
-    else {
-        printf("New layer '%s' {%d,%d,%d,%d}\n", layer.name.c_str());
-        window = FrameBuffer::getFB()->createWindow(
-                    layer.display_frame.left,
-                    layer.display_frame.top,
-                    layer.display_frame.right,
-                    layer.display_frame.bottom);
+
+    auto width = layer.display_frame.right - layer.display_frame.left;
+    auto height = layer.display_frame.bottom - layer.display_frame.top;
+
+    if (!window) {
+        auto buffer = FrameBuffer::getFB()->getColorBufferFromHandle(layer.buffer_handle);
+
+        window = FrameBuffer::getFB()->createWindow(layer.display_frame.left,
+                                                    layer.display_frame.top,
+                                                    width, height);
         if (!window) {
             printf("Failed to create window for layer '%s'\n", layer.name.c_str());
             return;
@@ -97,7 +100,10 @@ void LayerManager::post_layer(const LayerInfo &layer) {
     }
 
     printf("%s: window %p buffer %d\n", __func__, window, layer.buffer_handle);
-
+    FrameBuffer::getFB()->updateWindow(window,
+                                       layer.display_frame.left,
+                                       layer.display_frame.top,
+                                       width, height);
     FrameBuffer::getFB()->post(window, layer.buffer_handle);
 }
 

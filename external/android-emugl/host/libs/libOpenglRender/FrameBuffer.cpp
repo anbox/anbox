@@ -497,6 +497,13 @@ FrameBufferWindow* FrameBuffer::createWindow(int x, int y, int width, int height
     return window;
 }
 
+void FrameBuffer::updateWindow(FrameBufferWindow *window, int x, int y, int width, int height) {
+    if (!window)
+        return;
+
+    updateSubWindow(window->native_window, x, y, width, height);
+}
+
 void FrameBuffer::destroyWindow(FrameBufferWindow *window) {
     if (!window)
         return;

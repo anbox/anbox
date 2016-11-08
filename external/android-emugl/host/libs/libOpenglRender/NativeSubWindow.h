@@ -30,6 +30,7 @@ class SubWindowHandler {
 public:
     virtual ~SubWindowHandler() { }
     virtual EGLNativeWindowType create_window(int x, int y, int width, int height) = 0;
+    virtual void update_window(EGLNativeWindowType win, int x, int y, int width, int height) = 0;
     virtual void destroy_window(EGLNativeWindowType win) = 0;
 };
 
@@ -54,6 +55,8 @@ EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
                                     int y,
                                     int width,
                                     int height);
+
+void updateSubWindow(EGLNativeWindowType win, int x, int y, int width, int height);
 
 // Destroy a sub-window previously created through createSubWindow() above.
 void destroySubWindow(EGLNativeWindowType win);

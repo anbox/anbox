@@ -62,6 +62,14 @@ Window::~Window() {
         SDL_DestroyWindow(window_);
 }
 
+void Window::resize(int width, int height) {
+    SDL_SetWindowSize(window_, width, height);
+}
+
+int Window::update_position(int x, int y) {
+    SDL_SetWindowPosition(window_, x, y);
+}
+
 EGLNativeWindowType Window::native_window() const {
     return native_window_;
 }
