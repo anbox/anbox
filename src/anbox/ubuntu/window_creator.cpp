@@ -37,16 +37,6 @@ WindowCreator::WindowCreator(const std::shared_ptr<input::Manager> &input_manage
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize SDL"));
 
-#if 0
-    SDL_DisplayMode display_mode;
-    // FIXME statically just check the first (primary) display for its mode;
-    // once we get multi-monitor support we need to do this better.
-    if (SDL_GetCurrentDisplayMode(0, &display_mode) == 0) {
-        display_info_.horizontal_resolution = display_mode.w;
-        display_info_.vertical_resolution = display_mode.h;
-    }
-#endif
-
     event_thread_ = std::thread(&WindowCreator::process_events, this);
 
     SDL_DisplayMode display_mode;
