@@ -30,7 +30,7 @@ Window::Window(int x, int y, int width, int height) :
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
 
-    window_ = SDL_CreateWindow("anbox", x, y, width, height, SDL_WINDOW_OPENGL);
+    window_ = SDL_CreateWindow("anbox", x, y, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
     if (!window_) {
         const auto message = utils::string_format("Failed to create window: %s", SDL_GetError());
         BOOST_THROW_EXCEPTION(std::runtime_error(message));
