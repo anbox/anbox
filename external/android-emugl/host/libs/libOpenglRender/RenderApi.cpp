@@ -74,8 +74,7 @@ RENDER_APICALL int RENDER_APIENTRY initLibrary(void)
 }
 
 RENDER_APICALL int RENDER_APIENTRY initOpenGLRenderer(
-        EGLNativeDisplayType native_display,
-        int width, int height, bool useSubWindow, char* addr, size_t addrLen,
+        EGLNativeDisplayType native_display, char* addr, size_t addrLen,
         emugl_logger_struct logfuncs, emugl_crash_func_t crashfunc) {
     set_emugl_crash_reporter(crashfunc);
     set_emugl_logger(logfuncs.coarse);
@@ -113,7 +112,7 @@ RENDER_APICALL int RENDER_APIENTRY initOpenGLRenderer(
     // initialize the renderer and listen to connections
     // on a thread in the current process.
     //
-    s_renderWindow = new RenderWindow(native_display, width, height, kUseThread, useSubWindow);
+    s_renderWindow = new RenderWindow(native_display, kUseThread);
     if (!s_renderWindow) {
         ERR("Could not create rendering window class");
         GL_LOG("Could not create rendering window class");

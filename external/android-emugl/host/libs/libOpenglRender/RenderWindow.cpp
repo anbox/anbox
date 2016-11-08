@@ -73,9 +73,6 @@ struct RenderWindowMessage {
         // CMD_INITIALIZE
         struct {
             EGLNativeDisplayType nativeDisplay;
-            int width;
-            int height;
-            bool useSubWindow;
         } init;
 
         // CMD_SET_POST_CALLBACK
@@ -118,13 +115,9 @@ struct RenderWindowMessage {
         bool result = false;
         switch (msg.cmd) {
             case CMD_INITIALIZE:
-                D("CMD_INITIALIZE w=%d h=%d\n", msg.init.width, msg.init.height);
-                GL_LOG("RenderWindow: CMD_INITIALIZE w=%d h=%d",
-                       msg.init.width, msg.init.height);
-                result = FrameBuffer::initialize(msg.init.nativeDisplay,
-                                                 msg.init.width,
-                                                 msg.init.height,
-                                                 msg.init.useSubWindow);
+                D("CMD_INITIALIZE\n");
+                GL_LOG("RenderWindow: CMD_INITIALIZE");
+                result = FrameBuffer::initialize(msg.init.nativeDisplay);
                 break;
 
             case CMD_FINALIZE:
@@ -252,10 +245,7 @@ private:
 }  // namespace
 
 RenderWindow::RenderWindow(EGLNativeDisplayType native_display,
-                           int width,
-                           int height,
-                           bool use_thread,
-                           bool use_sub_window) :
+                           bool use_thread) :
         mValid(false),
         mHasSubWindow(false),
         mThread(NULL),
@@ -269,9 +259,6 @@ RenderWindow::RenderWindow(EGLNativeDisplayType native_display,
     RenderWindowMessage msg;
     msg.cmd = CMD_INITIALIZE;
     msg.init.nativeDisplay = native_display;
-    msg.init.width = width;
-    msg.init.height = height;
-    msg.init.useSubWindow = use_sub_window;
     mValid = processMessage(msg);
 }
 

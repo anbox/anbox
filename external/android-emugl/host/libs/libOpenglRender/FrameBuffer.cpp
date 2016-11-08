@@ -162,7 +162,7 @@ void FrameBuffer::finalize(){
     s_egl.eglDestroySurface(m_eglDisplay, m_pbufSurface);
 }
 
-bool FrameBuffer::initialize(EGLNativeDisplayType nativeDisplay, int width, int height, bool useSubWindow)
+bool FrameBuffer::initialize(EGLNativeDisplayType nativeDisplay)
 {
     GL_LOG("FrameBuffer::initialize");
     if (s_theFrameBuffer != NULL) {
@@ -172,7 +172,7 @@ bool FrameBuffer::initialize(EGLNativeDisplayType nativeDisplay, int width, int 
     //
     // allocate space for the FrameBuffer object
     //
-    FrameBuffer *fb = new FrameBuffer(width, height, useSubWindow);
+    FrameBuffer *fb = new FrameBuffer();
     if (!fb) {
         ERR("Failed to create fb\n");
         return false;
@@ -218,7 +218,7 @@ bool FrameBuffer::initialize(EGLNativeDisplayType nativeDisplay, int width, int 
     //
     // Create EGL context for framebuffer post rendering.
     //
-    GLint surfaceType = (useSubWindow ? EGL_WINDOW_BIT : 0) | EGL_PBUFFER_BIT;
+    GLint surfaceType = EGL_WINDOW_BIT| EGL_PBUFFER_BIT;
     const GLint configAttribs[] = {
         EGL_RED_SIZE, 1,
         EGL_GREEN_SIZE, 1,
@@ -427,8 +427,7 @@ bool FrameBuffer::initialize(EGLNativeDisplayType nativeDisplay, int width, int 
     return true;
 }
 
-FrameBuffer::FrameBuffer(int p_width, int p_height, bool useSubWindow) :
-    m_useSubWindow(useSubWindow),
+FrameBuffer::FrameBuffer() :
     m_configs(NULL),
     m_eglDisplay(EGL_NO_DISPLAY),
     m_colorBufferHelper(new ColorBufferHelper(this)),

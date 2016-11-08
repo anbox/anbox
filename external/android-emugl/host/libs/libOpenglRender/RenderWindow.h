@@ -59,7 +59,7 @@ public:
     //
     // Note that this call doesn't display anything, it just initializes
     // the library, use setupSubWindow() to display something.
-    RenderWindow(EGLNativeDisplayType native_display, int width, int height, bool use_thread, bool use_sub_window);
+    RenderWindow(EGLNativeDisplayType native_display, bool use_thread);
 
     // Destructor. This will automatically call removeSubWindow() is needed.
     ~RenderWindow();

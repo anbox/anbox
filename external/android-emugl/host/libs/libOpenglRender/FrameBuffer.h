@@ -76,7 +76,7 @@ public:
     // own sub-windows. If false, this means the caller will use
     // setPostCallback() instead to retrieve the content.
     // Returns true on success, false otherwise.
-    static bool initialize(EGLNativeDisplayType nativeDisplay, int width, int height, bool useSubWindow);
+    static bool initialize(EGLNativeDisplayType nativeDisplay);
 
     FrameBufferWindow* createWindow(int x, int y, int width, int height);
     void destroyWindow(FrameBufferWindow *window);
@@ -248,7 +248,7 @@ public:
     bool unbind_locked();
 
 private:
-    FrameBuffer(int p_width, int p_height, bool useSubWindow);
+    FrameBuffer();
     ~FrameBuffer();
     HandleType genHandle();
 
@@ -257,7 +257,6 @@ private:
 private:
     static FrameBuffer *s_theFrameBuffer;
     static HandleType s_nextHandle;
-    bool m_useSubWindow;
     emugl::Mutex m_lock;
     FbConfigList* m_configs;
     FBNativeWindowType m_nativeWindow;
