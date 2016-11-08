@@ -27,8 +27,8 @@
 #include "FrameBuffer.h"
 
 struct LayerRect {
-    int top;
     int left;
+    int top;
     int right;
     int bottom;
 };
