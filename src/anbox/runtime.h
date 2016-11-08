@@ -48,8 +48,7 @@ public:
     // the size configured at creation time.
     void start();
 
-    // stop cleanly shuts down a Runtime instance,
-    // joining all worker threads.
+    // stop cleanly shuts down a Runtime instance.
     void stop();
 
     // to_dispatcher_functional returns a function for integration

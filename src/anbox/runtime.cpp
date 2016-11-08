@@ -77,8 +77,7 @@ void Runtime::stop() {
     service_.stop();
 
     for (auto& worker : workers_)
-        if (worker.joinable())
-            worker.join();
+        pthread_kill(worker.native_handle(), SIGTERM);
 }
 
 std::function<void(std::function<void()>)> Runtime::to_dispatcher_functional()
