@@ -89,4 +89,7 @@ void LayerManager::finish_cycle() {
             layers_.erase(iter);
         }
     }
+
+    for (auto &layer : layers_)
+        layer.second.updated = false;
 }
