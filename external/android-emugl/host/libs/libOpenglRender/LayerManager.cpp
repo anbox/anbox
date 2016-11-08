@@ -19,6 +19,8 @@
 
 #include <algorithm>
 
+#include <boost/algorithm/string.hpp>
+
 namespace {
 std::string get_package_name(const std::string &name) {
     return name;
@@ -36,6 +38,23 @@ bool is_layer_blacklisted(const std::string &name) {
         "InputMethod",
     };
     return std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end();
+}
+
+struct ActivityInfo {
+    ActivityInfo(const std::string &name) :
+        name(name) {
+        std::vector<std::string> parts;
+        boost::split(parts, name, boost::is_any_of("/"));
+        if (parts.size() > 1)
+            package = parts[0];
+    }
+
+    std::string package;
+    std::string name;
+};
+
+bool from_same_package(const std::string &a, const std::string &b) {
+    return ActivityInfo(a).package == ActivityInfo(b).package;
 }
 }
 
@@ -57,11 +76,11 @@ void LayerManager::post_layer(const LayerInfo &layer) {
     }
 
     FrameBufferWindow *window = nullptr;
-    auto l = layers_.find(layer.name);
-    if (l != layers_.end()) {
-        printf("Using existing layer '%s'\n", layer.name.c_str());
-        window = l->second.window;
-        l->second.updated = true;
+    for (auto &l : layers_) {
+        if (l.first == layer.name || from_same_package(l.first, layer.name)) {
+            window = l.second.window;
+            l.second.updated = true;
+        }
     }
     else {
         printf("New layer '%s' {%d,%d,%d,%d}\n", layer.name.c_str());
