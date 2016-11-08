@@ -19,23 +19,19 @@
 #define ANBOX_GRAPHICS_WINDOW_CREATOR_H_
 
 #include "external/android-emugl/host/libs/libOpenglRender/NativeSubWindow.h"
+#include "external/android-emugl/host/libs/libOpenglRender/DisplayManager.h"
 
 namespace anbox {
 namespace input {
 class Manager;
 } // namespace input
 namespace graphics {
-class WindowCreator : public SubWindowHandler {
+class WindowCreator : public SubWindowHandler,
+                      public DisplayManager {
 public:
     WindowCreator(const std::shared_ptr<input::Manager> &input_manager);
     virtual ~WindowCreator();
 
-    struct DisplayInfo {
-        int horizontal_resolution;
-        int vertical_resolution;
-    };
-
-    virtual DisplayInfo display_info() const = 0;
     virtual EGLNativeDisplayType native_display() const = 0;
 
 protected:

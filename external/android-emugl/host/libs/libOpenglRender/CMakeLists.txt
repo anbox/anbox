@@ -1,8 +1,10 @@
 set(SOURCES
     ColorBuffer.cpp
+    DisplayManager.cpp
     FbConfig.cpp
     FrameBuffer.cpp
     LayerManager.cpp
+    NativeSubWindow.h
     NativeSubWindow_delegate.cpp
     ReadBuffer.cpp
     RenderContext.cpp

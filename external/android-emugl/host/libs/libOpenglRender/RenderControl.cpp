@@ -21,6 +21,7 @@
 #include "RenderThreadInfo.h"
 #include "ChecksumCalculatorThreadInfo.h"
 #include "LayerManager.h"
+#include "DisplayManager.h"
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
@@ -160,12 +161,10 @@ static EGLint rcGetFBParam(EGLint param)
 
     switch(param) {
         case FB_WIDTH:
-            // FIXME DISPLAY MANAGER!!
-            ret = 1920;
+            ret = DisplayManager::get()->display_info().horizontal_resolution;
             break;
         case FB_HEIGHT:
-        // FIXME DISPLAY MANAGER!!
-            ret = 1080;
+            ret = DisplayManager::get()->display_info().vertical_resolution;
             break;
         case FB_XDPI:
             ret = 72; // XXX: should be implemented
@@ -404,12 +403,12 @@ int rcGetNumDisplays() {
 
 int rcGetDisplayWidth(uint32_t display_id) {
     printf("%s: display_id=%d\n", __func__, display_id);
-    return 1920;
+    return DisplayManager::get()->display_info().horizontal_resolution;
 }
 
 int rcGetDisplayHeight(uint32_t display_id) {
     printf("%s: display_id=%d\n", __func__, display_id);
-    return 1080;
+    return DisplayManager::get()->display_info().vertical_resolution;
 }
 
 int rcGetDisplayDpiX(uint32_t display_id) {
