@@ -17,6 +17,7 @@
 
 #include "anbox/ubuntu/window_creator.h"
 #include "anbox/ubuntu/window.h"
+#include "anbox/ubuntu/keycode_converter.h"
 #include "anbox/input/manager.h"
 #include "anbox/input/device.h"
 #include "anbox/logger.h"
@@ -46,14 +47,33 @@ WindowCreator::WindowCreator(const std::shared_ptr<input::Manager> &input_manage
         display_info_.horizontal_resolution = display_mode.w;
         display_info_.vertical_resolution = display_mode.h;
     }
+
+    pointer_ = input_manager->create_device();
+    pointer_->set_name("anbox-pointer");
+    pointer_->set_driver_version(1);
+    pointer_->set_input_id({ BUS_VIRTUAL, 2, 2, 2 });
+    pointer_->set_physical_location("none");
+    pointer_->set_key_bit(BTN_MOUSE);
+    // NOTE: We don't use REL_X/REL_Y in reality but have to specify them here
+    // to allow InputFlinger to detect we're a cursor device.
+    pointer_->set_rel_bit(REL_X);
+    pointer_->set_rel_bit(REL_Y);
+    pointer_->set_rel_bit(REL_HWHEEL);
+    pointer_->set_rel_bit(REL_WHEEL);
+    pointer_->set_prop_bit(INPUT_PROP_POINTER);
+
+    keyboard_ = input_manager->create_device();
+    keyboard_->set_name("anbox-keyboard");
+    keyboard_->set_driver_version(1);
+    keyboard_->set_input_id({ BUS_VIRTUAL, 3, 3, 3 });
+    keyboard_->set_physical_location("none");
+    keyboard_->set_key_bit(BTN_MISC);
+    keyboard_->set_key_bit(KEY_OK);
 }
 
 WindowCreator::~WindowCreator() {
     event_thread_running_ = false;
     event_thread_.join();
-}
-
-void WindowCreator::process_window_event(const SDL_Event &event) {
 }
 
 void WindowCreator::process_events() {
@@ -69,11 +89,86 @@ void WindowCreator::process_events() {
                 ::kill(getpid(), SIGTERM);
                 break;
             case SDL_WINDOWEVENT:
-                process_window_event(event);
+                for (auto &iter : windows_) {
+                    if (iter.second->id() == event.window.windowID) {
+                        iter.second->process_event(event);
+                        break;
+                    }
+                }
+                break;
+            case SDL_MOUSEMOTION:
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+            case SDL_MOUSEWHEEL:
+            case SDL_KEYDOWN:
+            case SDL_KEYUP:
+                process_input_event(event);
                 break;
             }
         }
     }
+}
+
+void WindowCreator::process_input_event(const SDL_Event &event) {
+    std::vector<input::Event> mouse_events;
+    std::vector<input::Event> keyboard_events;
+
+    std::int32_t x = 0;
+    std::int32_t y = 0;
+    SDL_Window *window = nullptr;
+
+    switch (event.type) {
+    case SDL_MOUSEBUTTONDOWN:
+        mouse_events.push_back({ EV_KEY, BTN_LEFT, 1 });
+        mouse_events.push_back({ EV_SYN, SYN_REPORT, 0 });
+        break;
+    case SDL_MOUSEBUTTONUP:
+        mouse_events.push_back({ EV_KEY, BTN_LEFT, 0 });
+        mouse_events.push_back({ EV_SYN, SYN_REPORT, 0 });
+        break;
+    case SDL_MOUSEMOTION:
+        // As we get only absolute coordindates relative to our window we have to
+        // calculate the correct position based on the current focused window
+        window = SDL_GetWindowFromID(event.window.windowID);
+        if (!window)
+            break;
+
+        SDL_GetWindowPosition(window, &x, &y);
+        x += event.motion.x;
+        y += event.motion.y;
+
+        // NOTE: Sending relative move events doesn't really work and we have changes
+        // in libinputflinger to take ABS_X/ABS_Y instead for absolute position events.
+        mouse_events.push_back({ EV_ABS, ABS_X, x });
+        mouse_events.push_back({ EV_ABS, ABS_Y, y });
+        mouse_events.push_back({ EV_SYN, SYN_REPORT, 0 });
+        break;
+    case SDL_MOUSEWHEEL:
+        mouse_events.push_back({ EV_REL, REL_WHEEL, static_cast<std::int32_t>(event.wheel.y) });
+        break;
+    case SDL_KEYDOWN: {
+        const auto code = KeycodeConverter::convert(event.key.keysym.scancode);
+        if (code == KEY_RESERVED)
+            break;
+        keyboard_events.push_back({ EV_KEY, code, 1 });
+        break;
+    }
+    case SDL_KEYUP: {
+        const auto code = KeycodeConverter::convert(event.key.keysym.scancode);
+        if (code == KEY_RESERVED)
+            break;
+        keyboard_events.push_back({ EV_KEY, code, 0 });
+        break;
+    }
+    default:
+        break;
+    }
+
+    if (mouse_events.size() > 0)
+        pointer_->send_events(mouse_events);
+
+    if (keyboard_events.size() > 0)
+        keyboard_->send_events(keyboard_events);
 }
 
 EGLNativeWindowType WindowCreator::create_window(int x, int y, int width, int height)

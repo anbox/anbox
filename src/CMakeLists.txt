@@ -119,6 +119,7 @@ set(SOURCES
     anbox/ubuntu/platform_api_skeleton.cpp
     anbox/ubuntu/window_creator.cpp
     anbox/ubuntu/window.cpp
+    anbox/ubuntu/keycode_converter.cpp
 
     anbox/dbus/interface.h
     anbox/dbus/skeleton/service.cpp

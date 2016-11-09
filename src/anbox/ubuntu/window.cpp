@@ -70,8 +70,31 @@ int Window::update_position(int x, int y) {
     SDL_SetWindowPosition(window_, x, y);
 }
 
+void Window::process_event(const SDL_Event &event) {
+    switch (event.window.type) {
+    case SDL_WINDOWEVENT_FOCUS_GAINED:
+        break;
+    case SDL_WINDOWEVENT_FOCUS_LOST:
+        break;
+    case SDL_WINDOWEVENT_RESIZED:
+        break;
+    case SDL_WINDOWEVENT_SIZE_CHANGED:
+        break;
+    case SDL_WINDOWEVENT_MOVED:
+        break;
+    case SDL_WINDOWEVENT_SHOWN:
+        break;
+    case SDL_WINDOWEVENT_HIDDEN:
+        break;
+    }
+}
+
 EGLNativeWindowType Window::native_window() const {
     return native_window_;
+}
+
+std::uint32_t Window::id() const {
+    return SDL_GetWindowID(window_);
 }
 } // namespace bridge
 } // namespace anbox

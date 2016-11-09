@@ -29,6 +29,7 @@
 namespace anbox {
 namespace input {
 class Device;
+class Manager;
 } // namespace input
 namespace ubuntu {
 class MirDisplayConnection;
@@ -47,7 +48,7 @@ public:
 
 private:
     void process_events();
-    void process_window_event(const SDL_Event &event);
+    void process_input_event(const SDL_Event &event);
 
     std::shared_ptr<input::Manager> input_manager_;
     std::map<EGLNativeWindowType,std::shared_ptr<Window>> windows_;
@@ -55,8 +56,10 @@ private:
     std::thread event_thread_;
     bool event_thread_running_;
     graphics::WindowCreator::DisplayInfo display_info_;
+    std::shared_ptr<input::Device> pointer_;
+    std::shared_ptr<input::Device> keyboard_;
 };
-} // namespace bridge
+} // namespace ubuntu
 } // namespace anbox
 
 #endif

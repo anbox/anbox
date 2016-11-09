@@ -15,37 +15,24 @@
  *
  */
 
-#ifndef ANBOX_UBUNTU_WINDOW_H_
-#define ANBOX_UBUNTU_WINDOW_H_
+#ifndef ANBOX_UBUNTU_KEYCODE_CONVERTER_H_
+#define ANBOX_UBUNTU_KEYCODE_CONVERTER_H_
 
-#include <EGL/egl.h>
+#include <SDL_scancode.h>
 
-#include <memory>
-#include <vector>
+#include <cstdint>
 
-#include <SDL.h>
+#include <array>
 
 namespace anbox {
 namespace ubuntu {
-class Window {
+class KeycodeConverter {
 public:
-    Window(int x, int y, int width, int height);
-    ~Window();
-
-    void resize(int width, int height);
-    int update_position(int x, int y);
-
-    void process_event(const SDL_Event &event);
-
-    EGLNativeWindowType native_window() const;
-    std::uint32_t id() const;
-
+    static std::uint16_t convert(const SDL_Scancode &scan_code);
 private:
-    EGLNativeDisplayType native_display_;
-    EGLNativeWindowType native_window_;
-    SDL_Window *window_;
+    static const std::array<SDL_Scancode, 249> code_map;
 };
-} // namespace bridge
+} // namespace ubuntu
 } // namespace anbox
 
 #endif
