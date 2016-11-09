@@ -207,8 +207,6 @@ bool TextureDraw::draw(GLuint texture) {
     s_gles2.glBindTexture(GL_TEXTURE_2D, texture);
     s_gles2.glUniform1i(mTextureSlot, 0);
 
-
-#if 1
     // Validate program, just to be sure.
     s_gles2.glValidateProgram(mProgram);
     GLint validState = 0;
@@ -220,7 +218,6 @@ bool TextureDraw::draw(GLuint texture) {
         ERR("%s: Could not run program: %s\n", __FUNCTION__, messages);
         return false;
     }
-#endif
 
     // Do the rendering.
     s_gles2.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);
