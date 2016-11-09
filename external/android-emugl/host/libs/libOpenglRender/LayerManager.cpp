@@ -87,7 +87,6 @@ void LayerManager::post_layer(const LayerInfo &layer) {
     auto height = layer.display_frame.bottom - layer.display_frame.top;
 
     if (!window) {
-        auto buffer = FrameBuffer::getFB()->getColorBufferFromHandle(layer.buffer_handle);
 
         window = FrameBuffer::getFB()->createWindow(layer.display_frame.left,
                                                     layer.display_frame.top,
