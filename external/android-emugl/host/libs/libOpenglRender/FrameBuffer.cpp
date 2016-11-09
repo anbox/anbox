@@ -456,6 +456,9 @@ FrameBuffer::~FrameBuffer() {
 struct FrameBufferWindow {
     EGLNativeWindowType native_window = 0;
     EGLSurface surface = EGL_NO_SURFACE;
+    bool needViewportUpdate = false;
+    int width;
+    int height;
 };
 
 FrameBufferWindow* FrameBuffer::createWindow(int x, int y, int width, int height) {
@@ -469,6 +472,8 @@ FrameBufferWindow* FrameBuffer::createWindow(int x, int y, int width, int height
 
     auto window = new FrameBufferWindow;
     window->native_window = native_window;
+    window->width = width;
+    window->height = height;
 
     window->surface = s_egl.eglCreateWindowSurface(
                 m_eglDisplay, m_eglConfig, window->native_window, nullptr);
@@ -502,6 +507,9 @@ void FrameBuffer::updateWindow(FrameBufferWindow *window, int x, int y, int widt
         return;
 
     updateSubWindow(window->native_window, x, y, width, height);
+    window->width = width;
+    window->height = height;
+    window->needViewportUpdate = true;
 }
 
 void FrameBuffer::destroyWindow(FrameBufferWindow *window) {
@@ -984,6 +992,12 @@ bool FrameBuffer::post(FrameBufferWindow *window, HandleType p_colorbuffer, bool
     if (!bindWindow_locked(window))
         goto EXIT;
 
+    if (window->needViewportUpdate) {
+        s_gles2.glViewport(0, 0, window->width, window->height);
+        window->needViewportUpdate = false;
+    }
+
+    s_gles2.glClearColor(0.0, 0.0, 1.0, 0.0);
     s_gles2.glClear(GL_COLOR_BUFFER_BIT);
 
     ret = (*c).second.cb->post(0.0f, 0, 0);
