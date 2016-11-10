@@ -59,6 +59,15 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_CFLAGS := \
     -fexceptions \
     -std=c++1y
+# Drop a few packages we don't want in our images as they
+# are not needed (e.g. a home/launcher application as we
+# don't have this concept).
+LOCAL_OVERRIDES_PACKAGES := \
+    Launcher \
+    Launcher2 \
+    LatinIME \
+    Home \
+    QuickSearchBox
 include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
