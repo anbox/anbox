@@ -97,5 +97,3 @@ include $(BUILD_SHARED_LIBRARY)
 # Include the Android.mk files below will override LOCAL_PATH so we
 # have to take a copy of it here.
 TMP_PATH := $(LOCAL_PATH)
-
-include $(TMP_PATH)/android/app_manager/Android.mk
