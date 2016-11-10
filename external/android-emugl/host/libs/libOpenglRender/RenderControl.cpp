@@ -432,11 +432,6 @@ void rcPostLayer(const char *name, uint32_t color_buffer,
                  int32_t displayFrameLeft, int32_t displayFrameTop,
                  int32_t displayFrameRight, int32_t displayFrameBottom) {
 
-    printf("%s: name='%s' color_buffer=%d {%d,%d,%d,%d}, {%d,%d,%d,%d}\n",
-           __func__, name, color_buffer,
-           sourceCropLeft, sourceCropTop, sourceCropRight, sourceCropBottom,
-           displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom);
-
     LayerRect source_crop{sourceCropLeft, sourceCropTop, sourceCropRight, sourceCropBottom};
     LayerRect display_frame{displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom};
     LayerManager::get()->post_layer({name, source_crop, display_frame, color_buffer});

@@ -70,10 +70,8 @@ LayerManager::~LayerManager() {
 }
 
 void LayerManager::post_layer(const LayerInfo &layer) {
-    if (is_layer_blacklisted(layer.name)) {
-        printf("Ignoring blacklisted layer '%s'\n", layer.name.c_str());
+    if (is_layer_blacklisted(layer.name))
         return;
-    }
 
     FrameBufferWindow *window = nullptr;
     for (auto &l : layers_) {
@@ -98,7 +96,6 @@ void LayerManager::post_layer(const LayerInfo &layer) {
         layers_.insert({ layer.name, Layer{window, true}});
     }
 
-    printf("%s: window %p buffer %d\n", __func__, window, layer.buffer_handle);
     FrameBuffer::getFB()->updateWindow(window,
                                        layer.display_frame.left,
                                        layer.display_frame.top,

@@ -976,8 +976,6 @@ bool FrameBuffer::post(FrameBufferWindow *window, HandleType p_colorbuffer, bool
     if (!window)
         return false;
 
-    printf("%s window %p\n", __func__, window);
-
     if (needLock)
         m_lock.lock();
 
