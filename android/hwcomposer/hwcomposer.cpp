@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <string>
 
-#define LOG_NDEBUG 0
+#define LOG_NDEBUG 1
 #include <cutils/log.h>
 
 #include "HostConnection.h"
