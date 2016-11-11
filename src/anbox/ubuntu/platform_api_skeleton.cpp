@@ -33,15 +33,6 @@ PlatformApiSekeleton::PlatformApiSekeleton(const std::shared_ptr<rpc::PendingCal
 PlatformApiSekeleton::~PlatformApiSekeleton() {
 }
 
-void PlatformApiSekeleton::handle_notification(anbox::protobuf::bridge::Notification const *request,
-                                               anbox::protobuf::rpc::Void *response,
-                                               google::protobuf::Closure *done) {
-    (void) request;
-    (void) response;
-    DEBUG("");
-    done->Run();
-}
-
 void PlatformApiSekeleton::boot_finished(anbox::protobuf::rpc::Void const *request,
                                          anbox::protobuf::rpc::Void *response,
                                          google::protobuf::Closure *done) {
@@ -50,6 +41,28 @@ void PlatformApiSekeleton::boot_finished(anbox::protobuf::rpc::Void const *reque
 
     if (on_boot_finished_action_)
         on_boot_finished_action_();
+
+    done->Run();
+}
+
+void PlatformApiSekeleton::update_window_state(anbox::protobuf::rpc::Void const *request,
+                                               anbox::protobuf::rpc::Void *response,
+                                               google::protobuf::Closure *done) {
+    (void) request;
+    (void) response;
+
+    DEBUG("");
+
+    done->Run();
+}
+
+void PlatformApiSekeleton::remove_window(anbox::protobuf::rpc::Void const *request,
+                                         anbox::protobuf::rpc::Void *response,
+                                         google::protobuf::Closure *done) {
+    (void) request;
+    (void) response;
+
+    DEBUG("");
 
     done->Run();
 }

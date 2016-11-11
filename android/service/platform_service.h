@@ -29,11 +29,13 @@ class PlatformApiStub;
 namespace android {
 class PlatformService : public BnPlatformService {
 public:
-    static const char* service_name() { return "anbox.PlatformService"; }
+    static const char* service_name() { return "org.anbox.PlatformService"; }
 
     PlatformService(const std::shared_ptr<anbox::PlatformApiStub> &platform_api_stub);
 
     status_t boot_finished() override;
+    status_t update_window_state() override;
+    status_t remove_window() override;
 
 private:
     std::shared_ptr<anbox::PlatformApiStub> platform_api_stub_;

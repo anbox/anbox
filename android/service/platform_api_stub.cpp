@@ -52,7 +52,54 @@ void PlatformApiStub::boot_finished() {
 }
 
 void PlatformApiStub::handle_boot_finished_response(Request<protobuf::rpc::Void>*) {
-    ALOGI("handle_boot_finished_response");
     boot_finished_wait_handle_.result_received();
+}
+
+void PlatformApiStub::update_window_state() {
+    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
+
+    ALOGI("Updating window state");
+
+    {
+        std::lock_guard<decltype(mutex_)> lock(mutex_);
+        update_window_state_wait_handle_.expect_result();
+    }
+
+    protobuf::rpc::Void message;
+
+    rpc_channel_->call_method(
+        "update_window_state",
+        &message, c->response.get(),
+        google::protobuf::NewCallback(this, &PlatformApiStub::handle_update_window_state_response, c.get()));
+
+    update_window_state_wait_handle_.wait_for_all();
+}
+
+void PlatformApiStub::handle_update_window_state_response(Request<protobuf::rpc::Void> *request) {
+    update_window_state_wait_handle_.result_received();
+}
+
+void PlatformApiStub::remove_window() {
+    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
+
+    ALOGI("Remove window");
+
+    {
+        std::lock_guard<decltype(mutex_)> lock(mutex_);
+        remove_window_wait_handle_.expect_result();
+    }
+
+    protobuf::rpc::Void message;
+
+    rpc_channel_->call_method(
+        "remove_window",
+        &message, c->response.get(),
+        google::protobuf::NewCallback(this, &PlatformApiStub::handle_remove_window_response, c.get()));
+
+    remove_window_wait_handle_.wait_for_all();
+}
+
+void PlatformApiStub::handle_remove_window_response(Request<protobuf::rpc::Void> *request) {
+     update_window_state_wait_handle_.result_received();
 }
 } // namespace anbox

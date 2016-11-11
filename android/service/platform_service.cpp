@@ -33,4 +33,14 @@ status_t PlatformService::boot_finished() {
     platform_api_stub_->boot_finished();
     return OK;
 }
+
+status_t PlatformService::update_window_state() {
+    platform_api_stub_->update_window_state();
+    return OK;
+}
+
+status_t PlatformService::remove_window() {
+    platform_api_stub_->remove_window();
+    return OK;
+}
 } // namespace android

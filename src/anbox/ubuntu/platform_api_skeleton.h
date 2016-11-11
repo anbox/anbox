@@ -36,11 +36,15 @@ public:
     PlatformApiSekeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls);
     virtual ~PlatformApiSekeleton();
 
-    void handle_notification(anbox::protobuf::bridge::Notification const *request,
+    void boot_finished(anbox::protobuf::rpc::Void const *request,
+                       anbox::protobuf::rpc::Void *response,
+                       google::protobuf::Closure *done) override;
+
+    void update_window_state(anbox::protobuf::rpc::Void const *request,
                              anbox::protobuf::rpc::Void *response,
                              google::protobuf::Closure *done) override;
 
-    void boot_finished(anbox::protobuf::rpc::Void const *request,
+    void remove_window(anbox::protobuf::rpc::Void const *request,
                        anbox::protobuf::rpc::Void *response,
                        google::protobuf::Closure *done) override;
 

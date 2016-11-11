@@ -48,9 +48,13 @@ public:
                                anbox::protobuf::rpc::Void *response,
                                google::protobuf::Closure *done) = 0;
 
-    virtual void handle_notification(anbox::protobuf::bridge::Notification const *request,
+    virtual void update_window_state(anbox::protobuf::rpc::Void const *request,
                                      anbox::protobuf::rpc::Void *response,
                                      google::protobuf::Closure *done) = 0;
+
+    virtual void remove_window(anbox::protobuf::rpc::Void const *request,
+                               anbox::protobuf::rpc::Void *response,
+                               google::protobuf::Closure *done) = 0;
 
 private:
     std::shared_ptr<rpc::PendingCallCache> pending_calls_;
