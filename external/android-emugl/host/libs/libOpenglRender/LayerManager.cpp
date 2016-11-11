@@ -28,6 +28,8 @@ std::string get_package_name(const std::string &name) {
 
 bool is_layer_blacklisted(const std::string &name) {
     static std::vector<std::string> blacklist = {
+        // The boot animation should be disabled already but we blacklist it
+        // here too to ensure it is never visible.
         "BootAnimation",
         "StatusBar",
         "Sprite",
