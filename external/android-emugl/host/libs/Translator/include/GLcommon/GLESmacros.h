@@ -33,14 +33,12 @@
 
 
 #define SET_ERROR_IF(condition,err) if((condition)) {                            \
-                        fprintf(stderr, "%s:%s:%d error 0x%x\n", __FILE__, __FUNCTION__, __LINE__, err); \
                         ctx->setGLerror(err);                                    \
                         return;                                                  \
                     }
 
 
 #define RET_AND_SET_ERROR_IF(condition,err,ret) if((condition)) {                \
-                        fprintf(stderr, "%s:%s:%d error 0x%x\n", __FILE__, __FUNCTION__, __LINE__, err); \
                         ctx->setGLerror(err);                                    \
                         return ret;                                              \
                     }
