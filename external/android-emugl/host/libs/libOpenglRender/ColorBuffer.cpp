@@ -127,8 +127,6 @@ ColorBuffer* ColorBuffer::create(EGLDisplay p_display,
                                  Helper* helper) {
     GLenum texInternalFormat = 0;
 
-    printf("Creating new color buffer width %i height %i\n", p_width, p_height);
-
     switch (p_internalFormat) {
         case GL_RGB:
         case GL_RGB565_OES:
