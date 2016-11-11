@@ -141,6 +141,11 @@ void WindowCreator::process_input_event(const SDL_Event &event) {
         // in libinputflinger to take ABS_X/ABS_Y instead for absolute position events.
         mouse_events.push_back({ EV_ABS, ABS_X, x });
         mouse_events.push_back({ EV_ABS, ABS_Y, y });
+        // We're sending relative position updates here too but they will be only used
+        // by the Android side EventHub/InputReader to determine if the cursor was
+        // moved. They are not used to find out the exact position.
+        mouse_events.push_back({ EV_REL, REL_X, event.motion.xrel });
+        mouse_events.push_back({ EV_REL, REL_Y, event.motion.yrel });
         mouse_events.push_back({ EV_SYN, SYN_REPORT, 0 });
         break;
     case SDL_MOUSEWHEEL:
