@@ -68,7 +68,7 @@ void BootPropertiesMessageProcessor::list_properties() {
 
         // To let surfaceflinger load our hwcomposer implementation we specify
         // the correct subkey of the module here.
-        "ro.hardware.hwcomposer=anbox"
+        "ro.hardware.hwcomposer=anbox",
 
         // Keep boot animation disabled as we don't need it
         "debug.sf.nobootanimation=1",
