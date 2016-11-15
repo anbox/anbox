@@ -18,8 +18,8 @@
 #ifndef ANBOX_GRAPHICS_WINDOW_CREATOR_H_
 #define ANBOX_GRAPHICS_WINDOW_CREATOR_H_
 
-#include "external/android-emugl/host/libs/libOpenglRender/NativeSubWindow.h"
-#include "external/android-emugl/host/libs/libOpenglRender/DisplayManager.h"
+#include "anbox/graphics/emugl/NativeSubWindow.h"
+#include "anbox/graphics/emugl/DisplayManager.h"
 
 namespace anbox {
 namespace input {
