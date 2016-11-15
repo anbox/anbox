@@ -17,14 +17,9 @@
 
 #include "RenderThread.h"
 #include "TcpStream.h"
-#ifndef _WIN32
 #include "UnixStream.h"
 #include <signal.h>
 #include <pthread.h>
-#endif
-#ifdef _WIN32
-#include "Win32PipeStream.h"
-#endif
 
 #include "OpenglRender/render_api.h"
 
@@ -59,11 +54,7 @@ RenderServer *RenderServer::create(char* addr, size_t addrLen)
     if (gRendererStreamMode == RENDER_API_STREAM_MODE_TCP) {
         server->m_listenSock = new TcpStream();
     } else {
-#ifdef _WIN32
-        server->m_listenSock = new Win32PipeStream();
-#else
         server->m_listenSock = new UnixStream();
-#endif
     }
 
     char addrstr[SocketStream::MAX_ADDRSTR_LEN];
@@ -88,12 +79,6 @@ RenderServer *RenderServer::create(char* addr, size_t addrLen)
 intptr_t RenderServer::main()
 {
     RenderThreadsSet threads;
-
-#ifndef _WIN32
-    sigset_t set;
-    sigfillset(&set);
-    pthread_sigmask(SIG_SETMASK, &set, NULL);
-#endif
 
     while(1) {
         SocketStream *stream = m_listenSock->accept();

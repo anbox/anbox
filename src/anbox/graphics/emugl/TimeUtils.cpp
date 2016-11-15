@@ -15,55 +15,21 @@
 */
 #include "TimeUtils.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#include <time.h>
-#include <stdio.h>
-#elif defined(__linux__)
+
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#else
-#include <sys/time.h>
-#include <unistd.h>
-#endif
 
 long long GetCurrentTimeMS()
 {
-#ifdef _WIN32
-    static LARGE_INTEGER freq;
-    static bool bNotInit = true;
-    if ( bNotInit ) {
-        bNotInit = (QueryPerformanceFrequency( &freq ) == FALSE);
-    }
-    LARGE_INTEGER currVal;
-    QueryPerformanceCounter( &currVal );
-
-    return currVal.QuadPart / (freq.QuadPart / 1000);
-
-#elif defined(__linux__)
-
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
     long long iDiff = (now.tv_sec * 1000LL) + now.tv_nsec/1000000LL;
     return iDiff;
-
-#else /* Others, e.g. OS X */
-
-    struct timeval now;
-    gettimeofday(&now, NULL);
-    long long iDiff = (now.tv_sec * 1000LL) + now.tv_usec/1000LL;
-    return iDiff;
-
-#endif
 }
 
 void TimeSleepMS(int p_mili)
 {
-#ifdef _WIN32
-    Sleep(p_mili);
-#else
     usleep(p_mili * 1000);
-#endif
 }

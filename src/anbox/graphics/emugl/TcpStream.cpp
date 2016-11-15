@@ -22,12 +22,8 @@
 #include <unistd.h>
 #include <string.h>
 
-#ifndef _WIN32
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#else
-#include <ws2tcpip.h>
-#endif
 
 #define LISTEN_BACKLOG 4
 

@@ -19,14 +19,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-
-#ifndef _WIN32
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/un.h>
-#else
-#include <ws2tcpip.h>
-#endif
 
 SocketStream::SocketStream(size_t bufSize) :
     IOStream(bufSize),
@@ -48,10 +43,8 @@ SocketStream::~SocketStream()
 {
     if (m_sock >= 0) {
         forceStop();
-#ifndef _WIN32
         if(close(m_sock) < 0)
           perror("Closing SocketStream failed");
-#endif
         // DBG("SocketStream::~close  @ %d \n", m_sock);
         m_sock = -1;
     }
@@ -169,15 +162,5 @@ int SocketStream::recv(void *buf, size_t len)
 
 void SocketStream::forceStop() {
     // Shutdown socket to force read/write errors.
-#ifdef _WIN32
-    ::shutdown(m_sock, SD_BOTH);
-    // As documented by programmers on MSDN, shutdown implementation in Windows does
-    // NOT result to unblocking threads that are blocked on a recv on the socket
-    // being shut down. The only way to actually implement this behavior (expected
-    // by this forceStop() implementation) is to rudely close the socket.
-    ::closesocket(m_sock);
-    m_sock = -1;
-#else
     ::shutdown(m_sock, SHUT_RDWR);
-#endif
 }
