@@ -95,6 +95,12 @@ set(SOURCES
     anbox/graphics/gl_renderer_server.cpp
     anbox/graphics/window_creator.cpp
     anbox/graphics/density.h
+    anbox/graphics/rect.cpp
+
+    anbox/wm/display.cpp
+    anbox/wm/task.cpp
+    anbox/wm/manager.cpp
+    anbox/wm/window_state.cpp
 
     anbox/input/manager.cpp
     anbox/input/device.cpp
@@ -116,7 +122,6 @@ set(SOURCES
     anbox/bridge/platform_api_skeleton.cpp
     anbox/bridge/android_api_stub.cpp
 
-    anbox/ubuntu/platform_api_skeleton.cpp
     anbox/ubuntu/window_creator.cpp
     anbox/ubuntu/window.cpp
     anbox/ubuntu/keycode_converter.cpp
