@@ -26,7 +26,11 @@ namespace anbox {
 namespace protobuf {
 namespace rpc {
 class Void;
+class WindowStateUpdate;
 } // namespace rpc
+namespace bridge {
+class WindowStateUpdate;
+} // namespace bridge
 } // namespace protobuf
 namespace rpc {
 class Channel;
@@ -36,8 +40,7 @@ public:
     PlatformApiStub(const std::shared_ptr<rpc::Channel> &rpc_channel);
 
     void boot_finished();
-    void update_window_state();
-    void remove_window();
+    void update_window_state(const anbox::protobuf::bridge::WindowStateUpdate &window_state);
 
 private:
     template<typename Response>
@@ -49,12 +52,10 @@ private:
 
     void handle_boot_finished_response(Request<protobuf::rpc::Void> *request);
     void handle_update_window_state_response(Request<protobuf::rpc::Void> *request);
-    void handle_remove_window_response(Request<protobuf::rpc::Void> *request);
 
     mutable std::mutex mutex_;
     common::WaitHandle boot_finished_wait_handle_;
     common::WaitHandle update_window_state_wait_handle_;
-    common::WaitHandle remove_window_wait_handle_;
 
     std::shared_ptr<rpc::Channel> rpc_channel_;
 };

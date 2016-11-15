@@ -33,14 +33,13 @@ public:
     DECLARE_META_INTERFACE(PlatformService);
 
     enum {
+        // Keep this synchronized with frameworks/base/services/java/com/android/server/wm/AnboxPlatformServiceProxy.java
         BOOT_FINISHED = IBinder::FIRST_CALL_TRANSACTION,
         UPDATE_WINDOW_STATE = IBinder::FIRST_CALL_TRANSACTION + 1,
-        REMOVE_WINDOW = IBinder::FIRST_CALL_TRANSACTION + 2,
     };
 
     virtual status_t boot_finished() = 0;
-    virtual status_t update_window_state() = 0;
-    virtual status_t remove_window() = 0;
+    virtual status_t update_window_state(const Parcel &data) = 0;
 };
 
 class BpPlatformService : public BpInterface<IPlatformService> {
@@ -48,8 +47,7 @@ public:
     BpPlatformService(const sp<IBinder> &binder);
 
     status_t boot_finished() override;
-    status_t update_window_state() override;
-    status_t remove_window() override;
+    status_t update_window_state(const Parcel &data) override;
 };
 
 class BnPlatformService : public BnInterface<IPlatformService> {

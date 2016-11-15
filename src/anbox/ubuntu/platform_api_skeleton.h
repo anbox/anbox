@@ -26,6 +26,7 @@ class Dispatcher;
 } // namespace common
 namespace bridge {
 class AndroidApiStub;
+class WindowStateUpdate;
 } // namespace bridge
 namespace rpc {
 class PendingCallCache;
@@ -40,13 +41,9 @@ public:
                        anbox::protobuf::rpc::Void *response,
                        google::protobuf::Closure *done) override;
 
-    void update_window_state(anbox::protobuf::rpc::Void const *request,
+    void update_window_state(anbox::protobuf::bridge::WindowStateUpdate const *request,
                              anbox::protobuf::rpc::Void *response,
                              google::protobuf::Closure *done) override;
-
-    void remove_window(anbox::protobuf::rpc::Void const *request,
-                       anbox::protobuf::rpc::Void *response,
-                       google::protobuf::Closure *done) override;
 
     void on_boot_finished(const std::function<void()> &action);
 

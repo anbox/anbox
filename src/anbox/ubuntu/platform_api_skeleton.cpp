@@ -45,7 +45,7 @@ void PlatformApiSekeleton::boot_finished(anbox::protobuf::rpc::Void const *reque
     done->Run();
 }
 
-void PlatformApiSekeleton::update_window_state(anbox::protobuf::rpc::Void const *request,
+void PlatformApiSekeleton::update_window_state(anbox::protobuf::bridge::WindowStateUpdate const *request,
                                                anbox::protobuf::rpc::Void *response,
                                                google::protobuf::Closure *done) {
     (void) request;
@@ -53,16 +53,6 @@ void PlatformApiSekeleton::update_window_state(anbox::protobuf::rpc::Void const 
 
     DEBUG("");
 
-    done->Run();
-}
-
-void PlatformApiSekeleton::remove_window(anbox::protobuf::rpc::Void const *request,
-                                         anbox::protobuf::rpc::Void *response,
-                                         google::protobuf::Closure *done) {
-    (void) request;
-    (void) response;
-
-    DEBUG("");
 
     done->Run();
 }

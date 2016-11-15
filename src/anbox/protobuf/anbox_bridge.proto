@@ -26,3 +26,19 @@ message SetDnsServers {
     }
     repeated Server servers = 2;
 }
+
+message WindowStateUpdate {
+    message WindowState {
+        required int32 display_id = 1;
+        required bool has_surface = 2;
+        required string package_name = 3;
+        required int32 frame_left = 4;
+        required int32 frame_top = 5;
+        required int32 frame_right = 6;
+        required int32 frame_bottom = 7;
+        required int32 task_id = 8;
+        required int32 stack_id = 9;
+    }
+    repeated WindowState windows = 1;
+    repeated WindowState removed_windows = 2;
+}

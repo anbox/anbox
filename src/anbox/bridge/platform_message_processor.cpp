@@ -38,8 +38,6 @@ void PlatformMessageProcessor::dispatch(rpc::Invocation const& invocation) {
         invoke(this, server_.get(), &PlatformApiSkeleton::boot_finished, invocation);
     else if (invocation.method_name() == "update_window_state")
         invoke(this, server_.get(), &PlatformApiSkeleton::update_window_state, invocation);
-    else if (invocation.method_name() == "remove_window")
-        invoke(this, server_.get(), &PlatformApiSkeleton::remove_window, invocation);
 }
 
 void PlatformMessageProcessor::process_event_sequence(const std::string&) {
