@@ -38,6 +38,7 @@ bool is_layer_blacklisted(const std::string &name) {
         "com.android.settings/com.android.settings.FallbackHome",
         "com.android.systemui.ImageWallpaper",
         "InputMethod",
+        "com.android.quicksearchbox/com.android.quicksearchbox.SearchActivity",
     };
     return std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end();
 }
@@ -87,6 +88,16 @@ void LayerManager::post_layer(const LayerInfo &layer) {
     auto height = layer.display_frame.bottom - layer.display_frame.top;
 
     if (!window) {
+        printf("New layer '%s' display_frame={%d,%d,%d,%d} source_crop={%d,%d,%d,%d}\n",
+               layer.name.c_str(),
+               layer.display_frame.left,
+               layer.display_frame.top,
+               layer.display_frame.right,
+               layer.display_frame.bottom,
+               layer.source_crop.left,
+               layer.source_crop.top,
+               layer.source_crop.right,
+               layer.source_crop.bottom);
 
         window = FrameBuffer::getFB()->createWindow(layer.display_frame.left,
                                                     layer.display_frame.top,
@@ -95,6 +106,7 @@ void LayerManager::post_layer(const LayerInfo &layer) {
             printf("Failed to create window for layer '%s'\n", layer.name.c_str());
             return;
         }
+
         layers_.insert({ layer.name, Layer{window, true}});
     }
 

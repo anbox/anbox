@@ -12,7 +12,17 @@ include_directories(
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_SOURCE_DIR}/external/process-cpp-minimal/include
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/shared
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/shared/OpenglCodecCommon
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include/libOpenglRender
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/GLESv1_dec
+  ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/GLESv1_dec
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/GLESv2_dec
+  ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/GLESv2_dec
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/renderControl_dec
+  ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/renderControl_dec
 )
 
 protobuf_generate_cpp(
@@ -97,6 +107,29 @@ set(SOURCES
     anbox/graphics/density.h
     anbox/graphics/rect.cpp
 
+    anbox/graphics/emugl/ColorBuffer.cpp
+    anbox/graphics/emugl/DisplayManager.cpp
+    anbox/graphics/emugl/FbConfig.cpp
+    anbox/graphics/emugl/FrameBuffer.cpp
+    anbox/graphics/emugl/LayerManager.cpp
+    anbox/graphics/emugl/NativeSubWindow_delegate.cpp
+    anbox/graphics/emugl/NativeSubWindow.h
+    anbox/graphics/emugl/ReadBuffer.cpp
+    anbox/graphics/emugl/RenderApi.cpp
+    anbox/graphics/emugl/RenderContext.cpp
+    anbox/graphics/emugl/RenderControl.cpp
+    anbox/graphics/emugl/RenderServer.cpp
+    anbox/graphics/emugl/RenderThread.cpp
+    anbox/graphics/emugl/RenderThreadInfo.cpp
+    anbox/graphics/emugl/RenderWindow.cpp
+    anbox/graphics/emugl/SocketStream.cpp
+    anbox/graphics/emugl/TcpStream.cpp
+    anbox/graphics/emugl/TextureDraw.cpp
+    anbox/graphics/emugl/TextureResize.cpp
+    anbox/graphics/emugl/TimeUtils.cpp
+    anbox/graphics/emugl/UnixStream.cpp
+    anbox/graphics/emugl/WindowSurface.cpp
+
     anbox/wm/display.cpp
     anbox/wm/task.cpp
     anbox/wm/manager.cpp
@@ -150,7 +183,12 @@ target_link_libraries(anbox-core
   ${LXC_LIBRARIES}
   pthread
   process-cpp
-  OpenglRender
+  emugl_common
+  GLESv1_dec
+  GLESv2_dec
+  renderControl_dec
+  OpenGLESDispatch
+  OpenglCodecCommon
   anbox-protobuf)
 
 add_executable(anbox main.cpp)

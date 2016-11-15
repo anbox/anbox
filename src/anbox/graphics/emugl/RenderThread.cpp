@@ -59,53 +59,11 @@ intptr_t RenderThread::main() {
 
     ReadBuffer readBuf(STREAM_BUFFER_SIZE);
 
-    int stats_totalBytes = 0;
-    long long stats_t0 = GetCurrentTimeMS();
-
-    //
-    // open dump file if RENDER_DUMP_DIR is defined
-    //
-    const char *dump_dir = getenv("RENDERER_DUMP_DIR");
-    FILE *dumpFP = NULL;
-    if (dump_dir) {
-        size_t bsize = strlen(dump_dir) + 32;
-        char *fname = new char[bsize];
-        snprintf(fname,bsize,"%s/stream_%p", dump_dir, this);
-        dumpFP = fopen(fname, "wb");
-        if (!dumpFP) {
-            fprintf(stderr,"Warning: stream dump failed to open file %s\n",fname);
-        }
-        delete [] fname;
-    }
-
     while (1) {
 
         int stat = readBuf.getData(m_stream);
         if (stat <= 0) {
             break;
-        }
-
-#if 0
-        //
-        // log received bandwidth statistics
-        //
-        stats_totalBytes += readBuf.validData();
-        long long dt = GetCurrentTimeMS() - stats_t0;
-        if (dt > 1000) {
-            float dts = (float)dt / 1000.0f;
-            printf("Used Bandwidth %5.3f MB/s\n", ((float)stats_totalBytes / dts) / (1024.0f*1024.0f));
-            stats_totalBytes = 0;
-            stats_t0 = GetCurrentTimeMS();
-        }
-#endif
-
-        //
-        // dump stream to file if needed
-        //
-        if (dumpFP) {
-            int skip = readBuf.validData() - stat;
-            fwrite(readBuf.buf()+skip, 1, readBuf.validData()-skip, dumpFP);
-            fflush(dumpFP);
         }
 
         bool progress;
@@ -145,10 +103,6 @@ intptr_t RenderThread::main() {
 
         } while( progress );
 
-    }
-
-    if (dumpFP) {
-        fclose(dumpFP);
     }
 
     //
