@@ -66,6 +66,7 @@ status_t PlatformService::update_window_state(const Parcel &data) {
     const auto num_displays = data.readInt32();
     for (auto n = 0; n < num_displays; n++) {
         const auto display_id = data.readInt32();
+        const auto num_windows = data.readInt32();
 
         for (auto m = 0; m < num_windows; m++) {
             auto window = window_state.add_windows();
