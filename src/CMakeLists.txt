@@ -67,6 +67,8 @@ set(SOURCES
     anbox/common/variable_length_array.h
     anbox/common/wait_handle.cpp
     anbox/common/dispatcher.cpp
+    anbox/common/small_vector.h
+    anbox/common/type_traits.h
 
     anbox/container/service.cpp
     anbox/container/client.cpp
@@ -104,6 +106,8 @@ set(SOURCES
     anbox/rpc/make_protobuf_object.h
 
     anbox/graphics/opengles_message_processor.cpp
+    anbox/graphics/buffer_queue.cpp
+    anbox/graphics/buffered_io_stream.cpp
     anbox/graphics/gl_renderer_server.cpp
     anbox/graphics/density.h
     anbox/graphics/rect.cpp
@@ -120,16 +124,11 @@ set(SOURCES
     anbox/graphics/emugl/RenderApi.cpp
     anbox/graphics/emugl/RenderContext.cpp
     anbox/graphics/emugl/RenderControl.cpp
-    anbox/graphics/emugl/RenderServer.cpp
     anbox/graphics/emugl/RenderThread.cpp
     anbox/graphics/emugl/RenderThreadInfo.cpp
-    anbox/graphics/emugl/RenderWindow.cpp
-    anbox/graphics/emugl/SocketStream.cpp
-    anbox/graphics/emugl/TcpStream.cpp
     anbox/graphics/emugl/TextureDraw.cpp
     anbox/graphics/emugl/TextureResize.cpp
     anbox/graphics/emugl/TimeUtils.cpp
-    anbox/graphics/emugl/UnixStream.cpp
     anbox/graphics/emugl/WindowSurface.cpp
 
     anbox/wm/display.cpp

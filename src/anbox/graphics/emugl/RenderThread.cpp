@@ -31,7 +31,7 @@
 RenderThread::RenderThread(IOStream *stream, emugl::Mutex *lock)
     : emugl::Thread(), m_lock(lock), m_stream(stream) {}
 
-RenderThread::~RenderThread() { delete m_stream; }
+RenderThread::~RenderThread() {}
 
 // static
 RenderThread *RenderThread::create(IOStream *stream, emugl::Mutex *lock) {

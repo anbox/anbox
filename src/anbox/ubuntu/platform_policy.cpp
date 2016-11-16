@@ -42,8 +42,7 @@ PlatformPolicy::PlatformPolicy(
   auto display_frame = graphics::Rect::Invalid;
   for (auto n = 0; n < SDL_GetNumVideoDisplays(); n++) {
     SDL_Rect r;
-    if (SDL_GetDisplayBounds(n, &r) != 0)
-      continue;
+    if (SDL_GetDisplayBounds(n, &r) != 0) continue;
 
     graphics::Rect frame{r.x, r.y, r.x + r.w, r.y + r.h};
 
@@ -54,7 +53,8 @@ PlatformPolicy::PlatformPolicy(
   }
 
   if (display_frame == graphics::Rect::Invalid)
-    BOOST_THROW_EXCEPTION(std::runtime_error("No valid display configuration found"));
+    BOOST_THROW_EXCEPTION(
+        std::runtime_error("No valid display configuration found"));
 
   display_info_.horizontal_resolution = display_frame.width();
   display_info_.vertical_resolution = display_frame.height();

@@ -34,9 +34,7 @@ namespace qemu {
 class PipeConnectionCreator
     : public network::ConnectionCreator<boost::asio::local::stream_protocol> {
  public:
-  PipeConnectionCreator(const std::shared_ptr<Runtime> &rt,
-                        const std::string &renderer_socket_path,
-                        const std::string &boot_animation_icon_path);
+  PipeConnectionCreator(const std::shared_ptr<Runtime> &rt);
   ~PipeConnectionCreator() noexcept;
 
   void create_connection_for(
@@ -69,9 +67,6 @@ class PipeConnectionCreator
   std::atomic<int> next_connection_id_;
   std::shared_ptr<network::Connections<network::SocketConnection>> const
       connections_;
-
-  std::string renderer_socket_path_;
-  std::string boot_animation_icon_path_;
 };
 }  // namespace qemu
 }  // namespace anbox

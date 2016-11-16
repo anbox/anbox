@@ -16,44 +16,48 @@
  */
 
 #include "anbox/graphics/opengles_message_processor.h"
+#include "anbox/common/small_vector.h"
+#include "anbox/graphics/buffered_io_stream.h"
+#include "anbox/graphics/emugl/RenderThread.h"
 #include "anbox/logger.h"
 #include "anbox/network/connections.h"
 #include "anbox/network/delegate_message_processor.h"
-#include "anbox/network/local_socket_messenger.h"
+
+#include <condition_variable>
+#include <functional>
+#include <queue>
 
 namespace anbox {
 namespace graphics {
+emugl::Mutex OpenGlesMessageProcessor::global_lock{};
+
 OpenGlesMessageProcessor::OpenGlesMessageProcessor(
-    const std::string &renderer_socket_path, const std::shared_ptr<Runtime> &rt,
     const std::shared_ptr<network::SocketMessenger> &messenger)
-    : client_messenger_(messenger) {
-  connect_and_attach(renderer_socket_path, rt);
+    : messenger_(messenger),
+      stream_(std::make_shared<BufferedIOStream>(messenger_)) {
+  // We have to read the client flags first before we can continue
+  // processing the actual commands
+  unsigned int client_flags = 0;
+  auto err = messenger_->receive_msg(
+      boost::asio::buffer(&client_flags, sizeof(unsigned int)));
+  if (err) ERROR("%s", err.message());
+
+  renderer_.reset(RenderThread::create(stream_.get(), &global_lock));
+  if (!renderer_->start())
+    BOOST_THROW_EXCEPTION(
+        std::runtime_error("Failed to start renderer thread"));
 }
 
-OpenGlesMessageProcessor::~OpenGlesMessageProcessor() {}
-
-void OpenGlesMessageProcessor::connect_and_attach(
-    const std::string &socket_path, const std::shared_ptr<Runtime> &rt) {
-  auto socket = std::make_shared<boost::asio::local::stream_protocol::socket>(
-      rt->service());
-  socket->connect(boost::asio::local::stream_protocol::endpoint(socket_path));
-
-  messenger_ = std::make_shared<network::LocalSocketMessenger>(socket);
-  renderer_ = std::make_shared<network::SocketConnection>(
-      messenger_, messenger_, 0, nullptr,
-      std::make_shared<network::DelegateMessageProcessor>(
-          [&](const std::vector<std::uint8_t> &data) {
-            client_messenger_->send(reinterpret_cast<const char *>(data.data()),
-                                    data.size());
-            return true;
-          }));
-  renderer_->set_name("opengles-renderer");
-  renderer_->read_next_message();
+OpenGlesMessageProcessor::~OpenGlesMessageProcessor() {
+  renderer_->forceStop();
+  renderer_->wait(nullptr);
 }
 
 bool OpenGlesMessageProcessor::process_data(
     const std::vector<std::uint8_t> &data) {
-  messenger_->send(reinterpret_cast<const char *>(data.data()), data.size());
+  auto stream = std::static_pointer_cast<BufferedIOStream>(stream_);
+  Buffer buffer{data.data(), data.data() + data.size()};
+  stream->post_data(std::move(buffer));
   return true;
 }
 }  // namespace graphics

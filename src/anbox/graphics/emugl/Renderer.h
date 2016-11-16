@@ -23,8 +23,6 @@
 #include "WindowSurface.h"
 #include "emugl/common/mutex.h"
 
-#include "OpenglRender/render_api.h"
-
 #include "Renderable.h"
 
 #include "anbox/graphics/primitives.h"
@@ -96,11 +94,6 @@ class Renderer {
 
   // Return the list of configs available from this display.
   const RendererConfigList* getConfigs() const { return m_configs; }
-
-  // Set a callback that will be called each time the emulated GPU content
-  // is updated. This can be relatively slow with host-based GPU emulation,
-  // so only do this when you need to.
-  void setPostCallback(OnPostFn onPost, void* onPostContext);
 
   // Retrieve the GL strings of the underlying EGL/GLES implementation.
   // On return, |*vendor|, |*renderer| and |*version| will point to strings
@@ -268,7 +261,6 @@ class Renderer {
   static HandleType s_nextHandle;
   emugl::Mutex m_lock;
   RendererConfigList* m_configs;
-  FBNativeWindowType m_nativeWindow;
   RendererCaps m_caps;
   EGLDisplay m_eglDisplay;
   RenderContextMap m_contexts;

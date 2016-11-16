@@ -1006,10 +1006,14 @@ void Renderer::tessellate(std::vector<anbox::graphics::Primitive> &primitives,
   rectangle.tex_id = 0;
   rectangle.type = GL_TRIANGLE_STRIP;
 
-  GLfloat tex_left = static_cast<GLfloat>(renderable.crop().left()) / buf_size.width();
-  GLfloat tex_top = static_cast<GLfloat>(renderable.crop().top()) / buf_size.height();
-  GLfloat tex_right = static_cast<GLfloat>(renderable.crop().right()) / buf_size.width();
-  GLfloat tex_bottom = static_cast<GLfloat>(renderable.crop().bottom()) / buf_size.height();
+  GLfloat tex_left =
+      static_cast<GLfloat>(renderable.crop().left()) / buf_size.width();
+  GLfloat tex_top =
+      static_cast<GLfloat>(renderable.crop().top()) / buf_size.height();
+  GLfloat tex_right =
+      static_cast<GLfloat>(renderable.crop().right()) / buf_size.width();
+  GLfloat tex_bottom =
+      static_cast<GLfloat>(renderable.crop().bottom()) / buf_size.height();
 
   auto &vertices = rectangle.vertices;
   vertices[0] = {{left, top, 0.0f}, {tex_left, tex_top}};

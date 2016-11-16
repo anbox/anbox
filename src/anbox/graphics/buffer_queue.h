@@ -15,31 +15,44 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
-#define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
+#ifndef ANBOX_GRAPHICS_BUFFER_QUEUE_H_
+#define ANBOX_GRAPHICS_BUFFER_QUEUE_H_
 
+#include "anbox/common/small_vector.h"
+
+#include <condition_variable>
 #include <memory>
-#include <string>
+#include <mutex>
 
 namespace anbox {
-namespace input {
-class Manager;
-}  // namespace input
-namespace wm {
-class Manager;
-}  // namespace wm
 namespace graphics {
-class LayerComposer;
-class GLRendererServer {
- public:
-  GLRendererServer(const std::shared_ptr<wm::Manager> &wm);
-  ~GLRendererServer();
+using Buffer = anbox::common::SmallFixedVector<char, 512>;
 
-  void start();
+class BufferQueue {
+ public:
+  enum class Result {
+    Ok = 0,
+    TryAgain = 1,
+    Error = 2,
+  };
+
+  BufferQueue(size_t capacity);
+
+  Result try_push_locked(Buffer &&buffer);
+  Result push_locked(Buffer &&buffer, std::unique_lock<std::mutex> &lock);
+  Result try_pop_locked(Buffer *buffer);
+  Result pop_locked(Buffer *buffer, std::unique_lock<std::mutex> &lock);
+  void close_locked();
 
  private:
-  std::shared_ptr<wm::Manager> wm_;
-  std::shared_ptr<LayerComposer> composer_;
+  size_t capacity_ = 0;
+  size_t pos_ = 0;
+  size_t count_ = 0;
+  bool closed_ = false;
+  std::unique_ptr<Buffer[]> buffers_;
+
+  std::condition_variable can_push_;
+  std::condition_variable can_pop_;
 };
 
 }  // namespace graphics

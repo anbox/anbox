@@ -23,7 +23,6 @@
 
 class IOStream {
 public:
-
     IOStream(size_t bufSize) {
         m_buf = NULL;
         m_bufsize = bufSize;
@@ -31,19 +30,15 @@ public:
     }
 
     virtual void *allocBuffer(size_t minSize) = 0;
-    virtual int commitBuffer(size_t size) = 0;
-    virtual const unsigned char *readFully( void *buf, size_t len) = 0;
-    virtual const unsigned char *read( void *buf, size_t *inout_len) = 0;
-    virtual int writeFully(const void* buf, size_t len) = 0;
+    virtual size_t commitBuffer(size_t size) = 0;
+    virtual const unsigned char *read(void *buf, size_t *inout_len) = 0;
     virtual void forceStop() = 0;
 
     virtual ~IOStream() {
-
         // NOTE: m_buf is 'owned' by the child class thus we expect it to be released by it
     }
 
     unsigned char *alloc(size_t len) {
-
         if (m_buf && len > m_free) {
             if (flush() < 0) {
                 ERR("Failed to flush in alloc\n");
@@ -70,7 +65,6 @@ public:
     }
 
     int flush() {
-
         if (!m_buf || m_free == m_bufsize) return 0;
 
         int stat = commitBuffer(m_bufsize - m_free);
@@ -78,12 +72,6 @@ public:
         m_free = 0;
         return stat;
     }
-
-    const unsigned char *readback(void *buf, size_t len) {
-        flush();
-        return readFully(buf, len);
-    }
-
 
 private:
     unsigned char *m_buf;

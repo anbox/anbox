@@ -39,6 +39,7 @@ class BaseSocketMessenger : public SocketMessenger {
   unsigned short local_port() const override;
 
   void send(char const* data, size_t length) override;
+  ssize_t send_raw(char const* data, size_t length) override;
   void async_receive_msg(AnboxReadHandler const& handle,
                          boost::asio::mutable_buffers_1 const& buffer) override;
   boost::system::error_code receive_msg(

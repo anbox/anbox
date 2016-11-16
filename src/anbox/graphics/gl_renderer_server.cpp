@@ -16,16 +16,29 @@
  */
 
 #include "anbox/graphics/gl_renderer_server.h"
+#include "anbox/graphics/emugl/RenderApi.h"
 #include "anbox/graphics/emugl/RenderControl.h"
+#include "anbox/graphics/emugl/Renderer.h"
 #include "anbox/graphics/layer_composer.h"
 #include "anbox/logger.h"
 #include "anbox/wm/manager.h"
 
-#include "OpenglRender/render_api.h"
-
 #include <boost/throw_exception.hpp>
 #include <cstdarg>
 #include <stdexcept>
+
+namespace {
+void logger_write(const char *format, ...) {
+  char message[2048];
+  va_list args;
+
+  va_start(args, format);
+  vsnprintf(message, sizeof(message) - 1, format, args);
+  va_end(args);
+
+  DEBUG("%s", message);
+}
+}
 
 namespace anbox {
 namespace graphics {
@@ -53,45 +66,21 @@ GLRendererServer::GLRendererServer(const std::shared_ptr<wm::Manager> &wm)
              0);
   }
 
-  if (!initLibrary())
+  emugl_logger_struct log_funcs;
+  log_funcs.coarse = logger_write;
+  log_funcs.fine = logger_write;
+
+  if (!emugl::initialize(log_funcs, nullptr))
     BOOST_THROW_EXCEPTION(
         std::runtime_error("Failed to initialize OpenGL renderer"));
 
   registerLayerComposer(composer_);
 }
 
-GLRendererServer::~GLRendererServer() { stopOpenGLRenderer(); }
-
-void logger_write(const char *format, ...) {
-  char message[2048];
-  va_list args;
-
-  va_start(args, format);
-  vsnprintf(message, sizeof(message) - 1, format, args);
-  va_end(args);
-
-  DEBUG("%s", message);
+GLRendererServer::~GLRendererServer() {
+  if (const auto r = Renderer::get()) r->finalize();
 }
 
-void GLRendererServer::start() {
-  emugl_logger_struct log_funcs;
-  log_funcs.coarse = logger_write;
-  log_funcs.fine = logger_write;
-
-  char server_addr[256] = {0};
-  // The width & height we supply here are the dimensions the internal
-  // framebuffer
-  // will use. Making this static prevents us for now to resize the window we
-  // create
-  // later for the actual display.
-  if (!initOpenGLRenderer(0, server_addr, sizeof(server_addr), log_funcs,
-                          logger_write))
-    BOOST_THROW_EXCEPTION(
-        std::runtime_error("Failed to setup OpenGL renderer"));
-
-  socket_path_ = server_addr;
-}
-
-std::string GLRendererServer::socket_path() const { return socket_path_; }
+void GLRendererServer::start() { Renderer::initialize(0); }
 }  // namespace graphics
 }  // namespace anbox

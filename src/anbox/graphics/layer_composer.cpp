@@ -69,17 +69,18 @@ void LayerComposer::submit_layers(const RenderableList &renderables) {
       // need to recalculate all layer coordinates into relatives ones to the
       // window they are drawn into.
       auto rect = Rect{
-          r.screen_position().left() - new_window_frame.left() + r.crop().left(),
+          r.screen_position().left() - new_window_frame.left() +
+              r.crop().left(),
           r.screen_position().top() - new_window_frame.top() + r.crop().top(),
-          r.screen_position().right() - new_window_frame.left() + r.crop().left(),
-          r.screen_position().bottom() - new_window_frame.top() + r.crop().top()
-      };
+          r.screen_position().right() - new_window_frame.left() +
+              r.crop().left(),
+          r.screen_position().bottom() - new_window_frame.top() +
+              r.crop().top()};
 
       auto new_renderable = r;
       new_renderable.set_screen_position(rect);
       final_renderables.push_back(new_renderable);
     }
-
 
     Renderer::get()->draw(
         window->native_handle(),

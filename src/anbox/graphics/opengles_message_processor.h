@@ -27,25 +27,27 @@
 #include "anbox/network/socket_messenger.h"
 #include "anbox/runtime.h"
 
+#include "external/android-emugl/shared/emugl/common/mutex.h"
+
+class IOStream;
+class RenderThread;
+
 namespace anbox {
 namespace graphics {
 class OpenGlesMessageProcessor : public network::MessageProcessor {
  public:
   OpenGlesMessageProcessor(
-      const std::string &renderer_socket_path,
-      const std::shared_ptr<Runtime> &rt,
       const std::shared_ptr<network::SocketMessenger> &messenger);
   ~OpenGlesMessageProcessor();
 
   bool process_data(const std::vector<std::uint8_t> &data) override;
 
  private:
-  void connect_and_attach(const std::string &socket_path,
-                          const std::shared_ptr<Runtime> &rt);
+  static emugl::Mutex global_lock;
 
-  std::shared_ptr<network::SocketMessenger> client_messenger_;
   std::shared_ptr<network::SocketMessenger> messenger_;
-  std::shared_ptr<network::SocketConnection> renderer_;
+  std::shared_ptr<IOStream> stream_;
+  std::shared_ptr<RenderThread> renderer_;
 };
 }  // namespace graphics
 }  // namespace anbox
