@@ -62,14 +62,10 @@ std::string client_type_to_string(const anbox::qemu::PipeConnectionCreator::clie
 }
 namespace anbox {
 namespace qemu {
-PipeConnectionCreator::PipeConnectionCreator(const std::shared_ptr<Runtime> &rt,
-                                             const std::string &renderer_socket_path,
-                                             const std::string &boot_animation_icon_path) :
+PipeConnectionCreator::PipeConnectionCreator(const std::shared_ptr<Runtime> &rt) :
     runtime_(rt),
     next_connection_id_(0),
-    connections_(std::make_shared<network::Connections<network::SocketConnection>>()),
-    renderer_socket_path_(renderer_socket_path),
-    boot_animation_icon_path_(boot_animation_icon_path) {
+    connections_(std::make_shared<network::Connections<network::SocketConnection>>()) {
 }
 
 PipeConnectionCreator::~PipeConnectionCreator() {
@@ -137,7 +133,7 @@ PipeConnectionCreator::client_type PipeConnectionCreator::identify_client(
 
 std::shared_ptr<network::MessageProcessor> PipeConnectionCreator::create_processor(const client_type &type, const std::shared_ptr<network::SocketMessenger> &messenger) {
     if (type == client_type::opengles)
-        return std::make_shared<graphics::OpenGlesMessageProcessor>(renderer_socket_path_, runtime_, messenger);
+        return std::make_shared<graphics::OpenGlesMessageProcessor>(messenger);
     else if (type == client_type::qemud_boot_properties)
         return std::make_shared<qemu::BootPropertiesMessageProcessor>(messenger);
     else if (type == client_type::qemud_hw_control)
@@ -150,8 +146,6 @@ std::shared_ptr<network::MessageProcessor> PipeConnectionCreator::create_process
         return std::make_shared<qemu::FingerprintMessageProcessor>(messenger);
     else if (type == client_type::qemud_gsm)
         return std::make_shared<qemu::GsmMessageProcessor>(messenger);
-    else if (type == client_type::bootanimation)
-        return std::make_shared<qemu::BootAnimationMessageProcessor>(messenger, boot_animation_icon_path_);
     else if (type == client_type::qemud_adb)
         return std::make_shared<qemu::AdbMessageProcessor>(runtime_, messenger);
 

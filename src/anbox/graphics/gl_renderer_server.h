@@ -34,10 +34,7 @@ public:
 
     void start();
 
-    std::string socket_path() const;
-
 private:
-    std::string socket_path_;
     std::shared_ptr<WindowCreator> window_creator_;
 };
 
