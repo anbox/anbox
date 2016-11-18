@@ -94,8 +94,6 @@ intptr_t RenderServer::main()
             continue;
         }
 
-        DBG("RenderServer: Got new stream!\n");
-
         // check if we have been requested to exit while waiting on accept
         if ((clientFlags & IOSTREAM_CLIENT_EXIT_SERVER) != 0) {
             m_exiting = true;
@@ -133,10 +131,8 @@ intptr_t RenderServer::main()
         }
 
         // if the thread has been created and started, insert it to the list
-        if (rt) {
+        if (rt)
             threads.insert(rt);
-            DBG("Started new RenderThread\n");
-        }
     }
 
     //

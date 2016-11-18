@@ -109,8 +109,6 @@ PipeConnectionCreator::client_type PipeConnectionCreator::identify_client(
 
     std::string identifier_and_args = buffer.data();
 
-    DEBUG("identifier %s", identifier_and_args);
-
     if (utils::string_starts_with(identifier_and_args, "pipe:opengles"))
         return client_type::opengles;
     // Even if 'boot-properties' is an argument to the service 'qemud' here we

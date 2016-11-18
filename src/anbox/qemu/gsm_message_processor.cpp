@@ -78,7 +78,6 @@ void GsmMessageProcessor::handle_ctec(const std::string &command) {
 }
 
 void GsmMessageProcessor::handle_cmgf(const std::string &command) {
-    DEBUG("command %s", command);
     if (command == "+CMGF=0")
         send_reply("");
 }

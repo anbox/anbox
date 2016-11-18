@@ -28,8 +28,6 @@ CameraMessageProcessor::~CameraMessageProcessor() {
 }
 
 bool CameraMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
-    DEBUG("Received: %s", utils::hex_dump(data.data(), data.size()));
-
     for (const auto &byte : data)
         buffer_.push_back(byte);
 

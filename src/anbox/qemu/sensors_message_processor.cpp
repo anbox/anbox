@@ -28,7 +28,6 @@ SensorsMessageProcessor::~SensorsMessageProcessor() {
 }
 
 void SensorsMessageProcessor::handle_command(const std::string &command) {
-    DEBUG("command %s", command);
     if (command == "list-sensors")
         list_sensors();
 }

@@ -30,7 +30,7 @@ NullMessageProcessor::~NullMessageProcessor() {
 }
 
 bool NullMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
-    DEBUG("Received: %s", utils::hex_dump(data.data(), data.size()));
+    (void) data;
     return true;
 }
 } // namespace qemu
