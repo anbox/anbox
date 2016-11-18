@@ -15,26 +15,43 @@
  *
  */
 
-#ifndef ANBOX_WM_MANAGER_H_
-#define ANBOX_WM_MANAGER_H_
+#ifndef ANBOX_WM_WINDOW_H_
+#define ANBOX_WM_WINDOW_H_
 
 #include "anbox/wm/window_state.h"
 
-#include <memory>
+#include <vector>
+#include <string>
 
 namespace anbox {
 namespace wm {
-class PlatformPolicy;
-class Manager {
+// FIXME(morphis): move this somewhere else once we have the integration
+// with the emugl layer.
+class Layer {
 public:
-    Manager(const std::shared_ptr<PlatformPolicy> &platform);
-    ~Manager();
-
-    void apply_window_state_update(const WindowState::List &updated,
-                                   const WindowState::List &removed);
+    graphics::Rect frame() const { return frame_; }
 
 private:
-    std::shared_ptr<PlatformPolicy> platform_;
+    graphics::Rect frame_;
+};
+
+class Window {
+public:
+    typedef std::vector<Window> List;
+
+    Window(const WindowState &state);
+    virtual ~Window();
+
+    void update_state(const WindowState &state);
+
+    // Render a layer into the window. The layer itself includes all
+    // necessary information for correct rendering.
+    void render_layer(const Layer &layer);
+
+    WindowState state() const;
+
+private:
+    WindowState state_;
 };
 } // namespace wm
 } // namespace anbox

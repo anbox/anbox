@@ -37,6 +37,7 @@
 #include "anbox/dbus/skeleton/service.h"
 #include "anbox/container/client.h"
 #include "anbox/wm/manager.h"
+#include "anbox/wm/default_platform_policy.h"
 
 #include <sys/prctl.h>
 
@@ -89,7 +90,8 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
 
         auto input_manager = std::make_shared<input::Manager>(rt);
 
-        auto window_manager = std::make_shared<wm::Manager>();
+        auto policy = std::make_shared<wm::DefaultPlatformPolicy>();
+        auto window_manager = std::make_shared<wm::Manager>(policy);
 
         auto window_creator = std::make_shared<ubuntu::WindowCreator>(input_manager);
         auto renderer = std::make_shared<graphics::GLRendererServer>(window_creator);

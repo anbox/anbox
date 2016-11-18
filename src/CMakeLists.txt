@@ -134,6 +134,9 @@ set(SOURCES
     anbox/wm/task.cpp
     anbox/wm/manager.cpp
     anbox/wm/window_state.cpp
+    anbox/wm/window.cpp
+    anbox/wm/platform_policy.cpp
+    anbox/wm/default_platform_policy.cpp
 
     anbox/input/manager.cpp
     anbox/input/device.cpp

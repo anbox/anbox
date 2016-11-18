@@ -15,24 +15,25 @@
  *
  */
 
-#include "anbox/wm/manager.h"
-#include "anbox/logger.h"
+#include "anbox/wm/default_platform_policy.h"
+#include "anbox/wm/window.h"
+
+namespace {
+class Window : public anbox::wm::Window {
+public:
+    Window(const anbox::wm::WindowState &state) :
+        anbox::wm::Window(state) {
+    }
+};
+}
 
 namespace anbox {
 namespace wm {
-Manager::Manager(const std::shared_ptr<PlatformPolicy> &platform) :
-    platform_(platform) {
+DefaultPlatformPolicy::DefaultPlatformPolicy() {
 }
 
-Manager::~Manager() {
-}
-
-void Manager::apply_window_state_update(const WindowState::List &updated,
-                                        const WindowState::List &removed) {
-    (void) updated;
-    (void) removed;
-
-    DEBUG("updated %d removed %d", updated.size(), removed.size());
+std::shared_ptr<Window> DefaultPlatformPolicy::create_window(const WindowState &state) {
+    return std::make_shared<::Window>(state);
 }
 } // namespace wm
 } // namespace anbox

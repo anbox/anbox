@@ -15,24 +15,19 @@
  *
  */
 
-#include "anbox/wm/manager.h"
-#include "anbox/logger.h"
+#ifndef ANBOX_WM_DEFAULT_PLATFORM_POLICY_H_
+#define ANBOX_WM_DEFAULT_PLATFORM_POLICY_H_
+
+#include "anbox/wm/platform_policy.h"
 
 namespace anbox {
 namespace wm {
-Manager::Manager(const std::shared_ptr<PlatformPolicy> &platform) :
-    platform_(platform) {
-}
-
-Manager::~Manager() {
-}
-
-void Manager::apply_window_state_update(const WindowState::List &updated,
-                                        const WindowState::List &removed) {
-    (void) updated;
-    (void) removed;
-
-    DEBUG("updated %d removed %d", updated.size(), removed.size());
-}
+class DefaultPlatformPolicy : public PlatformPolicy {
+public:
+    DefaultPlatformPolicy();
+    std::shared_ptr<Window> create_window(const WindowState &state) override;
+};
 } // namespace wm
 } // namespace anbox
+
+#endif
