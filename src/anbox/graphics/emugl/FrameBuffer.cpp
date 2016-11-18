@@ -545,7 +545,9 @@ HandleType FrameBuffer::genHandle()
 HandleType FrameBuffer::createColorBuffer(int p_width, int p_height,
                                           GLenum p_internalFormat)
 {
+    DEBUG("width %d height %d", p_width, p_height);
     emugl::Mutex::AutoLock mutex(m_lock);
+    DEBUG("Got lock");
     HandleType ret = 0;
 
     ColorBufferPtr cb(ColorBuffer::create(
@@ -748,10 +750,16 @@ void FrameBuffer::readColorBuffer(HandleType p_colorbuffer,
                                     int x, int y, int width, int height,
                                     GLenum format, GLenum type, void *pixels)
 {
+    DEBUG("handle %d x %d y %d width %d height %d",
+          p_colorbuffer, x, y, width, height);
+
     emugl::Mutex::AutoLock mutex(m_lock);
+
+    DEBUG("Got lock");
 
     ColorBufferMap::iterator c( m_colorbuffers.find(p_colorbuffer) );
     if (c == m_colorbuffers.end()) {
+        DEBUG("Didn't found color buffer");
         // bad colorbuffer handle
         return;
     }

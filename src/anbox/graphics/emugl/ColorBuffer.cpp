@@ -255,12 +255,17 @@ void ColorBuffer::readPixels(int x,
                              GLenum p_format,
                              GLenum p_type,
                              void* pixels) {
+    DEBUG("");
+
     ScopedHelperContext context(m_helper);
     if (!context.isOk()) {
         return;
     }
 
+    DEBUG("Before bind");
+
     if (bindFbo(&m_fbo, m_tex)) {
+        DEBUG("Off to GL to read pixels");
         s_gles2.glReadPixels(x, y, width, height, p_format, p_type, pixels);
         unbindFbo();
     }

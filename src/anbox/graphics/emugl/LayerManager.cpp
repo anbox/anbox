@@ -73,8 +73,8 @@ LayerManager::~LayerManager() {
 }
 
 void LayerManager::post_layer(const LayerInfo &layer) {
-    if (is_layer_blacklisted(layer.name))
-        return;
+    // if (is_layer_blacklisted(layer.name))
+    //     return;
 
     FrameBufferWindow *window = nullptr;
     for (auto &l : layers_) {

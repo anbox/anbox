@@ -20,6 +20,7 @@
 #define ANBOX_NETWORK_MESSAGE_SENDER_H_
 
 #include <sys/types.h>
+#include <cstddef>
 
 namespace anbox {
 namespace network {
@@ -27,6 +28,7 @@ class MessageSender
 {
 public:
     virtual void send(char const* data, size_t length) = 0;
+    virtual ssize_t send_raw(char const* data, size_t length) = 0;
 
 protected:
     MessageSender() = default;

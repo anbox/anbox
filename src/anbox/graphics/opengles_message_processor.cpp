@@ -26,122 +26,227 @@
 
 #include <condition_variable>
 #include <queue>
+#include <functional>
 
 namespace {
-class DirectIOStream : public IOStream {
+constexpr const size_t default_buffer_size{384};
+constexpr const size_t max_send_buffer_size{1024};
+
+class DelayedIOStream : public IOStream {
 public:
-    explicit DirectIOStream(const std::shared_ptr<anbox::network::SocketMessenger> &messenger,
-                            const size_t &buffer_size = 10000) :
+    typedef std::vector<char> Buffer;
+
+    explicit DelayedIOStream(const std::shared_ptr<anbox::network::SocketMessenger> &messenger,
+                             size_t buffer_size = default_buffer_size) :
         IOStream(buffer_size),
         messenger_(messenger) {
+        // writer_thread_(std::bind(&DelayedIOStream::worker_thread, this)) {
     }
 
-    virtual ~DirectIOStream() {
-        if (send_buffer_ != nullptr) {
-            free(send_buffer_);
-            send_buffer_ = nullptr;
-        }
+    virtual ~DelayedIOStream() {
+        DEBUG("");
+        forceStop();
+        DEBUG("Shutting down");
     }
 
     void* allocBuffer(size_t min_size) override {
-        size_t size = (send_buffer_size_ < min_size ? min_size : send_buffer_size_);
-        if (!send_buffer_)
-            send_buffer_ = (unsigned char *) malloc(size);
-        else if (send_buffer_size_ < size) {
-            unsigned char *p = (unsigned char *)realloc(send_buffer_, size);
-            if (p != NULL) {
-                send_buffer_ = p;
-                send_buffer_size_ = size;
-            } else {
-                free(send_buffer_);
-                send_buffer_ = NULL;
-                send_buffer_size_ = 0;
-            }
-        }
-        return send_buffer_;
+        DEBUG("min size %d", min_size);
+        if (buffer_.size() < min_size)
+            buffer_.resize(min_size);
+        return buffer_.data();
     }
 
     int commitBuffer(size_t size) override {
-        messenger_->send(reinterpret_cast<const char*>(send_buffer_), size);
-        return size;
+        DEBUG("size %d", size);
+        std::unique_lock<std::mutex> l(read_mutex_);
+
+#if 0
+        if (buffer_.capacity() <= 2 * size) {
+            buffer_.resize(size);
+            out_queue_.push(std::move(buffer_));
+        } else {
+            out_queue_.push(Buffer(buffer_.data(), buffer_.data() + size));
+        }
+        DEBUG("Submitted data into output queue (%d bytes)", size);
+        can_write_.notify_all();
+#else
+        ssize_t bytes_left = size;
+        while (bytes_left > 0) {
+            const ssize_t written = messenger_->send_raw(buffer_.data() + (size - bytes_left), bytes_left);
+            if (written < 0 ) {
+                if (errno != EINTR) {
+                    ERROR("Failed to write data: %s", std::strerror(errno));
+                    break;
+                }
+                WARNING("Socket busy, trying again");
+            } else
+                bytes_left -= written;
+        }
+
+        DEBUG("Sent data to remote (%d bytes)", buffer_.size());
+#endif
+        return static_cast<int>(size);
     }
 
-    const unsigned char* readFully(void*, size_t) override {
-        ERROR("Not implemented");
-        return nullptr;
+    const unsigned char* readFully(void *buffer, size_t length) override {
+        size_t size = length;
+        auto data = read(buffer, &size);
+        if (size < length)
+            return nullptr;
+        return data;
     }
 
-    const unsigned char* read(void *data, size_t *size) override {
-        if (!wait_for_data() || buffer_.size() == 0) {
-            *size = 0;
+    const unsigned char* read(void *buffer, size_t *length) override {
+        std::unique_lock<std::mutex> l(read_mutex_);
+
+        if (stopped_) {
+            DEBUG("Aborting");
             return nullptr;
         }
 
-        auto bytes_to_read = *size;
-        if (bytes_to_read > buffer_.size())
-            bytes_to_read = buffer_.size();
+        if (current_read_buffer_left_ == 0 && in_queue_.empty()) {
+            DEBUG("Waiting for data to be available");
+            can_read_.wait(l);
 
-        ::memcpy(data, buffer_.data(), bytes_to_read);
-        buffer_.erase(buffer_.begin(), buffer_.begin() + bytes_to_read);
+            if (stopped_) {
+                DEBUG("Aborting");
+                return nullptr;
+            }
+        }
 
-        *size = bytes_to_read;
+        DEBUG("Trying to read %d bytes", *length);
+        size_t read = 0;
+        auto buf = static_cast<unsigned char*>(buffer);
+        const auto buffer_end = buf + *length;
+        while (buf != buffer_end) {
+            if (current_read_buffer_left_ == 0) {
+                // If we don't have anymore buffers we need to stop reading here
+                if (in_queue_.empty())
+                    break;
 
-        return static_cast<const unsigned char*>(data);
+                current_read_buffer_ = in_queue_.front();
+                in_queue_.pop();
+                current_read_buffer_left_ = current_read_buffer_.size();
+            }
+
+            const size_t current_size = std::min<size_t>(buffer_end - buf,
+                                                         current_read_buffer_left_);
+            ::memcpy(buffer, current_read_buffer_.data() +
+                     (current_read_buffer_.size() - current_read_buffer_left_),
+                     current_size);
+
+            read += current_size;
+            buf += current_size;
+            current_read_buffer_left_ -= current_size;
+
+            DEBUG("Size %d, left to read %d", current_size, current_read_buffer_left_);
+        }
+
+        if (read == 0)
+            return nullptr;
+
+        *length = read;
+
+        DEBUG("Read %d bytes (buffers left %d)", read, in_queue_.size());
+
+        return buf;
     }
 
-    int writeFully(const void*, size_t) override {
+    int writeFully(const void *buffer, size_t length) override {
+        (void) buffer;
+        (void) length;
         ERROR("Not implemented");
-        return 0;
+        return -1;
     }
 
     void forceStop() override {
-        std::unique_lock<std::mutex> l(mutex_);
-        buffer_.clear();
+        DEBUG("");
+        stopped_ = true;
+        can_read_.notify_all();
+        can_write_.notify_all();
     }
 
-    void submitData(const std::vector<std::uint8_t> &data) {
-        std::unique_lock<std::mutex> l(mutex_);
-        for (const auto &byte : data)
-            buffer_.push_back(byte);
-        // buffer_.insert(buffer_.end(), data.begin(), data.end());
-        lock_.notify_one();
+    void post_data(const Buffer &buffer) {
+        DEBUG("Got data and waiting for lock");
+        std::unique_lock<std::mutex> l(read_mutex_);
+        DEBUG("Received %d bytes", buffer.size());
+        in_queue_.push(std::move(buffer));
+        can_read_.notify_all();
     }
 
 private:
-    bool wait_for_data() {
-        std::unique_lock<std::mutex> l(mutex_);
+    void worker_thread() {
+        DEBUG("Running send thread");
+        while (true) {
+            std::unique_lock<std::mutex> l(write_mutex_);
+            while (out_queue_.empty() && !stopped_) {
+                can_write_.wait(l, [&]() { return !out_queue_.empty() || stopped_; });
+                DEBUG("Woke up (queue size %d)", out_queue_.size());
+            }
 
-        if (!l.owns_lock())
-            return false;
+            if (stopped_)
+                break;
 
-        lock_.wait(l, [&]() { return !buffer_.empty(); });
-        return true;
+            DEBUG("Going to send out %d bytes", out_queue_.front().size());
+
+            auto buffer = out_queue_.front();
+            out_queue_.pop();
+
+            ssize_t bytes_left = buffer.size();
+            while (bytes_left > 0) {
+                const ssize_t written = messenger_->send_raw(buffer.data() + (buffer.size() - bytes_left), bytes_left);
+                if (written < 0 ) {
+                    if (errno != EINTR) {
+                        ERROR("Failed to write data: %s", std::strerror(errno));
+                        break;
+                    }
+                    WARNING("Socket busy, trying again");
+                } else
+                    bytes_left -= written;
+            }
+            DEBUG("Sent %d bytes to client (queue size %d)", buffer.size(), out_queue_.size());
+        }
+
+        DEBUG("Shutting down");
     }
 
     std::shared_ptr<anbox::network::SocketMessenger> messenger_;
-    std::mutex mutex_;
-    std::condition_variable lock_;
-    std::vector<std::uint8_t> buffer_;
-    unsigned char *send_buffer_ = nullptr;
-    size_t send_buffer_size_ = 0;
+    Buffer buffer_;
+    std::thread writer_thread_;
+    std::queue<Buffer> out_queue_;
+    Buffer current_write_buffer_;
+    size_t current_write_buffer_left_ = 0;
+    std::queue<Buffer> in_queue_;
+    Buffer current_read_buffer_;
+    size_t current_read_buffer_left_ = 0;
+    std::mutex write_mutex_;
+    std::mutex read_mutex_;
+    std::condition_variable can_write_;
+    std::condition_variable can_read_;
+    bool stopped_ = false;
 };
 }
 
 namespace anbox {
 namespace graphics {
 emugl::Mutex OpenGlesMessageProcessor::global_lock{};
-
+static int next_id = 0;
 OpenGlesMessageProcessor::OpenGlesMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
     messenger_(messenger),
-    stream_(std::make_shared<DirectIOStream>(messenger_)),
-    renderer_(RenderThread::create(stream_.get(), &global_lock)) {
+    id_(next_id++),
+    stream_(std::make_shared<DelayedIOStream>(messenger_)) {
 
     // We have to read the client flags first before we can continue
     // processing the actual commands
-    std::array<std::uint8_t, sizeof(unsigned int)> buffer;
-    messenger_->receive_msg(boost::asio::buffer(buffer));
+    unsigned int client_flags = 0;
+    auto err = messenger_->receive_msg(boost::asio::buffer(&client_flags, sizeof(unsigned int)));
+    if (err)
+        ERROR("%s", err.message());
 
+    renderer_.reset(RenderThread::create(stream_.get(), &global_lock));
     renderer_->start();
+
+    DEBUG("Started new OpenGL ES message processor");
 }
 
 OpenGlesMessageProcessor::~OpenGlesMessageProcessor() {
@@ -151,8 +256,9 @@ OpenGlesMessageProcessor::~OpenGlesMessageProcessor() {
 }
 
 bool OpenGlesMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
-    auto stream = std::static_pointer_cast<DirectIOStream>(stream_);
-    stream->submitData(data);
+    DEBUG("[%d] Got %d bytes", id_, data.size());
+    auto stream = std::static_pointer_cast<DelayedIOStream>(stream_);
+    stream->post_data(DelayedIOStream::Buffer(data.data(), data.data() + data.size()));
     return true;
 }
 } // namespace graphics

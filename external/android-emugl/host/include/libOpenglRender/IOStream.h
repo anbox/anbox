@@ -21,6 +21,8 @@
 
 #include "ErrorLog.h"
 
+#include "anbox/logger.h"
+
 class IOStream {
 public:
 
@@ -70,7 +72,7 @@ public:
     }
 
     int flush() {
-
+        DEBUG("buf %p free %d buf size %d", m_buf, m_free, m_bufsize);
         if (!m_buf || m_free == m_bufsize) return 0;
 
         int stat = commitBuffer(m_bufsize - m_free);
