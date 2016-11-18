@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FbConfig.h"
+#include "RendererConfig.h"
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
@@ -92,11 +92,11 @@ bool isCompatibleHostConfig(EGLConfig config, EGLDisplay display) {
 
 }  // namespace
 
-FbConfig::~FbConfig() {
+RendererConfig::~RendererConfig() {
     delete [] mAttribValues;
 }
 
-FbConfig::FbConfig(EGLConfig hostConfig, EGLDisplay hostDisplay) :
+RendererConfig::RendererConfig(EGLConfig hostConfig, EGLDisplay hostDisplay) :
         mEglConfig(hostConfig), mAttribValues(NULL) {
     mAttribValues = new GLint[kConfigAttributesLen];
     for (size_t i = 0; i < kConfigAttributesLen; ++i) {
@@ -114,7 +114,7 @@ FbConfig::FbConfig(EGLConfig hostConfig, EGLDisplay hostDisplay) :
     }
 }
 
-FbConfigList::FbConfigList(EGLDisplay display) :
+RendererConfigList::RendererConfigList(EGLDisplay display) :
         mCount(0), mConfigs(NULL), mDisplay(display) {
     if (display == EGL_NO_DISPLAY) {
         E("%s: Invalid display value %p (EGL_NO_DISPLAY)\n",
@@ -130,27 +130,27 @@ FbConfigList::FbConfigList(EGLDisplay display) :
     EGLConfig* hostConfigs = new EGLConfig[numHostConfigs];
     s_egl.eglGetConfigs(display, hostConfigs, numHostConfigs, &numHostConfigs);
 
-    mConfigs = new FbConfig*[numHostConfigs];
+    mConfigs = new RendererConfig*[numHostConfigs];
     for (EGLint i = 0;  i < numHostConfigs; ++i) {
         // Filter out configs that are not compatible with our implementation.
         if (!isCompatibleHostConfig(hostConfigs[i], display)) {
             continue;
         }
-        mConfigs[mCount] = new FbConfig(hostConfigs[i], display);
+        mConfigs[mCount] = new RendererConfig(hostConfigs[i], display);
         mCount++;
     }
 
     delete [] hostConfigs;
 }
 
-FbConfigList::~FbConfigList() {
+RendererConfigList::~RendererConfigList() {
     for (int n = 0; n < mCount; ++n) {
         delete mConfigs[n];
     }
     delete [] mConfigs;
 }
 
-int FbConfigList::chooseConfig(const EGLint* attribs,
+int RendererConfigList::chooseConfig(const EGLint* attribs,
                                EGLint* configs,
                                EGLint configsSize) const {
     EGLint numHostConfigs = 0;
@@ -245,7 +245,7 @@ int FbConfigList::chooseConfig(const EGLint* attribs,
 }
 
 
-void FbConfigList::getPackInfo(EGLint* numConfigs,
+void RendererConfigList::getPackInfo(EGLint* numConfigs,
                                EGLint* numAttributes) const {
     if (numConfigs) {
         *numConfigs = mCount;
@@ -255,7 +255,7 @@ void FbConfigList::getPackInfo(EGLint* numConfigs,
     }
 }
 
-EGLint FbConfigList::packConfigs(GLuint bufferByteSize, GLuint* buffer) const {
+EGLint RendererConfigList::packConfigs(GLuint bufferByteSize, GLuint* buffer) const {
     GLuint numAttribs = static_cast<GLuint>(kConfigAttributesLen);
     GLuint kGLuintSize = static_cast<GLuint>(sizeof(GLuint));
     GLuint neededByteSize = (mCount + 1) * numAttribs * kGLuintSize;

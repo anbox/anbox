@@ -16,8 +16,8 @@
 #include "RenderControl.h"
 
 #include "DispatchTables.h"
-#include "FbConfig.h"
-#include "FrameBuffer.h"
+#include "RendererConfig.h"
+#include "Renderer.h"
 #include "RenderThreadInfo.h"
 #include "ChecksumCalculatorThreadInfo.h"
 #include "LayerManager.h"
@@ -37,7 +37,7 @@ static GLint rcGetRendererVersion()
 
 static EGLint rcGetEGLVersion(EGLint* major, EGLint* minor)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return EGL_FALSE;
     }
@@ -49,7 +49,7 @@ static EGLint rcGetEGLVersion(EGLint* major, EGLint* minor)
 
 static EGLint rcQueryEGLString(EGLenum name, void* buffer, EGLint bufferSize)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return 0;
     }
@@ -123,7 +123,7 @@ static EGLint rcGetNumConfigs(uint32_t* p_numAttribs)
 {
     int numConfigs = 0, numAttribs = 0;
 
-    FrameBuffer::getFB()->getConfigs()->getPackInfo(&numConfigs, &numAttribs);
+    Renderer::get()->getConfigs()->getPackInfo(&numConfigs, &numAttribs);
     if (p_numAttribs) {
         *p_numAttribs = static_cast<uint32_t>(numAttribs);
     }
@@ -133,7 +133,7 @@ static EGLint rcGetNumConfigs(uint32_t* p_numAttribs)
 static EGLint rcGetConfigs(uint32_t bufSize, GLuint* buffer)
 {
     GLuint bufferSize = (GLuint)bufSize;
-    return FrameBuffer::getFB()->getConfigs()->packConfigs(bufferSize, buffer);
+    return Renderer::get()->getConfigs()->packConfigs(bufferSize, buffer);
 }
 
 static EGLint rcChooseConfig(EGLint *attribs,
@@ -141,7 +141,7 @@ static EGLint rcChooseConfig(EGLint *attribs,
                              uint32_t *configs,
                              uint32_t configs_size)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb || attribs_size==0) {
         return 0;
     }
@@ -152,7 +152,7 @@ static EGLint rcChooseConfig(EGLint *attribs,
 
 static EGLint rcGetFBParam(EGLint param)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return 0;
     }
@@ -191,7 +191,7 @@ static EGLint rcGetFBParam(EGLint param)
 static uint32_t rcCreateContext(uint32_t config,
                                 uint32_t share, uint32_t glVersion)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return 0;
     }
@@ -204,7 +204,7 @@ static uint32_t rcCreateContext(uint32_t config,
 
 static void rcDestroyContext(uint32_t context)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return;
     }
@@ -215,7 +215,7 @@ static void rcDestroyContext(uint32_t context)
 static uint32_t rcCreateWindowSurface(uint32_t config,
                                       uint32_t width, uint32_t height)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return 0;
     }
@@ -225,7 +225,7 @@ static uint32_t rcCreateWindowSurface(uint32_t config,
 
 static void rcDestroyWindowSurface(uint32_t windowSurface)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return;
     }
@@ -236,7 +236,7 @@ static void rcDestroyWindowSurface(uint32_t windowSurface)
 static uint32_t rcCreateColorBuffer(uint32_t width,
                                     uint32_t height, GLenum internalFormat)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return 0;
     }
@@ -246,7 +246,7 @@ static uint32_t rcCreateColorBuffer(uint32_t width,
 
 static int rcOpenColorBuffer2(uint32_t colorbuffer)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return -1;
     }
@@ -262,7 +262,7 @@ static void rcOpenColorBuffer(uint32_t colorbuffer)
 
 static void rcCloseColorBuffer(uint32_t colorbuffer)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return;
     }
@@ -271,7 +271,7 @@ static void rcCloseColorBuffer(uint32_t colorbuffer)
 
 static int rcFlushWindowColorBuffer(uint32_t windowSurface)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return -1;
     }
@@ -284,7 +284,7 @@ static int rcFlushWindowColorBuffer(uint32_t windowSurface)
 static void rcSetWindowColorBuffer(uint32_t windowSurface,
                                    uint32_t colorBuffer)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return;
     }
@@ -294,7 +294,7 @@ static void rcSetWindowColorBuffer(uint32_t windowSurface,
 static EGLint rcMakeCurrent(uint32_t context,
                             uint32_t drawSurf, uint32_t readSurf)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return EGL_FALSE;
     }
@@ -306,7 +306,7 @@ static EGLint rcMakeCurrent(uint32_t context,
 
 static void rcFBPost(uint32_t colorBuffer)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return;
     }
@@ -321,7 +321,7 @@ static void rcFBSetSwapInterval(EGLint interval)
 
 static void rcBindTexture(uint32_t colorBuffer)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return;
     }
@@ -331,7 +331,7 @@ static void rcBindTexture(uint32_t colorBuffer)
 
 static void rcBindRenderbuffer(uint32_t colorBuffer)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return;
     }
@@ -351,7 +351,7 @@ static void rcReadColorBuffer(uint32_t colorBuffer,
                               GLint width, GLint height,
                               GLenum format, GLenum type, void* pixels)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return;
     }
@@ -364,7 +364,7 @@ static int rcUpdateColorBuffer(uint32_t colorBuffer,
                                 GLint width, GLint height,
                                 GLenum format, GLenum type, void* pixels)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return -1;
     }
@@ -375,7 +375,7 @@ static int rcUpdateColorBuffer(uint32_t colorBuffer,
 
 static uint32_t rcCreateClientImage(uint32_t context, EGLenum target, GLuint buffer)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return 0;
     }
@@ -385,7 +385,7 @@ static uint32_t rcCreateClientImage(uint32_t context, EGLenum target, GLuint buf
 
 static int rcDestroyClientImage(uint32_t image)
 {
-    FrameBuffer *fb = FrameBuffer::getFB();
+    Renderer *fb = Renderer::get();
     if (!fb) {
         return 0;
     }

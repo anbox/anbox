@@ -18,7 +18,7 @@
 
 #include "ColorBuffer.h"
 #include "emugl/common/mutex.h"
-#include "FbConfig.h"
+#include "RendererConfig.h"
 #include "RenderContext.h"
 #include "TextureDraw.h"
 #include "WindowSurface.h"
@@ -51,14 +51,14 @@ typedef std::map<HandleType, ColorBufferRef> ColorBufferMap;
 // extension is supported.
 // |eglMajor| and |eglMinor| are the major and minor version numbers of
 // the underlying EGL implementation.
-struct FrameBufferCaps {
+struct RendererCaps {
     bool has_eglimage_texture_2d;
     bool has_eglimage_renderbuffer;
     EGLint eglMajor;
     EGLint eglMinor;
 };
 
-struct FrameBufferWindow;
+struct RendererWindow;
 
 // The FrameBuffer class holds the global state of the emulation library on
 // top of the underlying EGL/GLES implementation. It should probably be
@@ -67,7 +67,7 @@ struct FrameBufferWindow;
 // There is only one global instance, that can be retrieved with getFB(),
 // and which must be previously setup by calling initialize().
 //
-class FrameBuffer {
+class Renderer {
 public:
     // Initialize the global instance.
     // |width| and |height| are the dimensions of the emulator GPU display
@@ -78,22 +78,22 @@ public:
     // Returns true on success, false otherwise.
     static bool initialize(EGLNativeDisplayType nativeDisplay);
 
-    FrameBufferWindow* createWindow(int x, int y, int width, int height);
-    void updateWindow(FrameBufferWindow *window, int x, int y, int width, int height);
-    void destroyWindow(FrameBufferWindow *window);
+    RendererWindow* createWindow(int x, int y, int width, int height);
+    void updateWindow(RendererWindow *window, int x, int y, int width, int height);
+    void destroyWindow(RendererWindow *window);
 
     // Finalize the instance.
     void finalize();
 
     // Return a pointer to the global instance. initialize() must be called
     // previously, or this will return NULL.
-    static FrameBuffer *getFB() { return s_theFrameBuffer; }
+    static Renderer *get() { return s_renderer; }
 
     // Return the capabilities of the underlying display.
-    const FrameBufferCaps &getCaps() const { return m_caps; }
+    const RendererCaps &getCaps() const { return m_caps; }
 
     // Return the list of configs available from this display.
-    const FbConfigList* getConfigs() const { return m_configs; }
+    const RendererConfigList* getConfigs() const { return m_configs; }
 
     // Set a callback that will be called each time the emulated GPU content
     // is updated. This can be relatively slow with host-based GPU emulation,
@@ -232,7 +232,7 @@ public:
     // |needLock| is used to indicate whether the operation requires
     // acquiring/releasing the FrameBuffer instance's lock. It should be
     // false only when called internally.
-    bool post(FrameBufferWindow *window, HandleType p_colorbuffer, bool needLock = true);
+    bool post(RendererWindow *window, HandleType p_colorbuffer, bool needLock = true);
 
     // Return the host EGLDisplay used by this instance.
     EGLDisplay getDisplay() const { return m_eglDisplay; }
@@ -249,19 +249,19 @@ public:
     bool unbind_locked();
 
 private:
-    FrameBuffer();
-    ~FrameBuffer();
+    Renderer();
+    ~Renderer();
     HandleType genHandle();
 
-    bool bindWindow_locked(FrameBufferWindow *window);
+    bool bindWindow_locked(RendererWindow *window);
 
 private:
-    static FrameBuffer *s_theFrameBuffer;
+    static Renderer *s_renderer;
     static HandleType s_nextHandle;
     emugl::Mutex m_lock;
-    FbConfigList* m_configs;
+    RendererConfigList* m_configs;
     FBNativeWindowType m_nativeWindow;
-    FrameBufferCaps m_caps;
+    RendererCaps m_caps;
     EGLDisplay m_eglDisplay;
     RenderContextMap m_contexts;
     WindowSurfaceMap m_windows;

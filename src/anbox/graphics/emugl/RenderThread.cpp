@@ -15,7 +15,7 @@
 */
 #include "RenderThread.h"
 
-#include "FrameBuffer.h"
+#include "Renderer.h"
 #include "ReadBuffer.h"
 #include "RenderControl.h"
 #include "RenderThreadInfo.h"
@@ -108,14 +108,14 @@ intptr_t RenderThread::main() {
     //
     // Release references to the current thread's context/surfaces if any
     //
-    FrameBuffer::getFB()->bindContext(0, 0, 0);
+    Renderer::get()->bindContext(0, 0, 0);
     if (tInfo.currContext || tInfo.currDrawSurf || tInfo.currReadSurf) {
         fprintf(stderr, "ERROR: RenderThread exiting with current context/surfaces\n");
     }
 
-    FrameBuffer::getFB()->drainWindowSurface();
+    Renderer::get()->drainWindowSurface();
 
-    FrameBuffer::getFB()->drainRenderContext();
+    Renderer::get()->drainRenderContext();
 
     return 0;
 }

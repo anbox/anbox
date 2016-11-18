@@ -32,10 +32,10 @@
 // One doesn't create an FbConfig instance. Instead, create and initialize
 // an FbConfigList from the host EGLDisplay, and use its size() and get()
 // methods to access it.
-class FbConfig {
+class RendererConfig {
 public:
     // Destructor
-    ~FbConfig();
+    ~RendererConfig();
 
     // Retrieve host EGLConfig.
     EGLConfig getEglConfig() const { return mEglConfig; }
@@ -57,12 +57,12 @@ public:
     GLint getConfigId() const { return (GLint)getAttribValue(4); }
 
 private:
-    FbConfig();
-    FbConfig(FbConfig& other);
+    RendererConfig();
+    RendererConfig(RendererConfig& other);
 
-    explicit FbConfig(EGLConfig hostConfig, EGLDisplay hostDisplay);
+    explicit RendererConfig(EGLConfig hostConfig, EGLDisplay hostDisplay);
 
-    friend class FbConfigList;
+    friend class RendererConfigList;
 
     GLuint getAttribValue(int n) const {
         return mAttribValues ? mAttribValues[n] : 0U;
@@ -91,7 +91,7 @@ private:
 //
 // 5) Use getPackInfo() and packConfigs() to retrieve information about
 //    available configs to the guest.
-class FbConfigList {
+class RendererConfigList {
 public:
     // Create a new list of FbConfig instance, by querying all compatible
     // host configs from |display|. A compatible config is one that supports
@@ -99,10 +99,10 @@ public:
     //
     // After construction, call empty() to check if there are items.
     // An empty list means there was an error during construction.
-    explicit FbConfigList(EGLDisplay display);
+    explicit RendererConfigList(EGLDisplay display);
 
     // Destructor.
-    ~FbConfigList();
+    ~RendererConfigList();
 
     // Return true iff the list is empty. true means there was an error
     // during construction.
@@ -116,7 +116,7 @@ public:
     // Retrieve the FbConfig instance associated with |guestId|,
     // which must be an integer between 0 and |size() - 1|. Returns
     // NULL in case of failure.
-    const FbConfig* get(int guestId) const {
+    const RendererConfig* get(int guestId) const {
         if (guestId >= 0 && guestId < mCount) {
             return mConfigs[guestId];
         } else {
@@ -152,11 +152,11 @@ public:
     EGLint packConfigs(GLuint bufferByteSize, GLuint* buffer) const;
 
 private:
-    FbConfigList();
-    FbConfigList(const FbConfigList& other);
+    RendererConfigList();
+    RendererConfigList(const RendererConfigList& other);
 
     int mCount;
-    FbConfig** mConfigs;
+    RendererConfig** mConfigs;
     EGLDisplay mDisplay;
 };
 

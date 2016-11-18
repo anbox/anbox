@@ -18,7 +18,7 @@
 #include "emugl/common/message_channel.h"
 #include "emugl/common/mutex.h"
 #include "emugl/common/thread.h"
-#include "FrameBuffer.h"
+#include "Renderer.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -109,13 +109,13 @@ struct RenderWindowMessage {
     // Returns true on success, or false on failure.
     bool process() const {
         const RenderWindowMessage& msg = *this;
-        FrameBuffer* fb;
+        Renderer* fb;
         bool result = false;
         switch (msg.cmd) {
             case CMD_INITIALIZE:
                 D("CMD_INITIALIZE\n");
                 GL_LOG("RenderWindow: CMD_INITIALIZE");
-                result = FrameBuffer::initialize(msg.init.nativeDisplay);
+                result = Renderer::initialize(msg.init.nativeDisplay);
                 break;
 
             case CMD_FINALIZE:
@@ -123,7 +123,7 @@ struct RenderWindowMessage {
                 // this command may be issued even when frame buffer is not
                 // yet created (e.g. if CMD_INITIALIZE failed),
                 // so make sure we check if it is there before finalizing
-                if (const auto fb = FrameBuffer::getFB()) {
+                if (const auto fb = Renderer::get()) {
                     fb->finalize();
                 }
                 result = true;
@@ -278,7 +278,7 @@ bool RenderWindow::getHardwareStrings(const char** vendor,
                                       const char** version) {
     D("Entering\n");
     // TODO(digit): Move this to render window thread.
-    FrameBuffer* fb = FrameBuffer::getFB();
+    Renderer* fb = Renderer::get();
     if (!fb) {
         D("No framebuffer!\n");
         return false;

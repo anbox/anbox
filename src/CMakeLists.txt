@@ -109,8 +109,8 @@ set(SOURCES
 
     anbox/graphics/emugl/ColorBuffer.cpp
     anbox/graphics/emugl/DisplayManager.cpp
-    anbox/graphics/emugl/FbConfig.cpp
-    anbox/graphics/emugl/FrameBuffer.cpp
+    anbox/graphics/emugl/RendererConfig.cpp
+    anbox/graphics/emugl/Renderer.cpp
     anbox/graphics/emugl/LayerManager.cpp
     anbox/graphics/emugl/NativeSubWindow_delegate.cpp
     anbox/graphics/emugl/NativeSubWindow.h

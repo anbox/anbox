@@ -76,7 +76,7 @@ void LayerManager::post_layer(const LayerInfo &layer) {
     if (is_layer_blacklisted(layer.name))
         return;
 
-    FrameBufferWindow *window = nullptr;
+    RendererWindow *window = nullptr;
     for (auto &l : layers_) {
         if (l.first == layer.name || from_same_package(l.first, layer.name)) {
             window = l.second.window;
@@ -99,7 +99,7 @@ void LayerManager::post_layer(const LayerInfo &layer) {
                layer.source_crop.right,
                layer.source_crop.bottom);
 
-        window = FrameBuffer::getFB()->createWindow(layer.display_frame.left,
+        window = Renderer::get()->createWindow(layer.display_frame.left,
                                                     layer.display_frame.top,
                                                     width, height);
         if (!window) {
@@ -110,17 +110,17 @@ void LayerManager::post_layer(const LayerInfo &layer) {
         layers_.insert({ layer.name, Layer{window, true}});
     }
 
-    FrameBuffer::getFB()->updateWindow(window,
+    Renderer::get()->updateWindow(window,
                                        layer.display_frame.left,
                                        layer.display_frame.top,
                                        width, height);
-    FrameBuffer::getFB()->post(window, layer.buffer_handle);
+    Renderer::get()->post(window, layer.buffer_handle);
 }
 
 void LayerManager::finish_cycle() {
     for (auto iter = layers_.begin(); iter != layers_.end(); ++iter) {
         if (!iter->second.updated) {
-            FrameBuffer::getFB()->destroyWindow(iter->second.window);
+            Renderer::get()->destroyWindow(iter->second.window);
             layers_.erase(iter);
         }
     }

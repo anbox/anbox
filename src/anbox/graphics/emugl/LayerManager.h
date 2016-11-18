@@ -24,7 +24,7 @@
 #include <vector>
 #include <string>
 
-#include "FrameBuffer.h"
+#include "Renderer.h"
 
 struct LayerRect {
     int left;
@@ -53,7 +53,7 @@ private:
     LayerManager();
 
     struct Layer {
-        FrameBufferWindow *window;
+        RendererWindow *window;
         bool updated;
     };
 
