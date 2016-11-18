@@ -109,7 +109,9 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
         auto qemu_pipe_connector = std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/qemu_pipe", config::socket_path()),
             rt,
-            std::make_shared<qemu::PipeConnectionCreator>(rt));
+            std::make_shared<qemu::PipeConnectionCreator>(rt,
+                                                          renderer->socket_path(),
+                                                          icon_));
 
         auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
