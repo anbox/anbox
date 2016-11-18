@@ -45,7 +45,6 @@ private:
     static emugl::Mutex global_lock;
 
     std::shared_ptr<network::SocketMessenger> messenger_;
-    int id_;
     std::shared_ptr<IOStream> stream_;
     std::shared_ptr<RenderThread> renderer_;
 };

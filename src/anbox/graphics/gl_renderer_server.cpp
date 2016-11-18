@@ -71,9 +71,6 @@ void GLRendererServer::start() {
     log_funcs.coarse = logger_write;
     log_funcs.fine = logger_write;
 
-    // HACK: This will do nothing but set our log functions
-    initOpenGLRenderer(nullptr, nullptr, 0, log_funcs, logger_write);
-
     FrameBuffer::initialize(window_creator_->native_display());
 }
 } // namespace graphics

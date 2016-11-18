@@ -14,7 +14,7 @@ add_custom_command(
 set(SOURCES
     GLESv1Decoder.cpp)
 
-if ("${cmake_build_type_lower}" STREQUAL "debug")
+if ("${cmake_build_type_lower}" STREQUAL "trace")
     set(OPENGL_DEBUG "-DOPENGL_DEBUG_PRINTOUT -DCHECK_GL_ERROR")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OPENGL_DEBUG}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPENGL_DEBUG}")

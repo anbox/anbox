@@ -25,8 +25,6 @@
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
-#include "anbox/logger.h"
-
 #include <map>
 #include <string>
 
@@ -238,7 +236,6 @@ static void rcDestroyWindowSurface(uint32_t windowSurface)
 static uint32_t rcCreateColorBuffer(uint32_t width,
                                     uint32_t height, GLenum internalFormat)
 {
-    DEBUG("");
     FrameBuffer *fb = FrameBuffer::getFB();
     if (!fb) {
         return 0;
@@ -354,8 +351,6 @@ static void rcReadColorBuffer(uint32_t colorBuffer,
                               GLint width, GLint height,
                               GLenum format, GLenum type, void* pixels)
 {
-    DEBUG("");
-
     FrameBuffer *fb = FrameBuffer::getFB();
     if (!fb) {
         return;

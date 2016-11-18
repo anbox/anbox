@@ -79,6 +79,61 @@ RENDER_APICALL int RENDER_APIENTRY initOpenGLRenderer(
     set_emugl_crash_reporter(crashfunc);
     set_emugl_logger(logfuncs.coarse);
     set_emugl_cxt_logger(logfuncs.fine);
+    //
+    // Fail if renderer is already initialized
+    //
+    if (s_renderThread) {
+        return false;
+    }
+
+    // kUseThread is used to determine whether the RenderWindow should use
+    // a separate thread to manage its subwindow GL/GLES context.
+    // For now, this feature is disabled entirely for the following
+    // reasons:
+    //
+    // - It must be disabled on Windows at all times, otherwise the main window becomes
+    //   unresponsive after a few seconds of user interaction (e.g. trying to
+    //   move it over the desktop). Probably due to the subtle issues around
+    //   input on this platform (input-queue is global, message-queue is
+    //   per-thread). Also, this messes considerably the display of the
+    //   main window when running the executable under Wine.
+    //
+    // - On Linux/XGL and OSX/Cocoa, this used to be necessary to avoid corruption
+    //   issues with the GL state of the main window when using the SDL UI.
+    //   After the switch to Qt, this is no longer necessary and may actually cause
+    //   undesired interactions between the UI thread and the RenderWindow thread:
+    //   for example, in a multi-monitor setup the context might be recreated when
+    //   dragging the window between monitors, triggering a Qt-specific callback
+    //   in the context of RenderWindow thread, which will become blocked on the UI
+    //   thread, which may in turn be blocked on something else.
+    bool kUseThread = false;
+
+    //
+    // initialize the renderer and listen to connections
+    // on a thread in the current process.
+    //
+    s_renderWindow = new RenderWindow(native_display, kUseThread);
+    if (!s_renderWindow) {
+        ERR("Could not create rendering window class");
+        GL_LOG("Could not create rendering window class");
+        return false;
+    }
+    if (!s_renderWindow->isValid()) {
+        ERR("Could not initialize emulated framebuffer\n");
+        delete s_renderWindow;
+        s_renderWindow = NULL;
+        return false;
+    }
+
+    s_renderThread = RenderServer::create(addr, addrLen);
+    if (!s_renderThread) {
+        return false;
+    }
+    strncpy(s_renderAddr, addr, sizeof(s_renderAddr));
+
+    s_renderThread->start();
+
+    GL_LOG("OpenGL renderer initialized successfully");
     return true;
 }
 

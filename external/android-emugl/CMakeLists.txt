@@ -3,7 +3,6 @@
 set(CMAKE_C_FLAGS "-Wall")
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/external/android-emugl/shared
     ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include
     ${CMAKE_SOURCE_DIR}/external/android-emugl/shared/OpenglCodecCommon
