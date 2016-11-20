@@ -20,7 +20,6 @@
 #include "Renderer.h"
 #include "RenderThreadInfo.h"
 #include "ChecksumCalculatorThreadInfo.h"
-#include "LayerManager.h"
 #include "DisplayManager.h"
 
 #include "OpenGLESDispatch/EGLDispatch.h"
@@ -432,14 +431,9 @@ void rcPostLayer(const char *name, uint32_t color_buffer,
                  int32_t displayFrameLeft, int32_t displayFrameTop,
                  int32_t displayFrameRight, int32_t displayFrameBottom) {
 
-    LayerRect source_crop{sourceCropLeft, sourceCropTop, sourceCropRight, sourceCropBottom};
-    LayerRect display_frame{displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom};
-    LayerManager::get()->post_layer({name, source_crop, display_frame, color_buffer});
 }
 
-void rcPostAllLayersDone()
-{
-    LayerManager::get()->finish_cycle();
+void rcPostAllLayersDone() {
 }
 
 void initRenderControlContext(renderControl_decoder_context_t *dec)

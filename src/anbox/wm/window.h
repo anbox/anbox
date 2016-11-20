@@ -23,6 +23,8 @@
 #include <vector>
 #include <string>
 
+#include <EGL/egl.h>
+
 namespace anbox {
 namespace wm {
 // FIXME(morphis): move this somewhere else once we have the integration
@@ -35,19 +37,20 @@ private:
     graphics::Rect frame_;
 };
 
-class Window {
+class Window
+{
 public:
     typedef std::vector<Window> List;
 
     Window(const WindowState &state);
     virtual ~Window();
 
+    bool attach();
+    void release();
+
     void update_state(const WindowState &state);
 
-    // Render a layer into the window. The layer itself includes all
-    // necessary information for correct rendering.
-    void render_layer(const Layer &layer);
-
+    virtual EGLNativeWindowType native_handle() const;
     WindowState state() const;
 
 private:

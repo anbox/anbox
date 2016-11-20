@@ -29,7 +29,7 @@ namespace graphics {
 class WindowCreator;
 class GLRendererServer {
 public:
-    GLRendererServer(const std::shared_ptr<WindowCreator> &window_creator);
+    GLRendererServer();
     ~GLRendererServer();
 
     void start();
@@ -38,7 +38,6 @@ public:
 
 private:
     std::string socket_path_;
-    std::shared_ptr<WindowCreator> window_creator_;
 };
 
 } // namespace graphics

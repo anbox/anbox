@@ -15,7 +15,7 @@
  *
  */
 
-#include "anbox/ubuntu/window_creator.h"
+#include "anbox/ubuntu/platform_policy.h"
 #include "anbox/ubuntu/window.h"
 #include "anbox/ubuntu/keycode_converter.h"
 #include "anbox/input/manager.h"
@@ -29,16 +29,14 @@
 
 namespace anbox {
 namespace ubuntu {
-WindowCreator::WindowCreator(const std::shared_ptr<input::Manager> &input_manager) :
-    graphics::WindowCreator(input_manager),
+PlatformPolicy::PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager) :
     input_manager_(input_manager),
-    event_thread_running_(false),
-    display_info_({1920, 1080}) {
+    event_thread_running_(false) {
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize SDL"));
 
-    event_thread_ = std::thread(&WindowCreator::process_events, this);
+    event_thread_ = std::thread(&PlatformPolicy::process_events, this);
 
     SDL_DisplayMode display_mode;
     // FIXME statically just check the first (primary) display for its mode;
@@ -71,12 +69,12 @@ WindowCreator::WindowCreator(const std::shared_ptr<input::Manager> &input_manage
     keyboard_->set_key_bit(KEY_OK);
 }
 
-WindowCreator::~WindowCreator() {
+PlatformPolicy::~PlatformPolicy() {
     event_thread_running_ = false;
     event_thread_.join();
 }
 
-void WindowCreator::process_events() {
+void PlatformPolicy::process_events() {
     event_thread_running_ = true;
 
     while(event_thread_running_) {
@@ -90,9 +88,11 @@ void WindowCreator::process_events() {
                 break;
             case SDL_WINDOWEVENT:
                 for (auto &iter : windows_) {
-                    if (iter.second->id() == event.window.windowID) {
-                        iter.second->process_event(event);
-                        break;
+                    if (auto w = iter.second.lock()) {
+                        if (w->window_id() == event.window.windowID) {
+                            w->process_event(event);
+                            break;
+                        }
                     }
                 }
                 break;
@@ -109,7 +109,7 @@ void WindowCreator::process_events() {
     }
 }
 
-void WindowCreator::process_input_event(const SDL_Event &event) {
+void PlatformPolicy::process_input_event(const SDL_Event &event) {
     std::vector<input::Event> mouse_events;
     std::vector<input::Event> keyboard_events;
 
@@ -176,44 +176,29 @@ void WindowCreator::process_input_event(const SDL_Event &event) {
         keyboard_->send_events(keyboard_events);
 }
 
-EGLNativeWindowType WindowCreator::create_window(int x, int y, int width, int height)
-try {
-    auto window = std::make_shared<Window>(x, y, width, height);
-    if (not window)
-        BOOST_THROW_EXCEPTION(std::bad_alloc());
-
-    windows_.insert({window->native_window(), window});
-
-    return window->native_window();
-}
-catch (std::exception &err) {
-    DEBUG("Failed to create window: %s", err.what());
-    return 0;
+Window::Id PlatformPolicy::next_window_id() {
+    static Window::Id next_id = 0;
+    return next_id++;
 }
 
-void WindowCreator::update_window(EGLNativeWindowType win, int x, int y, int width, int height) {
-    auto iter = windows_.find(win);
-    if (iter == windows_.end())
+std::shared_ptr<wm::Window> PlatformPolicy::create_window(const wm::WindowState &state) {
+    auto id = next_window_id();
+    auto w = std::make_shared<Window>(id, shared_from_this(), state);
+    windows_.insert({id, w});
+    return w;
+}
+
+void PlatformPolicy::window_deleted(const Window::Id &id) {
+    auto w = windows_.find(id);
+    if (w == windows_.end()) {
+        WARNING("Got window removed event for unknown window (id %d)", id);
         return;
-
-    iter->second->resize(width, height);
-    iter->second->update_position(x, y);
+    }
+    windows_.erase(w);
 }
 
-void WindowCreator::destroy_window(EGLNativeWindowType win) {
-    auto iter = windows_.find(win);
-    if (iter == windows_.end())
-        return;
-
-    windows_.erase(iter);
-}
-
-WindowCreator::DisplayInfo WindowCreator::display_info() const {
+DisplayManager::DisplayInfo PlatformPolicy::display_info() const {
     return display_info_;
 }
-
-EGLNativeDisplayType WindowCreator::native_display() const {
-    return  0;
-}
-} // namespace bridge
+} // namespace wm
 } // namespace anbox

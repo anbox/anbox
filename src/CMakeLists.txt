@@ -103,17 +103,14 @@ set(SOURCES
 
     anbox/graphics/opengles_message_processor.cpp
     anbox/graphics/gl_renderer_server.cpp
-    anbox/graphics/window_creator.cpp
     anbox/graphics/density.h
     anbox/graphics/rect.cpp
 
     anbox/graphics/emugl/ColorBuffer.cpp
     anbox/graphics/emugl/DisplayManager.cpp
     anbox/graphics/emugl/RendererConfig.cpp
+    anbox/graphics/emugl/Renderable.cpp
     anbox/graphics/emugl/Renderer.cpp
-    anbox/graphics/emugl/LayerManager.cpp
-    anbox/graphics/emugl/NativeSubWindow_delegate.cpp
-    anbox/graphics/emugl/NativeSubWindow.h
     anbox/graphics/emugl/ReadBuffer.cpp
     anbox/graphics/emugl/RenderApi.cpp
     anbox/graphics/emugl/RenderContext.cpp
@@ -132,6 +129,7 @@ set(SOURCES
 
     anbox/wm/display.cpp
     anbox/wm/task.cpp
+    anbox/wm/stack.cpp
     anbox/wm/manager.cpp
     anbox/wm/window_state.cpp
     anbox/wm/window.cpp
@@ -158,9 +156,9 @@ set(SOURCES
     anbox/bridge/platform_api_skeleton.cpp
     anbox/bridge/android_api_stub.cpp
 
-    anbox/ubuntu/window_creator.cpp
     anbox/ubuntu/window.cpp
     anbox/ubuntu/keycode_converter.cpp
+    anbox/ubuntu/platform_policy.cpp
 
     anbox/dbus/interface.h
     anbox/dbus/skeleton/service.cpp

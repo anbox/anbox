@@ -17,7 +17,6 @@
 #include "Renderer.h"
 
 #include "DispatchTables.h"
-#include "NativeSubWindow.h"
 #include "RenderThreadInfo.h"
 #include "TimeUtils.h"
 #include "gles2_dec.h"
@@ -456,40 +455,32 @@ Renderer::~Renderer() {
 struct RendererWindow {
     EGLNativeWindowType native_window = 0;
     EGLSurface surface = EGL_NO_SURFACE;
-    bool needViewportUpdate = false;
-    int width;
-    int height;
 };
 
-RendererWindow* Renderer::createWindow(int x, int y, int width, int height) {
+RendererWindow* Renderer::createNativeWindow(EGLNativeWindowType native_window)
+{
     m_lock.lock();
-
-    auto native_window = createSubWindow(0, x, y, width, height);
-    if (!native_window) {
-        m_lock.unlock();
-        return nullptr;
-    }
 
     auto window = new RendererWindow;
     window->native_window = native_window;
-    window->width = width;
-    window->height = height;
-
     window->surface = s_egl.eglCreateWindowSurface(
                 m_eglDisplay, m_eglConfig, window->native_window, nullptr);
-    if (window->surface == EGL_NO_SURFACE) {
-        destroyWindow(window);
+    if (window->surface == EGL_NO_SURFACE)
+    {
+        delete window;
         m_lock.unlock();
         return nullptr;
     }
 
-    if (!bindWindow_locked(window)) {
-        destroyWindow(window);
+    if (!bindWindow_locked(window))
+    {
+        s_egl.eglDestroySurface(m_eglDisplay, window->surface);
+        delete window;
         m_lock.unlock();
         return nullptr;
     }
 
-    s_gles2.glViewport(0, 0, width, height);
+    // s_gles2.glViewport(0, 0, width, height);
     s_gles2.glClear(GL_COLOR_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT |
                     GL_STENCIL_BUFFER_BIT);
@@ -497,35 +488,27 @@ RendererWindow* Renderer::createWindow(int x, int y, int width, int height) {
 
     unbind_locked();
 
+    m_nativeWindows.insert({native_window, window});
+
     m_lock.unlock();
 
     return window;
 }
 
-void Renderer::updateWindow(RendererWindow *window, int x, int y, int width, int height) {
-    if (!window)
-        return;
-
-    updateSubWindow(window->native_window, x, y, width, height);
-    window->width = width;
-    window->height = height;
-    window->needViewportUpdate = true;
-}
-
-void Renderer::destroyWindow(RendererWindow *window) {
-    if (!window)
+void Renderer::destroyNativeWindow(EGLNativeWindowType native_window) {
+    auto w = m_nativeWindows.find(native_window);
+    if (w == m_nativeWindows.end())
         return;
 
     m_lock.lock();
 
     s_egl.eglMakeCurrent(m_eglDisplay, nullptr, nullptr, nullptr);
 
-    if (window->surface != EGL_NO_SURFACE)
-        s_egl.eglDestroySurface(m_eglDisplay, window->surface);
+    if (w->second->surface != EGL_NO_SURFACE)
+        s_egl.eglDestroySurface(m_eglDisplay, w->second->surface);
 
-    destroySubWindow(window->native_window);
-
-    delete window;
+    delete w->second;
+    m_nativeWindows.erase(w);
 
     m_lock.unlock();
 }
@@ -990,10 +973,12 @@ bool Renderer::post(RendererWindow *window, HandleType p_colorbuffer, bool needL
     if (!bindWindow_locked(window))
         goto EXIT;
 
+#if 0
     if (window->needViewportUpdate) {
         s_gles2.glViewport(0, 0, window->width, window->height);
         window->needViewportUpdate = false;
     }
+#endif
 
     s_gles2.glClearColor(0.0, 0.0, 1.0, 0.0);
     s_gles2.glClear(GL_COLOR_BUFFER_BIT);
@@ -1028,4 +1013,40 @@ EXIT:
         m_lock.unlock();
     }
     return ret;
+}
+
+bool Renderer::draw(EGLNativeWindowType native_window, const RenderableList &renderables)
+{
+    auto w = m_nativeWindows.find(native_window);
+    if (w == m_nativeWindows.end())
+        return false;
+
+    if (!bindWindow_locked(w->second))
+    {
+        m_lock.unlock();
+        return false;
+    }
+
+    s_gles2.glClearColor(0.0, 0.0, 1.0, 0.0);
+    s_gles2.glClear(GL_COLOR_BUFFER_BIT);
+
+    for (const auto &renderable : renderables)
+    {
+        const auto &color_buffer = m_colorbuffers.find(renderable.buffer());
+        if (color_buffer == m_colorbuffers.end())
+            continue;
+
+        color_buffer->second.cb->post(0.0f,
+            renderable.screen_position().left(), renderable.screen_position().top());
+    }
+
+    s_egl.eglSwapBuffers(m_eglDisplay, w->second->surface);
+
+    unbind_locked();
+
+    m_lock.lock();
+
+    m_lock.unlock();
+
+    return false;
 }

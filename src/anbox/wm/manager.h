@@ -19,8 +19,10 @@
 #define ANBOX_WM_MANAGER_H_
 
 #include "anbox/wm/window_state.h"
+#include "anbox/wm/window.h"
 
 #include <memory>
+#include <map>
 
 namespace anbox {
 namespace wm {
@@ -35,6 +37,7 @@ public:
 
 private:
     std::shared_ptr<PlatformPolicy> platform_;
+    std::map<Task::Id, std::shared_ptr<Window>> windows_;
 };
 } // namespace wm
 } // namespace anbox

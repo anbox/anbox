@@ -16,15 +16,69 @@
  */
 
 #include "anbox/ubuntu/window.h"
+#include "anbox/wm/window_state.h"
 #include "anbox/logger.h"
 
 #include <boost/throw_exception.hpp>
 
 #include <SDL_syswm.h>
 
+namespace {
+constexpr const char* default_window_name{"anbox"};
+}
+
 namespace anbox {
 namespace ubuntu {
+Window::Id Window::Invalid{-1};
+
+Window::Observer::~Observer() {
+}
+
+Window::Window(const Id &id,
+               const std::shared_ptr<Observer> &observer,
+               const wm::WindowState &state) :
+    wm::Window(state),
+    id_(id),
+    observer_(observer),
+    native_display_(0),
+    native_window_(0) {
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+
+    window_ = SDL_CreateWindow(default_window_name,
+                               state.frame().left(),
+                               state.frame().top(),
+                               state.frame().width(),
+                               state.frame().height(),
+                               SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
+    if (!window_) {
+        const auto message = utils::string_format("Failed to create window: %s", SDL_GetError());
+        BOOST_THROW_EXCEPTION(std::runtime_error(message));
+    }
+
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    SDL_GetWindowWMInfo(window_, &info);
+    switch (info.subsystem) {
+    case SDL_SYSWM_X11:
+        DEBUG("Running on X11");
+        native_display_ = static_cast<EGLNativeDisplayType>(info.info.x11.display);
+        native_window_ = static_cast<EGLNativeWindowType>(info.info.x11.window);
+        break;
+    default:
+        ERROR("Unknown subsystem (%d)", info.subsystem);
+        BOOST_THROW_EXCEPTION(std::runtime_error("SDL subsystem not suported"));
+    }
+
+    int actual_width = 0, actual_height = 0;
+    int actual_x = 0, actual_y = 0;
+    SDL_GetWindowSize(window_, &actual_width, &actual_height);
+    SDL_GetWindowPosition(window_, &actual_x, &actual_y);
+    DEBUG("Window created {%d,%d,%d,%d}", actual_x, actual_y, actual_width, actual_height);
+}
+
 Window::Window(int x, int y, int width, int height) :
+    wm::Window(wm::WindowState()),
     native_display_(0),
     native_window_(0) {
 
@@ -60,6 +114,9 @@ Window::Window(int x, int y, int width, int height) :
 Window::~Window() {
     if (window_)
         SDL_DestroyWindow(window_);
+
+    if (observer_)
+        observer_->window_deleted(id_);
 }
 
 void Window::resize(int width, int height) {
@@ -89,11 +146,15 @@ void Window::process_event(const SDL_Event &event) {
     }
 }
 
-EGLNativeWindowType Window::native_window() const {
+EGLNativeWindowType Window::native_handle() const {
     return native_window_;
 }
 
-std::uint32_t Window::id() const {
+Window::Id Window::id() const {
+    return id_;
+}
+
+std::uint32_t Window::window_id() const {
     return SDL_GetWindowID(window_);
 }
 } // namespace bridge

@@ -25,6 +25,8 @@
 
 #include "OpenglRender/render_api.h"
 
+#include "Renderable.h"
+
 #include <EGL/egl.h>
 
 #include <map>
@@ -78,10 +80,6 @@ public:
     // Returns true on success, false otherwise.
     static bool initialize(EGLNativeDisplayType nativeDisplay);
 
-    RendererWindow* createWindow(int x, int y, int width, int height);
-    void updateWindow(RendererWindow *window, int x, int y, int width, int height);
-    void destroyWindow(RendererWindow *window);
-
     // Finalize the instance.
     void finalize();
 
@@ -110,6 +108,10 @@ public:
         *renderer = m_glRenderer;
         *version = m_glVersion;
     }
+
+    RendererWindow* createNativeWindow(EGLNativeWindowType native_window);
+    void destroyNativeWindow(RendererWindow *window);
+    void destroyNativeWindow(EGLNativeWindowType native_window);
 
     // Create a new RenderContext instance for this display instance.
     // |p_config| is the index of one of the configs returned by getConfigs().
@@ -234,6 +236,8 @@ public:
     // false only when called internally.
     bool post(RendererWindow *window, HandleType p_colorbuffer, bool needLock = true);
 
+    bool draw(EGLNativeWindowType native_window, const RenderableList &renderables);
+
     // Return the host EGLDisplay used by this instance.
     EGLDisplay getDisplay() const { return m_eglDisplay; }
 
@@ -286,5 +290,7 @@ private:
     const char* m_glVendor;
     const char* m_glRenderer;
     const char* m_glVersion;
+
+    std::map<EGLNativeWindowType,RendererWindow*> m_nativeWindows;
 };
 #endif

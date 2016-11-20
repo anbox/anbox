@@ -16,6 +16,7 @@
  */
 
 #include "anbox/wm/window.h"
+#include "anbox/graphics/emugl/Renderer.h"
 
 namespace anbox {
 namespace wm {
@@ -30,8 +31,16 @@ void Window::update_state(const WindowState &state) {
     state_ = state;
 }
 
-void Window::render_layer(const Layer &layer) {
-    (void) layer;
+EGLNativeWindowType Window::native_handle() const {
+    return 0;
+}
+
+bool Window::attach() {
+    return Renderer::get()->createNativeWindow(native_handle());
+}
+
+void Window::release() {
+    Renderer::get()->destroyNativeWindow(native_handle());
 }
 } // namespace wm
 } // namespace anbox

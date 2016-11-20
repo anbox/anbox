@@ -18,6 +18,8 @@
 #ifndef ANBOX_UBUNTU_WINDOW_H_
 #define ANBOX_UBUNTU_WINDOW_H_
 
+#include "anbox/wm/window.h"
+
 #include <EGL/egl.h>
 
 #include <memory>
@@ -27,8 +29,19 @@
 
 namespace anbox {
 namespace ubuntu {
-class Window {
+class Window : public std::enable_shared_from_this<Window>,
+               public wm::Window {
 public:
+    typedef std::int32_t Id;
+    static Id Invalid;
+
+    class Observer {
+    public:
+        virtual ~Observer();
+        virtual void window_deleted(const Id &id) = 0;
+    };
+
+    Window(const Id &id, const std::shared_ptr<Observer> &observer, const wm::WindowState &state);
     Window(int x, int y, int width, int height);
     ~Window();
 
@@ -37,10 +50,13 @@ public:
 
     void process_event(const SDL_Event &event);
 
-    EGLNativeWindowType native_window() const;
-    std::uint32_t id() const;
+    EGLNativeWindowType native_handle() const override;
+    Id id() const;
+    std::uint32_t window_id() const;
 
 private:
+    Id id_;
+    std::shared_ptr<Observer> observer_;
     EGLNativeDisplayType native_display_;
     EGLNativeWindowType native_window_;
     SDL_Window *window_;

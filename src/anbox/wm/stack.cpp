@@ -15,28 +15,13 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_WINDOW_CREATOR_H_
-#define ANBOX_GRAPHICS_WINDOW_CREATOR_H_
-
-#include "anbox/graphics/emugl/NativeSubWindow.h"
-#include "anbox/graphics/emugl/DisplayManager.h"
+#include "anbox/wm/stack.h"
 
 namespace anbox {
-namespace input {
-class Manager;
-} // namespace input
-namespace graphics {
-class WindowCreator : public SubWindowHandler,
-                      public DisplayManager {
-public:
-    WindowCreator(const std::shared_ptr<input::Manager> &input_manager);
-    virtual ~WindowCreator();
-
-    virtual EGLNativeDisplayType native_display() const = 0;
-
-protected:
-    std::shared_ptr<input::Manager> input_manager_;
-};
-} // namespace graphics
+namespace wm {
+Stack::Id Stack::Invalid = -1;
+Stack::Id Stack::Default = 0;
+Stack::Id Stack::Fullscreen = 1;
+Stack::Id Stack::Freeform = 2;
+} // namespace wm
 } // namespace anbox
-#endif

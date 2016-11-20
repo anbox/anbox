@@ -23,7 +23,6 @@
 
 #include <memory>
 
-
 class TextureDraw;
 class TextureResize;
 

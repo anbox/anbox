@@ -51,12 +51,17 @@ void PlatformApiSkeleton::update_window_state(anbox::protobuf::bridge::WindowSta
     (void) response;
 
     auto convert_window_state = [](const ::anbox::protobuf::bridge::WindowStateUpdate_WindowState &window) {
+        DEBUG("Window: display=%d has_surface=%d frame={%d,%d,%d,%d} package=%s task=%d stack=-1",
+              window.display_id(), window.has_surface(),
+              window.frame_left(), window.frame_top(), window.frame_right(), window.frame_bottom(),
+              window.package_name(), window.task_id());
         return wm::WindowState(
                       wm::Display::Id(window.display_id()),
                       window.has_surface(),
                       graphics::Rect(window.frame_left(), window.frame_top(), window.frame_right(), window.frame_bottom()),
                       window.package_name(),
-                      wm::Task::Id(window.task_id()));
+                      wm::Task::Id(window.task_id()),
+                      wm::Stack::Id(wm::Stack::Invalid));
     };
 
     wm::WindowState::List updated;
@@ -68,7 +73,7 @@ void PlatformApiSkeleton::update_window_state(anbox::protobuf::bridge::WindowSta
     wm::WindowState::List removed;
     for (int n = 0; n < request->removed_windows_size(); n++) {
         const auto window = request->removed_windows(n);
-        updated.push_back(convert_window_state(window));
+        removed.push_back(convert_window_state(window));
     }
 
     window_manager_->apply_window_state_update(updated, removed);

@@ -15,49 +15,26 @@
  *
  */
 
-#ifndef LAYER_MANAGER_H_
-#define LAYER_MANAGER_H_
+#ifndef ANBOX_WM_STACK_H_
+#define ANBOX_WM_STACK_H_
 
-#include <memory>
+#include <cstdint>
 
-#include <map>
-#include <vector>
-#include <string>
-
-#include "Renderer.h"
-
-struct LayerRect {
-    int left;
-    int top;
-    int right;
-    int bottom;
-};
-
-struct LayerInfo {
-    std::string name;
-    LayerRect source_crop;
-    LayerRect display_frame;
-    HandleType buffer_handle;
-};
-
-class LayerManager {
+namespace anbox {
+namespace wm {
+class Stack {
 public:
-    static std::shared_ptr<LayerManager> get();
+    typedef std::int32_t Id;
 
-    ~LayerManager();
+    static Id Invalid;
+    static Id Default;
+    static Id Fullscreen;
+    static Id Freeform;
 
-    void post_layer(const LayerInfo &layer);
-    void finish_cycle();
-
-private:
-    LayerManager();
-
-    struct Layer {
-        RendererWindow *window;
-        bool updated;
-    };
-
-    std::map<std::string,Layer> layers_;
+    Stack() = delete;
+    Stack(const Stack&) = delete;
 };
+} // namespace wm
+} // namespace anbox
 
 #endif

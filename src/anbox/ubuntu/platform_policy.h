@@ -15,15 +15,17 @@
  *
  */
 
-#ifndef ANBOX_UBUNTU_WINDOW_CREATOR_H_
-#define ANBOX_UBUNTU_WINDOW_CREATOR_H_
+#ifndef ANBOX_UBUNTU_PLATFORM_POLICY_H_
+#define ANBOX_UBUNTU_PLATFORM_POLICY_H_
 
-#include "anbox/graphics/window_creator.h"
+#include "anbox/wm/platform_policy.h"
+#include "anbox/ubuntu/window.h"
 
-#include <map>
+#include "anbox/graphics/emugl/DisplayManager.h"
+
 #include <thread>
+#include <map>
 
-#include <EGL/egl.h>
 #include <SDL.h>
 
 namespace anbox {
@@ -32,34 +34,38 @@ class Device;
 class Manager;
 } // namespace input
 namespace ubuntu {
-class MirDisplayConnection;
-class Window;
-class WindowCreator : public graphics::WindowCreator {
+class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
+                       public wm::PlatformPolicy,
+                       public Window::Observer,
+                       public DisplayManager {
 public:
-    WindowCreator(const std::shared_ptr<input::Manager> &input_manager);
-    ~WindowCreator();
+    PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager);
+    ~PlatformPolicy();
 
-    EGLNativeWindowType create_window(int x, int y, int width, int height) override;
-    void update_window(EGLNativeWindowType win, int x, int y, int width, int height) override;
-    void destroy_window(EGLNativeWindowType win) override;
+    std::shared_ptr<wm::Window> create_window(const wm::WindowState &state) override;
+
+    void window_deleted(const Window::Id &id) override;
 
     DisplayInfo display_info() const override;
-    EGLNativeDisplayType native_display() const override;
 
 private:
     void process_events();
     void process_input_event(const SDL_Event &event);
 
+    static Window::Id next_window_id();
+
     std::shared_ptr<input::Manager> input_manager_;
-    std::map<EGLNativeWindowType,std::shared_ptr<Window>> windows_;
+    // We don't own the windows anymore after the got created by us so we
+    // need to be careful once we try to use them again.
+    std::map<Window::Id, std::weak_ptr<Window>> windows_;
     std::shared_ptr<Window> current_window_;
     std::thread event_thread_;
     bool event_thread_running_;
-    graphics::WindowCreator::DisplayInfo display_info_;
     std::shared_ptr<input::Device> pointer_;
     std::shared_ptr<input::Device> keyboard_;
+    DisplayManager::DisplayInfo display_info_;
 };
-} // namespace ubuntu
+} // namespace wm
 } // namespace anbox
 
 #endif

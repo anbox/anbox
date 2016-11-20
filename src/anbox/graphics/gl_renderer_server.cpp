@@ -17,7 +17,6 @@
 
 #include "anbox/logger.h"
 #include "anbox/graphics/gl_renderer_server.h"
-#include "anbox/graphics/window_creator.h"
 
 #include "OpenglRender/render_api.h"
 
@@ -27,8 +26,8 @@
 
 namespace anbox {
 namespace graphics {
-GLRendererServer::GLRendererServer(const std::shared_ptr<WindowCreator> &window_creator) :
-    window_creator_(window_creator) {
+GLRendererServer::GLRendererServer()
+{
 
     if (utils::is_env_set("USE_HOST_GLES")) {
         // Force the host EGL/GLES libraries as translator implementation
@@ -44,13 +43,9 @@ GLRendererServer::GLRendererServer(const std::shared_ptr<WindowCreator> &window_
 
     if (!initLibrary())
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize OpenGL renderer"));
-
-    registerSubWindowHandler(window_creator_);
-    registerDisplayManager(window_creator_);
 }
 
 GLRendererServer::~GLRendererServer() {
-    // destroyOpenGLSubwindow();
     stopOpenGLRenderer();
 }
 
@@ -70,15 +65,11 @@ void GLRendererServer::start() {
     log_funcs.coarse = logger_write;
     log_funcs.fine = logger_write;
 
-    auto display_info = window_creator_->display_info();
-    const auto width = display_info.horizontal_resolution;
-    const auto height = display_info.vertical_resolution;
-
     char server_addr[256] = { 0 };
     // The width & height we supply here are the dimensions the internal framebuffer
     // will use. Making this static prevents us for now to resize the window we create
     // later for the actual display.
-    if (!initOpenGLRenderer(window_creator_->native_display(), server_addr, sizeof(server_addr), log_funcs, logger_write))
+    if (!initOpenGLRenderer(0, server_addr, sizeof(server_addr), log_funcs, logger_write))
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to setup OpenGL renderer"));
 
     socket_path_ = server_addr;

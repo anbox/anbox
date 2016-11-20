@@ -33,11 +33,10 @@
 #include "anbox/bridge/platform_message_processor.h"
 #include "anbox/bridge/android_api_stub.h"
 #include "anbox/bridge/platform_api_skeleton.h"
-#include "anbox/ubuntu/window_creator.h"
 #include "anbox/dbus/skeleton/service.h"
 #include "anbox/container/client.h"
 #include "anbox/wm/manager.h"
-#include "anbox/wm/default_platform_policy.h"
+#include "anbox/ubuntu/platform_policy.h"
 
 #include <sys/prctl.h>
 
@@ -90,11 +89,13 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
 
         auto input_manager = std::make_shared<input::Manager>(rt);
 
-        auto policy = std::make_shared<wm::DefaultPlatformPolicy>();
+        auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager);
+        // FIXME this needs to be removed and solved differently behind the scenes
+        registerDisplayManager(policy);
+
         auto window_manager = std::make_shared<wm::Manager>(policy);
 
-        auto window_creator = std::make_shared<ubuntu::WindowCreator>(input_manager);
-        auto renderer = std::make_shared<graphics::GLRendererServer>(window_creator);
+        auto renderer = std::make_shared<graphics::GLRendererServer>();
         renderer->start();
 
         // Socket which will be used by the qemud service inside the Android

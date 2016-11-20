@@ -17,11 +17,12 @@
 
 #include "anbox/wm/default_platform_policy.h"
 #include "anbox/wm/window.h"
+#include "anbox/logger.h"
 
 namespace {
-class Window : public anbox::wm::Window {
+class NullWindow : public anbox::wm::Window {
 public:
-    Window(const anbox::wm::WindowState &state) :
+    NullWindow(const anbox::wm::WindowState &state) :
         anbox::wm::Window(state) {
     }
 };
@@ -32,8 +33,10 @@ namespace wm {
 DefaultPlatformPolicy::DefaultPlatformPolicy() {
 }
 
-std::shared_ptr<Window> DefaultPlatformPolicy::create_window(const WindowState &state) {
-    return std::make_shared<::Window>(state);
+std::shared_ptr<Window> DefaultPlatformPolicy::create_window(const WindowState &state)
+{
+    DEBUG("");
+    return std::make_shared<::NullWindow>(state);
 }
 } // namespace wm
 } // namespace anbox

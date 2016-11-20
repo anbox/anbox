@@ -21,6 +21,7 @@
 #include "anbox/graphics/rect.h"
 #include "anbox/wm/display.h"
 #include "anbox/wm/task.h"
+#include "anbox/wm/stack.h"
 
 #include <vector>
 #include <string>
@@ -36,7 +37,8 @@ public:
                 bool has_surface,
                 const graphics::Rect &frame,
                 const std::string &package_name,
-                const Task::Id &task);
+                const Task::Id &task,
+                const Stack::Id &stack);
     ~WindowState();
 
     Display::Id display() const { return display_; }
@@ -44,6 +46,7 @@ public:
     graphics::Rect frame() const { return frame_; }
     std::string package_name() const { return package_name_; }
     Task::Id task() const { return task_; }
+    Stack::Id stack() const { return stack_; }
 
 private:
     Display::Id display_;
@@ -51,6 +54,7 @@ private:
     graphics::Rect frame_;
     std::string package_name_;
     Task::Id task_;
+    Stack::Id stack_;
 
 };
 } // namespace wm
