@@ -180,6 +180,10 @@ static int hwc_set(hwc_composer_device_1_t* dev, size_t numDisplays,
     for (size_t i = 0 ; i < displays[0]->numHwLayers ; i++) {
         const auto layer = &displays[0]->hwLayers[i];
 
+        if (layer->flags & HWC_SKIP_LAYER ||
+            layer->flags & HWC_IS_CURSOR_LAYER)
+            continue;
+
         dump_layer(layer);
 
         // FIXME this is just dirty ... but layer->handle is a const native_handle_t and canBePosted
