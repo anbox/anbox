@@ -50,6 +50,11 @@ void Manager::apply_window_state_update(const WindowState::List &updated,
             w->second->update_state(window);
             continue;
         }
+        // HACK: We ignore the first task here which will be always the home
+        // stack of Android. This needs to be solved differently so that the
+        // Android side doesn't create this stack at all.
+        if (window.task() == 0)
+            continue;
         auto platform_window = platform_->create_window(window);
         platform_window->ref();
         platform_window->attach();
