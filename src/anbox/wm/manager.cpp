@@ -19,6 +19,8 @@
 #include "anbox/wm/platform_policy.h"
 #include "anbox/logger.h"
 
+#include <algorithm>
+
 namespace anbox {
 namespace wm {
 Manager::Manager(const std::shared_ptr<PlatformPolicy> &platform) :
@@ -31,6 +33,8 @@ Manager::~Manager() {
 void Manager::apply_window_state_update(const WindowState::List &updated,
                                         const WindowState::List &removed)
 {
+    std::lock_guard<std::mutex> l(mutex_);
+
     DEBUG("updated %d removed %d", updated.size(), removed.size());
 
     // Base on the update we get from the Android WindowManagerService we will create
@@ -38,30 +42,46 @@ void Manager::apply_window_state_update(const WindowState::List &updated,
     // from SurfaceFlinger will be mapped later into those windows and eventually
     // composited there via GLES (e.g. for popups, ..)
 
-    for (const auto &window : updated) {
+    for (const auto &window : updated)
+    {
         auto w = windows_.find(window.task());
-        if (w != windows_.end()) {
-            DEBUG("Found existing window for task %d", window.task());
+        if (w != windows_.end())
+        {
             w->second->update_state(window);
             continue;
         }
-        DEBUG("Found new window for task %d", window.task());
         auto platform_window = platform_->create_window(window);
+        platform_window->ref();
         platform_window->attach();
         windows_.insert({window.task(), platform_window});
     }
 
-    for (const auto &window : removed) {
+    for (const auto &window : removed)
+    {
         auto w = windows_.find(window.task());
-        if (w == windows_.end()) {
-            WARNING("Got remove request for window we don't know about (task id %d)", window.task());
+        if (w == windows_.end())
             continue;
+
+        w->second->unref();
+        if (!w->second->still_used())
+        {
+            auto platform_window = w->second;
+            platform_window->release();
+            windows_.erase(w);
         }
-        DEBUG("Removing window for task %d", window.task());
-        auto platform_window = w->second;
-        platform_window->release();
-        windows_.erase(w);
     }
+}
+
+std::shared_ptr<Window> Manager::find_window_for_task(const Task::Id &task)
+{
+    std::lock_guard<std::mutex> l(mutex_);
+
+    for (const auto &w : windows_)
+    {
+        if (w.second->state().task() == task)
+            return w.second;
+    }
+    return nullptr;
 }
 } // namespace wm
 } // namespace anbox

@@ -376,11 +376,6 @@ bool ColorBuffer::bindToRenderbuffer() {
     return true;
 }
 
-bool ColorBuffer::post(float rotation, float dx, float dy) {
-    // NOTE: Do not call m_helper->setupContext() here!
-    return m_helper->getTextureDraw()->draw(m_resizer->update(m_tex));
-}
-
 void ColorBuffer::readback(unsigned char* img) {
     ScopedHelperContext context(m_helper);
     if (!context.isOk()) {
@@ -391,4 +386,9 @@ void ColorBuffer::readback(unsigned char* img) {
                 0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, img);
         unbindFbo();
     }
+}
+
+void ColorBuffer::bind() {
+    const auto id = m_resizer->update(m_tex);
+    s_gles2.glBindTexture(GL_TEXTURE_2D, id);
 }

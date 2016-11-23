@@ -95,7 +95,7 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
 
         auto window_manager = std::make_shared<wm::Manager>(policy);
 
-        auto renderer = std::make_shared<graphics::GLRendererServer>();
+        auto renderer = std::make_shared<graphics::GLRendererServer>(window_manager);
         renderer->start();
 
         // Socket which will be used by the qemud service inside the Android

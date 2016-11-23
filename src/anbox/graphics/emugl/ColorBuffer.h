@@ -108,15 +108,6 @@ public:
                    GLenum p_type,
                    void *pixels);
 
-    // Draw a ColorBuffer instance, i.e. blit it to the current guest
-    // framebuffer object / window surface. This doesn't display anything.
-    bool draw();
-
-    // Post this ColorBuffer to the host native sub-window.
-    // |rotation| is the rotation angle in degrees, clockwise in the GL
-    // coordinate space.
-    bool post(float rotation, float dx, float dy);
-
     // Bind the current context's EGL_TEXTURE_2D texture to this ColorBuffer's
     // EGLImage. This is intended to implement glEGLImageTargetTexture2DOES()
     // for all GLES versions.
@@ -136,6 +127,7 @@ public:
     // |img| must be a buffer large enough (i.e. width * height * 4).
     void readback(unsigned char* img);
 
+    void bind();
 private:
     ColorBuffer();  // no default constructor.
 

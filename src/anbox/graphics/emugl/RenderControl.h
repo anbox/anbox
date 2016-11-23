@@ -18,6 +18,15 @@
 
 #include "renderControl_dec.h"
 
+#include <memory>
+
+namespace anbox {
+namespace graphics {
+class LayerComposer;
+} // namespace graphics
+} // namespace anbox
+
 void initRenderControlContext(renderControl_decoder_context_t *dec);
+void registerLayerComposer(const std::shared_ptr<anbox::graphics::LayerComposer> &c);
 
 #endif

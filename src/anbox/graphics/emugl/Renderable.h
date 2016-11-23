@@ -19,23 +19,35 @@
 
 #include "anbox/graphics/rect.h"
 
+#include <string>
 #include <vector>
 
 #include <cstdint>
 
+#include <glm/glm.hpp>
+
 class Renderable
 {
 public:
-    Renderable(const std::uint32_t &buffer,
-               const anbox::graphics::Rect &screen_position);
+    Renderable(const std::string &name,
+               const std::uint32_t &buffer,
+               const anbox::graphics::Rect &screen_position,
+               const glm::mat4 &transformation = {},
+               const float &alpha = 1.0f);
     ~Renderable();
 
+    std::string name() const;
     std::uint32_t buffer() const;
     anbox::graphics::Rect screen_position() const;
+    glm::mat4 transformation() const;
+    float alpha() const;
 
 private:
+    std::string name_;
     std::uint32_t buffer_;
     anbox::graphics::Rect screen_position_;
+    glm::mat4 transformation_;
+    float alpha_;
 };
 
 typedef std::vector<Renderable> RenderableList;

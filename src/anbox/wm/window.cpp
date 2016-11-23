@@ -17,18 +17,24 @@
 
 #include "anbox/wm/window.h"
 #include "anbox/graphics/emugl/Renderer.h"
+#include "anbox/logger.h"
 
 namespace anbox {
 namespace wm {
 Window::Window(const WindowState &state) :
-    state_(state) {
+    state_(state),
+    refcount_(0) {
 }
 
 Window::~Window() {
 }
 
-void Window::update_state(const WindowState &state) {
-    state_ = state;
+void Window::update_state(const WindowState &new_state) {
+    state_ = new_state;
+}
+
+WindowState Window::state() const {
+    return state_;
 }
 
 EGLNativeWindowType Window::native_handle() const {
@@ -41,6 +47,23 @@ bool Window::attach() {
 
 void Window::release() {
     Renderer::get()->destroyNativeWindow(native_handle());
+}
+
+void Window::ref() {
+    refcount_++;
+}
+
+void Window::unref() {
+    if (refcount_ == 0) {
+        WARNING("reference count is out of sync");
+        return;
+    }
+
+    refcount_--;
+}
+
+bool Window::still_used() const {
+    return refcount_ > 0;
 }
 } // namespace wm
 } // namespace anbox

@@ -25,7 +25,13 @@
 
 #include "emugl/common/logging.h"
 
+#include "anbox/logger.h"
+
 #include <stdio.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace {
 
@@ -415,6 +421,9 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay)
         return false;
     }
 
+    fb->m_defaultProgram = fb->m_family.add_program(vshader, defaultFShader);
+    fb->m_alphaProgram = fb->m_family.add_program(vshader, alphaFShader);
+
     // release the FB context
     bind.release();
 
@@ -424,6 +433,19 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay)
     s_renderer = fb;
     GL_LOG("basic EGL initialization successful");
     return true;
+}
+
+Renderer::Program::Program(GLuint program_id)
+{
+    id = program_id;
+    position_attr = s_gles2.glGetAttribLocation(id, "position");
+    texcoord_attr = s_gles2.glGetAttribLocation(id, "texcoord");
+    tex_uniform = s_gles2.glGetUniformLocation(id, "tex");
+    centre_uniform = s_gles2.glGetUniformLocation(id, "centre");
+    display_transform_uniform = s_gles2.glGetUniformLocation(id, "display_transform");
+    transform_uniform = s_gles2.glGetUniformLocation(id, "transform");
+    screen_to_gl_coords_uniform = s_gles2.glGetUniformLocation(id, "screen_to_gl_coords");
+    alpha_uniform = s_gles2.glGetUniformLocation(id, "alpha");
 }
 
 Renderer::Renderer() :
@@ -455,6 +477,9 @@ Renderer::~Renderer() {
 struct RendererWindow {
     EGLNativeWindowType native_window = 0;
     EGLSurface surface = EGL_NO_SURFACE;
+    anbox::graphics::Rect viewport;
+    glm::mat4 screen_to_gl_coords;
+    glm::mat4 display_transform;
 };
 
 RendererWindow* Renderer::createNativeWindow(EGLNativeWindowType native_window)
@@ -480,7 +505,6 @@ RendererWindow* Renderer::createNativeWindow(EGLNativeWindowType native_window)
         return nullptr;
     }
 
-    // s_gles2.glViewport(0, 0, width, height);
     s_gles2.glClear(GL_COLOR_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT |
                     GL_STENCIL_BUFFER_BIT);
@@ -954,68 +978,172 @@ bool Renderer::unbind_locked()
     return true;
 }
 
-bool Renderer::post(RendererWindow *window, HandleType p_colorbuffer, bool needLock)
+const GLchar* const Renderer::vshader =
 {
-    if (!window)
-        return false;
+    "attribute vec3 position;\n"
+    "attribute vec2 texcoord;\n"
+    "uniform mat4 screen_to_gl_coords;\n"
+    "uniform mat4 display_transform;\n"
+    "uniform mat4 transform;\n"
+    "uniform vec2 centre;\n"
+    "varying vec2 v_texcoord;\n"
+    "void main() {\n"
+    "   vec4 mid = vec4(centre, 0.0, 0.0);\n"
+    "   vec4 transformed = (transform * (vec4(position, 1.0) - mid)) + mid;\n"
+    "   gl_Position = display_transform * screen_to_gl_coords * transformed;\n"
+    "   v_texcoord = texcoord;\n"
+    "}\n"
+};
 
-    if (needLock)
-        m_lock.lock();
+const GLchar* const Renderer::alphaFShader =
+{
+    "precision mediump float;\n"
+    "uniform sampler2D tex;\n"
+    "uniform float alpha;\n"
+    "varying vec2 v_texcoord;\n"
+    "void main() {\n"
+    "   vec4 frag = texture2D(tex, v_texcoord);\n"
+    "   gl_FragColor = alpha*frag;\n"
+    "}\n"
+};
 
-    bool ret;
+const GLchar* const Renderer::defaultFShader =
+{   // This is the fastest fragment shader. Use it when you can.
+    "precision mediump float;\n"
+    "uniform sampler2D tex;\n"
+    "varying vec2 v_texcoord;\n"
+    "void main() {\n"
+    "   gl_FragColor = texture2D(tex, v_texcoord);\n"
+    "}\n"
+};
 
-    ColorBufferMap::iterator c( m_colorbuffers.find(p_colorbuffer) );
-    if (c == m_colorbuffers.end())
-        goto EXIT;
+void Renderer::setupViewport(RendererWindow *window, const anbox::graphics::Rect &rect)
+{
+    /*
+     * Here we provide a 3D perspective projection with a default 30 degrees
+     * vertical field of view. This projection matrix is carefully designed
+     * such that any vertices at depth z=0 will fit the screen coordinates. So
+     * client texels will fit screen pixels perfectly as long as the surface is
+     * at depth zero. But if you want to do anything fancy, you can also choose
+     * a different depth and it will appear to come out of or go into the
+     * screen.
+     */
+    window->screen_to_gl_coords = glm::translate(glm::mat4(1.0f), glm::vec3{-1.0f, 1.0f, 0.0f});
 
-    m_lastPostedColorBuffer = p_colorbuffer;
+    /*
+     * Perspective division is one thing that can't be done in a matrix
+     * multiplication. It happens after the matrix multiplications. GL just
+     * scales {x,y} by 1/w. So modify the final part of the projection matrix
+     * to set w ([3]) to be the incoming z coordinate ([2]).
+     */
+    window->screen_to_gl_coords[2][3] = -1.0f;
 
-    if (!bindWindow_locked(window))
-        goto EXIT;
+    float const vertical_fov_degrees = 30.0f;
+    float const near =
+        (rect.height() / 2.0f) /
+        std::tan((vertical_fov_degrees * M_PI / 180.0f) / 2.0f);
+    float const far = -near;
 
-#if 0
-    if (window->needViewportUpdate) {
-        s_gles2.glViewport(0, 0, window->width, window->height);
-        window->needViewportUpdate = false;
-    }
-#endif
+    window->screen_to_gl_coords = glm::scale(window->screen_to_gl_coords,
+            glm::vec3{2.0f / rect.width(),
+                      -2.0f / rect.height(),
+                      2.0f / (near - far)});
+    window->screen_to_gl_coords = glm::translate(window->screen_to_gl_coords,
+            glm::vec3{-rect.left(),
+                      -rect.top(),
+                      0.0f});
 
-    s_gles2.glClearColor(0.0, 0.0, 1.0, 0.0);
-    s_gles2.glClear(GL_COLOR_BUFFER_BIT);
-
-    ret = (*c).second.cb->post(0.0f, 0, 0);
-    if (ret) {
-        s_egl.eglSwapBuffers(m_eglDisplay, window->surface);
-    }
-
-    // restore previous binding
-    unbind_locked();
-
-    //
-    // output FPS statistics
-    //
-    if (m_fpsStats) {
-        long long currTime = GetCurrentTimeMS();
-        m_statsNumFrames++;
-        if (currTime - m_statsStartTime >= 1000) {
-            float dt = (float)(currTime - m_statsStartTime) / 1000.0f;
-            printf("FPS: %5.3f\n", (float)m_statsNumFrames / dt);
-            m_statsStartTime = currTime;
-            m_statsNumFrames = 0;
-        }
-    }
-
-EXIT:
-    if (!ret)
-        printf("post: FAILED\n");
-
-    if (needLock) {
-        m_lock.unlock();
-    }
-    return ret;
+    window->viewport = rect;
 }
 
-bool Renderer::draw(EGLNativeWindowType native_window, const RenderableList &renderables)
+void Renderer::tessellate(std::vector<anbox::graphics::Primitive>& primitives,
+                          const anbox::graphics::Rect &buf_size,
+                          const Renderable &renderable)
+{
+    auto rect = renderable.screen_position();
+    GLfloat left = rect.left();
+    GLfloat right = rect.right();
+    GLfloat top = rect.top();
+    GLfloat bottom = rect.bottom();
+
+    anbox::graphics::Primitive rectangle;
+    rectangle.tex_id = 0;
+    rectangle.type = GL_TRIANGLE_STRIP;
+
+    GLfloat tex_right = static_cast<GLfloat>(rect.width()) /
+                        buf_size.width();
+    GLfloat tex_bottom = static_cast<GLfloat>(rect.height()) /
+                         buf_size.height();
+
+    auto& vertices = rectangle.vertices;
+    vertices[0] = {{left,  top,    0.0f}, {0.0f,      0.0f}};
+    vertices[1] = {{left,  bottom, 0.0f}, {0.0f,      tex_bottom}};
+    vertices[2] = {{right, top,    0.0f}, {tex_right, 0.0f}};
+    vertices[3] = {{right, bottom, 0.0f}, {tex_right, tex_bottom}};
+
+    primitives.resize(1);
+    primitives[0] = rectangle;
+}
+
+void Renderer::draw(RendererWindow *window, const Renderable &renderable, const Program &prog)
+{
+    const auto &color_buffer = m_colorbuffers.find(renderable.buffer());
+    if (color_buffer == m_colorbuffers.end())
+        return;
+
+    const auto &cb = color_buffer->second.cb;
+
+    s_gles2.glUseProgram(prog.id);
+    s_gles2.glUniform1i(prog.tex_uniform, 0);
+    s_gles2.glUniformMatrix4fv(prog.display_transform_uniform, 1, GL_FALSE,
+                       glm::value_ptr(window->display_transform));
+    s_gles2.glUniformMatrix4fv(prog.screen_to_gl_coords_uniform, 1, GL_FALSE,
+                       glm::value_ptr(window->screen_to_gl_coords));
+
+    s_gles2.glActiveTexture(GL_TEXTURE0);
+
+    auto const& rect = renderable.screen_position();
+    GLfloat centrex = rect.left() +
+                      rect.width() / 2.0f;
+    GLfloat centrey = rect.top() +
+                      rect.height() / 2.0f;
+    s_gles2.glUniform2f(prog.centre_uniform, centrex, centrey);
+
+    s_gles2.glUniformMatrix4fv(prog.transform_uniform, 1, GL_FALSE,
+                       glm::value_ptr(renderable.transformation()));
+
+    if (prog.alpha_uniform >= 0)
+        s_gles2.glUniform1f(prog.alpha_uniform, renderable.alpha());
+
+    s_gles2.glEnableVertexAttribArray(prog.position_attr);
+    s_gles2.glEnableVertexAttribArray(prog.texcoord_attr);
+
+    m_primitives.clear();
+    tessellate(m_primitives, {cb->getWidth(), cb->getHeight()}, renderable);
+
+    for (auto const& p : m_primitives)
+    {
+        cb->bind();
+
+        s_gles2.glVertexAttribPointer(prog.position_attr, 3, GL_FLOAT,
+                              GL_FALSE, sizeof(anbox::graphics::Vertex),
+                              &p.vertices[0].position);
+        s_gles2.glVertexAttribPointer(prog.texcoord_attr, 2, GL_FLOAT,
+                              GL_FALSE, sizeof(anbox::graphics::Vertex),
+                              &p.vertices[0].texcoord);
+
+        s_gles2.glEnable(GL_BLEND);
+        s_gles2.glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
+                                    GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+        s_gles2.glDrawArrays(p.type, 0, p.nvertices);
+    }
+
+    s_gles2.glDisableVertexAttribArray(prog.texcoord_attr);
+    s_gles2.glDisableVertexAttribArray(prog.position_attr);
+}
+
+bool Renderer::draw(EGLNativeWindowType native_window, const anbox::graphics::Rect &window_frame, const RenderableList &renderables)
 {
     auto w = m_nativeWindows.find(native_window);
     if (w == m_nativeWindows.end())
@@ -1027,18 +1155,13 @@ bool Renderer::draw(EGLNativeWindowType native_window, const RenderableList &ren
         return false;
     }
 
-    s_gles2.glClearColor(0.0, 0.0, 1.0, 0.0);
+    setupViewport(w->second, window_frame);
+    s_gles2.glClearColor(0.0, 0.0, 0.0, 1.0);
+    s_gles2.glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     s_gles2.glClear(GL_COLOR_BUFFER_BIT);
 
-    for (const auto &renderable : renderables)
-    {
-        const auto &color_buffer = m_colorbuffers.find(renderable.buffer());
-        if (color_buffer == m_colorbuffers.end())
-            continue;
-
-        color_buffer->second.cb->post(0.0f,
-            renderable.screen_position().left(), renderable.screen_position().top());
-    }
+    for (const auto &r : renderables)
+        draw(w->second, r,  r.alpha() < 1.0f ? m_alphaProgram : m_defaultProgram);
 
     s_egl.eglSwapBuffers(m_eglDisplay, w->second->surface);
 

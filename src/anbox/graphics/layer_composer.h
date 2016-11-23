@@ -15,36 +15,28 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
-#define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
+#ifndef ANBOX_GRAPHICS_LAYER_COMPOSER_H_
+#define ANBOX_GRAPHICS_LAYER_COMPOSER_H_
 
-#include <string>
+#include "anbox/graphics/emugl/Renderable.h"
+
 #include <memory>
 
 namespace anbox {
-namespace input {
-class Manager;
-} // namespace input
 namespace wm {
 class Manager;
 } // namespace wm
 namespace graphics {
-class LayerComposer;
-class GLRendererServer {
+class LayerComposer {
 public:
-    GLRendererServer(const std::shared_ptr<wm::Manager> &wm);
-    ~GLRendererServer();
+    LayerComposer(const std::shared_ptr<wm::Manager> &wm);
+    ~LayerComposer();
 
-    void start();
-
-    std::string socket_path() const;
+    void submit_layers(const RenderableList &renderables);
 
 private:
-    std::string socket_path_;
     std::shared_ptr<wm::Manager> wm_;
-    std::shared_ptr<LayerComposer> composer_;
 };
-
 } // namespace graphics
 } // namespace anbox
 

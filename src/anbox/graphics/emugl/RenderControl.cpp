@@ -24,10 +24,19 @@
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
+#include "anbox/graphics/layer_composer.h"
+#include "anbox/logger.h"
+
 #include <map>
 #include <string>
 
 static const GLint rendererVersion = 1;
+static std::shared_ptr<anbox::graphics::LayerComposer> composer;
+
+void registerLayerComposer(const std::shared_ptr<anbox::graphics::LayerComposer> &c)
+{
+    composer = c;
+}
 
 static GLint rcGetRendererVersion()
 {
@@ -305,12 +314,7 @@ static EGLint rcMakeCurrent(uint32_t context,
 
 static void rcFBPost(uint32_t colorBuffer)
 {
-    Renderer *fb = Renderer::get();
-    if (!fb) {
-        return;
-    }
-
-    fb->post(nullptr, colorBuffer);
+    WARNING("Not implemented");
 }
 
 static void rcFBSetSwapInterval(EGLint interval)
@@ -425,15 +429,31 @@ int rcGetDisplayVsyncPeriod(uint32_t display_id) {
     return 1;
 }
 
+static std::vector<Renderable> frame_layers;
+
+bool is_layer_blacklisted(const std::string &name) {
+    static std::vector<std::string> blacklist = {
+        "Sprite",
+    };
+    return std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end();
+}
+
 void rcPostLayer(const char *name, uint32_t color_buffer,
                  int32_t sourceCropLeft, int32_t sourceCropTop,
                  int32_t sourceCropRight, int32_t sourceCropBottom,
                  int32_t displayFrameLeft, int32_t displayFrameTop,
-                 int32_t displayFrameRight, int32_t displayFrameBottom) {
-
+                 int32_t displayFrameRight, int32_t displayFrameBottom)
+{
+    Renderable r{name, color_buffer, {displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom}};
+    frame_layers.push_back(r);
 }
 
-void rcPostAllLayersDone() {
+void rcPostAllLayersDone()
+{
+    if (composer)
+        composer->submit_layers(frame_layers);
+
+    frame_layers.clear();
 }
 
 void initRenderControlContext(renderControl_decoder_context_t *dec)

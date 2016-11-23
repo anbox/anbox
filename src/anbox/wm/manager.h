@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <map>
+#include <mutex>
 
 namespace anbox {
 namespace wm {
@@ -35,7 +36,10 @@ public:
     void apply_window_state_update(const WindowState::List &updated,
                                    const WindowState::List &removed);
 
+    std::shared_ptr<Window> find_window_for_task(const Task::Id &task);
+
 private:
+    std::mutex mutex_;
     std::shared_ptr<PlatformPolicy> platform_;
     std::map<Task::Id, std::shared_ptr<Window>> windows_;
 };

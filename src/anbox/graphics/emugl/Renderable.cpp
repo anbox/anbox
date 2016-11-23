@@ -16,15 +16,26 @@
 
 #include "Renderable.h"
 
-Renderable::Renderable(const std::uint32_t &buffer,
-                       const anbox::graphics::Rect &screen_position) :
+Renderable::Renderable(const std::string &name,
+                       const std::uint32_t &buffer,
+                       const anbox::graphics::Rect &screen_position,
+                       const glm::mat4 &transformation,
+                       const float &alpha) :
+    name_(name),
     buffer_(buffer),
-    screen_position_(screen_position)
+    screen_position_(screen_position),
+    transformation_(transformation),
+    alpha_(alpha)
 {
 }
 
 Renderable::~Renderable()
 {
+}
+
+std::string Renderable::name() const
+{
+    return name_;
 }
 
 std::uint32_t Renderable::buffer() const
@@ -35,4 +46,14 @@ std::uint32_t Renderable::buffer() const
 anbox::graphics::Rect Renderable::screen_position() const
 {
     return screen_position_;
+}
+
+glm::mat4 Renderable::transformation() const
+{
+    return transformation_;
+}
+
+float Renderable::alpha() const
+{
+    return alpha_;
 }

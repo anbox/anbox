@@ -17,6 +17,9 @@
 
 #include "anbox/logger.h"
 #include "anbox/graphics/gl_renderer_server.h"
+#include "anbox/graphics/layer_composer.h"
+#include "anbox/graphics/emugl/RenderControl.h"
+#include "anbox/wm/manager.h"
 
 #include "OpenglRender/render_api.h"
 
@@ -26,7 +29,9 @@
 
 namespace anbox {
 namespace graphics {
-GLRendererServer::GLRendererServer()
+GLRendererServer::GLRendererServer(const std::shared_ptr<wm::Manager> &wm) :
+    wm_(wm),
+    composer_(std::make_shared<LayerComposer>(wm))
 {
 
     if (utils::is_env_set("USE_HOST_GLES")) {
@@ -43,6 +48,8 @@ GLRendererServer::GLRendererServer()
 
     if (!initLibrary())
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize OpenGL renderer"));
+
+    registerLayerComposer(composer_);
 }
 
 GLRendererServer::~GLRendererServer() {

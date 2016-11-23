@@ -105,6 +105,9 @@ set(SOURCES
     anbox/graphics/gl_renderer_server.cpp
     anbox/graphics/density.h
     anbox/graphics/rect.cpp
+    anbox/graphics/layer_composer.cpp
+    anbox/graphics/program_family.cpp
+    anbox/graphics/primitives.h
 
     anbox/graphics/emugl/ColorBuffer.cpp
     anbox/graphics/emugl/DisplayManager.cpp

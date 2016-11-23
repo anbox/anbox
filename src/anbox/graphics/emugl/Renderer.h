@@ -27,6 +27,9 @@
 
 #include "Renderable.h"
 
+#include "anbox/graphics/program_family.h"
+#include "anbox/graphics/primitives.h"
+
 #include <EGL/egl.h>
 
 #include <map>
@@ -229,14 +232,7 @@ public:
                            int x, int y, int width, int height,
                            GLenum format, GLenum type, void *pixels);
 
-    // Display the content of a given ColorBuffer into the framebuffer's
-    // sub-window. |p_colorbuffer| is a handle value.
-    // |needLock| is used to indicate whether the operation requires
-    // acquiring/releasing the FrameBuffer instance's lock. It should be
-    // false only when called internally.
-    bool post(RendererWindow *window, HandleType p_colorbuffer, bool needLock = true);
-
-    bool draw(EGLNativeWindowType native_window, const RenderableList &renderables);
+    bool draw(EGLNativeWindowType native_window, const anbox::graphics::Rect &window_frame, const RenderableList &renderables);
 
     // Return the host EGLDisplay used by this instance.
     EGLDisplay getDisplay() const { return m_eglDisplay; }
@@ -258,6 +254,13 @@ private:
     HandleType genHandle();
 
     bool bindWindow_locked(RendererWindow *window);
+
+    void setupViewport(RendererWindow *window, const anbox::graphics::Rect &rect);
+    struct Program;
+    void draw(RendererWindow *window, const Renderable &renderable, const Program &prog);
+    void tessellate(std::vector<anbox::graphics::Primitive>& primitives,
+                    const anbox::graphics::Rect &buf_size,
+                    const Renderable &renderable);
 
 private:
     static Renderer *s_renderer;
@@ -292,5 +295,30 @@ private:
     const char* m_glVersion;
 
     std::map<EGLNativeWindowType,RendererWindow*> m_nativeWindows;
+
+    anbox::graphics::ProgramFamily m_family;
+    struct Program
+    {
+       GLuint id = 0;
+       GLint tex_uniform = -1;
+       GLint position_attr = -1;
+       GLint texcoord_attr = -1;
+       GLint centre_uniform = -1;
+       GLint display_transform_uniform = -1;
+       GLint transform_uniform = -1;
+       GLint screen_to_gl_coords_uniform = -1;
+       GLint alpha_uniform = -1;
+       mutable long long last_used_frameno = 0;
+
+       Program(GLuint program_id);
+       Program() {}
+    };
+    Program m_defaultProgram, m_alphaProgram;
+
+    std::vector<anbox::graphics::Primitive> m_primitives;
+
+    static const GLchar* const vshader;
+    static const GLchar* const defaultFShader;
+    static const GLchar* const alphaFShader;
 };
 #endif

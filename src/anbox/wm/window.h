@@ -42,11 +42,15 @@ class Window
 public:
     typedef std::vector<Window> List;
 
-    Window(const WindowState &state);
+    Window(const WindowState &new_state);
     virtual ~Window();
 
     bool attach();
     void release();
+
+    void ref();
+    void unref();
+    bool still_used() const;
 
     void update_state(const WindowState &state);
 
@@ -55,6 +59,7 @@ public:
 
 private:
     WindowState state_;
+    std::uint32_t refcount_;
 };
 } // namespace wm
 } // namespace anbox
