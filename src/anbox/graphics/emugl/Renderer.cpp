@@ -1156,6 +1156,7 @@ bool Renderer::draw(EGLNativeWindowType native_window, const anbox::graphics::Re
     }
 
     setupViewport(w->second, window_frame);
+    s_gles2.glViewport(0, 0, window_frame.width(), window_frame.height());
     s_gles2.glClearColor(0.0, 0.0, 0.0, 1.0);
     s_gles2.glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     s_gles2.glClear(GL_COLOR_BUFFER_BIT);
