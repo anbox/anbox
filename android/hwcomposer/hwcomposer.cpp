@@ -88,8 +88,6 @@ static int hwc_prepare(hwc_composer_device_1_t* dev, size_t numDisplays,
                        hwc_display_contents_1_t** displays) {
     auto context = reinterpret_cast<HwcContext*>(dev);
 
-    ALOGD("%s", __PRETTY_FUNCTION__);
-
     if (displays == NULL || displays[0] == NULL)
         return -EINVAL;
 
@@ -107,7 +105,9 @@ static int hwc_prepare(hwc_composer_device_1_t* dev, size_t numDisplays,
         for (; i < num_hw_layers; i++) {
           hwc_layer_1_t* layer = &displays[0]->hwLayers[num_hw_layers - 1 - i];
 
+#if 0
           dump_layer(layer);
+#endif
 
           if (layer->flags & HWC_SKIP_LAYER) {
             // All layers below and including this one will be drawn into the
@@ -170,8 +170,6 @@ static int hwc_set(hwc_composer_device_1_t* dev, size_t numDisplays,
                    hwc_display_contents_1_t** displays) {
     auto context = reinterpret_cast<HwcContext*>(dev);
 
-    ALOGD("%s", __PRETTY_FUNCTION__);
-
     if (displays == NULL || displays[0] == NULL)
         return -EFAULT;
 
@@ -184,7 +182,9 @@ static int hwc_set(hwc_composer_device_1_t* dev, size_t numDisplays,
             layer->flags & HWC_IS_CURSOR_LAYER)
             continue;
 
+#if 0
         dump_layer(layer);
+#endif
 
         // FIXME this is just dirty ... but layer->handle is a const native_handle_t and canBePosted
         // can't be called with a const.
@@ -217,30 +217,22 @@ static int hwc_set(hwc_composer_device_1_t* dev, size_t numDisplays,
 
 static int hwc_event_control(hwc_composer_device_1* dev, int disp,
                              int event, int enabled) {
-    ALOGD("%s", __PRETTY_FUNCTION__);
-
     return -EFAULT;
 }
 
 static void hwc_register_procs(hwc_composer_device_1* dev,
                                hwc_procs_t const* procs) {
-    ALOGD("%s", __PRETTY_FUNCTION__);
 }
 
 static int hwc_blank(hwc_composer_device_1* dev, int disp, int blank) {
-    ALOGD("%s", __PRETTY_FUNCTION__);
-
     return 0;
 }
 
 static int hwc_query(hwc_composer_device_1* dev, int what, int* value) {
-    ALOGD("%s", __PRETTY_FUNCTION__);
-
     return 0;
 }
 
 static int hwc_device_close(hw_device_t* dev) {
-    ALOGD("%s", __PRETTY_FUNCTION__);
     auto context = reinterpret_cast<HwcContext*>(dev);
     delete context;
     return 0;
@@ -248,8 +240,6 @@ static int hwc_device_close(hw_device_t* dev) {
 
 static int hwc_get_display_configs(hwc_composer_device_1* dev, int disp,
                                    uint32_t* configs, size_t* numConfigs) {
-  ALOGD("%s", __PRETTY_FUNCTION__);
-
   if (disp != 0) {
     return -EINVAL;
   }
@@ -267,8 +257,6 @@ static int hwc_get_display_attributes(hwc_composer_device_1* dev,
                                       int disp, uint32_t config,
                                       const uint32_t* attributes,
                                       int32_t* values) {
-  ALOGD("%s", __PRETTY_FUNCTION__);
-
   if (disp != 0 || config != 0) {
     return -EINVAL;
   }
