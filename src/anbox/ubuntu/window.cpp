@@ -35,9 +35,10 @@ Window::Observer::~Observer() {
 }
 
 Window::Window(const Id &id,
+               const wm::Task::Id &task,
                const std::shared_ptr<Observer> &observer,
-               const wm::WindowState &state) :
-    wm::Window(state),
+               const graphics::Rect &frame) :
+    wm::Window(task, frame),
     id_(id),
     observer_(observer),
     native_display_(0),
@@ -46,10 +47,10 @@ Window::Window(const Id &id,
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
 
     window_ = SDL_CreateWindow(default_window_name,
-                               state.frame().left(),
-                               state.frame().top(),
-                               state.frame().width(),
-                               state.frame().height(),
+                               frame.left(),
+                               frame.top(),
+                               frame.width(),
+                               frame.height(),
                                SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
     if (!window_) {
         const auto message = utils::string_format("Failed to create window: %s", SDL_GetError());
@@ -78,7 +79,7 @@ Window::Window(const Id &id,
 }
 
 Window::Window(int x, int y, int width, int height) :
-    wm::Window(wm::WindowState()),
+    wm::Window(0, graphics::Rect{x,y,x + width,y + height}),
     native_display_(0),
     native_window_(0) {
 
@@ -123,7 +124,7 @@ void Window::resize(int width, int height) {
     SDL_SetWindowSize(window_, width, height);
 }
 
-int Window::update_position(int x, int y) {
+void Window::update_position(int x, int y) {
     SDL_SetWindowPosition(window_, x, y);
 }
 
