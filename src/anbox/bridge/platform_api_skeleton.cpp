@@ -61,7 +61,7 @@ void PlatformApiSkeleton::update_window_state(anbox::protobuf::bridge::WindowSta
                       graphics::Rect(window.frame_left(), window.frame_top(), window.frame_right(), window.frame_bottom()),
                       window.package_name(),
                       wm::Task::Id(window.task_id()),
-                      wm::Stack::Id(wm::Stack::Invalid));
+                      wm::Stack::Id(window.stack_id()));
     };
 
     wm::WindowState::List updated;
