@@ -52,11 +52,13 @@ public:
                      google::protobuf::MessageLite *response,
                      google::protobuf::Closure *complete);
 
+    void send_event(google::protobuf::MessageLite const& event);
+
 private:
     protobuf::rpc::Invocation invocation_for(
         std::string const& method_name,
         google::protobuf::MessageLite const* request);
-    void send_message(anbox::protobuf::rpc::Invocation const& invocation);
+    void send_message(const std::uint8_t &type, google::protobuf::MessageLite const& message);
     int next_id();
     void notify_disconnected();
 

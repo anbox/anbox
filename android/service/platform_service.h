@@ -19,19 +19,11 @@
 #define ANBOX_ANDROID_PLATFORM_SERVICE_H_
 
 #include "android/service/platform_service_interface.h"
+#include "android/service/platform_api_stub.h"
 
 #include <binder/Parcel.h>
 
 #include <memory>
-
-namespace anbox {
-class PlatformApiStub;
-namespace protobuf {
-namespace bridge {
-class WindowStateUpdate_WindowState;
-} // namespace bridge
-} // namespace protobuf
-} // namespace anbox
 
 namespace android {
 class PlatformService : public BnPlatformService {
@@ -44,7 +36,7 @@ public:
     status_t update_window_state(const Parcel &data) override;
 
 private:
-    void unpack_window_state(anbox::protobuf::bridge::WindowStateUpdate_WindowState *window, const Parcel &data);
+    anbox::PlatformApiStub::WindowStateUpdate::Window unpack_window_state(const Parcel &data);
     std::shared_ptr<anbox::PlatformApiStub> platform_api_stub_;
 };
 } // namespace android

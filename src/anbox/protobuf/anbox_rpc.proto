@@ -12,6 +12,7 @@ message Invocation {
 message Result {
     optional uint32 id = 1;
     optional bytes response = 2;
+    repeated bytes events = 3;
 }
 
 message StructuredError {

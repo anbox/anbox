@@ -33,28 +33,15 @@ PlatformApiSkeleton::PlatformApiSkeleton(const std::shared_ptr<rpc::PendingCallC
 PlatformApiSkeleton::~PlatformApiSkeleton() {
 }
 
-void PlatformApiSkeleton::boot_finished(anbox::protobuf::rpc::Void const *request,
-                                         anbox::protobuf::rpc::Void *response,
-                                         google::protobuf::Closure *done) {
-    (void) request;
-    (void) response;
+void PlatformApiSkeleton::handle_boot_finished_event(const anbox::protobuf::bridge::BootFinishedEvent &event) {
+    (void) event;
 
-    if (on_boot_finished_action_)
-        on_boot_finished_action_();
-
-    done->Run();
+    if (boot_finished_handler_)
+        boot_finished_handler_();
 }
 
-void PlatformApiSkeleton::update_window_state(anbox::protobuf::bridge::WindowStateUpdate const *request,
-                                               anbox::protobuf::rpc::Void *response,
-                                               google::protobuf::Closure *done) {
-    (void) response;
-
-    auto convert_window_state = [](const ::anbox::protobuf::bridge::WindowStateUpdate_WindowState &window) {
-        DEBUG("Window: display=%d has_surface=%d frame={%d,%d,%d,%d} package=%s task=%d stack=-1",
-              window.display_id(), window.has_surface(),
-              window.frame_left(), window.frame_top(), window.frame_right(), window.frame_bottom(),
-              window.package_name(), window.task_id());
+void PlatformApiSkeleton::handle_window_state_update_event(const anbox::protobuf::bridge::WindowStateUpdateEvent &event) {
+    auto convert_window_state = [](const ::anbox::protobuf::bridge::WindowStateUpdateEvent_WindowState &window) {
         return wm::WindowState(
                       wm::Display::Id(window.display_id()),
                       window.has_surface(),
@@ -65,24 +52,22 @@ void PlatformApiSkeleton::update_window_state(anbox::protobuf::bridge::WindowSta
     };
 
     wm::WindowState::List updated;
-    for (int n = 0; n < request->windows_size(); n++) {
-        const auto window = request->windows(n);
+    for (int n = 0; n < event.windows_size(); n++) {
+        const auto window = event.windows(n);
         updated.push_back(convert_window_state(window));
     }
 
     wm::WindowState::List removed;
-    for (int n = 0; n < request->removed_windows_size(); n++) {
-        const auto window = request->removed_windows(n);
+    for (int n = 0; n < event.removed_windows_size(); n++) {
+        const auto window = event.removed_windows(n);
         removed.push_back(convert_window_state(window));
     }
 
     window_manager_->apply_window_state_update(updated, removed);
-
-    done->Run();
 }
 
-void PlatformApiSkeleton::on_boot_finished(const std::function<void()> &action) {
-    on_boot_finished_action_ = action;
+void PlatformApiSkeleton::register_boot_finished_handler(const std::function<void()> &action) {
+    boot_finished_handler_ = action;
 }
 } // namespace bridge
 } // namespace anbox

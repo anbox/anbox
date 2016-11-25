@@ -32,8 +32,8 @@ namespace rpc {
 class Void;
 } // namespace rpc
 namespace bridge {
-class Notification;
-class WindowStateUpdate;
+class BootFinishedEvent;
+class WindowStateUpdateEvent;
 } // namespace bridge
 } // namespace protobuf
 namespace rpc {
@@ -49,20 +49,15 @@ public:
                         const std::shared_ptr<wm::Manager> &window_manager);
     virtual ~PlatformApiSkeleton();
 
-    void boot_finished(anbox::protobuf::rpc::Void const *request,
-                       anbox::protobuf::rpc::Void *response,
-                       google::protobuf::Closure *done);
+    void handle_boot_finished_event(const anbox::protobuf::bridge::BootFinishedEvent &event);
+    void handle_window_state_update_event(const anbox::protobuf::bridge::WindowStateUpdateEvent &event);
 
-    void update_window_state(anbox::protobuf::bridge::WindowStateUpdate const *request,
-                             anbox::protobuf::rpc::Void *response,
-                             google::protobuf::Closure *done);
-
-    void on_boot_finished(const std::function<void()> &action);
+    void register_boot_finished_handler(const std::function<void()> &action);
 
 private:
     std::shared_ptr<rpc::PendingCallCache> pending_calls_;
     std::shared_ptr<wm::Manager> window_manager_;
-    std::function<void()> on_boot_finished_action_;
+    std::function<void()> boot_finished_handler_;
 };
 } // namespace bridge
 } // namespace anbox

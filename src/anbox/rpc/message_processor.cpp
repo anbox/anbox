@@ -78,7 +78,11 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
 
         buffer_.erase(buffer_.begin(), buffer_.begin() + message_size);
 
-        pending_calls_->complete_response(*result);
+        if (result->has_id())
+            pending_calls_->complete_response(*result);
+
+        for (int n = 0; n < result->events_size(); n++)
+            process_event_sequence(result->events(n));
     }
 
     return true;

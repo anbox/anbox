@@ -18,6 +18,7 @@
 #include "anbox/bridge/platform_message_processor.h"
 #include "anbox/bridge/platform_api_skeleton.h"
 #include "anbox/rpc/template_message_processor.h"
+#include "anbox/logger.h"
 
 #include "anbox_bridge.pb.h"
 
@@ -34,13 +35,20 @@ PlatformMessageProcessor::~PlatformMessageProcessor() {
 }
 
 void PlatformMessageProcessor::dispatch(rpc::Invocation const& invocation) {
-    if (invocation.method_name() == "boot_finished")
-        invoke(this, server_.get(), &PlatformApiSkeleton::boot_finished, invocation);
-    else if (invocation.method_name() == "update_window_state")
-        invoke(this, server_.get(), &PlatformApiSkeleton::update_window_state, invocation);
 }
 
-void PlatformMessageProcessor::process_event_sequence(const std::string&) {
+void PlatformMessageProcessor::process_event_sequence(const std::string &raw_events) {
+    anbox::protobuf::bridge::EventSequence seq;
+    if (!seq.ParseFromString(raw_events)) {
+        WARNING("Failed to parse events from raw string");
+        return;
+    }
+
+    if (seq.has_window_state_update())
+        server_->handle_window_state_update_event(seq.window_state_update());
+
+    if (seq.has_boot_finished())
+        server_->handle_boot_finished_event(seq.boot_finished());
 }
 } // namespace anbox
 } // namespace network

@@ -130,7 +130,8 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
                     android_api_stub->set_rpc_channel(rpc_channel);
 
                     auto server = std::make_shared<bridge::PlatformApiSkeleton>(pending_calls, window_manager);
-                    server->on_boot_finished([&]() {
+                    server->register_boot_finished_handler([&]() {
+                        DEBUG("Android successfully booted");
                         dispatcher->dispatch([&]() {
                             // FIXME make this configurable or once we have a bridge let the host
                             // act as a DNS proxy.

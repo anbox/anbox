@@ -21,59 +21,44 @@
 #include "anbox_rpc.pb.h"
 #include "anbox_bridge.pb.h"
 
-#define LOG_TAG "Anbox"
-#include <cutils/log.h>
-
 namespace anbox {
 PlatformApiStub::PlatformApiStub(const std::shared_ptr<rpc::Channel> &rpc_channel) :
     rpc_channel_(rpc_channel) {
 }
 
 void PlatformApiStub::boot_finished() {
-    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
+    protobuf::bridge::EventSequence seq;
+    auto event = seq.mutable_boot_finished();
+    (void) event;
+    rpc_channel_->send_event(seq);
+}
 
-    ALOGI("Boot finished");
+void PlatformApiStub::update_window_state(const WindowStateUpdate &state) {
+    protobuf::bridge::EventSequence seq;
+    auto event = seq.mutable_window_state_update();
 
-    {
-        std::lock_guard<decltype(mutex_)> lock(mutex_);
-        boot_finished_wait_handle_.expect_result();
+    auto convert_window = [](WindowStateUpdate::Window in, anbox::protobuf::bridge::WindowStateUpdateEvent_WindowState *out) {
+        out->set_display_id(in.display_id);
+        out->set_has_surface(in.has_surface);
+        out->set_package_name(in.package_name);
+        out->set_frame_left(in.frame.left);
+        out->set_frame_top(in.frame.top);
+        out->set_frame_right(in.frame.right);
+        out->set_frame_bottom(in.frame.bottom);
+        out->set_task_id(in.task_id);
+        out->set_stack_id(in.stack_id);
+    };
+
+    for (const auto &window : state.updated_windows) {
+        auto w = event->add_windows();
+        convert_window(window, w);
     }
 
-    protobuf::rpc::Void message;
-
-    rpc_channel_->call_method(
-        "boot_finished",
-        &message, c->response.get(),
-        google::protobuf::NewCallback(this, &PlatformApiStub::handle_boot_finished_response, c.get()));
-
-    boot_finished_wait_handle_.wait_for_all();
-
-    ALOGI("Boot finished sent successfully!");
-}
-
-void PlatformApiStub::handle_boot_finished_response(Request<protobuf::rpc::Void>*) {
-    boot_finished_wait_handle_.result_received();
-}
-
-void PlatformApiStub::update_window_state(const anbox::protobuf::bridge::WindowStateUpdate &window_state) {
-    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
-
-    ALOGI("Updating window state");
-
-    {
-        std::lock_guard<decltype(mutex_)> lock(mutex_);
-        update_window_state_wait_handle_.expect_result();
+    for (const auto &window : state.removed_windows) {
+        auto w = event->add_removed_windows();
+        convert_window(window, w);
     }
 
-    rpc_channel_->call_method(
-        "update_window_state",
-        &window_state, c->response.get(),
-        google::protobuf::NewCallback(this, &PlatformApiStub::handle_update_window_state_response, c.get()));
-
-    update_window_state_wait_handle_.wait_for_all();
-}
-
-void PlatformApiStub::handle_update_window_state_response(Request<protobuf::rpc::Void> *request) {
-    update_window_state_wait_handle_.result_received();
+    rpc_channel_->send_event(seq);
 }
 } // namespace anbox
