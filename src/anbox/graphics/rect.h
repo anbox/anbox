@@ -89,6 +89,8 @@ public:
         return !operator == (rhs);
     }
 
+    void merge(const Rect &rhs);
+
 private:
     std::int32_t left_;
     std::int32_t top_;

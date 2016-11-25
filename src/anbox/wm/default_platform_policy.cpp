@@ -22,8 +22,17 @@
 namespace {
 class NullWindow : public anbox::wm::Window {
 public:
-    NullWindow(const anbox::wm::WindowState &state) :
-        anbox::wm::Window(state) {
+    NullWindow(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) :
+        anbox::wm::Window(0, frame) {
+    }
+
+protected:
+    void resize(int width, int height) override {
+        WARNING("Not implemented");
+    }
+
+    void update_position(int x, int y) override {
+        WARNING("Not implemented");
     }
 };
 }
@@ -33,10 +42,10 @@ namespace wm {
 DefaultPlatformPolicy::DefaultPlatformPolicy() {
 }
 
-std::shared_ptr<Window> DefaultPlatformPolicy::create_window(const WindowState &state)
+std::shared_ptr<Window> DefaultPlatformPolicy::create_window(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame)
 {
     DEBUG("");
-    return std::make_shared<::NullWindow>(state);
+    return std::make_shared<::NullWindow>(task, frame);
 }
 } // namespace wm
 } // namespace anbox

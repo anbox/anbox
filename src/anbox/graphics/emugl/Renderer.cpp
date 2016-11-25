@@ -441,7 +441,7 @@ Renderer::Program::Program(GLuint program_id)
     position_attr = s_gles2.glGetAttribLocation(id, "position");
     texcoord_attr = s_gles2.glGetAttribLocation(id, "texcoord");
     tex_uniform = s_gles2.glGetUniformLocation(id, "tex");
-    centre_uniform = s_gles2.glGetUniformLocation(id, "centre");
+    center_uniform = s_gles2.glGetUniformLocation(id, "centre");
     display_transform_uniform = s_gles2.glGetUniformLocation(id, "display_transform");
     transform_uniform = s_gles2.glGetUniformLocation(id, "transform");
     screen_to_gl_coords_uniform = s_gles2.glGetUniformLocation(id, "screen_to_gl_coords");
@@ -985,10 +985,10 @@ const GLchar* const Renderer::vshader =
     "uniform mat4 screen_to_gl_coords;\n"
     "uniform mat4 display_transform;\n"
     "uniform mat4 transform;\n"
-    "uniform vec2 centre;\n"
+    "uniform vec2 center;\n"
     "varying vec2 v_texcoord;\n"
     "void main() {\n"
-    "   vec4 mid = vec4(centre, 0.0, 0.0);\n"
+    "   vec4 mid = vec4(center, 0.0, 0.0);\n"
     "   vec4 transformed = (transform * (vec4(position, 1.0) - mid)) + mid;\n"
     "   gl_Position = display_transform * screen_to_gl_coords * transformed;\n"
     "   v_texcoord = texcoord;\n"
@@ -1103,11 +1103,11 @@ void Renderer::draw(RendererWindow *window, const Renderable &renderable, const 
     s_gles2.glActiveTexture(GL_TEXTURE0);
 
     auto const& rect = renderable.screen_position();
-    GLfloat centrex = rect.left() +
+    GLfloat centerx = rect.left() +
                       rect.width() / 2.0f;
-    GLfloat centrey = rect.top() +
+    GLfloat centery = rect.top() +
                       rect.height() / 2.0f;
-    s_gles2.glUniform2f(prog.centre_uniform, centrex, centrey);
+    s_gles2.glUniform2f(prog.center_uniform, centerx, centery);
 
     s_gles2.glUniformMatrix4fv(prog.transform_uniform, 1, GL_FALSE,
                        glm::value_ptr(renderable.transformation()));

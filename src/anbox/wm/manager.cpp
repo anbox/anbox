@@ -35,40 +35,63 @@ void Manager::apply_window_state_update(const WindowState::List &updated,
 {
     std::lock_guard<std::mutex> l(mutex_);
 
-    DEBUG("updated %d removed %d", updated.size(), removed.size());
-
     // Base on the update we get from the Android WindowManagerService we will create
     // different window instances with the properties supplied. Incoming layer updates
     // from SurfaceFlinger will be mapped later into those windows and eventually
     // composited there via GLES (e.g. for popups, ..)
 
+    std::map<Task::Id, WindowState::List> task_updates;
+
     for (const auto &window : updated)
     {
+        // Ignore all windows which are not part of the freeform task stack
+        if (window.stack() != Stack::Freeform)
+            continue;
+
+        // And also those which don't have a surface mapped at the moment
+        if (!window.has_surface())
+            continue;
+
+        // If we know that task already we first collect all window updates
+        // for it so we can apply all of them together.
         auto w = windows_.find(window.task());
         if (w != windows_.end())
         {
-            w->second->update_state(window);
+            auto t = task_updates.find(window.task());
+            if (t == task_updates.end())
+                task_updates.insert({window.task(), {window}});
+            else
+                task_updates[window.task()].push_back(window);
             continue;
         }
-        // HACK: We ignore the first task here which will be always the home
-        // stack of Android. This needs to be solved differently so that the
-        // Android side doesn't create this stack at all.
-        if (window.task() == 0)
-            continue;
-        auto platform_window = platform_->create_window(window);
-        platform_window->ref();
+
+        auto platform_window = platform_->create_window(window.task(), window.frame());
         platform_window->attach();
         windows_.insert({window.task(), platform_window});
     }
 
+    // Send updates we collected per task down to the corresponding window
+    // so that they can update themself.
+    for (const auto &u : task_updates)
+    {
+        auto w = windows_.find(u.first);
+        if (w == windows_.end())
+            continue;
+
+        w->second->update_state(u.second);
+    }
+
+    // As final step we process all windows we need to remove as they
+    // got killed on the other side. We need to respect here that we
+    // also get removals for windows which are part of a task which is
+    // still in use by other windows.
     for (const auto &window : removed)
     {
         auto w = windows_.find(window.task());
         if (w == windows_.end())
             continue;
 
-        w->second->unref();
-        if (!w->second->still_used())
+        if (task_updates.find(window.task()) == task_updates.end())
         {
             auto platform_window = w->second;
             platform_window->release();
@@ -80,10 +103,9 @@ void Manager::apply_window_state_update(const WindowState::List &updated,
 std::shared_ptr<Window> Manager::find_window_for_task(const Task::Id &task)
 {
     std::lock_guard<std::mutex> l(mutex_);
-
     for (const auto &w : windows_)
     {
-        if (w.second->state().task() == task)
+        if (w.second->task() == task)
             return w.second;
     }
     return nullptr;

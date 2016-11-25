@@ -303,7 +303,7 @@ private:
        GLint tex_uniform = -1;
        GLint position_attr = -1;
        GLint texcoord_attr = -1;
-       GLint centre_uniform = -1;
+       GLint center_uniform = -1;
        GLint display_transform_uniform = -1;
        GLint transform_uniform = -1;
        GLint screen_to_gl_coords_uniform = -1;

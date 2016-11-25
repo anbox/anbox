@@ -25,7 +25,7 @@ namespace wm {
 class DefaultPlatformPolicy : public PlatformPolicy {
 public:
     DefaultPlatformPolicy();
-    std::shared_ptr<Window> create_window(const WindowState &state) override;
+    std::shared_ptr<Window> create_window(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) override;
 };
 } // namespace wm
 } // namespace anbox

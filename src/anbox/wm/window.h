@@ -42,24 +42,26 @@ class Window
 public:
     typedef std::vector<Window> List;
 
-    Window(const WindowState &new_state);
+    Window(const Task::Id &task, const graphics::Rect &frame);
     virtual ~Window();
 
     bool attach();
     void release();
 
-    void ref();
-    void unref();
-    bool still_used() const;
-
-    void update_state(const WindowState &state);
+    void update_state(const WindowState::List &states);
+    void update_frame(const graphics::Rect &frame);
 
     virtual EGLNativeWindowType native_handle() const;
-    WindowState state() const;
+    graphics::Rect frame() const;
+    Task::Id task() const;
+
+protected:
+    virtual void resize(int width, int height) = 0;
+    virtual void update_position(int x, int y) = 0;
 
 private:
-    WindowState state_;
-    std::uint32_t refcount_;
+    Task::Id task_;
+    graphics::Rect frame_;
 };
 } // namespace wm
 } // namespace anbox

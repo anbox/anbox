@@ -29,8 +29,10 @@
 
 namespace anbox {
 namespace ubuntu {
-PlatformPolicy::PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager) :
+PlatformPolicy::PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager,
+                               const std::shared_ptr<bridge::AndroidApiStub> &android_api) :
     input_manager_(input_manager),
+    android_api_(android_api),
     event_thread_running_(false) {
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
@@ -181,9 +183,9 @@ Window::Id PlatformPolicy::next_window_id() {
     return next_id++;
 }
 
-std::shared_ptr<wm::Window> PlatformPolicy::create_window(const wm::WindowState &state) {
+std::shared_ptr<wm::Window> PlatformPolicy::create_window(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) {
     auto id = next_window_id();
-    auto w = std::make_shared<Window>(id, shared_from_this(), state);
+    auto w = std::make_shared<Window>(id, task, shared_from_this(), frame);
     windows_.insert({id, w});
     return w;
 }

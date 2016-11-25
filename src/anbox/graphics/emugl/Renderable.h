@@ -42,6 +42,8 @@ public:
     glm::mat4 transformation() const;
     float alpha() const;
 
+    void set_screen_position(const anbox::graphics::Rect &screen_position);
+
 private:
     std::string name_;
     std::uint32_t buffer_;

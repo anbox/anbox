@@ -57,7 +57,45 @@ void LayerComposer::submit_layers(const RenderableList &renderables)
     }
 
     for (const auto &w : win_layers)
-        Renderer::get()->draw(w.first->native_handle(), w.first->state().frame(), w.second);
+    {
+        const auto &window = w.first;
+        const auto &renderables = w.second;
+        RenderableList final_renderables;
+        auto new_window_frame = Rect::Invalid;
+
+        // As we get absolute display coordinates from the Android hwcomposer we
+        // need to recalculate all layer coordinates into relatives ones to the
+        // window they are drawn into.
+        for (auto &r : renderables)
+        {
+            if (new_window_frame == Rect::Invalid)
+                new_window_frame = r.screen_position();
+            else
+                new_window_frame.merge(r.screen_position());
+        }
+
+        for (auto &r : renderables)
+        {
+            auto left = r.screen_position().left() - new_window_frame.left();
+            auto top = r.screen_position().top() - new_window_frame.top();
+
+            auto rect = Rect{
+                left, top,
+                r.screen_position().width() + left,
+                r.screen_position().height() + top,
+            };
+
+            auto new_renderable = r;
+            new_renderable.set_screen_position(rect);
+            final_renderables.push_back(new_renderable);
+        }
+
+        w.first->update_frame(new_window_frame);
+
+        Renderer::get()->draw(window->native_handle(),
+                              Rect{0, 0, window->frame().width(), window->frame().height()},
+                              final_renderables);
+    }
 }
 } // namespace graphics
 } // namespace anbox

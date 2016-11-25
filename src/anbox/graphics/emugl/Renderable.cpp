@@ -57,3 +57,8 @@ float Renderable::alpha() const
 {
     return alpha_;
 }
+
+void Renderable::set_screen_position(const anbox::graphics::Rect &screen_position)
+{
+    screen_position_ = screen_position;
+}

@@ -42,7 +42,7 @@ public:
     PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager);
     ~PlatformPolicy();
 
-    std::shared_ptr<wm::Window> create_window(const wm::WindowState &state) override;
+    std::shared_ptr<wm::Window> create_window(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) override;
 
     void window_deleted(const Window::Id &id) override;
 

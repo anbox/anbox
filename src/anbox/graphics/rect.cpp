@@ -17,9 +17,19 @@
 
 #include "anbox/graphics/rect.h"
 
+#include <algorithm>
+
 namespace anbox {
 namespace graphics {
 const Rect Rect::Invalid{-1,-1,-1,-1};
 const Rect Rect::Empty{0,0,0,0};
+
+void Rect::merge(const Rect &rhs)
+{
+    left_ = std::min(left_, rhs.left());
+    top_ = std::min(top_, rhs.top());
+    right_ = std::max(right_, rhs.right());
+    bottom_ = std::max(bottom_, rhs.bottom());
+}
 } // namespace graphics
 } // namespace anbox

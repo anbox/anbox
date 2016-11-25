@@ -30,7 +30,7 @@ class PlatformPolicy {
 public:
     virtual ~PlatformPolicy();
 
-    virtual std::shared_ptr<Window> create_window(const WindowState &state) = 0;
+    virtual std::shared_ptr<Window> create_window(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) = 0;
 };
 } // namespace wm
 } // namespace anbox

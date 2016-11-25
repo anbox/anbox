@@ -41,18 +41,19 @@ public:
         virtual void window_deleted(const Id &id) = 0;
     };
 
-    Window(const Id &id, const std::shared_ptr<Observer> &observer, const wm::WindowState &state);
+    Window(const Id &id, const wm::Task::Id &task, const std::shared_ptr<Observer> &observer, const graphics::Rect &frame);
     Window(int x, int y, int width, int height);
     ~Window();
-
-    void resize(int width, int height);
-    int update_position(int x, int y);
 
     void process_event(const SDL_Event &event);
 
     EGLNativeWindowType native_handle() const override;
     Id id() const;
     std::uint32_t window_id() const;
+
+protected:
+    void resize(int width, int height) override;
+    void update_position(int x, int y) override;
 
 private:
     Id id_;

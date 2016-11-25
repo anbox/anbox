@@ -21,20 +21,38 @@
 
 namespace anbox {
 namespace wm {
-Window::Window(const WindowState &state) :
-    state_(state),
-    refcount_(0) {
+Window::Window(const Task::Id &task, const graphics::Rect &frame) :
+    task_(task),
+    frame_(frame) {
 }
 
 Window::~Window() {
 }
 
-void Window::update_state(const WindowState &new_state) {
-    state_ = new_state;
+void Window::update_state(const WindowState::List &states)
+{
 }
 
-WindowState Window::state() const {
-    return state_;
+void Window::update_frame(const graphics::Rect &frame)
+{
+    if (frame == frame_)
+        return;
+
+    if (frame.width() != frame_.width() || frame.height() != frame_.height())
+        resize(frame.width(), frame.height());
+
+    if (frame.top() != frame_.top() || frame.left() != frame_.left())
+        update_position(frame.left(), frame.top());
+
+    frame_ = frame;
+}
+
+Task::Id Window::task() const {
+    return task_;
+}
+
+graphics::Rect Window::frame() const {
+    return frame_;
 }
 
 EGLNativeWindowType Window::native_handle() const {
@@ -47,23 +65,6 @@ bool Window::attach() {
 
 void Window::release() {
     Renderer::get()->destroyNativeWindow(native_handle());
-}
-
-void Window::ref() {
-    refcount_++;
-}
-
-void Window::unref() {
-    if (refcount_ == 0) {
-        WARNING("reference count is out of sync");
-        return;
-    }
-
-    refcount_--;
-}
-
-bool Window::still_used() const {
-    return refcount_ > 0;
 }
 } // namespace wm
 } // namespace anbox
