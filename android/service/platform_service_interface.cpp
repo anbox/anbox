@@ -28,7 +28,13 @@ status_t BpPlatformService::boot_finished() {
     return remote()->transact(IPlatformService::BOOT_FINISHED, data, &reply);
 }
 
-IMPLEMENT_META_INTERFACE(PlatformService, "anbox.IPlatformService");
+status_t BpPlatformService::update_window_state(const Parcel&) {
+    Parcel data, reply;
+    data.writeInterfaceToken(IPlatformService::getInterfaceDescriptor());
+    return remote()->transact(IPlatformService::UPDATE_WINDOW_STATE, data, &reply);
+}
+
+IMPLEMENT_META_INTERFACE(PlatformService, "org.anbox.IPlatformService");
 
 status_t BnPlatformService::onTransact(uint32_t code, const Parcel &data,
                                        Parcel *reply, uint32_t flags) {
@@ -36,6 +42,9 @@ status_t BnPlatformService::onTransact(uint32_t code, const Parcel &data,
     case BOOT_FINISHED:
         CHECK_INTERFACE(IPlatformService, data, reply);
         return boot_finished();
+    case UPDATE_WINDOW_STATE:
+        CHECK_INTERFACE(IPlatformService, data, reply);
+        return update_window_state(data);
     default:
         break;
     }

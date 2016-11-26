@@ -12,7 +12,17 @@ include_directories(
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_SOURCE_DIR}/external/process-cpp-minimal/include
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/shared
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/shared/OpenglCodecCommon
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include/libOpenglRender
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/GLESv1_dec
+  ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/GLESv1_dec
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/GLESv2_dec
+  ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/GLESv2_dec
+  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/renderControl_dec
+  ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/renderControl_dec
 )
 
 protobuf_generate_cpp(
@@ -93,8 +103,41 @@ set(SOURCES
 
     anbox/graphics/opengles_message_processor.cpp
     anbox/graphics/gl_renderer_server.cpp
-    anbox/graphics/window_creator.cpp
     anbox/graphics/density.h
+    anbox/graphics/rect.cpp
+    anbox/graphics/layer_composer.cpp
+    anbox/graphics/program_family.cpp
+    anbox/graphics/primitives.h
+
+    anbox/graphics/emugl/ColorBuffer.cpp
+    anbox/graphics/emugl/DisplayManager.cpp
+    anbox/graphics/emugl/RendererConfig.cpp
+    anbox/graphics/emugl/Renderable.cpp
+    anbox/graphics/emugl/Renderer.cpp
+    anbox/graphics/emugl/ReadBuffer.cpp
+    anbox/graphics/emugl/RenderApi.cpp
+    anbox/graphics/emugl/RenderContext.cpp
+    anbox/graphics/emugl/RenderControl.cpp
+    anbox/graphics/emugl/RenderServer.cpp
+    anbox/graphics/emugl/RenderThread.cpp
+    anbox/graphics/emugl/RenderThreadInfo.cpp
+    anbox/graphics/emugl/RenderWindow.cpp
+    anbox/graphics/emugl/SocketStream.cpp
+    anbox/graphics/emugl/TcpStream.cpp
+    anbox/graphics/emugl/TextureDraw.cpp
+    anbox/graphics/emugl/TextureResize.cpp
+    anbox/graphics/emugl/TimeUtils.cpp
+    anbox/graphics/emugl/UnixStream.cpp
+    anbox/graphics/emugl/WindowSurface.cpp
+
+    anbox/wm/display.cpp
+    anbox/wm/task.cpp
+    anbox/wm/stack.cpp
+    anbox/wm/manager.cpp
+    anbox/wm/window_state.cpp
+    anbox/wm/window.cpp
+    anbox/wm/platform_policy.cpp
+    anbox/wm/default_platform_policy.cpp
 
     anbox/input/manager.cpp
     anbox/input/device.cpp
@@ -116,9 +159,9 @@ set(SOURCES
     anbox/bridge/platform_api_skeleton.cpp
     anbox/bridge/android_api_stub.cpp
 
-    anbox/ubuntu/platform_api_skeleton.cpp
-    anbox/ubuntu/window_creator.cpp
     anbox/ubuntu/window.cpp
+    anbox/ubuntu/keycode_converter.cpp
+    anbox/ubuntu/platform_policy.cpp
 
     anbox/dbus/interface.h
     anbox/dbus/skeleton/service.cpp
@@ -144,7 +187,12 @@ target_link_libraries(anbox-core
   ${LXC_LIBRARIES}
   pthread
   process-cpp
-  OpenglRender
+  emugl_common
+  GLESv1_dec
+  GLESv2_dec
+  renderControl_dec
+  OpenGLESDispatch
+  OpenglCodecCommon
   anbox-protobuf)
 
 add_executable(anbox main.cpp)

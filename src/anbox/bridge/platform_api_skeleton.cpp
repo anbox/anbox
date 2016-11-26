@@ -16,17 +16,58 @@
  */
 
 #include "anbox/bridge/platform_api_skeleton.h"
+#include "anbox/wm/manager.h"
+#include "anbox/wm/window_state.h"
 #include "anbox/logger.h"
 
 #include "anbox_bridge.pb.h"
 
 namespace anbox {
 namespace bridge {
-PlatformApiSkeleton::PlatformApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls) :
-    pending_calls_(pending_calls) {
+PlatformApiSkeleton::PlatformApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
+                                         const std::shared_ptr<wm::Manager> &window_manager) :
+    pending_calls_(pending_calls),
+    window_manager_(window_manager) {
 }
 
 PlatformApiSkeleton::~PlatformApiSkeleton() {
+}
+
+void PlatformApiSkeleton::handle_boot_finished_event(const anbox::protobuf::bridge::BootFinishedEvent &event) {
+    (void) event;
+
+    if (boot_finished_handler_)
+        boot_finished_handler_();
+}
+
+void PlatformApiSkeleton::handle_window_state_update_event(const anbox::protobuf::bridge::WindowStateUpdateEvent &event) {
+    auto convert_window_state = [](const ::anbox::protobuf::bridge::WindowStateUpdateEvent_WindowState &window) {
+        return wm::WindowState(
+                      wm::Display::Id(window.display_id()),
+                      window.has_surface(),
+                      graphics::Rect(window.frame_left(), window.frame_top(), window.frame_right(), window.frame_bottom()),
+                      window.package_name(),
+                      wm::Task::Id(window.task_id()),
+                      wm::Stack::Id(window.stack_id()));
+    };
+
+    wm::WindowState::List updated;
+    for (int n = 0; n < event.windows_size(); n++) {
+        const auto window = event.windows(n);
+        updated.push_back(convert_window_state(window));
+    }
+
+    wm::WindowState::List removed;
+    for (int n = 0; n < event.removed_windows_size(); n++) {
+        const auto window = event.removed_windows(n);
+        removed.push_back(convert_window_state(window));
+    }
+
+    window_manager_->apply_window_state_update(updated, removed);
+}
+
+void PlatformApiSkeleton::register_boot_finished_handler(const std::function<void()> &action) {
+    boot_finished_handler_ = action;
 }
 } // namespace bridge
 } // namespace anbox

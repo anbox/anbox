@@ -32,7 +32,6 @@ BootAnimationMessageProcessor::~BootAnimationMessageProcessor() {
 }
 
 void BootAnimationMessageProcessor::handle_command(const std::string &command) {
-    DEBUG("command %s", command);
     if (command == "retrieve-icon")
         retrieve_icon();
 }

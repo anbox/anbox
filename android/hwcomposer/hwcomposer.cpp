@@ -18,7 +18,12 @@
 #include <hardware/hardware.h>
 #include <hardware/hwcomposer.h>
 
-#define LOG_NDEBUG 0
+#include <map>
+#include <vector>
+#include <algorithm>
+#include <string>
+
+#define LOG_NDEBUG 1
 #include <cutils/log.h>
 
 #include "HostConnection.h"
@@ -67,8 +72,8 @@ struct HwcContext {
 };
 
 static void dump_layer(hwc_layer_1_t const* l) {
-    ALOGI("\ttype=%d, flags=%08x, handle=%p, tr=%02x, blend=%04x, {%d,%d,%d,%d}, {%d,%d,%d,%d}",
-            l->compositionType, l->flags, l->handle, l->transform, l->blending,
+    ALOGD("\tname='%s', type=%d, flags=%08x, handle=%p, tr=%02x, blend=%04x, {%d,%d,%d,%d}, {%d,%d,%d,%d}",
+            l->name, l->compositionType, l->flags, l->handle, l->transform, l->blending,
             l->sourceCrop.left,
             l->sourceCrop.top,
             l->sourceCrop.right,
@@ -82,8 +87,6 @@ static void dump_layer(hwc_layer_1_t const* l) {
 static int hwc_prepare(hwc_composer_device_1_t* dev, size_t numDisplays,
                        hwc_display_contents_1_t** displays) {
     auto context = reinterpret_cast<HwcContext*>(dev);
-
-    ALOGI("%s", __PRETTY_FUNCTION__);
 
     if (displays == NULL || displays[0] == NULL)
         return -EINVAL;
@@ -102,7 +105,9 @@ static int hwc_prepare(hwc_composer_device_1_t* dev, size_t numDisplays,
         for (; i < num_hw_layers; i++) {
           hwc_layer_1_t* layer = &displays[0]->hwLayers[num_hw_layers - 1 - i];
 
+#if 0
           dump_layer(layer);
+#endif
 
           if (layer->flags & HWC_SKIP_LAYER) {
             // All layers below and including this one will be drawn into the
@@ -165,8 +170,6 @@ static int hwc_set(hwc_composer_device_1_t* dev, size_t numDisplays,
                    hwc_display_contents_1_t** displays) {
     auto context = reinterpret_cast<HwcContext*>(dev);
 
-    ALOGI("%s", __PRETTY_FUNCTION__);
-
     if (displays == NULL || displays[0] == NULL)
         return -EFAULT;
 
@@ -175,7 +178,13 @@ static int hwc_set(hwc_composer_device_1_t* dev, size_t numDisplays,
     for (size_t i = 0 ; i < displays[0]->numHwLayers ; i++) {
         const auto layer = &displays[0]->hwLayers[i];
 
+        if (layer->flags & HWC_SKIP_LAYER ||
+            layer->flags & HWC_IS_CURSOR_LAYER)
+            continue;
+
+#if 0
         dump_layer(layer);
+#endif
 
         // FIXME this is just dirty ... but layer->handle is a const native_handle_t and canBePosted
         // can't be called with a const.
@@ -185,10 +194,21 @@ static int hwc_set(hwc_composer_device_1_t* dev, size_t numDisplays,
             return -EINVAL;
         }
 
-        ALOGI("Posting buffer %p\n", cb->hostHandle);
-        rcEnc->rcFBPost(rcEnc, cb->hostHandle);
+        rcEnc->rcPostLayer(rcEnc,
+                           layer->name,
+                           cb->hostHandle,
+                           layer->sourceCrop.left,
+                           layer->sourceCrop.top,
+                           layer->sourceCrop.right,
+                           layer->sourceCrop.bottom,
+                           layer->displayFrame.left,
+                           layer->displayFrame.top,
+                           layer->displayFrame.right,
+                           layer->displayFrame.bottom);
         hostCon->flush();
     }
+
+    rcEnc->rcPostAllLayersDone(rcEnc);
 
     check_sync_fds(numDisplays, displays);
 
@@ -197,37 +217,81 @@ static int hwc_set(hwc_composer_device_1_t* dev, size_t numDisplays,
 
 static int hwc_event_control(hwc_composer_device_1* dev, int disp,
                              int event, int enabled) {
-    ALOGI("%s", __PRETTY_FUNCTION__);
-
     return -EFAULT;
 }
 
 static void hwc_register_procs(hwc_composer_device_1* dev,
                                hwc_procs_t const* procs) {
-    ALOGI("%s", __PRETTY_FUNCTION__);
 }
 
 static int hwc_blank(hwc_composer_device_1* dev, int disp, int blank) {
-    ALOGI("%s", __PRETTY_FUNCTION__);
-
     return 0;
 }
 
 static int hwc_query(hwc_composer_device_1* dev, int what, int* value) {
-    ALOGI("%s", __PRETTY_FUNCTION__);
-
     return 0;
 }
 
 static int hwc_device_close(hw_device_t* dev) {
-    ALOGI("%s", __PRETTY_FUNCTION__);
     auto context = reinterpret_cast<HwcContext*>(dev);
     delete context;
     return 0;
 }
 
+static int hwc_get_display_configs(hwc_composer_device_1* dev, int disp,
+                                   uint32_t* configs, size_t* numConfigs) {
+  if (disp != 0) {
+    return -EINVAL;
+  }
+
+  if (*numConfigs > 0) {
+    // Config[0] will be passed in to getDisplayAttributes as the disp
+    // parameter. The ARC display supports only 1 configuration.
+    configs[0] = 0;
+    *numConfigs = 1;
+  }
+  return 0;
+}
+
+static int hwc_get_display_attributes(hwc_composer_device_1* dev,
+                                      int disp, uint32_t config,
+                                      const uint32_t* attributes,
+                                      int32_t* values) {
+  if (disp != 0 || config != 0) {
+    return -EINVAL;
+  }
+
+  DEFINE_AND_VALIDATE_HOST_CONNECTION();
+
+  while (*attributes != HWC_DISPLAY_NO_ATTRIBUTE) {
+    switch (*attributes) {
+      case HWC_DISPLAY_VSYNC_PERIOD:
+        *values = rcEnc->rcGetDisplayVsyncPeriod(rcEnc, disp);
+        break;
+      case HWC_DISPLAY_WIDTH:
+        *values = rcEnc->rcGetDisplayWidth(rcEnc, disp);
+        break;
+      case HWC_DISPLAY_HEIGHT:
+        *values = rcEnc->rcGetDisplayHeight(rcEnc, disp);
+        break;
+      case HWC_DISPLAY_DPI_X:
+        *values = 1000 * rcEnc->rcGetDisplayDpiX(rcEnc, disp);
+        break;
+      case HWC_DISPLAY_DPI_Y:
+        *values = 1000 * rcEnc->rcGetDisplayDpiY(rcEnc, disp);
+        break;
+      default:
+        ALOGE("Unknown attribute value 0x%02x", *attributes);
+    }
+    ++attributes;
+    ++values;
+  }
+  return 0;
+}
+
 static int hwc_device_open(const hw_module_t* module, const char* name, hw_device_t** device) {
-    ALOGI("%s", __PRETTY_FUNCTION__);
+    ALOGD("%s", __PRETTY_FUNCTION__);
+
     if (strcmp(name, HWC_HARDWARE_COMPOSER) != 0)
         return -EINVAL;
 
@@ -241,9 +305,9 @@ static int hwc_device_open(const hw_module_t* module, const char* name, hw_devic
     dev->device.eventControl = hwc_event_control;
     dev->device.blank = hwc_blank;
     dev->device.query = hwc_query;
+    dev->device.getDisplayConfigs = hwc_get_display_configs;
+    dev->device.getDisplayAttributes = hwc_get_display_attributes;
     dev->device.registerProcs = hwc_register_procs;
-    // FIXME: eventually implement to dump specific information
-    dev->device.dump = nullptr;
 
     *device = &dev->device.common;
 

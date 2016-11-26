@@ -20,6 +20,7 @@
 #include "anbox/rpc/make_protobuf_object.h"
 #include "anbox/rpc/constants.h"
 #include "anbox/common/variable_length_array.h"
+#include "anbox/utils.h"
 
 #include "anbox_rpc.pb.h"
 
@@ -50,35 +51,38 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
     for (const auto &byte : data)
         buffer_.push_back(byte);
 
-    buffer_.shrink_to_fit();
+    while (buffer_.size() > 0) {
+        const auto high = buffer_[0];
+        const auto low = buffer_[1];
+        size_t const message_size = (high << 8) + low;
+        const auto message_type = buffer_[2];
 
-    const auto high = buffer_[0];
-    const auto low = buffer_[1];
-    size_t const message_size = (high << 8) + low;
-    const auto message_type = buffer_[2];
+        // If we don't have yet all bytes for a new message return and wait
+        // until we have all.
+        if (buffer_.size() - header_size < message_size) {
+            WARNING("Don't have enough bytes yet (buffer %d header %d message %d)",
+                    buffer_.size(), header_size, message_size);
+            break;
+        }
 
-    // If we don't have yet all bytes for a new message return and wait
-    // until we have all.
-    if (buffer_.size() - header_size < message_size)
-        return true;
+        if (message_type == MessageType::invocation) {
+            anbox::protobuf::rpc::Invocation raw_invocation;
+            raw_invocation.ParseFromArray(buffer_.data() + header_size, message_size);
 
-    buffer_.erase(buffer_.begin(), buffer_.begin() + header_size);
+            dispatch(Invocation(raw_invocation));
+        }
+        else if (message_type == MessageType::response) {
+            auto result = make_protobuf_object<protobuf::rpc::Result>();
+            result->ParseFromArray(buffer_.data() + header_size, message_size);
 
-    if (message_type == MessageType::invocation) {
-        anbox::protobuf::rpc::Invocation raw_invocation;
-        raw_invocation.ParseFromArray(buffer_.data(), message_size);
+            if (result->has_id())
+                pending_calls_->complete_response(*result);
 
-        buffer_.erase(buffer_.begin(), buffer_.begin() + message_size);
+            for (int n = 0; n < result->events_size(); n++)
+                process_event_sequence(result->events(n));
+        }
 
-        dispatch(Invocation(raw_invocation));
-    }
-    else if (message_type == MessageType::response) {
-        auto result = make_protobuf_object<protobuf::rpc::Result>();
-        result->ParseFromArray(buffer_.data(), message_size);
-
-        buffer_.erase(buffer_.begin(), buffer_.begin() + message_size);
-
-        pending_calls_->complete_response(*result);
+        buffer_.erase(buffer_.begin(), buffer_.begin() + header_size + message_size);
     }
 
     return true;

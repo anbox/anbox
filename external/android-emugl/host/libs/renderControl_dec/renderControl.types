@@ -1,4 +1,5 @@
 uint32_t 32 0x%08x
+int32_t 32 0x%08x
 EGLint 32 0x%08x
 GLint 32 0x%08x
 GLuint 32 0x%08x
@@ -9,3 +10,4 @@ EGLint* 32 0x%08x
 GLint* 32 0x%08x
 GLuint* 32 0x%08x
 void* 32 0x%08x
+char* 32 0x%08x

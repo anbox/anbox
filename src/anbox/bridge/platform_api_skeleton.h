@@ -32,28 +32,32 @@ namespace rpc {
 class Void;
 } // namespace rpc
 namespace bridge {
-class Notification;
+class BootFinishedEvent;
+class WindowStateUpdateEvent;
 } // namespace bridge
 } // namespace protobuf
 namespace rpc {
 class PendingCallCache;
 } // namespace rpc
+namespace wm {
+class Manager;
+} // namespace wm
 namespace bridge {
 class PlatformApiSkeleton {
 public:
-    PlatformApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls);
+    PlatformApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
+                        const std::shared_ptr<wm::Manager> &window_manager);
     virtual ~PlatformApiSkeleton();
 
-    virtual void boot_finished(anbox::protobuf::rpc::Void const *request,
-                               anbox::protobuf::rpc::Void *response,
-                               google::protobuf::Closure *done) = 0;
+    void handle_boot_finished_event(const anbox::protobuf::bridge::BootFinishedEvent &event);
+    void handle_window_state_update_event(const anbox::protobuf::bridge::WindowStateUpdateEvent &event);
 
-    virtual void handle_notification(anbox::protobuf::bridge::Notification const *request,
-                                     anbox::protobuf::rpc::Void *response,
-                                     google::protobuf::Closure *done) = 0;
+    void register_boot_finished_handler(const std::function<void()> &action);
 
 private:
     std::shared_ptr<rpc::PendingCallCache> pending_calls_;
+    std::shared_ptr<wm::Manager> window_manager_;
+    std::function<void()> boot_finished_handler_;
 };
 } // namespace bridge
 } // namespace anbox

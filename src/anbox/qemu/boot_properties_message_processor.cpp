@@ -28,7 +28,6 @@ BootPropertiesMessageProcessor::BootPropertiesMessageProcessor(const std::shared
 BootPropertiesMessageProcessor::~BootPropertiesMessageProcessor() {
 }
 
-
 void BootPropertiesMessageProcessor::handle_command(const std::string &command) {
     if (command == "list")
         list_properties();
@@ -36,42 +35,10 @@ void BootPropertiesMessageProcessor::handle_command(const std::string &command) 
 
 void BootPropertiesMessageProcessor::list_properties() {
     std::vector<std::string> properties = {
-        // Simple indicator to say we're anbox and if needed things in the container
-        // can adjust to this. Normally everything should detect we're qemu which
-        // should be enough for the simple cases.
-        "ro.anbox=1",
-
-        // Needed for identification within the system. Normally retrieve from
-        // kernel configuration which isn't possible in our case.
-        "ro.hardware=goldfish",
-
-        // Needed to let the gralloc HAL load the right implementation
-        "ro.kernel.qemu.gles=1",
-
-        // Needed from different parts of the system in order to load
-        // the right implementation for qemu
-        "ro.kernel.qemu=1",
-
         // TODO(morphis): Using HDPI here for now but should be adjusted to the device
         // we're running on.
-        utils::string_format("ro.sf.lcd_density=%d", static_cast<int>(graphics::DensityType::high)),
-
-        // Disable on-screen virtual keys as we can use the hardware keyboard
-        "qemu.hw.mainkeys=1",
-
-        // Android has builtin detection (inside Zygote) for proper container
-        // detection support
-        "ro.boot.container=1",
-
-        // Mark us as a device without telephony support (as we don't have a RIL)
-        "ro.radio.noril=yes",
+        utils::string_format("ro.sf.lcd_density=%d", static_cast<int>(graphics::DensityType::medium)),
     };
-
-    if (utils::is_env_set("USE_HWCOMPOSER")) {
-        // To let surfaceflinger load our hwcomposer implementation we specify
-        // the correct subkey of the module here.
-        properties.push_back("ro.hardware.hwcomposer=anbox");
-    }
 
     for (const auto &prop : properties) {
         send_header(prop.length());

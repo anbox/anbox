@@ -32,10 +32,11 @@
 #include "anbox/rpc/channel.h"
 #include "anbox/bridge/platform_message_processor.h"
 #include "anbox/bridge/android_api_stub.h"
-#include "anbox/ubuntu/platform_api_skeleton.h"
-#include "anbox/ubuntu/window_creator.h"
+#include "anbox/bridge/platform_api_skeleton.h"
 #include "anbox/dbus/skeleton/service.h"
 #include "anbox/container/client.h"
+#include "anbox/wm/manager.h"
+#include "anbox/ubuntu/platform_policy.h"
 
 #include <sys/prctl.h>
 
@@ -88,8 +89,15 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
 
         auto input_manager = std::make_shared<input::Manager>(rt);
 
-        auto window_creator = std::make_shared<ubuntu::WindowCreator>(input_manager);
-        auto renderer = std::make_shared<graphics::GLRendererServer>(window_creator);
+        auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
+
+        auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager, android_api_stub);
+        // FIXME this needs to be removed and solved differently behind the scenes
+        registerDisplayManager(policy);
+
+        auto window_manager = std::make_shared<wm::Manager>(policy);
+
+        auto renderer = std::make_shared<graphics::GLRendererServer>(window_manager);
         renderer->start();
 
         // Socket which will be used by the qemud service inside the Android
@@ -110,7 +118,6 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
                                                           renderer->socket_path(),
                                                           icon_));
 
-        auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
         auto bridge_connector = std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/anbox_bridge", config::socket_path()),
@@ -123,8 +130,9 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
                     // more than one one day we need proper dispatching to the right one.
                     android_api_stub->set_rpc_channel(rpc_channel);
 
-                    auto server = std::make_shared<ubuntu::PlatformApiSekeleton>(pending_calls);
-                    server->on_boot_finished([&]() {
+                    auto server = std::make_shared<bridge::PlatformApiSkeleton>(pending_calls, window_manager);
+                    server->register_boot_finished_handler([&]() {
+                        DEBUG("Android successfully booted");
                         dispatcher->dispatch([&]() {
                             // FIXME make this configurable or once we have a bridge let the host
                             // act as a DNS proxy.

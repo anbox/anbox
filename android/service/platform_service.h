@@ -19,23 +19,24 @@
 #define ANBOX_ANDROID_PLATFORM_SERVICE_H_
 
 #include "android/service/platform_service_interface.h"
+#include "android/service/platform_api_stub.h"
+
+#include <binder/Parcel.h>
 
 #include <memory>
-
-namespace anbox {
-class PlatformApiStub;
-} // namespace anbox
 
 namespace android {
 class PlatformService : public BnPlatformService {
 public:
-    static const char* service_name() { return "anbox.PlatformService"; }
+    static const char* service_name() { return "org.anbox.PlatformService"; }
 
     PlatformService(const std::shared_ptr<anbox::PlatformApiStub> &platform_api_stub);
 
     status_t boot_finished() override;
+    status_t update_window_state(const Parcel &data) override;
 
 private:
+    anbox::PlatformApiStub::WindowStateUpdate::Window unpack_window_state(const Parcel &data);
     std::shared_ptr<anbox::PlatformApiStub> platform_api_stub_;
 };
 } // namespace android

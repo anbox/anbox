@@ -18,6 +18,8 @@
 #ifndef ANBOX_PLATFORM_API_SKELETON_H_
 #define ANBOX_PLATFORM_API_SKELETON_H_
 
+#include "android/service/activity_manager_interface.h"
+
 namespace google {
 namespace protobuf {
 class Closure;
@@ -36,6 +38,7 @@ namespace bridge {
 class InstallApplication;
 class LaunchApplication;
 class SetDnsServers;
+class SetFocusedTask;
 } // namespace bridge
 namespace rpc {
 class Void;
@@ -58,9 +61,17 @@ public:
                          anbox::protobuf::rpc::Void *response,
                          google::protobuf::Closure *done);
 
+    void set_focused_task(anbox::protobuf::bridge::SetFocusedTask const *request,
+                          anbox::protobuf::rpc::Void *response,
+                          google::protobuf::Closure *done);
+
 private:
     void wait_for_process(core::posix::ChildProcess &process,
                           anbox::protobuf::rpc::Void *response);
+
+    void connect_services();
+
+    android::sp<android::BpActivityManager> activity_manager_;
 };
 } // namespace anbox
 

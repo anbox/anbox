@@ -28,6 +28,7 @@ HwControlMessageProcessor::~HwControlMessageProcessor() {
 }
 
 void HwControlMessageProcessor::handle_command(const std::string &command) {
+#if 0
     if (command == "power:screen_state:wake")
         DEBUG("Got screen wake command");
     else if (command == "power:screen_state:standby")
@@ -36,6 +37,9 @@ void HwControlMessageProcessor::handle_command(const std::string &command) {
         DEBUG("Got LCD backligh brightness control command");
     else
         DEBUG("Unknown command '%s'", command);
+#else
+    (void) command;
+#endif
 }
 } // namespace qemu
 } // namespace anbox

@@ -42,7 +42,17 @@ void Channel::call_method(std::string const& method_name,
                           google::protobuf::Closure *complete) {
     auto const &invocation = invocation_for(method_name, parameters);
     pending_calls_->save_completion_details(invocation, response, complete);
-    send_message(invocation);
+    send_message(MessageType::invocation, invocation);
+}
+
+void Channel::send_event(google::protobuf::MessageLite const& event) {
+    VariableLengthArray<2048> buffer{static_cast<size_t>(event.ByteSize())};
+    event.SerializeWithCachedSizesToArray(buffer.data());
+
+    anbox::protobuf::rpc::Result response;
+    response.add_events(buffer.data(), buffer.size());
+
+    send_message(MessageType::response, response);
 }
 
 protobuf::rpc::Invocation Channel::invocation_for(std::string const& method_name,
@@ -62,17 +72,17 @@ protobuf::rpc::Invocation Channel::invocation_for(std::string const& method_name
     return invoke;
 }
 
-void Channel::send_message(anbox::protobuf::rpc::Invocation const& invocation) {
-    const size_t size = invocation.ByteSize();
+void Channel::send_message(const std::uint8_t &type, google::protobuf::MessageLite const& message) {
+    const size_t size = message.ByteSize();
     const unsigned char header_bytes[header_size] = {
         static_cast<unsigned char>((size >> 8) & 0xff),
         static_cast<unsigned char>((size >> 0) & 0xff),
-        MessageType::invocation,
+        type,
     };
 
     std::vector<std::uint8_t> send_buffer(sizeof(header_bytes) + size);
     std::copy(header_bytes, header_bytes + sizeof(header_bytes), send_buffer.begin());
-    invocation.SerializeToArray(send_buffer.data() + sizeof(header_bytes), size);
+    message.SerializeToArray(send_buffer.data() + sizeof(header_bytes), size);
 
     try {
         std::lock_guard<std::mutex> lock(write_mutex_);
@@ -88,8 +98,9 @@ void Channel::notify_disconnected() {
     pending_calls_->force_completion();
 }
 
-int Channel::next_id() {
-    return next_message_id_.fetch_add(1);
+std::uint32_t Channel::next_id() {
+    static std::uint32_t next_message_id = 0;
+    return next_message_id++;
 }
 } // namespace rpc
 } // namespace anbox

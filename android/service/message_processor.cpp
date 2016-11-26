@@ -41,6 +41,8 @@ void MessageProcessor::dispatch(rpc::Invocation const& invocation) {
         invoke(this, platform_api_.get(), &AndroidApiSkeleton::launch_application, invocation);
     else if (invocation.method_name() == "set_dns_servers")
         invoke(this, platform_api_.get(), &AndroidApiSkeleton::set_dns_servers, invocation);
+    else if (invocation.method_name() == "set_focused_task")
+        invoke(this, platform_api_.get(), &AndroidApiSkeleton::set_focused_task, invocation);
 }
 
 void MessageProcessor::process_event_sequence(const std::string&) {

@@ -25,11 +25,14 @@ namespace anbox {
 namespace input {
 class Manager;
 } // namespace input
+namespace wm {
+class Manager;
+} // namespace wm
 namespace graphics {
-class WindowCreator;
+class LayerComposer;
 class GLRendererServer {
 public:
-    GLRendererServer(const std::shared_ptr<WindowCreator> &window_creator);
+    GLRendererServer(const std::shared_ptr<wm::Manager> &wm);
     ~GLRendererServer();
 
     void start();
@@ -38,7 +41,8 @@ public:
 
 private:
     std::string socket_path_;
-    std::shared_ptr<WindowCreator> window_creator_;
+    std::shared_ptr<wm::Manager> wm_;
+    std::shared_ptr<LayerComposer> composer_;
 };
 
 } // namespace graphics

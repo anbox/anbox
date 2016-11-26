@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-#define LOG_TAG "Anbox"
+#define LOG_TAG "Anboxd"
 #include <cutils/log.h>
 
 namespace {
