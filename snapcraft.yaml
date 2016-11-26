@@ -14,8 +14,6 @@ apps:
   container-manager:
     command: bin/container-manager.sh
     daemon: simple
-  shell:
-    command: bin/container-shell.sh
   bridge:
     command: bin/anbox-bridge.sh start
     stop-command: bin/anbox-bridge.sh stop
@@ -38,17 +36,6 @@ parts:
       - bin/anbox-bridge.sh
       - bin/anbox-wrapper.sh
       - bin/container-manager.sh
-      - bin/container-shell.sh
-  kernel-module-binder:
-    plugin: make
-    source: kernel/binder
-    snap:
-      - binder_linux.ko
-  kernel-module-ashmem:
-    plugin: make
-    source: kernel/ashmem
-    snap:
-      - ashmem_linux.ko
   lxc:
     source: git://github.com/morphis/lxc
     source-branch: snappy-support
