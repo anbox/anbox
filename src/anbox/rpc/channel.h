@@ -59,10 +59,9 @@ private:
         std::string const& method_name,
         google::protobuf::MessageLite const* request);
     void send_message(const std::uint8_t &type, google::protobuf::MessageLite const& message);
-    int next_id();
+    std::uint32_t next_id();
     void notify_disconnected();
 
-    std::atomic<int> next_message_id_;
     std::shared_ptr<PendingCallCache> pending_calls_;
     std::shared_ptr<network::MessageSender> sender_;
     std::mutex write_mutex_;

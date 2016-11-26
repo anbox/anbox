@@ -98,8 +98,9 @@ void Channel::notify_disconnected() {
     pending_calls_->force_completion();
 }
 
-int Channel::next_id() {
-    return next_message_id_.fetch_add(1);
+std::uint32_t Channel::next_id() {
+    static std::uint32_t next_message_id = 0;
+    return next_message_id++;
 }
 } // namespace rpc
 } // namespace anbox
