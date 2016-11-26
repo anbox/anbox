@@ -32,6 +32,9 @@ message SetDnsServers {
     repeated Server servers = 2;
 }
 
+message SetFocusedTask {
+    required int32 id = 1;
+}
 
 message BootFinishedEvent {
 }

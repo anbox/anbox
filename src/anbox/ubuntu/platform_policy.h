@@ -33,18 +33,23 @@ namespace input {
 class Device;
 class Manager;
 } // namespace input
+namespace bridge {
+class AndroidApiStub;
+} // namespace bridge
 namespace ubuntu {
 class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
                        public wm::PlatformPolicy,
                        public Window::Observer,
                        public DisplayManager {
 public:
-    PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager);
+    PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager,
+                   const std::shared_ptr<bridge::AndroidApiStub> &android_api);
     ~PlatformPolicy();
 
     std::shared_ptr<wm::Window> create_window(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) override;
 
     void window_deleted(const Window::Id &id) override;
+    void window_wants_focus(const Window::Id &id) override;
 
     DisplayInfo display_info() const override;
 
@@ -55,6 +60,7 @@ private:
     static Window::Id next_window_id();
 
     std::shared_ptr<input::Manager> input_manager_;
+    std::shared_ptr<bridge::AndroidApiStub> android_api_;
     // We don't own the windows anymore after the got created by us so we
     // need to be careful once we try to use them again.
     std::map<Window::Id, std::weak_ptr<Window>> windows_;

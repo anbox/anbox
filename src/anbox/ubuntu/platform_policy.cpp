@@ -20,6 +20,7 @@
 #include "anbox/ubuntu/keycode_converter.h"
 #include "anbox/input/manager.h"
 #include "anbox/input/device.h"
+#include "anbox/bridge/android_api_stub.h"
 #include "anbox/logger.h"
 
 #include <boost/throw_exception.hpp>
@@ -197,6 +198,15 @@ void PlatformPolicy::window_deleted(const Window::Id &id) {
         return;
     }
     windows_.erase(w);
+}
+
+void PlatformPolicy::window_wants_focus(const Window::Id &id) {
+    auto w = windows_.find(id);
+    if (w == windows_.end())
+        return;
+
+    if (auto window = w->second.lock())
+        android_api_->set_focused_task(window->task());
 }
 
 DisplayManager::DisplayInfo PlatformPolicy::display_info() const {

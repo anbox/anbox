@@ -39,10 +39,10 @@ public:
     public:
         virtual ~Observer();
         virtual void window_deleted(const Id &id) = 0;
+        virtual void window_wants_focus(const Id &id) = 0;
     };
 
     Window(const Id &id, const wm::Task::Id &task, const std::shared_ptr<Observer> &observer, const graphics::Rect &frame);
-    Window(int x, int y, int width, int height);
     ~Window();
 
     void process_event(const SDL_Event &event);

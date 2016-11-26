@@ -82,6 +82,7 @@ void AndroidApiStub::install(const std::string &path) {
 }
 
 void AndroidApiStub::application_installed(Request<protobuf::rpc::Void> *request) {
+    (void) request;
     install_wait_handle_.result_received();
 }
 
@@ -110,6 +111,7 @@ void AndroidApiStub::launch(const std::string &package, const std::string &activ
 }
 
 void AndroidApiStub::application_launched(Request<protobuf::rpc::Void> *request) {
+    (void) request;
     launch_wait_handle_.result_received();
 }
 
@@ -143,7 +145,37 @@ void AndroidApiStub::set_dns_servers(const std::string &domain, const std::vecto
 }
 
 void AndroidApiStub::dns_servers_set(Request<protobuf::rpc::Void> *request) {
+    (void) request;
     set_dns_servers_wait_handle_.result_received();
+}
+
+void AndroidApiStub::set_focused_task(const std::int32_t &id) {
+    ensure_rpc_channel();
+
+    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
+
+    protobuf::bridge::SetFocusedTask message;
+    message.set_id(id);
+
+    {
+        std::lock_guard<decltype(mutex_)> lock(mutex_);
+        set_focused_task_handle_.expect_result();
+    }
+
+    channel_->call_method("set_focused_task",
+                          &message,
+                          c->response.get(),
+                          google::protobuf::NewCallback(this, &AndroidApiStub::focused_task_set, c.get()));
+
+    set_focused_task_handle_.wait_for_all();
+
+    if (c->response->has_error())
+        throw std::runtime_error(c->response->error());
+}
+
+void AndroidApiStub::focused_task_set(Request<protobuf::rpc::Void> *request) {
+    (void) request;
+    set_focused_task_handle_.result_received();
 }
 } // namespace bridge
 } // namespace anbox

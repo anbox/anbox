@@ -89,7 +89,9 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
 
         auto input_manager = std::make_shared<input::Manager>(rt);
 
-        auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager);
+        auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
+
+        auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager, android_api_stub);
         // FIXME this needs to be removed and solved differently behind the scenes
         registerDisplayManager(policy);
 
@@ -116,7 +118,6 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
                                                           renderer->socket_path(),
                                                           icon_));
 
-        auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
         auto bridge_connector = std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/anbox_bridge", config::socket_path()),

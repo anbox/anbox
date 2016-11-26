@@ -46,6 +46,7 @@ public:
     void launch(const std::string &package, const std::string &activity) override;
 
     void set_dns_servers(const std::string &domain, const std::vector<std::string> &servers);
+    void set_focused_task(const std::int32_t &id);
 
 private:
     void ensure_rpc_channel();
@@ -60,12 +61,14 @@ private:
     void application_installed(Request<protobuf::rpc::Void> *request);
     void application_launched(Request<protobuf::rpc::Void> *request);
     void dns_servers_set(Request<protobuf::rpc::Void> *request);
+    void focused_task_set(Request<protobuf::rpc::Void> *request);
 
     mutable std::mutex mutex_;
     std::shared_ptr<rpc::Channel> channel_;
     common::WaitHandle install_wait_handle_;
     common::WaitHandle launch_wait_handle_;
     common::WaitHandle set_dns_servers_wait_handle_;
+    common::WaitHandle set_focused_task_handle_;
 };
 } // namespace bridge
 } // namespace anbox

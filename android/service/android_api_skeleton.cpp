@@ -15,6 +15,8 @@
  *
  */
 
+#define LOG_TAG "Anboxd"
+
 #include "android/service/android_api_skeleton.h"
 
 #include "anbox_rpc.pb.h"
@@ -22,6 +24,8 @@
 
 #include <core/posix/exec.h>
 #include <core/posix/child_process.h>
+
+#include <binder/IServiceManager.h>
 
 namespace {
 std::map<std::string,std::string> common_env = {
@@ -45,6 +49,14 @@ void AndroidApiSkeleton::wait_for_process(core::posix::ChildProcess &process,
         response->set_error("Failed to install application");
         // FIXME once we add proper error codes/domains we need to add structured error
         // info the response here.
+    }
+}
+
+void AndroidApiSkeleton::connect_services() {
+    if (!activity_manager_.get()) {
+        auto am = android::defaultServiceManager()->getService(android::String16("activity"));
+        if (am.get())
+            activity_manager_ = new android::BpActivityManager(am);
     }
 }
 
@@ -103,6 +115,21 @@ void AndroidApiSkeleton::set_dns_servers(anbox::protobuf::bridge::SetDnsServers 
 
     auto process = core::posix::exec("/system/bin/ndc", argv, common_env, core::posix::StandardStream::empty);
     wait_for_process(process, response);
+
+    done->Run();
+}
+
+void AndroidApiSkeleton::set_focused_task(anbox::protobuf::bridge::SetFocusedTask const *request,
+                                          anbox::protobuf::rpc::Void *response,
+                                          google::protobuf::Closure *done) {
+    (void) response;
+
+    connect_services();
+
+    if (activity_manager_.get())
+        activity_manager_->setFocusedTask(request->id());
+    else
+        response->set_error("ActivityManager is not available");
 
     done->Run();
 }

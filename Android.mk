@@ -29,6 +29,7 @@ LOCAL_SRC_FILES := \
     android/service/host_connector.cpp \
     android/service/local_socket_connection.cpp \
     android/service/message_processor.cpp \
+    android/service/activity_manager_interface.cpp \
     android/service/android_api_skeleton.cpp \
     android/service/platform_service_interface.cpp \
     android/service/platform_service.cpp \
