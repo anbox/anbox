@@ -1,2 +1,8 @@
 service anboxd /system/bin/anboxd
     class boot
+
+# We will ever only have a single network interface we need to care
+# about so we can add static setup for this one here.
+service anbox-network /system/bin/dhcptool eth0
+    class main
+    oneshot
