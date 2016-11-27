@@ -106,6 +106,10 @@ void LxcContainer::start(const Configuration &configuration) {
     set_config_item("lxc.loglevel", "0");
     set_config_item("lxc.logfile", utils::string_format("%s/container.log", config::log_path()).c_str());
 
+    set_config_item("lxc.network.type", "veth");
+    set_config_item("lxc.network.flags", "up");
+    set_config_item("lxc.network.link", "anboxbr0");
+
 #if 0
     // Android uses namespaces as well so we have to allow nested namespaces for LXC
     // which are otherwise forbidden by AppArmor.

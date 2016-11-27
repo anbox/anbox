@@ -16,6 +16,10 @@ apps:
     daemon: simple
   shell:
     command: bin/container-shell.sh
+  bridge:
+    command: bin/anbox-bridge.sh start
+    stop-command: bin/anbox-bridge.sh stop
+    daemon: oneshot
 
 parts:
   android-rootfs:
@@ -29,8 +33,9 @@ parts:
     files:
       scripts/snap-wrapper.sh: bin/anbox-wrapper.sh
       scripts/container-manager.sh: bin/container-manager.sh
-      scripts/container-shell.sh: bin/container-shell.sh
+      scripts/anbox-bridge.sh: bin/anbox-bridge.sh
     snap:
+      - bin/anbox-bridge.sh
       - bin/anbox-wrapper.sh
       - bin/container-manager.sh
       - bin/container-shell.sh
