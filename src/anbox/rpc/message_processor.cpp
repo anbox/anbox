@@ -59,11 +59,8 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
 
         // If we don't have yet all bytes for a new message return and wait
         // until we have all.
-        if (buffer_.size() - header_size < message_size) {
-            WARNING("Don't have enough bytes yet (buffer %d header %d message %d)",
-                    buffer_.size(), header_size, message_size);
+        if (buffer_.size() - header_size < message_size)
             break;
-        }
 
         if (message_type == MessageType::invocation) {
             anbox::protobuf::rpc::Invocation raw_invocation;
