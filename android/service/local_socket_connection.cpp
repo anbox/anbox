@@ -54,14 +54,11 @@ LocalSocketConnection::~LocalSocketConnection() {
 
 ssize_t LocalSocketConnection::read_all(std::uint8_t *buffer, const size_t &size) {
     ssize_t bytes_read = ::recv(fd_, reinterpret_cast<void*>(buffer), size, 0);
-    ALOGI("Read %d bytes", bytes_read);
     return bytes_read;
 }
 
 void LocalSocketConnection::send(char const* data, size_t length) {
     size_t bytes_written{0};
-
-    ALOGI("Writing %d bytes", length);
 
     while(bytes_written < length) {
         ssize_t const result = ::send(fd_,
