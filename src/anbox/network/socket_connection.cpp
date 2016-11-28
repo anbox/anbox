@@ -72,7 +72,7 @@ void SocketConnection::on_read_size(const boost::system::error_code& error, std:
         if (connections_)
             connections_->remove(id());
 
-        BOOST_THROW_EXCEPTION(std::runtime_error(error.message()));
+        return;
     }
 
     std::vector<std::uint8_t> data(bytes_read);
