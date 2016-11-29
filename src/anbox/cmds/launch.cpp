@@ -30,8 +30,8 @@ anbox::cmds::Launch::Launch()
     flag(cli::make_flag(cli::Name{"package"}, cli::Description{"Package the application is part of"}, package_));
     flag(cli::make_flag(cli::Name{"activity"}, cli::Description{"Activity of the application to start"}, activity_));
     action([this](const cli::Command::Context&) {
-        if (package_.empty() || activity_.empty())
-            BOOST_THROW_EXCEPTION(std::runtime_error("No package or activity specified"));
+        if (package_.empty() && activity_.empty())
+            BOOST_THROW_EXCEPTION(std::runtime_error("Package or activity name not specified"));
 
         auto bus = std::make_shared<core::dbus::Bus>(core::dbus::WellKnownBus::session);
         bus->install_executor(core::dbus::asio::make_executor(bus));

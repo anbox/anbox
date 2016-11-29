@@ -20,7 +20,6 @@
 #include "anbox/rpc/make_protobuf_object.h"
 #include "anbox/rpc/constants.h"
 #include "anbox/common/variable_length_array.h"
-#include "anbox/utils.h"
 
 #include "anbox_rpc.pb.h"
 

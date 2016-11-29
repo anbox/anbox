@@ -92,7 +92,8 @@ void AndroidApiStub::launch(const std::string &package, const std::string &activ
     auto c = std::make_shared<Request<protobuf::rpc::Void>>();
     protobuf::bridge::LaunchApplication message;
     message.set_package_name(package);
-    message.set_activity(activity);
+    if (activity.length() > 0)
+        message.set_activity(activity);
 
     {
         std::lock_guard<decltype(mutex_)> lock(mutex_);

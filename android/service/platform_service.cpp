@@ -50,10 +50,6 @@ anbox::PlatformApiStub::WindowStateUpdate::Window PlatformService::unpack_window
     auto task_id = data.readInt32();
     auto stack_id = data.readInt32();
 
-    ALOGI("  Window: package=%s frame={%d,%d,%d,%d} task=%d stack=%d",
-          package_name.string(), frame_left, frame_top, frame_right, frame_bottom,
-          task_id, stack_id);
-
     return anbox::PlatformApiStub::WindowStateUpdate::Window{
         -1, // Display id will be added by the caller
         has_surface,
@@ -67,13 +63,10 @@ anbox::PlatformApiStub::WindowStateUpdate::Window PlatformService::unpack_window
 status_t PlatformService::update_window_state(const Parcel &data) {
     anbox::PlatformApiStub::WindowStateUpdate state;
 
-    ALOGI("Udated windows:");
     const auto num_displays = data.readInt32();
     for (auto n = 0; n < num_displays; n++) {
         const auto display_id = data.readInt32();
         const auto num_windows = data.readInt32();
-        ALOGI(" Display: id=%d", display_id);
-
         for (auto m = 0; m < num_windows; m++) {
             auto window = unpack_window_state(data);
             window.display_id = display_id;
@@ -81,7 +74,6 @@ status_t PlatformService::update_window_state(const Parcel &data) {
         }
     }
 
-    ALOGI("Removed windows:");
     const auto num_removed_windows = data.readInt32();
     for (auto n = 0; n < num_removed_windows; n++) {
         auto window = unpack_window_state(data);

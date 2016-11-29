@@ -35,8 +35,6 @@ ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
         auto reader = msg->reader();
         reader >> path;
 
-        DEBUG("path %s", path);
-
         core::dbus::Message::Ptr reply;
 
         try {
@@ -51,8 +49,6 @@ ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
                                                     "org.anbox.Error.Failed",
                                                     err.what());
         }
-
-        DEBUG("Sending reply");
 
         bus_->send(reply);
     });
