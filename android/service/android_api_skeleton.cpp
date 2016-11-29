@@ -83,12 +83,16 @@ void AndroidApiSkeleton::launch_application(anbox::protobuf::bridge::LaunchAppli
     (void) response;
 
     std::string intent = request->package_name();
-    intent += "/";
-    intent += request->activity();
+    if (request->has_activity()) {
+        intent += "/";
+        intent += request->activity();
+    }
 
     std::vector<std::string> argv = {
         "/system/bin/am",
         "start",
+        // Launch any applications always in freeform stack
+        "--stack", "2",
         intent,
     };
 
