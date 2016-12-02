@@ -22,31 +22,32 @@
 
 #include <boost/asio.hpp>
 
-#include "anbox/runtime.h"
 #include "anbox/network/message_processor.h"
-#include "anbox/network/socket_messenger.h"
 #include "anbox/network/socket_connection.h"
+#include "anbox/network/socket_messenger.h"
+#include "anbox/runtime.h"
 
 namespace anbox {
 namespace graphics {
 class OpenGlesMessageProcessor : public network::MessageProcessor {
-public:
-    OpenGlesMessageProcessor(const std::string &renderer_socket_path,
-                             const std::shared_ptr<Runtime> &rt,
-                             const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~OpenGlesMessageProcessor();
+ public:
+  OpenGlesMessageProcessor(
+      const std::string &renderer_socket_path,
+      const std::shared_ptr<Runtime> &rt,
+      const std::shared_ptr<network::SocketMessenger> &messenger);
+  ~OpenGlesMessageProcessor();
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
+  bool process_data(const std::vector<std::uint8_t> &data) override;
 
-private:
-    void connect_and_attach(const std::string &socket_path,
-                            const std::shared_ptr<Runtime> &rt);
+ private:
+  void connect_and_attach(const std::string &socket_path,
+                          const std::shared_ptr<Runtime> &rt);
 
-    std::shared_ptr<network::SocketMessenger> client_messenger_;
-    std::shared_ptr<network::SocketMessenger> messenger_;
-    std::shared_ptr<network::SocketConnection> renderer_;
+  std::shared_ptr<network::SocketMessenger> client_messenger_;
+  std::shared_ptr<network::SocketMessenger> messenger_;
+  std::shared_ptr<network::SocketConnection> renderer_;
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

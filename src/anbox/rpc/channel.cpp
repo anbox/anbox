@@ -18,89 +18,86 @@
  */
 
 #include "anbox/rpc/channel.h"
-#include "anbox/rpc/pending_call_cache.h"
-#include "anbox/rpc/constants.h"
 #include "anbox/common/variable_length_array.h"
 #include "anbox/network/message_sender.h"
+#include "anbox/rpc/constants.h"
+#include "anbox/rpc/pending_call_cache.h"
 
 #include "anbox_rpc.pb.h"
 
 namespace anbox {
 namespace rpc {
 Channel::Channel(const std::shared_ptr<PendingCallCache> &pending_calls,
-                 const std::shared_ptr<network::MessageSender> &sender) :
-    pending_calls_(pending_calls),
-    sender_(sender) {
-}
+                 const std::shared_ptr<network::MessageSender> &sender)
+    : pending_calls_(pending_calls), sender_(sender) {}
 
-Channel::~Channel() {
-}
+Channel::~Channel() {}
 
-void Channel::call_method(std::string const& method_name,
+void Channel::call_method(std::string const &method_name,
                           google::protobuf::MessageLite const *parameters,
                           google::protobuf::MessageLite *response,
                           google::protobuf::Closure *complete) {
-    auto const &invocation = invocation_for(method_name, parameters);
-    pending_calls_->save_completion_details(invocation, response, complete);
-    send_message(MessageType::invocation, invocation);
+  auto const &invocation = invocation_for(method_name, parameters);
+  pending_calls_->save_completion_details(invocation, response, complete);
+  send_message(MessageType::invocation, invocation);
 }
 
-void Channel::send_event(google::protobuf::MessageLite const& event) {
-    VariableLengthArray<2048> buffer{static_cast<size_t>(event.ByteSize())};
-    event.SerializeWithCachedSizesToArray(buffer.data());
+void Channel::send_event(google::protobuf::MessageLite const &event) {
+  VariableLengthArray<2048> buffer{static_cast<size_t>(event.ByteSize())};
+  event.SerializeWithCachedSizesToArray(buffer.data());
 
-    anbox::protobuf::rpc::Result response;
-    response.add_events(buffer.data(), buffer.size());
+  anbox::protobuf::rpc::Result response;
+  response.add_events(buffer.data(), buffer.size());
 
-    send_message(MessageType::response, response);
+  send_message(MessageType::response, response);
 }
 
-protobuf::rpc::Invocation Channel::invocation_for(std::string const& method_name,
-                                                  google::protobuf::MessageLite const* request) {
+protobuf::rpc::Invocation Channel::invocation_for(
+    std::string const &method_name,
+    google::protobuf::MessageLite const *request) {
+  anbox::VariableLengthArray<2048> buffer{
+      static_cast<size_t>(request->ByteSize())};
 
-    anbox::VariableLengthArray<2048> buffer{static_cast<size_t>(request->ByteSize())};
+  request->SerializeWithCachedSizesToArray(buffer.data());
 
-    request->SerializeWithCachedSizesToArray(buffer.data());
+  anbox::protobuf::rpc::Invocation invoke;
 
-    anbox::protobuf::rpc::Invocation invoke;
+  invoke.set_id(next_id());
+  invoke.set_method_name(method_name);
+  invoke.set_parameters(buffer.data(), buffer.size());
+  invoke.set_protocol_version(1);
 
-    invoke.set_id(next_id());
-    invoke.set_method_name(method_name);
-    invoke.set_parameters(buffer.data(), buffer.size());
-    invoke.set_protocol_version(1);
-
-    return invoke;
+  return invoke;
 }
 
-void Channel::send_message(const std::uint8_t &type, google::protobuf::MessageLite const& message) {
-    const size_t size = message.ByteSize();
-    const unsigned char header_bytes[header_size] = {
-        static_cast<unsigned char>((size >> 8) & 0xff),
-        static_cast<unsigned char>((size >> 0) & 0xff),
-        type,
-    };
+void Channel::send_message(const std::uint8_t &type,
+                           google::protobuf::MessageLite const &message) {
+  const size_t size = message.ByteSize();
+  const unsigned char header_bytes[header_size] = {
+      static_cast<unsigned char>((size >> 8) & 0xff),
+      static_cast<unsigned char>((size >> 0) & 0xff), type,
+  };
 
-    std::vector<std::uint8_t> send_buffer(sizeof(header_bytes) + size);
-    std::copy(header_bytes, header_bytes + sizeof(header_bytes), send_buffer.begin());
-    message.SerializeToArray(send_buffer.data() + sizeof(header_bytes), size);
+  std::vector<std::uint8_t> send_buffer(sizeof(header_bytes) + size);
+  std::copy(header_bytes, header_bytes + sizeof(header_bytes),
+            send_buffer.begin());
+  message.SerializeToArray(send_buffer.data() + sizeof(header_bytes), size);
 
-    try {
-        std::lock_guard<std::mutex> lock(write_mutex_);
-        sender_->send(reinterpret_cast<const char*>(send_buffer.data()), send_buffer.size());
-    }
-    catch (std::runtime_error const&) {
-        notify_disconnected();
-        throw;
-    }
+  try {
+    std::lock_guard<std::mutex> lock(write_mutex_);
+    sender_->send(reinterpret_cast<const char *>(send_buffer.data()),
+                  send_buffer.size());
+  } catch (std::runtime_error const &) {
+    notify_disconnected();
+    throw;
+  }
 }
 
-void Channel::notify_disconnected() {
-    pending_calls_->force_completion();
-}
+void Channel::notify_disconnected() { pending_calls_->force_completion(); }
 
 std::uint32_t Channel::next_id() {
-    static std::uint32_t next_message_id = 0;
-    return next_message_id++;
+  static std::uint32_t next_message_id = 0;
+  return next_message_id++;
 }
-} // namespace rpc
-} // namespace anbox
+}  // namespace rpc
+}  // namespace anbox

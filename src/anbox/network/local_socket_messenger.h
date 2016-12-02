@@ -25,16 +25,20 @@
 
 namespace anbox {
 namespace network {
-class LocalSocketMessenger : public BaseSocketMessenger<boost::asio::local::stream_protocol> {
-public:
-    LocalSocketMessenger(std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket);
-    LocalSocketMessenger(const std::string &path, const std::shared_ptr<Runtime> &rt);
-    ~LocalSocketMessenger();
+class LocalSocketMessenger
+    : public BaseSocketMessenger<boost::asio::local::stream_protocol> {
+ public:
+  LocalSocketMessenger(
+      std::shared_ptr<boost::asio::local::stream_protocol::socket> const
+          &socket);
+  LocalSocketMessenger(const std::string &path,
+                       const std::shared_ptr<Runtime> &rt);
+  ~LocalSocketMessenger();
 
-private:
-    std::shared_ptr<boost::asio::local::stream_protocol::socket> socket_;
+ private:
+  std::shared_ptr<boost::asio::local::stream_protocol::socket> socket_;
 };
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox
 
 #endif

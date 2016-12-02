@@ -17,41 +17,40 @@
 
 #include "anbox/bridge/platform_message_processor.h"
 #include "anbox/bridge/platform_api_skeleton.h"
-#include "anbox/rpc/template_message_processor.h"
 #include "anbox/logger.h"
+#include "anbox/rpc/template_message_processor.h"
 
 #include "anbox_bridge.pb.h"
 
 namespace anbox {
 namespace bridge {
-PlatformMessageProcessor::PlatformMessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
-                                                   const std::shared_ptr<PlatformApiSkeleton> &server,
-                                                   const std::shared_ptr<rpc::PendingCallCache> &pending_calls) :
-    rpc::MessageProcessor(sender, pending_calls),
-    server_(server) {
+PlatformMessageProcessor::PlatformMessageProcessor(
+    const std::shared_ptr<network::MessageSender> &sender,
+    const std::shared_ptr<PlatformApiSkeleton> &server,
+    const std::shared_ptr<rpc::PendingCallCache> &pending_calls)
+    : rpc::MessageProcessor(sender, pending_calls), server_(server) {}
+
+PlatformMessageProcessor::~PlatformMessageProcessor() {}
+
+void PlatformMessageProcessor::dispatch(rpc::Invocation const &invocation) {}
+
+void PlatformMessageProcessor::process_event_sequence(
+    const std::string &raw_events) {
+  anbox::protobuf::bridge::EventSequence seq;
+  if (!seq.ParseFromString(raw_events)) {
+    WARNING("Failed to parse events from raw string");
+    return;
+  }
+
+  if (seq.has_boot_finished())
+    server_->handle_boot_finished_event(seq.boot_finished());
+
+  if (seq.has_window_state_update())
+    server_->handle_window_state_update_event(seq.window_state_update());
+
+  if (seq.has_application_list_update())
+    server_->handle_application_list_update_event(
+        seq.application_list_update());
 }
-
-PlatformMessageProcessor::~PlatformMessageProcessor() {
-}
-
-void PlatformMessageProcessor::dispatch(rpc::Invocation const& invocation) {
-}
-
-void PlatformMessageProcessor::process_event_sequence(const std::string &raw_events) {
-    anbox::protobuf::bridge::EventSequence seq;
-    if (!seq.ParseFromString(raw_events)) {
-        WARNING("Failed to parse events from raw string");
-        return;
-    }
-
-    if (seq.has_boot_finished())
-        server_->handle_boot_finished_event(seq.boot_finished());
-
-    if (seq.has_window_state_update())
-        server_->handle_window_state_update_event(seq.window_state_update());
-
-    if (seq.has_application_list_update())
-        server_->handle_application_list_update_event(seq.application_list_update());
-}
-} // namespace anbox
-} // namespace network
+}  // namespace anbox
+}  // namespace network

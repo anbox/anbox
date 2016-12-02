@@ -25,35 +25,36 @@ namespace anbox {
 namespace qemu {
 class AtParser;
 class GsmMessageProcessor : public network::MessageProcessor {
-public:
-    GsmMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~GsmMessageProcessor();
+ public:
+  GsmMessageProcessor(
+      const std::shared_ptr<network::SocketMessenger> &messenger);
+  ~GsmMessageProcessor();
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
+  bool process_data(const std::vector<std::uint8_t> &data) override;
 
-private:
-    enum class technology {
-        gsm = 0,
-        wcdm,
-        cdma,
-        evdo,
-        lte,
-        unknown,
-    };
+ private:
+  enum class technology {
+    gsm = 0,
+    wcdm,
+    cdma,
+    evdo,
+    lte,
+    unknown,
+  };
 
-    void send_reply(const std::string &message);
+  void send_reply(const std::string &message);
 
-    void handle_ctec(const std::string &command);
-    void handle_cmgf(const std::string &command);
-    void handle_creg(const std::string &command);
-    void handle_cgreg(const std::string &command);
-    void handle_cfun(const std::string &command);
+  void handle_ctec(const std::string &command);
+  void handle_cmgf(const std::string &command);
+  void handle_creg(const std::string &command);
+  void handle_cgreg(const std::string &command);
+  void handle_cfun(const std::string &command);
 
-    std::shared_ptr<network::SocketMessenger> messenger_;
-    std::vector<std::uint8_t> buffer_;
-    std::shared_ptr<AtParser> parser_;
+  std::shared_ptr<network::SocketMessenger> messenger_;
+  std::vector<std::uint8_t> buffer_;
+  std::shared_ptr<AtParser> parser_;
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

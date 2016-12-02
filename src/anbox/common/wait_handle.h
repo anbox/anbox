@@ -26,29 +26,28 @@
 
 namespace anbox {
 namespace common {
-struct WaitHandle
-{
-public:
-    WaitHandle();
-    ~WaitHandle();
+struct WaitHandle {
+ public:
+  WaitHandle();
+  ~WaitHandle();
 
-    void expect_result();
-    void result_received();
-    void wait_for_all();
-    void wait_for_one();
-    void wait_for_pending(std::chrono::milliseconds limit);
+  void expect_result();
+  void result_received();
+  void wait_for_all();
+  void wait_for_one();
+  void wait_for_pending(std::chrono::milliseconds limit);
 
-    bool has_result();
-    bool is_pending();
+  bool has_result();
+  bool is_pending();
 
-private:
-    std::mutex guard;
-    std::condition_variable wait_condition;
+ private:
+  std::mutex guard;
+  std::condition_variable wait_condition;
 
-    int expecting;
-    int received;
+  int expecting;
+  int received;
 };
-} // namespace common
-} // namespace anbox
+}  // namespace common
+}  // namespace anbox
 
 #endif

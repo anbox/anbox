@@ -26,33 +26,30 @@
 
 #include <glm/glm.hpp>
 
-class Renderable
-{
-public:
-    Renderable(const std::string &name,
-               const std::uint32_t &buffer,
-               const anbox::graphics::Rect &screen_position,
-               const anbox::graphics::Rect &crop = {},
-               const glm::mat4 &transformation = {},
-               const float &alpha = 1.0f);
-    ~Renderable();
+class Renderable {
+ public:
+  Renderable(const std::string &name, const std::uint32_t &buffer,
+             const anbox::graphics::Rect &screen_position,
+             const anbox::graphics::Rect &crop = {},
+             const glm::mat4 &transformation = {}, const float &alpha = 1.0f);
+  ~Renderable();
 
-    std::string name() const;
-    std::uint32_t buffer() const;
-    anbox::graphics::Rect screen_position() const;
-    anbox::graphics::Rect crop() const;
-    glm::mat4 transformation() const;
-    float alpha() const;
+  std::string name() const;
+  std::uint32_t buffer() const;
+  anbox::graphics::Rect screen_position() const;
+  anbox::graphics::Rect crop() const;
+  glm::mat4 transformation() const;
+  float alpha() const;
 
-    void set_screen_position(const anbox::graphics::Rect &screen_position);
+  void set_screen_position(const anbox::graphics::Rect &screen_position);
 
-private:
-    std::string name_;
-    std::uint32_t buffer_;
-    anbox::graphics::Rect screen_position_;
-    anbox::graphics::Rect crop_;
-    glm::mat4 transformation_;
-    float alpha_;
+ private:
+  std::string name_;
+  std::uint32_t buffer_;
+  anbox::graphics::Rect screen_position_;
+  anbox::graphics::Rect crop_;
+  glm::mat4 transformation_;
+  float alpha_;
 };
 
 typedef std::vector<Renderable> RenderableList;

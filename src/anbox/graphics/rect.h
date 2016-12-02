@@ -25,83 +25,53 @@
 namespace anbox {
 namespace graphics {
 class Rect {
-public:
-    static const Rect Invalid;
-    static const Rect Empty;
+ public:
+  static const Rect Invalid;
+  static const Rect Empty;
 
-    inline Rect() : Rect(Empty) {}
+  inline Rect() : Rect(Empty) {}
 
-    inline Rect(const std::int32_t &left,
-                const std::int32_t &top,
-                const std::int32_t &right,
-                const std::int32_t &bottom) :
-        left_(left),
-        top_(top),
-        right_(right),
-        bottom_(bottom) {
-    }
+  inline Rect(const std::int32_t &left, const std::int32_t &top,
+              const std::int32_t &right, const std::int32_t &bottom)
+      : left_(left), top_(top), right_(right), bottom_(bottom) {}
 
-    inline Rect(const std::int32_t &width, const std::int32_t &height) :
-        left_(0),
-        top_(0),
-        right_(width),
-        bottom_(height) {
-    }
+  inline Rect(const std::int32_t &width, const std::int32_t &height)
+      : left_(0), top_(0), right_(width), bottom_(height) {}
 
-    inline void clear() {
-        left_ = top_ = right_ = bottom_ = 0;
-    }
+  inline void clear() { left_ = top_ = right_ = bottom_ = 0; }
 
-    inline bool valid() const {
-        return width() >= 0 && height() >= 0;
-    }
+  inline bool valid() const { return width() >= 0 && height() >= 0; }
 
-    inline std::int32_t width() const {
-        return right_ - left_;
-    }
+  inline std::int32_t width() const { return right_ - left_; }
 
-    inline std::int32_t height() const {
-        return bottom_ - top_;
-    }
+  inline std::int32_t height() const { return bottom_ - top_; }
 
-    inline std::int32_t left() const {
-        return left_;
-    }
+  inline std::int32_t left() const { return left_; }
 
-    inline std::int32_t top() const {
-        return top_;
-    }
+  inline std::int32_t top() const { return top_; }
 
-    inline std::int32_t right() const {
-        return right_;
-    }
+  inline std::int32_t right() const { return right_; }
 
-    inline std::int32_t bottom() const {
-        return bottom_;
-    }
+  inline std::int32_t bottom() const { return bottom_; }
 
-    inline bool operator == (const Rect &rhs) const {
-        return (left_ == rhs.left() &&
-                top_ == rhs.top() &&
-                right_ == rhs.right() &&
-                bottom_ == rhs.bottom());
-    }
+  inline bool operator==(const Rect &rhs) const {
+    return (left_ == rhs.left() && top_ == rhs.top() && right_ == rhs.right() &&
+            bottom_ == rhs.bottom());
+  }
 
-    inline bool operator != (const Rect &rhs) const {
-        return !operator == (rhs);
-    }
+  inline bool operator!=(const Rect &rhs) const { return !operator==(rhs); }
 
-    void merge(const Rect &rhs);
+  void merge(const Rect &rhs);
 
-private:
-    std::int32_t left_;
-    std::int32_t top_;
-    std::int32_t right_;
-    std::int32_t bottom_;
+ private:
+  std::int32_t left_;
+  std::int32_t top_;
+  std::int32_t right_;
+  std::int32_t bottom_;
 };
 
-std::ostream& operator<<(std::ostream &out, const Rect &rect);
-} // namespace graphics
-} // namespace anbox
+std::ostream &operator<<(std::ostream &out, const Rect &rect);
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

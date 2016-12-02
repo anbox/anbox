@@ -23,21 +23,21 @@
 namespace anbox {
 namespace network {
 class Credentials {
-public:
-    Credentials(pid_t pid, uid_t uid, gid_t gid);
+ public:
+  Credentials(pid_t pid, uid_t uid, gid_t gid);
 
-    pid_t pid() const;
-    uid_t uid() const;
-    gid_t gid() const;
+  pid_t pid() const;
+  uid_t uid() const;
+  gid_t gid() const;
 
-private:
-    Credentials() = delete;
+ private:
+  Credentials() = delete;
 
-    pid_t pid_;
-    uid_t uid_;
-    gid_t gid_;
+  pid_t pid_;
+  uid_t uid_;
+  gid_t gid_;
 };
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox
 
 #endif

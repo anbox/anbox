@@ -23,16 +23,16 @@
 namespace anbox {
 namespace wm {
 class Display {
-public:
-    typedef std::int32_t Id;
+ public:
+  typedef std::int32_t Id;
 
-    static Id Invalid;
-    static Id Default;
+  static Id Invalid;
+  static Id Default;
 
-    Display() = delete;
-    Display(const Display&) = delete;
+  Display() = delete;
+  Display(const Display&) = delete;
 };
-} // namespace wm
-} // namespace anbox
+}  // namespace wm
+}  // namespace anbox
 
 #endif

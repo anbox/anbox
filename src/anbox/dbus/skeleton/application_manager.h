@@ -28,22 +28,22 @@ namespace anbox {
 namespace dbus {
 namespace skeleton {
 class ApplicationManager : public anbox::ApplicationManager {
-public:
-    ApplicationManager(const core::dbus::Bus::Ptr &bus,
-                       const core::dbus::Object::Ptr& object,
-                       const std::shared_ptr<anbox::ApplicationManager> &impl);
-    ~ApplicationManager();
+ public:
+  ApplicationManager(const core::dbus::Bus::Ptr &bus,
+                     const core::dbus::Object::Ptr &object,
+                     const std::shared_ptr<anbox::ApplicationManager> &impl);
+  ~ApplicationManager();
 
-    void launch(const android::Intent &intent) override;
+  void launch(const android::Intent &intent) override;
 
-private:
-    core::dbus::Bus::Ptr bus_;
-    core::dbus::Service::Ptr service_;
-    core::dbus::Object::Ptr object_;
-    std::shared_ptr<anbox::ApplicationManager> impl_;
+ private:
+  core::dbus::Bus::Ptr bus_;
+  core::dbus::Service::Ptr service_;
+  core::dbus::Object::Ptr object_;
+  std::shared_ptr<anbox::ApplicationManager> impl_;
 };
-} // namespace skeleton
-} // namespace dbus
-} // namespace anbox
+}  // namespace skeleton
+}  // namespace dbus
+}  // namespace anbox
 
 #endif

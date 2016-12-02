@@ -18,17 +18,17 @@
 
 #include "anbox/logger.h"
 
-#include "anbox/network/socket_connection.h"
-#include "anbox/network/message_sender.h"
 #include "anbox/network/message_receiver.h"
+#include "anbox/network/message_sender.h"
+#include "anbox/network/socket_connection.h"
 
 #include <boost/signals2.hpp>
 #include <boost/throw_exception.hpp>
 
 #include <stdexcept>
 
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
 namespace ba = boost::asio;
 namespace bs = boost::system;
@@ -37,52 +37,42 @@ namespace anbox {
 namespace network {
 SocketConnection::SocketConnection(
     std::shared_ptr<MessageReceiver> const& message_receiver,
-    std::shared_ptr<MessageSender> const& message_sender,
-    int id_,
+    std::shared_ptr<MessageSender> const& message_sender, int id_,
     std::shared_ptr<Connections<SocketConnection>> const& connections,
     std::shared_ptr<MessageProcessor> const& processor)
-     : message_receiver_(message_receiver),
-       message_sender_(message_sender),
-       id_(id_),
-       connections_(connections),
-       processor_(processor)
-{
+    : message_receiver_(message_receiver),
+      message_sender_(message_sender),
+      id_(id_),
+      connections_(connections),
+      processor_(processor) {}
+
+SocketConnection::~SocketConnection() noexcept {}
+
+void SocketConnection::send(char const* data, size_t length) {
+  message_sender_->send(data, length);
 }
 
-SocketConnection::~SocketConnection() noexcept
-{
+void SocketConnection::read_next_message() {
+  auto callback = std::bind(&SocketConnection::on_read_size, this,
+                            std::placeholders::_1, std::placeholders::_2);
+  message_receiver_->async_receive_msg(callback, ba::buffer(buffer_));
 }
 
-void SocketConnection::send(char const* data, size_t length)
-{
-    message_sender_->send(data, length);
+void SocketConnection::on_read_size(const boost::system::error_code& error,
+                                    std::size_t bytes_read) {
+  if (error) {
+    if (connections_) connections_->remove(id());
+
+    return;
+  }
+
+  std::vector<std::uint8_t> data(bytes_read);
+  std::copy(buffer_.data(), buffer_.data() + bytes_read, data.data());
+
+  if (processor_->process_data(data))
+    read_next_message();
+  else if (connections_)
+    connections_->remove(id());
 }
-
-void SocketConnection::read_next_message()
-{
-    auto callback = std::bind(&SocketConnection::on_read_size,
-                        this, std::placeholders::_1, std::placeholders::_2);
-    message_receiver_->async_receive_msg(callback, ba::buffer(buffer_));
-}
-
-void SocketConnection::on_read_size(const boost::system::error_code& error, std::size_t bytes_read)
-{
-    if (error)
-    {
-        if (connections_)
-            connections_->remove(id());
-
-        return;
-    }
-
-    std::vector<std::uint8_t> data(bytes_read);
-    std::copy(buffer_.data(), buffer_.data() + bytes_read, data.data());
-
-    if (processor_->process_data(data))
-        read_next_message();
-    else if (connections_)
-        connections_->remove(id());
-}
-} // namespace anbox
-} // namespace network
-
+}  // namespace anbox
+}  // namespace network

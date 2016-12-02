@@ -22,51 +22,51 @@
 
 namespace anbox {
 namespace rpc {
-PendingCallCache::PendingCallCache() {
+PendingCallCache::PendingCallCache() {}
+
+void PendingCallCache::save_completion_details(
+    anbox::protobuf::rpc::Invocation const& invocation,
+    google::protobuf::MessageLite* response,
+    google::protobuf::Closure* complete) {
+  std::unique_lock<std::mutex> lock(mutex_);
+  pending_calls_[invocation.id()] = PendingCall(response, complete);
 }
 
-void PendingCallCache::save_completion_details(anbox::protobuf::rpc::Invocation const &invocation,
-                                               google::protobuf::MessageLite *response,
-                                               google::protobuf::Closure *complete) {
-    std::unique_lock<std::mutex> lock(mutex_);
-    pending_calls_[invocation.id()] = PendingCall(response, complete);
-}
-
-void PendingCallCache::populate_message_for_result(anbox::protobuf::rpc::Result &result,
-                                 std::function<void(google::protobuf::MessageLite*)> const& populator) {
-    std::unique_lock<std::mutex> lock(mutex_);
-    populator(pending_calls_.at(result.id()).response);
+void PendingCallCache::populate_message_for_result(
+    anbox::protobuf::rpc::Result& result,
+    std::function<void(google::protobuf::MessageLite*)> const& populator) {
+  std::unique_lock<std::mutex> lock(mutex_);
+  populator(pending_calls_.at(result.id()).response);
 }
 
 void PendingCallCache::complete_response(anbox::protobuf::rpc::Result& result) {
-    PendingCall completion;
+  PendingCall completion;
 
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        auto call = pending_calls_.find(result.id());
-        if (call != pending_calls_.end()) {
-            completion = call->second;
-            pending_calls_.erase(call);
-        }
+  {
+    std::unique_lock<std::mutex> lock(mutex_);
+    auto call = pending_calls_.find(result.id());
+    if (call != pending_calls_.end()) {
+      completion = call->second;
+      pending_calls_.erase(call);
     }
+  }
 
-    if (completion.complete)
-        completion.complete->Run();
+  if (completion.complete) completion.complete->Run();
 }
 
 void PendingCallCache::force_completion() {
-    std::unique_lock<std::mutex> lock(mutex_);
-    for (auto& call : pending_calls_) {
-        auto& completion = call.second;
-        completion.complete->Run();
-    }
+  std::unique_lock<std::mutex> lock(mutex_);
+  for (auto& call : pending_calls_) {
+    auto& completion = call.second;
+    completion.complete->Run();
+  }
 
-    pending_calls_.erase(pending_calls_.begin(), pending_calls_.end());
+  pending_calls_.erase(pending_calls_.begin(), pending_calls_.end());
 }
 
 bool PendingCallCache::empty() const {
-    std::unique_lock<std::mutex> lock(mutex_);
-    return pending_calls_.empty();
+  std::unique_lock<std::mutex> lock(mutex_);
+  return pending_calls_.empty();
 }
-} // namespace rpc
-} // namespace anbox
+}  // namespace rpc
+}  // namespace anbox

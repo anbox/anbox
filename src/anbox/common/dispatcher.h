@@ -28,16 +28,17 @@
 namespace anbox {
 namespace common {
 class Dispatcher : public DoNotCopyOrMove {
-public:
-    typedef std::function<void()> Task;
-    virtual void dispatch(const Task& task) = 0;
+ public:
+  typedef std::function<void()> Task;
+  virtual void dispatch(const Task& task) = 0;
 
-protected:
-    Dispatcher() = default;
+ protected:
+  Dispatcher() = default;
 };
 
-std::shared_ptr<Dispatcher> create_dispatcher_for_runtime(const std::shared_ptr<Runtime>&);
-} // namespace common
-} // namespace anbox
+std::shared_ptr<Dispatcher> create_dispatcher_for_runtime(
+    const std::shared_ptr<Runtime>&);
+}  // namespace common
+}  // namespace anbox
 
 #endif

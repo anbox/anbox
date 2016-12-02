@@ -17,29 +17,30 @@
 
 #include "anbox/cmds/container_manager.h"
 #include "anbox/container/service.h"
-#include "anbox/runtime.h"
 #include "anbox/logger.h"
+#include "anbox/runtime.h"
 
 #include "core/posix/signal.h"
 
 anbox::cmds::ContainerManager::ContainerManager()
-    : CommandWithFlagsAndAction{cli::Name{"container-manager"}, cli::Usage{"container-manager"}, cli::Description{"Start the container manager service"}}
-{
-    action([](const cli::Command::Context& ctxt) {
-        auto trap = core::posix::trap_signals_for_process({core::posix::Signal::sig_term,
-                                                           core::posix::Signal::sig_int});
-        trap->signal_raised().connect([trap](const core::posix::Signal &signal) {
-            INFO("Signal %i received. Good night.", static_cast<int>(signal));
-            trap->stop();
-        });
-
-        auto rt = Runtime::create();
-        auto service = container::Service::create(rt);
-
-        rt->start();
-        trap->run();
-        rt->stop();
-
-        return 0;
+    : CommandWithFlagsAndAction{
+          cli::Name{"container-manager"}, cli::Usage{"container-manager"},
+          cli::Description{"Start the container manager service"}} {
+  action([](const cli::Command::Context& ctxt) {
+    auto trap = core::posix::trap_signals_for_process(
+        {core::posix::Signal::sig_term, core::posix::Signal::sig_int});
+    trap->signal_raised().connect([trap](const core::posix::Signal& signal) {
+      INFO("Signal %i received. Good night.", static_cast<int>(signal));
+      trap->stop();
     });
+
+    auto rt = Runtime::create();
+    auto service = container::Service::create(rt);
+
+    rt->start();
+    trap->run();
+    rt->stop();
+
+    return 0;
+  });
 }

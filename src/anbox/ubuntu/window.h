@@ -29,40 +29,41 @@
 
 namespace anbox {
 namespace ubuntu {
-class Window : public std::enable_shared_from_this<Window>,
-               public wm::Window {
-public:
-    typedef std::int32_t Id;
-    static Id Invalid;
+class Window : public std::enable_shared_from_this<Window>, public wm::Window {
+ public:
+  typedef std::int32_t Id;
+  static Id Invalid;
 
-    class Observer {
-    public:
-        virtual ~Observer();
-        virtual void window_deleted(const Id &id) = 0;
-        virtual void window_wants_focus(const Id &id) = 0;
-    };
+  class Observer {
+   public:
+    virtual ~Observer();
+    virtual void window_deleted(const Id &id) = 0;
+    virtual void window_wants_focus(const Id &id) = 0;
+  };
 
-    Window(const Id &id, const wm::Task::Id &task, const std::shared_ptr<Observer> &observer, const graphics::Rect &frame);
-    ~Window();
+  Window(const Id &id, const wm::Task::Id &task,
+         const std::shared_ptr<Observer> &observer,
+         const graphics::Rect &frame);
+  ~Window();
 
-    void process_event(const SDL_Event &event);
+  void process_event(const SDL_Event &event);
 
-    EGLNativeWindowType native_handle() const override;
-    Id id() const;
-    std::uint32_t window_id() const;
+  EGLNativeWindowType native_handle() const override;
+  Id id() const;
+  std::uint32_t window_id() const;
 
-protected:
-    void resize(int width, int height) override;
-    void update_position(int x, int y) override;
+ protected:
+  void resize(int width, int height) override;
+  void update_position(int x, int y) override;
 
-private:
-    Id id_;
-    std::shared_ptr<Observer> observer_;
-    EGLNativeDisplayType native_display_;
-    EGLNativeWindowType native_window_;
-    SDL_Window *window_;
+ private:
+  Id id_;
+  std::shared_ptr<Observer> observer_;
+  EGLNativeDisplayType native_display_;
+  EGLNativeWindowType native_window_;
+  SDL_Window *window_;
 };
-} // namespace bridge
-} // namespace anbox
+}  // namespace bridge
+}  // namespace anbox
 
 #endif

@@ -19,18 +19,17 @@
 
 namespace anbox {
 namespace network {
-DelegateMessageProcessor::DelegateMessageProcessor(std::function<bool(const std::vector<std::uint8_t>&)> process_data) :
-    process_data_(process_data) {
-}
+DelegateMessageProcessor::DelegateMessageProcessor(
+    std::function<bool(const std::vector<std::uint8_t> &)> process_data)
+    : process_data_(process_data) {}
 
-DelegateMessageProcessor::~DelegateMessageProcessor() {
-}
+DelegateMessageProcessor::~DelegateMessageProcessor() {}
 
-bool DelegateMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
-    if (!process_data_)
-        return false;
+bool DelegateMessageProcessor::process_data(
+    const std::vector<std::uint8_t> &data) {
+  if (!process_data_) return false;
 
-    return process_data_(data);
+  return process_data_(data);
 }
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox

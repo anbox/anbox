@@ -21,41 +21,27 @@
 #include <algorithm>
 
 namespace anbox {
-Fd::Fd() :
-    Fd{invalid}
-{
+Fd::Fd() : Fd{invalid} {}
+
+Fd::Fd(IntOwnedFd fd) : fd{std::make_shared<int>(fd.int_owned_fd)} {}
+
+Fd::Fd(int raw_fd)
+    : fd{new int{raw_fd},
+         [](int* fd) {
+           if (!fd) return;
+           if (*fd > Fd::invalid) ::close(*fd);
+           delete fd;
+         }} {}
+
+Fd::Fd(Fd&& other) : fd{std::move(other.fd)} {}
+
+Fd& Fd::operator=(Fd other) {
+  std::swap(fd, other.fd);
+  return *this;
 }
 
-Fd::Fd(IntOwnedFd fd) :
-    fd{std::make_shared<int>(fd.int_owned_fd)}
-{
+Fd::operator int() const {
+  if (fd) return *fd;
+  return invalid;
 }
-
-Fd::Fd(int raw_fd) :
-    fd{new int{raw_fd},
-        [](int* fd)
-        {
-            if (!fd) return;
-            if (*fd > Fd::invalid) ::close(*fd);
-            delete fd;
-        }}
-{
-}
-
-Fd::Fd(Fd&& other) :
-    fd{std::move(other.fd)}
-{
-}
-
-Fd& Fd::operator=(Fd other)
-{
-    std::swap(fd, other.fd);
-    return *this;
-}
-
-Fd::operator int() const
-{
-    if (fd) return *fd;
-    return invalid;
-}
-} // namespace anbox
+}  // namespace anbox

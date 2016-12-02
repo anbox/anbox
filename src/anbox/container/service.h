@@ -18,34 +18,35 @@
 #ifndef ANBOX_CONTAINER_SERVICE_H_
 #define ANBOX_CONTAINER_SERVICE_H_
 
-#include "anbox/network/published_socket_connector.h"
-#include "anbox/network/connections.h"
-#include "anbox/network/socket_connection.h"
-#include "anbox/network/credentials.h"
-#include "anbox/container/container.h"
 #include "anbox/common/dispatcher.h"
+#include "anbox/container/container.h"
+#include "anbox/network/connections.h"
+#include "anbox/network/credentials.h"
+#include "anbox/network/published_socket_connector.h"
+#include "anbox/network/socket_connection.h"
 #include "anbox/runtime.h"
 
 namespace anbox {
 namespace container {
 class Service : public std::enable_shared_from_this<Service> {
-public:
-    static std::shared_ptr<Service> create(const std::shared_ptr<Runtime> &rt);
+ public:
+  static std::shared_ptr<Service> create(const std::shared_ptr<Runtime> &rt);
 
-    Service(const std::shared_ptr<Runtime> &rt);
-    ~Service();
+  Service(const std::shared_ptr<Runtime> &rt);
+  ~Service();
 
-private:
-    int next_id();
-    void new_client(std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket);
+ private:
+  int next_id();
+  void new_client(std::shared_ptr<
+                  boost::asio::local::stream_protocol::socket> const &socket);
 
-    std::shared_ptr<common::Dispatcher> dispatcher_;
-    std::shared_ptr<network::PublishedSocketConnector> connector_;
-    std::atomic<int> next_connection_id_;
-    std::shared_ptr<network::Connections<network::SocketConnection>> connections_;
-    std::shared_ptr<Container> backend_;
+  std::shared_ptr<common::Dispatcher> dispatcher_;
+  std::shared_ptr<network::PublishedSocketConnector> connector_;
+  std::atomic<int> next_connection_id_;
+  std::shared_ptr<network::Connections<network::SocketConnection>> connections_;
+  std::shared_ptr<Container> backend_;
 };
-} // namespace container
-} // namespace anbox
+}  // namespace container
+}  // namespace anbox
 
 #endif

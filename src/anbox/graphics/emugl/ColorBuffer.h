@@ -55,96 +55,84 @@ class TextureResize;
 // As an additional twist.
 
 class ColorBuffer {
-public:
-    // Helper interface class used during ColorBuffer operations. This is
-    // introduced to remove coupling from the FrameBuffer class implementation.
-    class Helper {
-    public:
-        Helper() {}
-        virtual ~Helper() {}
-        virtual bool setupContext() = 0;
-        virtual void teardownContext() = 0;
-        virtual TextureDraw* getTextureDraw() const = 0;
-    };
+ public:
+  // Helper interface class used during ColorBuffer operations. This is
+  // introduced to remove coupling from the FrameBuffer class implementation.
+  class Helper {
+   public:
+    Helper() {}
+    virtual ~Helper() {}
+    virtual bool setupContext() = 0;
+    virtual void teardownContext() = 0;
+    virtual TextureDraw* getTextureDraw() const = 0;
+  };
 
-    // Create a new ColorBuffer instance.
-    // |p_display| is the host EGLDisplay handle.
-    // |p_width| and |p_height| are the buffer's dimensions in pixels.
-    // |p_internalFormat| is the internal pixel format to use, valid values
-    // are: GL_RGB, GL_RGB565, GL_RGBA, GL_RGB5_A1_OES and GL_RGBA4_OES.
-    // Implementation is free to use something else though.
-    // |has_eglimage_texture_2d| should be true iff the display supports
-    // the EGL_KHR_gl_texture_2D_image extension.
-    // Returns NULL on failure.
-    static ColorBuffer* create(EGLDisplay p_display,
-                               int p_width,
-                               int p_height,
-                               GLenum p_internalFormat,
-                               bool has_eglimage_texture_2d,
-                               Helper* helper);
+  // Create a new ColorBuffer instance.
+  // |p_display| is the host EGLDisplay handle.
+  // |p_width| and |p_height| are the buffer's dimensions in pixels.
+  // |p_internalFormat| is the internal pixel format to use, valid values
+  // are: GL_RGB, GL_RGB565, GL_RGBA, GL_RGB5_A1_OES and GL_RGBA4_OES.
+  // Implementation is free to use something else though.
+  // |has_eglimage_texture_2d| should be true iff the display supports
+  // the EGL_KHR_gl_texture_2D_image extension.
+  // Returns NULL on failure.
+  static ColorBuffer* create(EGLDisplay p_display, int p_width, int p_height,
+                             GLenum p_internalFormat,
+                             bool has_eglimage_texture_2d, Helper* helper);
 
-    // Destructor.
-    ~ColorBuffer();
+  // Destructor.
+  ~ColorBuffer();
 
-    // Return ColorBuffer width and height in pixels
-    GLuint getWidth() const { return m_width; }
-    GLuint getHeight() const { return m_height; }
+  // Return ColorBuffer width and height in pixels
+  GLuint getWidth() const { return m_width; }
+  GLuint getHeight() const { return m_height; }
 
-    // Read the ColorBuffer instance's pixel values into host memory.
-    void readPixels(int x,
-                    int y,
-                    int width,
-                    int height,
-                    GLenum p_format,
-                    GLenum p_type,
-                    void *pixels);
+  // Read the ColorBuffer instance's pixel values into host memory.
+  void readPixels(int x, int y, int width, int height, GLenum p_format,
+                  GLenum p_type, void* pixels);
 
-    // Update the ColorBuffer instance's pixel values from host memory.
-    void subUpdate(int x,
-                   int y,
-                   int width,
-                   int height,
-                   GLenum p_format,
-                   GLenum p_type,
-                   void *pixels);
+  // Update the ColorBuffer instance's pixel values from host memory.
+  void subUpdate(int x, int y, int width, int height, GLenum p_format,
+                 GLenum p_type, void* pixels);
 
-    // Bind the current context's EGL_TEXTURE_2D texture to this ColorBuffer's
-    // EGLImage. This is intended to implement glEGLImageTargetTexture2DOES()
-    // for all GLES versions.
-    bool bindToTexture();
+  // Bind the current context's EGL_TEXTURE_2D texture to this ColorBuffer's
+  // EGLImage. This is intended to implement glEGLImageTargetTexture2DOES()
+  // for all GLES versions.
+  bool bindToTexture();
 
-    // Bind the current context's EGL_RENDERBUFFER_OES render buffer to this
-    // ColorBuffer's EGLImage. This is intended to implement
-    // glEGLImageTargetRenderbufferStorageOES() for all GLES versions.
-    bool bindToRenderbuffer();
+  // Bind the current context's EGL_RENDERBUFFER_OES render buffer to this
+  // ColorBuffer's EGLImage. This is intended to implement
+  // glEGLImageTargetRenderbufferStorageOES() for all GLES versions.
+  bool bindToRenderbuffer();
 
-    // Copy the content of the current context's read surface to this
-    // ColorBuffer. This is used from WindowSurface::flushColorBuffer().
-    // Return true on success, false on failure (e.g. no current context).
-    bool blitFromCurrentReadBuffer();
+  // Copy the content of the current context's read surface to this
+  // ColorBuffer. This is used from WindowSurface::flushColorBuffer().
+  // Return true on success, false on failure (e.g. no current context).
+  bool blitFromCurrentReadBuffer();
 
-    // Read the content of the whole ColorBuffer as 32-bit RGBA pixels.
-    // |img| must be a buffer large enough (i.e. width * height * 4).
-    void readback(unsigned char* img);
+  // Read the content of the whole ColorBuffer as 32-bit RGBA pixels.
+  // |img| must be a buffer large enough (i.e. width * height * 4).
+  void readback(unsigned char* img);
 
-    void bind();
-private:
-    ColorBuffer();  // no default constructor.
+  void bind();
 
-    explicit ColorBuffer(EGLDisplay display, Helper* helper);
+ private:
+  ColorBuffer();  // no default constructor.
 
-private:
-    GLuint m_tex;
-    GLuint m_blitTex;
-    EGLImageKHR m_eglImage;
-    EGLImageKHR m_blitEGLImage;
-    GLuint m_width;
-    GLuint m_height;
-    GLuint m_fbo;
-    GLenum m_internalFormat;
-    EGLDisplay m_display;
-    Helper* m_helper;
-    TextureResize * m_resizer;
+  explicit ColorBuffer(EGLDisplay display, Helper* helper);
+
+ private:
+  GLuint m_tex;
+  GLuint m_blitTex;
+  EGLImageKHR m_eglImage;
+  EGLImageKHR m_blitEGLImage;
+  GLuint m_width;
+  GLuint m_height;
+  GLuint m_fbo;
+  GLenum m_internalFormat;
+  EGLDisplay m_display;
+  Helper* m_helper;
+  TextureResize* m_resizer;
 };
 
 typedef emugl::SmartPtr<ColorBuffer> ColorBufferPtr;

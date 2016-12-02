@@ -24,18 +24,17 @@
 namespace anbox {
 namespace android {
 struct Intent {
-    std::string action;
-    std::string uri;
-    std::string type;
-    int flags = 0;
-    std::string package;
-    std::string component;
-    std::vector<std::string> categories;
+  std::string action;
+  std::string uri;
+  std::string type;
+  int flags = 0;
+  std::string package;
+  std::string component;
+  std::vector<std::string> categories;
 };
 
-std::ostream& operator<<(std::ostream &out, const Intent &intent);
-} // namespace android
-} // namespace anbox
-
+std::ostream &operator<<(std::ostream &out, const Intent &intent);
+}  // namespace android
+}  // namespace anbox
 
 #endif

@@ -19,65 +19,50 @@
 #ifndef ANBOX_NETWORK_CONNECTIONS_H_
 #define ANBOX_NETWORK_CONNECTIONS_H_
 
+#include <map>
 #include <memory>
 #include <mutex>
-#include <map>
 
 namespace anbox {
 namespace network {
-template<class Connection>
-class Connections
-{
-public:
-    Connections() {}
-    ~Connections() {
-        clear();
-    }
+template <class Connection>
+class Connections {
+ public:
+  Connections() {}
+  ~Connections() { clear(); }
 
+  void add(std::shared_ptr<Connection> const& connection) {
+    std::unique_lock<std::mutex> lock(mutex);
+    connections.insert({connection->id(), connection});
+  }
 
-    void add(std::shared_ptr<Connection> const& connection)
-    {
-        std::unique_lock<std::mutex> lock(mutex);
-        connections.insert({connection->id(), connection});
-    }
+  void remove(int id) {
+    std::unique_lock<std::mutex> lock(mutex);
+    connections.erase(id);
+  }
 
-    void remove(int id)
-    {
-        std::unique_lock<std::mutex> lock(mutex);
-        connections.erase(id);
-    }
+  bool includes(int id) const {
+    std::unique_lock<std::mutex> lock(mutex);
+    return connections.find(id) != connections.end();
+  }
 
-    bool includes(int id) const
-    {
-        std::unique_lock<std::mutex> lock(mutex);
-        return connections.find(id) != connections.end();
-    }
+  void clear() {
+    std::unique_lock<std::mutex> lock(mutex);
+    connections.clear();
+  }
 
-    void clear()
-    {
-        std::unique_lock<std::mutex> lock(mutex);
-        connections.clear();
-    }
+  size_t size() { return connections.size(); }
 
-    size_t size()
-    {
-        return connections.size();
-    }
+  std::shared_ptr<Connection> at(size_t n) { return connections.at(n); }
 
-    std::shared_ptr<Connection> at(size_t n)
-    {
-        return connections.at(n);
-    }
+ private:
+  Connections(Connections const&) = delete;
+  Connections& operator=(Connections const&) = delete;
 
-private:
-    Connections(Connections const&) = delete;
-    Connections& operator =(Connections const&) = delete;
-
-    std::mutex mutex;
-    std::map<int, std::shared_ptr<Connection>> connections;
+  std::mutex mutex;
+  std::map<int, std::shared_ptr<Connection>> connections;
 };
-} // namespace anbox
-} // namespace network
-
+}  // namespace anbox
+}  // namespace network
 
 #endif

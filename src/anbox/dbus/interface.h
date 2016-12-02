@@ -20,42 +20,45 @@
 
 #include <core/dbus/macros.h>
 
-#include <string>
 #include <chrono>
+#include <string>
 
 namespace anbox {
 namespace dbus {
 namespace interface {
 struct Service {
-    static inline std::string name() { return "org.anbox"; }
-    static inline std::string path() { return "/"; }
+  static inline std::string name() { return "org.anbox"; }
+  static inline std::string path() { return "/"; }
 };
 struct ApplicationManager {
-    static inline std::string name() { return "org.anbox.ApplicationManager"; }
-    struct Methods {
-        struct Launch {
-            static inline std::string name() { return "Launch"; }
-            typedef anbox::dbus::interface::ApplicationManager Interface;
-            typedef void ResultType;
-            static inline std::chrono::milliseconds default_timeout() { return std::chrono::seconds{1}; }
-        };
+  static inline std::string name() { return "org.anbox.ApplicationManager"; }
+  struct Methods {
+    struct Launch {
+      static inline std::string name() { return "Launch"; }
+      typedef anbox::dbus::interface::ApplicationManager Interface;
+      typedef void ResultType;
+      static inline std::chrono::milliseconds default_timeout() {
+        return std::chrono::seconds{1};
+      }
     };
+  };
 };
-} // namespace interface
-} // namespace dbus
-} // namespace anbox
+}  // namespace interface
+}  // namespace dbus
+}  // namespace anbox
 
 namespace core {
 namespace dbus {
 namespace traits {
-template<> struct Service<anbox::dbus::interface::ApplicationManager> {
-    static inline const std::string& interface_name() {
-        static const std::string s{"org.anbox.ApplicationManager"};
-        return s;
-    }
+template <>
+struct Service<anbox::dbus::interface::ApplicationManager> {
+  static inline const std::string& interface_name() {
+    static const std::string s{"org.anbox.ApplicationManager"};
+    return s;
+  }
 };
-} // namespace traits
-} // namespace dbus
-} // namespace core
+}  // namespace traits
+}  // namespace dbus
+}  // namespace core
 
 #endif

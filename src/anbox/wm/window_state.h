@@ -20,44 +20,40 @@
 
 #include "anbox/graphics/rect.h"
 #include "anbox/wm/display.h"
-#include "anbox/wm/task.h"
 #include "anbox/wm/stack.h"
+#include "anbox/wm/task.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace anbox {
 namespace wm {
 class WindowState {
-public:
-    typedef std::vector<WindowState> List;
+ public:
+  typedef std::vector<WindowState> List;
 
-    WindowState();
-    WindowState(const Display::Id &display,
-                bool has_surface,
-                const graphics::Rect &frame,
-                const std::string &package_name,
-                const Task::Id &task,
-                const Stack::Id &stack);
-    ~WindowState();
+  WindowState();
+  WindowState(const Display::Id &display, bool has_surface,
+              const graphics::Rect &frame, const std::string &package_name,
+              const Task::Id &task, const Stack::Id &stack);
+  ~WindowState();
 
-    Display::Id display() const { return display_; }
-    bool has_surface() const { return has_surface_; }
-    graphics::Rect frame() const { return frame_; }
-    std::string package_name() const { return package_name_; }
-    Task::Id task() const { return task_; }
-    Stack::Id stack() const { return stack_; }
+  Display::Id display() const { return display_; }
+  bool has_surface() const { return has_surface_; }
+  graphics::Rect frame() const { return frame_; }
+  std::string package_name() const { return package_name_; }
+  Task::Id task() const { return task_; }
+  Stack::Id stack() const { return stack_; }
 
-private:
-    Display::Id display_;
-    bool has_surface_;
-    graphics::Rect frame_;
-    std::string package_name_;
-    Task::Id task_;
-    Stack::Id stack_;
-
+ private:
+  Display::Id display_;
+  bool has_surface_;
+  graphics::Rect frame_;
+  std::string package_name_;
+  Task::Id task_;
+  Stack::Id stack_;
 };
-} // namespace wm
-} // namespace anbox
+}  // namespace wm
+}  // namespace anbox
 
 #endif

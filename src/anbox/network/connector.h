@@ -21,9 +21,9 @@
 namespace anbox {
 namespace network {
 class Connector {
-public:
+ public:
 };
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox
 
 #endif

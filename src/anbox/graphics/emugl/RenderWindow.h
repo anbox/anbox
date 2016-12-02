@@ -47,84 +47,76 @@ struct RenderWindowMessage;
 //  6) Call repaint() to force a repaint().
 //
 class RenderWindow {
-public:
-    // Create new instance. |width| and |height| are the dimensions of the
-    // emulated accelerated framebuffer. |use_thread| can be true to force
-    // the use of a separate thread, which might be required on some platforms
-    // to avoid GL-realted corruption issues in the main window. Call
-    // isValid() after construction to verify that it worked properly.
-    //
-    // |use_sub_window| is true if the client will call setupSubWindow(),
-    // and false if it will call setPostCallback().
-    //
-    // Note that this call doesn't display anything, it just initializes
-    // the library, use setupSubWindow() to display something.
-    RenderWindow(EGLNativeDisplayType native_display, bool use_thread);
+ public:
+  // Create new instance. |width| and |height| are the dimensions of the
+  // emulated accelerated framebuffer. |use_thread| can be true to force
+  // the use of a separate thread, which might be required on some platforms
+  // to avoid GL-realted corruption issues in the main window. Call
+  // isValid() after construction to verify that it worked properly.
+  //
+  // |use_sub_window| is true if the client will call setupSubWindow(),
+  // and false if it will call setPostCallback().
+  //
+  // Note that this call doesn't display anything, it just initializes
+  // the library, use setupSubWindow() to display something.
+  RenderWindow(EGLNativeDisplayType native_display, bool use_thread);
 
-    // Destructor. This will automatically call removeSubWindow() is needed.
-    ~RenderWindow();
+  // Destructor. This will automatically call removeSubWindow() is needed.
+  ~RenderWindow();
 
-    // Returns true if the RenderWindow instance is valid, which really
-    // means that the constructor succeeded.
-    bool isValid() const { return mValid; }
+  // Returns true if the RenderWindow instance is valid, which really
+  // means that the constructor succeeded.
+  bool isValid() const { return mValid; }
 
-    // Return misc. GL strings to the caller. On success, return true and sets
-    // |*vendor| to the GL vendor string, |*renderer| to the GL renderer one,
-    // and |*version| to the GL version one. On failure, return false.
-    bool getHardwareStrings(const char** vendor,
-                            const char** renderer,
-                            const char** version);
+  // Return misc. GL strings to the caller. On success, return true and sets
+  // |*vendor| to the GL vendor string, |*renderer| to the GL renderer one,
+  // and |*version| to the GL version one. On failure, return false.
+  bool getHardwareStrings(const char** vendor, const char** renderer,
+                          const char** version);
 
-    // Start displaying the emulated framebuffer using a sub-window of a
-    // parent |window| id. |wx|, |wy|, |ww| and |wh| are the position
-    // and dimension of the sub-window, relative to its parent.
-    // |fbw| and |fbh| are the dimensions of the underlying guest framebuffer.
-    // |dpr| is the device pixel ratio for the monitor, which is required for
-    // higher-density displays (such as retina).
-    // |rotation| is a clockwise-rotation for the content. Only multiples of
-    // 90. are accepted. Returns true on success, false otherwise.
-    //
-    // If the subwindow already exists, this function will update
-    // the dimensions of the subwindow, backing framebuffer, and rendering
-    // pipeline to reflect the new values.
-    //
-    // One can call removeSubWindow() to remove the sub-window.
-    bool setupSubWindow(FBNativeWindowType window,
-                        int wx,
-                        int wy,
-                        int ww,
-                        int wh,
-                        int fbw,
-                        int fbh,
-                        float dpr,
-                        float rotation);
+  // Start displaying the emulated framebuffer using a sub-window of a
+  // parent |window| id. |wx|, |wy|, |ww| and |wh| are the position
+  // and dimension of the sub-window, relative to its parent.
+  // |fbw| and |fbh| are the dimensions of the underlying guest framebuffer.
+  // |dpr| is the device pixel ratio for the monitor, which is required for
+  // higher-density displays (such as retina).
+  // |rotation| is a clockwise-rotation for the content. Only multiples of
+  // 90. are accepted. Returns true on success, false otherwise.
+  //
+  // If the subwindow already exists, this function will update
+  // the dimensions of the subwindow, backing framebuffer, and rendering
+  // pipeline to reflect the new values.
+  //
+  // One can call removeSubWindow() to remove the sub-window.
+  bool setupSubWindow(FBNativeWindowType window, int wx, int wy, int ww, int wh,
+                      int fbw, int fbh, float dpr, float rotation);
 
-    // Remove the sub-window created by calling setupSubWindow().
-    // Note that this doesn't discard the content of the emulated framebuffer,
-    // it just hides it from the main window. Returns true on success, false
-    // otherwise.
-    bool removeSubWindow();
+  // Remove the sub-window created by calling setupSubWindow().
+  // Note that this doesn't discard the content of the emulated framebuffer,
+  // it just hides it from the main window. Returns true on success, false
+  // otherwise.
+  bool removeSubWindow();
 
-    // Change the display rotation on the fly. |zRot| is a clockwise rotation
-    // angle in degrees. Only multiples of 90. are accepted.
-    void setRotation(float zRot);
+  // Change the display rotation on the fly. |zRot| is a clockwise rotation
+  // angle in degrees. Only multiples of 90. are accepted.
+  void setRotation(float zRot);
 
-    // Change the display translation. |px|,|py| are numbers between 0 and 1,
-    // with (0,0) indicating "align the bottom left of the framebuffer with the
-    // bottom left of the subwindow", and (1,1) indicating "align the top right of
-    // the framebuffer with the top right of the subwindow."
-    void setTranslation(float px, float py);
+  // Change the display translation. |px|,|py| are numbers between 0 and 1,
+  // with (0,0) indicating "align the bottom left of the framebuffer with the
+  // bottom left of the subwindow", and (1,1) indicating "align the top right of
+  // the framebuffer with the top right of the subwindow."
+  void setTranslation(float px, float py);
 
-    // Force a repaint of the whole content into the sub-window.
-    void repaint();
+  // Force a repaint of the whole content into the sub-window.
+  void repaint();
 
-private:
-    bool processMessage(const RenderWindowMessage& msg);
+ private:
+  bool processMessage(const RenderWindowMessage& msg);
 
-    bool mValid;
-    bool mHasSubWindow;
-    emugl::Thread* mThread;
-    RenderWindowChannel* mChannel;
+  bool mValid;
+  bool mHasSubWindow;
+  emugl::Thread* mThread;
+  RenderWindowChannel* mChannel;
 };
 
 #endif  // ANDROID_EMUGL_LIBRENDER_RENDER_WINDOW_H

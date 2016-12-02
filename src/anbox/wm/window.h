@@ -20,8 +20,8 @@
 
 #include "anbox/wm/window_state.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <EGL/egl.h>
 
@@ -30,40 +30,39 @@ namespace wm {
 // FIXME(morphis): move this somewhere else once we have the integration
 // with the emugl layer.
 class Layer {
-public:
-    graphics::Rect frame() const { return frame_; }
+ public:
+  graphics::Rect frame() const { return frame_; }
 
-private:
-    graphics::Rect frame_;
+ private:
+  graphics::Rect frame_;
 };
 
-class Window
-{
-public:
-    typedef std::vector<Window> List;
+class Window {
+ public:
+  typedef std::vector<Window> List;
 
-    Window(const Task::Id &task, const graphics::Rect &frame);
-    virtual ~Window();
+  Window(const Task::Id &task, const graphics::Rect &frame);
+  virtual ~Window();
 
-    bool attach();
-    void release();
+  bool attach();
+  void release();
 
-    void update_state(const WindowState::List &states);
-    void update_frame(const graphics::Rect &frame);
+  void update_state(const WindowState::List &states);
+  void update_frame(const graphics::Rect &frame);
 
-    virtual EGLNativeWindowType native_handle() const;
-    graphics::Rect frame() const;
-    Task::Id task() const;
+  virtual EGLNativeWindowType native_handle() const;
+  graphics::Rect frame() const;
+  Task::Id task() const;
 
-protected:
-    virtual void resize(int width, int height) = 0;
-    virtual void update_position(int x, int y) = 0;
+ protected:
+  virtual void resize(int width, int height) = 0;
+  virtual void update_position(int x, int y) = 0;
 
-private:
-    Task::Id task_;
-    graphics::Rect frame_;
+ private:
+  Task::Id task_;
+  graphics::Rect frame_;
 };
-} // namespace wm
-} // namespace anbox
+}  // namespace wm
+}  // namespace anbox
 
 #endif

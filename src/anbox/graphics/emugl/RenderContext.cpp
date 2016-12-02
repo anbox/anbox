@@ -17,33 +17,24 @@
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
-RenderContext* RenderContext::create(EGLDisplay display,
-                                     EGLConfig config,
-                                     EGLContext sharedContext,
-                                     bool isGl2) {
-    const EGLint contextAttribs[] = {
-        EGL_CONTEXT_CLIENT_VERSION, isGl2 ? 2 : 1,
-        EGL_NONE
-    };
-    EGLContext context = s_egl.eglCreateContext(
-            display, config, sharedContext, contextAttribs);
-    if (context == EGL_NO_CONTEXT) {
-        return NULL;
-    }
+RenderContext* RenderContext::create(EGLDisplay display, EGLConfig config,
+                                     EGLContext sharedContext, bool isGl2) {
+  const EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, isGl2 ? 2 : 1,
+                                   EGL_NONE};
+  EGLContext context =
+      s_egl.eglCreateContext(display, config, sharedContext, contextAttribs);
+  if (context == EGL_NO_CONTEXT) {
+    return NULL;
+  }
 
-    return new RenderContext(display, context, isGl2);
+  return new RenderContext(display, context, isGl2);
 }
 
-RenderContext::RenderContext(EGLDisplay display,
-                             EGLContext context,
-                             bool isGl2) :
-        mDisplay(display),
-        mContext(context),
-        mIsGl2(isGl2),
-        mContextData() {}
+RenderContext::RenderContext(EGLDisplay display, EGLContext context, bool isGl2)
+    : mDisplay(display), mContext(context), mIsGl2(isGl2), mContextData() {}
 
 RenderContext::~RenderContext() {
-    if (mContext != EGL_NO_CONTEXT) {
-        s_egl.eglDestroyContext(mDisplay, mContext);
-    }
+  if (mContext != EGL_NO_CONTEXT) {
+    s_egl.eglDestroyContext(mDisplay, mContext);
+  }
 }

@@ -18,9 +18,9 @@
 #include "anbox/container/service.h"
 
 int main(int argc, char **argv) {
-    (void) argc;
-    (void) argv;
-    anbox::container::Service service;
+  (void)argc;
+  (void)argv;
+  anbox::container::Service service;
 
-    return 0;
+  return 0;
 }

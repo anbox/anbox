@@ -20,8 +20,8 @@
 
 #include <boost/asio.hpp>
 
-#include <functional>
 #include <memory.h>
+#include <functional>
 #include <thread>
 
 #include "anbox/do_not_copy_or_move.h"
@@ -33,44 +33,45 @@ namespace anbox {
 // another , forcing execution to a well known set of threads.
 class Runtime : public DoNotCopyOrMove,
                 public std::enable_shared_from_this<Runtime> {
-public:
-    // Our default concurrency setup.
-    static constexpr const std::uint32_t worker_threads = 8;
+ public:
+  // Our default concurrency setup.
+  static constexpr const std::uint32_t worker_threads = 8;
 
-    // create returns a Runtime instance with pool_size worker threads
-    // executing the underlying service.
-    static std::shared_ptr<Runtime> create(std::uint32_t pool_size = worker_threads);
+  // create returns a Runtime instance with pool_size worker threads
+  // executing the underlying service.
+  static std::shared_ptr<Runtime> create(
+      std::uint32_t pool_size = worker_threads);
 
-    // Tears down the runtime, stopping all worker threads.
-    ~Runtime() noexcept(true);
+  // Tears down the runtime, stopping all worker threads.
+  ~Runtime() noexcept(true);
 
-    // start executes the underlying io_service on a thread pool with
-    // the size configured at creation time.
-    void start();
+  // start executes the underlying io_service on a thread pool with
+  // the size configured at creation time.
+  void start();
 
-    // stop cleanly shuts down a Runtime instance.
-    void stop();
+  // stop cleanly shuts down a Runtime instance.
+  void stop();
 
-    // to_dispatcher_functional returns a function for integration
-    // with components that expect a dispatcher for operation.
-    std::function<void(std::function<void()>)> to_dispatcher_functional();
+  // to_dispatcher_functional returns a function for integration
+  // with components that expect a dispatcher for operation.
+  std::function<void(std::function<void()>)> to_dispatcher_functional();
 
-    // service returns the underlying boost::asio::io_service that is executed
-    // by the Runtime.
-    boost::asio::io_service& service();
+  // service returns the underlying boost::asio::io_service that is executed
+  // by the Runtime.
+  boost::asio::io_service& service();
 
-private:
-    // Runtime constructs a new instance, firing up pool_size
-    // worker threads.
-    Runtime(std::uint32_t pool_size);
+ private:
+  // Runtime constructs a new instance, firing up pool_size
+  // worker threads.
+  Runtime(std::uint32_t pool_size);
 
-    std::uint32_t pool_size_;
-    boost::asio::io_service service_;
-    boost::asio::io_service::strand strand_;
-    boost::asio::io_service::work keep_alive_;
-    std::vector<std::thread> workers_;
+  std::uint32_t pool_size_;
+  boost::asio::io_service service_;
+  boost::asio::io_service::strand strand_;
+  boost::asio::io_service::work keep_alive_;
+  std::vector<std::thread> workers_;
 };
 
-} // namespace anbox
+}  // namespace anbox
 
 #endif

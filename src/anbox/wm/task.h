@@ -23,15 +23,15 @@
 namespace anbox {
 namespace wm {
 class Task {
-public:
-    typedef std::int32_t Id;
+ public:
+  typedef std::int32_t Id;
 
-    static Id Invalid;
+  static Id Invalid;
 
-    Task() = delete;
-    Task(const Task&) = delete;
+  Task() = delete;
+  Task(const Task&) = delete;
 };
-} // namespace wm
-} // namespace anbox
+}  // namespace wm
+}  // namespace anbox
 
 #endif

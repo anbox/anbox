@@ -18,9 +18,9 @@
 #ifndef ANBOX_CONTAINER_MANAGEMENT_API_STUB_H_
 #define ANBOX_CONTAINER_MANAGEMENT_API_STUB_H_
 
-#include "anbox/do_not_copy_or_move.h"
-#include "anbox/container/configuration.h"
 #include "anbox/common/wait_handle.h"
+#include "anbox/container/configuration.h"
+#include "anbox/do_not_copy_or_move.h"
 
 #include <memory>
 
@@ -28,34 +28,34 @@ namespace anbox {
 namespace protobuf {
 namespace rpc {
 class Void;
-} // namespace rpc
-} // namespace protobuf
+}  // namespace rpc
+}  // namespace protobuf
 namespace rpc {
 class Channel;
-} // namespace rpc
+}  // namespace rpc
 namespace container {
 class ManagementApiStub : public DoNotCopyOrMove {
-public:
-    ManagementApiStub(const std::shared_ptr<rpc::Channel> &channel);
-    ~ManagementApiStub();
+ public:
+  ManagementApiStub(const std::shared_ptr<rpc::Channel> &channel);
+  ~ManagementApiStub();
 
-    void start_container(const Configuration &configuration);
+  void start_container(const Configuration &configuration);
 
-private:
-    template<typename Response>
-    struct Request {
-        Request() : response(std::make_shared<Response>()), success(true) { }
-        std::shared_ptr<Response> response;
-        bool success;
-    };
+ private:
+  template <typename Response>
+  struct Request {
+    Request() : response(std::make_shared<Response>()), success(true) {}
+    std::shared_ptr<Response> response;
+    bool success;
+  };
 
-    void container_started(Request<protobuf::rpc::Void> *request);
+  void container_started(Request<protobuf::rpc::Void> *request);
 
-    mutable std::mutex mutex_;
-    std::shared_ptr<rpc::Channel> channel_;
-    common::WaitHandle start_wait_handle_;
+  mutable std::mutex mutex_;
+  std::shared_ptr<rpc::Channel> channel_;
+  common::WaitHandle start_wait_handle_;
 };
-} // namespace container
-} // namespace anbox
+}  // namespace container
+}  // namespace anbox
 
 #endif

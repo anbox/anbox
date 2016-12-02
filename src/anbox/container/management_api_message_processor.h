@@ -24,19 +24,20 @@ namespace anbox {
 namespace container {
 class ManagementApiSkeleton;
 class ManagementApiMessageProcessor : public rpc::MessageProcessor {
-public:
-    ManagementApiMessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
-                             const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
-                             const std::shared_ptr<ManagementApiSkeleton> &server);
-    ~ManagementApiMessageProcessor();
+ public:
+  ManagementApiMessageProcessor(
+      const std::shared_ptr<network::MessageSender> &sender,
+      const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
+      const std::shared_ptr<ManagementApiSkeleton> &server);
+  ~ManagementApiMessageProcessor();
 
-    void dispatch(rpc::Invocation const& invocation) override;
-    void process_event_sequence(const std::string &event) override;
+  void dispatch(rpc::Invocation const &invocation) override;
+  void process_event_sequence(const std::string &event) override;
 
-private:
-    std::shared_ptr<ManagementApiSkeleton> server_;
+ private:
+  std::shared_ptr<ManagementApiSkeleton> server_;
 };
-} // namespace anbox
-} // namespace network
+}  // namespace anbox
+}  // namespace network
 
 #endif

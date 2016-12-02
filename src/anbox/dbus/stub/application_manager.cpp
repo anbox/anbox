@@ -22,37 +22,31 @@
 namespace anbox {
 namespace dbus {
 namespace stub {
-std::shared_ptr<ApplicationManager> ApplicationManager::create_for_bus(const core::dbus::Bus::Ptr &bus) {
-    auto service = core::dbus::Service::use_service(bus, anbox::dbus::interface::Service::name());
-    auto object = service->add_object_for_path(anbox::dbus::interface::Service::path());
-    return std::make_shared<ApplicationManager>(bus, service, object);
+std::shared_ptr<ApplicationManager> ApplicationManager::create_for_bus(
+    const core::dbus::Bus::Ptr &bus) {
+  auto service = core::dbus::Service::use_service(
+      bus, anbox::dbus::interface::Service::name());
+  auto object =
+      service->add_object_for_path(anbox::dbus::interface::Service::path());
+  return std::make_shared<ApplicationManager>(bus, service, object);
 }
 
 ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
-                                       const core::dbus::Service::Ptr& service,
-                                       const core::dbus::Object::Ptr& object) :
-    bus_(bus),
-    service_(service),
-    object_(object) {
-}
+                                       const core::dbus::Service::Ptr &service,
+                                       const core::dbus::Object::Ptr &object)
+    : bus_(bus), service_(service), object_(object) {}
 
-ApplicationManager::~ApplicationManager() {
-}
+ApplicationManager::~ApplicationManager() {}
 
 void ApplicationManager::launch(const android::Intent &intent) {
-    auto result = object_->invoke_method_synchronously<
-            anbox::dbus::interface::ApplicationManager::Methods::Launch,
-            anbox::dbus::interface::ApplicationManager::Methods::Launch::ResultType>(
-                intent.action,
-                intent.uri,
-                intent.type,
-                intent.flags,
-                intent.package,
-                intent.component);
+  auto result = object_->invoke_method_synchronously<
+      anbox::dbus::interface::ApplicationManager::Methods::Launch,
+      anbox::dbus::interface::ApplicationManager::Methods::Launch::ResultType>(
+      intent.action, intent.uri, intent.type, intent.flags, intent.package,
+      intent.component);
 
-    if (result.is_error())
-        throw std::runtime_error(result.error().print());
+  if (result.is_error()) throw std::runtime_error(result.error().print());
 }
-} // namespace skeleton
-} // namespace dbus
-} // namespace anbox
+}  // namespace skeleton
+}  // namespace dbus
+}  // namespace anbox

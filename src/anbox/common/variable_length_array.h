@@ -24,38 +24,35 @@
 
 namespace anbox {
 template <size_t BuiltInBufferSize>
-class VariableLengthArray
-{
-public:
-    explicit VariableLengthArray(size_t size) : size_{size}
-    {
-        /* Don't call resize if the initial values of member variables are valid */
-        if (size > BuiltInBufferSize) resize(size);
-    }
+class VariableLengthArray {
+ public:
+  explicit VariableLengthArray(size_t size) : size_{size} {
+    /* Don't call resize if the initial values of member variables are valid */
+    if (size > BuiltInBufferSize) resize(size);
+  }
 
-    void resize(size_t size)
-    {
-        if (size > BuiltInBufferSize)
-            effective_buffer = BufferUPtr{new unsigned char[size], heap_deleter};
-        else
-            effective_buffer = BufferUPtr{builtin_buffer, null_deleter};
+  void resize(size_t size) {
+    if (size > BuiltInBufferSize)
+      effective_buffer = BufferUPtr{new unsigned char[size], heap_deleter};
+    else
+      effective_buffer = BufferUPtr{builtin_buffer, null_deleter};
 
-        size_ = size;
-    }
+    size_ = size;
+  }
 
-    unsigned char* data() const { return effective_buffer.get(); }
-    size_t size() const { return size_; }
+  unsigned char* data() const { return effective_buffer.get(); }
+  size_t size() const { return size_; }
 
-private:
-    typedef std::unique_ptr<unsigned char,void (*)(unsigned char*)> BufferUPtr;
+ private:
+  typedef std::unique_ptr<unsigned char, void (*)(unsigned char*)> BufferUPtr;
 
-    static void null_deleter(unsigned char*) {}
-    static void heap_deleter(unsigned char* b) { delete[] b; }
+  static void null_deleter(unsigned char*) {}
+  static void heap_deleter(unsigned char* b) { delete[] b; }
 
-    unsigned char builtin_buffer[BuiltInBufferSize];
-    BufferUPtr effective_buffer{builtin_buffer, null_deleter};
-    size_t size_;
+  unsigned char builtin_buffer[BuiltInBufferSize];
+  BufferUPtr effective_buffer{builtin_buffer, null_deleter};
+  size_t size_;
 };
-} // namespace anbox
+}  // namespace anbox
 
 #endif

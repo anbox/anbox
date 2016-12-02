@@ -19,7 +19,6 @@
 
 namespace anbox {
 namespace container {
-Container::~Container() {
-}
-} // namespace container
-} // namespace anbox
+Container::~Container() {}
+}  // namespace container
+}  // namespace anbox

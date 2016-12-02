@@ -20,8 +20,8 @@
 
 #include <boost/format.hpp>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace anbox {
 namespace utils {
@@ -30,7 +30,8 @@ std::vector<std::string> collect_arguments(int argc, char **argv);
 
 std::string read_file_if_exists_or_throw(const std::string &file_path);
 
-bool write_to_file(const std::string &file_path, const std::string &content = "");
+bool write_to_file(const std::string &file_path,
+                   const std::string &content = "");
 int write_to_fd(int fd, const char *content, ssize_t len);
 int write_file_at(int dirfd, const char *path, const char *content);
 
@@ -38,36 +39,36 @@ bool string_starts_with(const std::string &text, const std::string &prefix);
 
 std::string hex_dump(const uint8_t *data, uint32_t size);
 
-std::string get_env_value(const std::string &name, const std::string &default_value = "");
+std::string get_env_value(const std::string &name,
+                          const std::string &default_value = "");
 bool is_env_set(const std::string &name);
 
 void ensure_paths(const std::vector<std::string> &paths);
 
-std::string prefix_dir_from_env(const std::string &path, const std::string &env_var);
+std::string prefix_dir_from_env(const std::string &path,
+                                const std::string &env_var);
 
-template<typename... Types>
-static std::string string_format(const std::string& fmt_str, Types&&... args);
-} // namespace utils
-} // namespace anbox
+template <typename... Types>
+static std::string string_format(const std::string &fmt_str, Types &&... args);
+}  // namespace utils
+}  // namespace anbox
 
 namespace impl {
 // Base case, just return the passed in boost::format instance.
-inline boost::format& string_format(boost::format& f)
-{
-    return f;
-}
+inline boost::format &string_format(boost::format &f) { return f; }
 // Sprintf recursively walks the parameter pack at compile time.
 template <typename Head, typename... Tail>
-inline boost::format& string_format(boost::format& f, Head const& head, Tail&&... tail) {
-    return string_format(f % head, std::forward<Tail>(tail)...);
+inline boost::format &string_format(boost::format &f, Head const &head,
+                                    Tail &&... tail) {
+  return string_format(f % head, std::forward<Tail>(tail)...);
 }
-} // namespace impl
+}  // namespace impl
 
 template <typename... Types>
-inline std::string anbox::utils::string_format(const std::string& format, Types&&... args) {
-    boost::format f(format);
-    return impl::string_format(f, std::forward<Types>(args)...).str();
+inline std::string anbox::utils::string_format(const std::string &format,
+                                               Types &&... args) {
+  boost::format f(format);
+  return impl::string_format(f, std::forward<Types>(args)...).str();
 }
-
 
 #endif

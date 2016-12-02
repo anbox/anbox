@@ -19,30 +19,34 @@
 #ifndef ANBOX_NETWORK_MESSAGE_RECEIVER_H_
 #define ANBOX_NETWORK_MESSAGE_RECEIVER_H_
 
-#include <vector>
-#include <functional>
 #include <boost/asio.hpp>
+#include <functional>
+#include <vector>
 
 #include "anbox/common/fd.h"
 
 namespace anbox {
 namespace network {
-class MessageReceiver
-{
-public:
-    //receive message from the socket. 'handler' will be called when 'buffer' has been filled with exactly 'size'
-    typedef std::function<void(boost::system::error_code const&, size_t)> AnboxReadHandler;
-    virtual void async_receive_msg(AnboxReadHandler const& handler, boost::asio::mutable_buffers_1 const& buffer) = 0;
-    virtual boost::system::error_code receive_msg(boost::asio::mutable_buffers_1 const& buffer) = 0;
-    virtual size_t available_bytes() = 0;
+class MessageReceiver {
+ public:
+  // receive message from the socket. 'handler' will be called when 'buffer' has
+  // been filled with exactly 'size'
+  typedef std::function<void(boost::system::error_code const&, size_t)>
+      AnboxReadHandler;
+  virtual void async_receive_msg(
+      AnboxReadHandler const& handler,
+      boost::asio::mutable_buffers_1 const& buffer) = 0;
+  virtual boost::system::error_code receive_msg(
+      boost::asio::mutable_buffers_1 const& buffer) = 0;
+  virtual size_t available_bytes() = 0;
 
-protected:
-    MessageReceiver() = default;
-    virtual ~MessageReceiver() = default;
-    MessageReceiver(MessageReceiver const&) = delete;
-    MessageReceiver& operator=(MessageReceiver const&) = delete;
+ protected:
+  MessageReceiver() = default;
+  virtual ~MessageReceiver() = default;
+  MessageReceiver(MessageReceiver const&) = delete;
+  MessageReceiver& operator=(MessageReceiver const&) = delete;
 };
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox
 
 #endif

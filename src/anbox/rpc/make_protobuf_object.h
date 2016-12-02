@@ -25,16 +25,16 @@ namespace anbox {
 namespace rpc {
 template <typename ProtobufType>
 auto make_protobuf_object() {
-    return std::unique_ptr<ProtobufType>{ProtobufType::default_instance().New()};
+  return std::unique_ptr<ProtobufType>{ProtobufType::default_instance().New()};
 }
 
 template <typename ProtobufType>
 auto make_protobuf_object(ProtobufType const& from) {
-    auto object = make_protobuf_object<ProtobufType>();
-    object->CopyFrom(from);
-    return object;
+  auto object = make_protobuf_object<ProtobufType>();
+  object->CopyFrom(from);
+  return object;
 }
-} // namespace rpc
-} // namespace anbox
+}  // namespace rpc
+}  // namespace anbox
 
 #endif

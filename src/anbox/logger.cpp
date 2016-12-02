@@ -20,9 +20,9 @@
 #define BOOST_LOG_DYN_LINK
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/support/date_time.hpp>
+#include <boost/log/trivial.hpp>
 #include <boost/log/utility/manipulators.hpp>
 #include <boost/log/utility/setup.hpp>
 
@@ -30,125 +30,139 @@
 
 namespace {
 namespace attrs {
-BOOST_LOG_ATTRIBUTE_KEYWORD(Severity, "anbox::Severity", anbox::Logger::Severity)
+BOOST_LOG_ATTRIBUTE_KEYWORD(Severity, "anbox::Severity",
+                            anbox::Logger::Severity)
 BOOST_LOG_ATTRIBUTE_KEYWORD(Location, "Location", anbox::Logger::Location)
 BOOST_LOG_ATTRIBUTE_KEYWORD(Timestamp, "Timestamp", boost::posix_time::ptime)
 }
 
 struct BoostLogLogger : public anbox::Logger {
-    BoostLogLogger() :
-        initialized_(false) {
+  BoostLogLogger() : initialized_(false) {}
+
+  void Init(const anbox::Logger::Severity& severity =
+                anbox::Logger::Severity::kWarning) override {
+    if (initialized_) return;
+
+    boost::log::formatter formatter =
+        boost::log::expressions::stream
+        << "[" << attrs::Severity << " "
+        << boost::log::expressions::format_date_time<boost::posix_time::ptime>(
+               "Timestamp", "%Y-%m-%d %H:%M:%S")
+        << "] "
+        << boost::log::expressions::if_(boost::log::expressions::has_attr(
+               attrs::Location))[boost::log::expressions::stream
+                                 << "[" << attrs::Location << "] "]
+        << boost::log::expressions::smessage;
+
+    boost::log::core::get()->remove_all_sinks();
+    auto logger = boost::log::add_console_log(std::cout);
+    logger->set_formatter(formatter);
+
+    // FIXME need to enable this once we found how we wrap this
+    // properly into our service architecture. For now left as
+    // it is.
+    boost::ignore_unused_variable_warning(severity);
+    // logger->set_filter(attrs::Severity < severity);
+
+    initialized_ = true;
+  }
+
+  void Log(Severity severity, const std::string& message,
+           const boost::optional<Location>& loc) {
+    if (!initialized_) Init();
+
+    if (auto rec = boost::log::trivial::logger::get().open_record()) {
+      boost::log::record_ostream out{rec};
+      out << boost::log::add_value(attrs::Severity, severity)
+          << boost::log::add_value(
+                 attrs::Timestamp,
+                 boost::posix_time::microsec_clock::universal_time())
+          << message;
+
+      if (loc) {
+        // We have to pass in a temporary as boost::log (<= 1.55) expects a
+        // mutable reference to be passed to boost::log::add_value(...).
+        auto tmp = *loc;
+        out << boost::log::add_value(attrs::Location, tmp);
+      }
+
+      boost::log::trivial::logger::get().push_record(std::move(rec));
     }
+  }
 
-    void Init(const anbox::Logger::Severity &severity = anbox::Logger::Severity::kWarning) override {
-        if (initialized_)
-            return;
-
-        boost::log::formatter formatter = boost::log::expressions::stream
-            << "[" << attrs::Severity << " "
-            << boost::log::expressions::format_date_time< boost::posix_time::ptime >("Timestamp", "%Y-%m-%d %H:%M:%S")
-            << "] "
-            << boost::log::expressions::if_(boost::log::expressions::has_attr(attrs::Location))
-               [
-                   boost::log::expressions::stream << "[" << attrs::Location << "] "
-               ]
-            << boost::log::expressions::smessage;
-
-        boost::log::core::get()->remove_all_sinks();
-        auto logger = boost::log::add_console_log(std::cout);
-        logger->set_formatter(formatter);
-
-        // FIXME need to enable this once we found how we wrap this
-        // properly into our service architecture. For now left as
-        // it is.
-        boost::ignore_unused_variable_warning(severity);
-        // logger->set_filter(attrs::Severity < severity);
-
-        initialized_ = true;
-    }
-
-    void Log(Severity severity, const std::string& message, const boost::optional<Location> &loc) {
-        if (!initialized_)
-            Init();
-
-        if (auto rec = boost::log::trivial::logger::get().open_record()) {
-            boost::log::record_ostream out{rec};
-            out << boost::log::add_value(attrs::Severity, severity)
-                << boost::log::add_value(attrs::Timestamp, boost::posix_time::microsec_clock::universal_time())
-                << message;
-
-            if (loc) {
-                // We have to pass in a temporary as boost::log (<= 1.55) expects a
-                // mutable reference to be passed to boost::log::add_value(...).
-                auto tmp = *loc;
-                out << boost::log::add_value(attrs::Location, tmp);
-            }
-
-            boost::log::trivial::logger::get().push_record(std::move(rec));
-        }
-    }
-
-private:
-    bool initialized_;
+ private:
+  bool initialized_;
 };
 
 std::shared_ptr<anbox::Logger>& MutableInstance() {
-    static std::shared_ptr<anbox::Logger> instance{new BoostLogLogger()};
-    return instance;
+  static std::shared_ptr<anbox::Logger> instance{new BoostLogLogger()};
+  return instance;
 }
 
 void SetInstance(const std::shared_ptr<anbox::Logger>& logger) {
-    MutableInstance() = logger;
+  MutableInstance() = logger;
 }
 }
 namespace anbox {
 
-void Logger::Trace(const std::string& message, const boost::optional<Location>& location) {
-    Log(Severity::kTrace, message, location);
+void Logger::Trace(const std::string& message,
+                   const boost::optional<Location>& location) {
+  Log(Severity::kTrace, message, location);
 }
 
-void Logger::Debug(const std::string& message, const boost::optional<Location>& location) {
-    Log(Severity::kDebug, message, location);
+void Logger::Debug(const std::string& message,
+                   const boost::optional<Location>& location) {
+  Log(Severity::kDebug, message, location);
 }
 
-void Logger::Info(const std::string& message, const boost::optional<Location>& location) {
-    Log(Severity::kInfo, message, location);
+void Logger::Info(const std::string& message,
+                  const boost::optional<Location>& location) {
+  Log(Severity::kInfo, message, location);
 }
 
-void Logger::Warning(const std::string& message, const boost::optional<Location>& location) {
-    Log(Severity::kWarning, message, location);
+void Logger::Warning(const std::string& message,
+                     const boost::optional<Location>& location) {
+  Log(Severity::kWarning, message, location);
 }
 
-void Logger::Error(const std::string& message, const boost::optional<Location>& location) {
-    Log(Severity::kError, message, location);
+void Logger::Error(const std::string& message,
+                   const boost::optional<Location>& location) {
+  Log(Severity::kError, message, location);
 }
 
-void Logger::Fatal(const std::string& message, const boost::optional<Location>& location) {
-    Log(Severity::kFatal, message, location);
+void Logger::Fatal(const std::string& message,
+                   const boost::optional<Location>& location) {
+  Log(Severity::kFatal, message, location);
 }
 
 std::ostream& operator<<(std::ostream& strm, anbox::Logger::Severity severity) {
-    switch (severity) {
-    case anbox::Logger::Severity::kTrace: return strm << "TT";
-    case anbox::Logger::Severity::kDebug: return strm << "DD";
-    case anbox::Logger::Severity::kInfo: return strm << "II";
-    case anbox::Logger::Severity::kWarning: return strm << "WW";
-    case anbox::Logger::Severity::kError: return strm << "EE";
-    case anbox::Logger::Severity::kFatal: return strm << "FF";
-    default: return strm << static_cast<uint>(severity);
-    }
+  switch (severity) {
+    case anbox::Logger::Severity::kTrace:
+      return strm << "TT";
+    case anbox::Logger::Severity::kDebug:
+      return strm << "DD";
+    case anbox::Logger::Severity::kInfo:
+      return strm << "II";
+    case anbox::Logger::Severity::kWarning:
+      return strm << "WW";
+    case anbox::Logger::Severity::kError:
+      return strm << "EE";
+    case anbox::Logger::Severity::kFatal:
+      return strm << "FF";
+    default:
+      return strm << static_cast<uint>(severity);
+  }
 }
 
-std::ostream& operator<<(std::ostream& out, const Logger::Location &location) {
-    return out << utils::string_format("%s:%d@%s", boost::filesystem::path(location.file).filename().string(), location.line, location.function);
+std::ostream& operator<<(std::ostream& out, const Logger::Location& location) {
+  return out << utils::string_format(
+             "%s:%d@%s",
+             boost::filesystem::path(location.file).filename().string(),
+             location.line, location.function);
 }
 
-Logger& Log() {
-    return *MutableInstance();
-}
+Logger& Log() { return *MutableInstance(); }
 
-void SetLogger(const std::shared_ptr<Logger>& logger) {
-    SetInstance(logger);
-}
+void SetLogger(const std::shared_ptr<Logger>& logger) { SetInstance(logger); }
 
-} // namespace anbox
+}  // namespace anbox

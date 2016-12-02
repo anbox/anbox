@@ -24,22 +24,23 @@
 namespace anbox {
 namespace qemu {
 class CameraMessageProcessor : public network::MessageProcessor {
-public:
-    CameraMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~CameraMessageProcessor();
+ public:
+  CameraMessageProcessor(
+      const std::shared_ptr<network::SocketMessenger> &messenger);
+  ~CameraMessageProcessor();
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
+  bool process_data(const std::vector<std::uint8_t> &data) override;
 
-private:
-    void process_commands();
+ private:
+  void process_commands();
 
-    void handle_command(const std::string &command);
-    void list();
+  void handle_command(const std::string &command);
+  void list();
 
-    std::shared_ptr<network::SocketMessenger> messenger_;
-    std::vector<std::uint8_t> buffer_;
+  std::shared_ptr<network::SocketMessenger> messenger_;
+  std::vector<std::uint8_t> buffer_;
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

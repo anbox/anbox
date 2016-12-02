@@ -18,28 +18,28 @@
 #ifndef ANBOX_INPUT_MANAGER_H_
 #define ANBOX_INPUT_MANAGER_H_
 
-#include <memory>
 #include <map>
+#include <memory>
 
 namespace anbox {
 class Runtime;
 namespace input {
 class Device;
 class Manager {
-public:
-    Manager(const std::shared_ptr<Runtime> &runtime);
-    ~Manager();
+ public:
+  Manager(const std::shared_ptr<Runtime> &runtime);
+  ~Manager();
 
-    std::shared_ptr<Device> create_device();
+  std::shared_ptr<Device> create_device();
 
-private:
-    std::uint32_t next_id();
-    std::string build_device_path(const std::uint32_t &id);
+ private:
+  std::uint32_t next_id();
+  std::string build_device_path(const std::uint32_t &id);
 
-    std::shared_ptr<Runtime> runtime_;
-    std::map<std::uint32_t,std::shared_ptr<Device>> devices_;
+  std::shared_ptr<Runtime> runtime_;
+  std::map<std::uint32_t, std::shared_ptr<Device>> devices_;
 };
-} // namespace input
-} // namespace anbox
+}  // namespace input
+}  // namespace anbox
 
 #endif

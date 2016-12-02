@@ -21,18 +21,20 @@
 
 namespace anbox {
 namespace qemu {
-TelephonyManager::TelephonyManager(const core::dbus::Bus::Ptr &bus) :
-    bus_(bus) {
-    ofono_ = core::dbus::Service::use_service(bus_, "org.ofono");
-    modem_ = ofono_->object_for_path({"/ril_0"});
+TelephonyManager::TelephonyManager(const core::dbus::Bus::Ptr &bus)
+    : bus_(bus) {
+  ofono_ = core::dbus::Service::use_service(bus_, "org.ofono");
+  modem_ = ofono_->object_for_path({"/ril_0"});
 
-    auto netreg_prop_changed = modem_->get_signal<org::ofono::NetworkRegistration::Signals::PropertyChanged>();
-    netreg_prop_changed->connect([&](const org::ofono::NetworkRegistration::Signals::PropertyChanged::ArgumentType &arguments) {
+  auto netreg_prop_changed = modem_->get_signal<
+      org::ofono::NetworkRegistration::Signals::PropertyChanged>();
+  netreg_prop_changed->connect(
+      [&](const org::ofono::NetworkRegistration::Signals::PropertyChanged::
+              ArgumentType &arguments) {
         DEBUG("org::ofono::NetworkRegistration::PropertyChanged");
-    });
+      });
 }
 
-TelephonyManager::~TelephonyManager() {
-}
-} // namespace qemu
-} // namespace anbox
+TelephonyManager::~TelephonyManager() {}
+}  // namespace qemu
+}  // namespace anbox

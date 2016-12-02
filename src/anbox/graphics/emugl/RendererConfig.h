@@ -33,43 +33,43 @@
 // an FbConfigList from the host EGLDisplay, and use its size() and get()
 // methods to access it.
 class RendererConfig {
-public:
-    // Destructor
-    ~RendererConfig();
+ public:
+  // Destructor
+  ~RendererConfig();
 
-    // Retrieve host EGLConfig.
-    EGLConfig getEglConfig() const { return mEglConfig; }
+  // Retrieve host EGLConfig.
+  EGLConfig getEglConfig() const { return mEglConfig; }
 
-    // Get depth size in bits.
-    GLuint getDepthSize() const { return getAttribValue(0); }
+  // Get depth size in bits.
+  GLuint getDepthSize() const { return getAttribValue(0); }
 
-    // Get stencil size in bits.
-    GLuint getStencilSize() const { return getAttribValue(1); }
+  // Get stencil size in bits.
+  GLuint getStencilSize() const { return getAttribValue(1); }
 
-    // Get renderable type mask.
-    GLuint getRenderableType() const { return getAttribValue(2); }
+  // Get renderable type mask.
+  GLuint getRenderableType() const { return getAttribValue(2); }
 
-    // Get surface type mask.
-    GLuint getSurfaceType() const { return getAttribValue(3); }
+  // Get surface type mask.
+  GLuint getSurfaceType() const { return getAttribValue(3); }
 
-    // Get the EGL_CONFIG_ID value. This is the same as the one of the
-    // underlying host EGLConfig handle.
-    GLint getConfigId() const { return (GLint)getAttribValue(4); }
+  // Get the EGL_CONFIG_ID value. This is the same as the one of the
+  // underlying host EGLConfig handle.
+  GLint getConfigId() const { return (GLint)getAttribValue(4); }
 
-private:
-    RendererConfig();
-    RendererConfig(RendererConfig& other);
+ private:
+  RendererConfig();
+  RendererConfig(RendererConfig& other);
 
-    explicit RendererConfig(EGLConfig hostConfig, EGLDisplay hostDisplay);
+  explicit RendererConfig(EGLConfig hostConfig, EGLDisplay hostDisplay);
 
-    friend class RendererConfigList;
+  friend class RendererConfigList;
 
-    GLuint getAttribValue(int n) const {
-        return mAttribValues ? mAttribValues[n] : 0U;
-    }
+  GLuint getAttribValue(int n) const {
+    return mAttribValues ? mAttribValues[n] : 0U;
+  }
 
-    EGLConfig mEglConfig;
-    GLint* mAttribValues;
+  EGLConfig mEglConfig;
+  GLint* mAttribValues;
 };
 
 // A class to model the list of FbConfig for a given EGLDisplay, this is
@@ -92,72 +92,71 @@ private:
 // 5) Use getPackInfo() and packConfigs() to retrieve information about
 //    available configs to the guest.
 class RendererConfigList {
-public:
-    // Create a new list of FbConfig instance, by querying all compatible
-    // host configs from |display|. A compatible config is one that supports
-    // Pbuffers and RGB pixel values.
-    //
-    // After construction, call empty() to check if there are items.
-    // An empty list means there was an error during construction.
-    explicit RendererConfigList(EGLDisplay display);
+ public:
+  // Create a new list of FbConfig instance, by querying all compatible
+  // host configs from |display|. A compatible config is one that supports
+  // Pbuffers and RGB pixel values.
+  //
+  // After construction, call empty() to check if there are items.
+  // An empty list means there was an error during construction.
+  explicit RendererConfigList(EGLDisplay display);
 
-    // Destructor.
-    ~RendererConfigList();
+  // Destructor.
+  ~RendererConfigList();
 
-    // Return true iff the list is empty. true means there was an error
-    // during construction.
-    bool empty() const { return mCount == 0; }
+  // Return true iff the list is empty. true means there was an error
+  // during construction.
+  bool empty() const { return mCount == 0; }
 
-    // Return the number of FbConfig instances in the list.
-    // Each instance is identified by a number from 0 to N-1,
-    // where N is the result of this function.
-    size_t size() const { return static_cast<size_t>(mCount); }
+  // Return the number of FbConfig instances in the list.
+  // Each instance is identified by a number from 0 to N-1,
+  // where N is the result of this function.
+  size_t size() const { return static_cast<size_t>(mCount); }
 
-    // Retrieve the FbConfig instance associated with |guestId|,
-    // which must be an integer between 0 and |size() - 1|. Returns
-    // NULL in case of failure.
-    const RendererConfig* get(int guestId) const {
-        if (guestId >= 0 && guestId < mCount) {
-            return mConfigs[guestId];
-        } else {
-            return NULL;
-        }
+  // Retrieve the FbConfig instance associated with |guestId|,
+  // which must be an integer between 0 and |size() - 1|. Returns
+  // NULL in case of failure.
+  const RendererConfig* get(int guestId) const {
+    if (guestId >= 0 && guestId < mCount) {
+      return mConfigs[guestId];
+    } else {
+      return NULL;
     }
+  }
 
-    // Use |attribs| a list of EGL attribute name/values terminated by
-    // EGL_NONE, to select a set of matching FbConfig instances.
-    //
-    // On success, returns the number of matching instances.
-    // If |configs| is not NULL, it will be populated with the guest IDs
-    // of the matched FbConfig instances.
-    //
-    // |configsSize| is the number of entries in the |configs| array. The
-    // function will never write more than |configsSize| entries into
-    // |configsSize|.
-    EGLint chooseConfig(const EGLint* attribs,
-                        EGLint* configs,
-                        EGLint configsSize) const;
+  // Use |attribs| a list of EGL attribute name/values terminated by
+  // EGL_NONE, to select a set of matching FbConfig instances.
+  //
+  // On success, returns the number of matching instances.
+  // If |configs| is not NULL, it will be populated with the guest IDs
+  // of the matched FbConfig instances.
+  //
+  // |configsSize| is the number of entries in the |configs| array. The
+  // function will never write more than |configsSize| entries into
+  // |configsSize|.
+  EGLint chooseConfig(const EGLint* attribs, EGLint* configs,
+                      EGLint configsSize) const;
 
-    // Retrieve information that can be sent to the guest before packed
-    // config list information. If |numConfigs| is NULL, then |*numConfigs|
-    // will be set on return to the number of config instances.
-    // If |numAttribs| is not NULL, then |*numAttribs| will be set on return
-    // to the number of attribute values cached by each FbConfig instance.
-    void getPackInfo(EGLint* mumConfigs, EGLint* numAttribs) const;
+  // Retrieve information that can be sent to the guest before packed
+  // config list information. If |numConfigs| is NULL, then |*numConfigs|
+  // will be set on return to the number of config instances.
+  // If |numAttribs| is not NULL, then |*numAttribs| will be set on return
+  // to the number of attribute values cached by each FbConfig instance.
+  void getPackInfo(EGLint* mumConfigs, EGLint* numAttribs) const;
 
-    // Write the full list information into an array of EGLuint items.
-    // |buffer| is the output buffer that will receive the data.
-    // |bufferByteSize| is teh buffer size in bytes.
-    // On success, this returns
-    EGLint packConfigs(GLuint bufferByteSize, GLuint* buffer) const;
+  // Write the full list information into an array of EGLuint items.
+  // |buffer| is the output buffer that will receive the data.
+  // |bufferByteSize| is teh buffer size in bytes.
+  // On success, this returns
+  EGLint packConfigs(GLuint bufferByteSize, GLuint* buffer) const;
 
-private:
-    RendererConfigList();
-    RendererConfigList(const RendererConfigList& other);
+ private:
+  RendererConfigList();
+  RendererConfigList(const RendererConfigList& other);
 
-    int mCount;
-    RendererConfig** mConfigs;
-    EGLDisplay mDisplay;
+  int mCount;
+  RendererConfig** mConfigs;
+  EGLDisplay mDisplay;
 };
 
 #endif  // _LIBRENDER_FB_CONFIG_H

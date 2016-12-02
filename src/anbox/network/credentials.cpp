@@ -19,22 +19,13 @@
 
 namespace anbox {
 namespace network {
-Credentials::Credentials(pid_t pid, uid_t uid, gid_t gid) :
-    pid_{pid},
-    uid_{uid},
-    gid_{gid} {
-}
+Credentials::Credentials(pid_t pid, uid_t uid, gid_t gid)
+    : pid_{pid}, uid_{uid}, gid_{gid} {}
 
-pid_t Credentials::pid() const {
-    return pid_;
-}
+pid_t Credentials::pid() const { return pid_; }
 
-uid_t Credentials::uid() const {
-    return uid_;
-}
+uid_t Credentials::uid() const { return uid_; }
 
-gid_t Credentials::gid() const {
-    return gid_;
-}
-} // namespace network
-} // namespace anbox
+gid_t Credentials::gid() const { return gid_; }
+}  // namespace network
+}  // namespace anbox

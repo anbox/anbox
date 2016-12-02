@@ -19,14 +19,15 @@
 #include "SocketStream.h"
 
 class TcpStream : public SocketStream {
-public:
-    explicit TcpStream(size_t bufsize = 10000);
-    virtual int listen(char addrstr[MAX_ADDRSTR_LEN]);
-    virtual SocketStream *accept();
-    virtual int connect(const char* addr);
-    int connect(const char* hostname, unsigned short port);
-private:
-    TcpStream(int sock, size_t bufSize);
+ public:
+  explicit TcpStream(size_t bufsize = 10000);
+  virtual int listen(char addrstr[MAX_ADDRSTR_LEN]);
+  virtual SocketStream* accept();
+  virtual int connect(const char* addr);
+  int connect(const char* hostname, unsigned short port);
+
+ private:
+  TcpStream(int sock, size_t bufSize);
 };
 
 #endif

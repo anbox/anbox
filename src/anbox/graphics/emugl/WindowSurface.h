@@ -27,75 +27,69 @@
 // A class used to model a guest-side window surface. The implementation
 // uses a host Pbuffer to act as the EGL rendering surface instead.
 class WindowSurface {
-public:
-    // Create a new WindowSurface instance.
-    // |display| is the host EGLDisplay value.
-    // |config| is the host EGLConfig value.
-    // |width| and |height| are the initial size of the Pbuffer.
-    // Return a new WindowSurface instance on success, or NULL on failure.
-    static WindowSurface* create(EGLDisplay display,
-                                 EGLConfig config,
-                                 int width,
-                                 int height);
+ public:
+  // Create a new WindowSurface instance.
+  // |display| is the host EGLDisplay value.
+  // |config| is the host EGLConfig value.
+  // |width| and |height| are the initial size of the Pbuffer.
+  // Return a new WindowSurface instance on success, or NULL on failure.
+  static WindowSurface* create(EGLDisplay display, EGLConfig config, int width,
+                               int height);
 
-    // Destructor.
-    ~WindowSurface();
+  // Destructor.
+  ~WindowSurface();
 
-    // Retrieve the host EGLSurface of the WindowSurface's Pbuffer.
-    EGLSurface getEGLSurface() const { return mSurface; }
+  // Retrieve the host EGLSurface of the WindowSurface's Pbuffer.
+  EGLSurface getEGLSurface() const { return mSurface; }
 
-    // Attach a ColorBuffer to this WindowSurface.
-    // Once attached, calling flushColorBuffer() will copy the Pbuffer's
-    // pixels to the color buffer.
-    //
-    // IMPORTANT: This automatically resizes the Pbuffer's to the ColorBuffer's
-    // dimensions. Potentially losing pixel values in the process.
-    void setColorBuffer(ColorBufferPtr p_colorBuffer);
+  // Attach a ColorBuffer to this WindowSurface.
+  // Once attached, calling flushColorBuffer() will copy the Pbuffer's
+  // pixels to the color buffer.
+  //
+  // IMPORTANT: This automatically resizes the Pbuffer's to the ColorBuffer's
+  // dimensions. Potentially losing pixel values in the process.
+  void setColorBuffer(ColorBufferPtr p_colorBuffer);
 
-    // Copy the Pbuffer's pixels to the attached color buffer.
-    // Returns true on success, or false on error (e.g. if there is no
-    // attached color buffer).
-    bool flushColorBuffer();
+  // Copy the Pbuffer's pixels to the attached color buffer.
+  // Returns true on success, or false on error (e.g. if there is no
+  // attached color buffer).
+  bool flushColorBuffer();
 
-    // Used by bind() below.
-    enum BindType {
-        BIND_READ,
-        BIND_DRAW,
-        BIND_READDRAW
-    };
+  // Used by bind() below.
+  enum BindType { BIND_READ, BIND_DRAW, BIND_READDRAW };
 
-    // TODO(digit): What is this used for exactly? For example, the
-    // mReadContext is never used by this class. The mDrawContext is only
-    // used temporarily during flushColorBuffer() operation, and could be
-    // passed as a parameter to the function instead. Maybe this is only used
-    // to increment reference counts on the smart pointers.
-    //
-    // Bind a context to the WindowSurface (huh? Normally you would bind a
-    // surface to the context, not the other way around)
-    //
-    // |p_ctx| is a RenderContext pointer.
-    // |p_bindType| is the type of bind. For BIND_READ, this assigns |p_ctx|
-    // to mReadContext, for BIND_DRAW, it assigns it to mDrawContext, and for
-    // for BIND_READDRAW, it assigns it to both.
-    void bind(RenderContextPtr p_ctx, BindType p_bindType);
+  // TODO(digit): What is this used for exactly? For example, the
+  // mReadContext is never used by this class. The mDrawContext is only
+  // used temporarily during flushColorBuffer() operation, and could be
+  // passed as a parameter to the function instead. Maybe this is only used
+  // to increment reference counts on the smart pointers.
+  //
+  // Bind a context to the WindowSurface (huh? Normally you would bind a
+  // surface to the context, not the other way around)
+  //
+  // |p_ctx| is a RenderContext pointer.
+  // |p_bindType| is the type of bind. For BIND_READ, this assigns |p_ctx|
+  // to mReadContext, for BIND_DRAW, it assigns it to mDrawContext, and for
+  // for BIND_READDRAW, it assigns it to both.
+  void bind(RenderContextPtr p_ctx, BindType p_bindType);
 
-private:
-    WindowSurface();
-    WindowSurface(const WindowSurface& other);
+ private:
+  WindowSurface();
+  WindowSurface(const WindowSurface& other);
 
-    explicit WindowSurface(EGLDisplay display, EGLConfig config);
+  explicit WindowSurface(EGLDisplay display, EGLConfig config);
 
-    bool resize(unsigned int p_width, unsigned int p_height);
+  bool resize(unsigned int p_width, unsigned int p_height);
 
-private:
-    EGLSurface mSurface;
-    ColorBufferPtr mAttachedColorBuffer;
-    RenderContextPtr mReadContext;
-    RenderContextPtr mDrawContext;
-    GLuint mWidth;
-    GLuint mHeight;
-    EGLConfig mConfig;
-    EGLDisplay mDisplay;
+ private:
+  EGLSurface mSurface;
+  ColorBufferPtr mAttachedColorBuffer;
+  RenderContextPtr mReadContext;
+  RenderContextPtr mDrawContext;
+  GLuint mWidth;
+  GLuint mHeight;
+  EGLConfig mConfig;
+  EGLDisplay mDisplay;
 };
 
 typedef emugl::SmartPtr<WindowSurface> WindowSurfacePtr;

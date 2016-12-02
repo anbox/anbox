@@ -18,17 +18,17 @@
 #ifndef ANBOX_NETWORK_MESSAGE_PROCESSOR_H
 #define ANBOX_NETWORK_MESSAGE_PROCESSOR_H
 
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 namespace anbox {
 namespace network {
 class MessageProcessor {
-public:
-    virtual ~MessageProcessor() { }
-    virtual bool process_data(const std::vector<std::uint8_t> &data) = 0;
+ public:
+  virtual ~MessageProcessor() {}
+  virtual bool process_data(const std::vector<std::uint8_t> &data) = 0;
 };
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox
 
 #endif

@@ -29,19 +29,19 @@
 namespace anbox {
 namespace cmds {
 class Run : public cli::CommandWithFlagsAndAction {
-public:
-    typedef std::function<core::dbus::Bus::Ptr()> BusFactory;
+ public:
+  typedef std::function<core::dbus::Bus::Ptr()> BusFactory;
 
-    static BusFactory session_bus_factory();
+  static BusFactory session_bus_factory();
 
-    Run(const BusFactory& bus_factory = session_bus_factory());
+  Run(const BusFactory& bus_factory = session_bus_factory());
 
-private:
-    BusFactory bus_factory_;
-    std::string desktop_file_hint_;
-    std::string icon_;
+ private:
+  BusFactory bus_factory_;
+  std::string desktop_file_hint_;
+  std::string icon_;
 };
-} // namespace cmds
-} // namespace anbox
+}  // namespace cmds
+}  // namespace anbox
 
 #endif

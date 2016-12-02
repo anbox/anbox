@@ -20,23 +20,22 @@
 #include "emugl/common/mutex.h"
 #include "emugl/common/thread.h"
 
-class RenderServer : public emugl::Thread
-{
-public:
-    static RenderServer *create(char* addr, size_t addrLen);
-    virtual ~RenderServer();
+class RenderServer : public emugl::Thread {
+ public:
+  static RenderServer *create(char *addr, size_t addrLen);
+  virtual ~RenderServer();
 
-    virtual intptr_t main();
+  virtual intptr_t main();
 
-    bool isExiting() const { return m_exiting; }
+  bool isExiting() const { return m_exiting; }
 
-private:
-    RenderServer();
+ private:
+  RenderServer();
 
-private:
-    emugl::Mutex m_lock;
-    SocketStream *m_listenSock;
-    bool m_exiting;
+ private:
+  emugl::Mutex m_lock;
+  SocketStream *m_listenSock;
+  bool m_exiting;
 };
 
 #endif

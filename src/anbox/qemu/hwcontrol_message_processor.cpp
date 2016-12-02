@@ -20,12 +20,11 @@
 
 namespace anbox {
 namespace qemu {
-HwControlMessageProcessor::HwControlMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger) :
-    QemudMessageProcessor(messenger) {
-}
+HwControlMessageProcessor::HwControlMessageProcessor(
+    const std::shared_ptr<network::SocketMessenger> &messenger)
+    : QemudMessageProcessor(messenger) {}
 
-HwControlMessageProcessor::~HwControlMessageProcessor() {
-}
+HwControlMessageProcessor::~HwControlMessageProcessor() {}
 
 void HwControlMessageProcessor::handle_command(const std::string &command) {
 #if 0
@@ -38,8 +37,8 @@ void HwControlMessageProcessor::handle_command(const std::string &command) {
     else
         DEBUG("Unknown command '%s'", command);
 #else
-    (void) command;
+  (void)command;
 #endif
 }
-} // namespace qemu
-} // namespace anbox
+}  // namespace qemu
+}  // namespace anbox

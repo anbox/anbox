@@ -23,36 +23,35 @@
 #include "anbox/do_not_copy_or_move.h"
 #include "anbox/runtime.h"
 
-#include "anbox/network/connector.h"
 #include "anbox/network/connection_creator.h"
+#include "anbox/network/connector.h"
 
 namespace anbox {
 namespace network {
-class TcpSocketConnector : public DoNotCopyOrMove,
-                           public Connector {
-public:
-    explicit TcpSocketConnector(
-            const boost::asio::ip::address_v4 &address,
-            unsigned short port,
-            const std::shared_ptr<Runtime> &rt,
-            const std::shared_ptr<ConnectionCreator<boost::asio::ip::tcp>> &connection_creator);
-    ~TcpSocketConnector() noexcept;
+class TcpSocketConnector : public DoNotCopyOrMove, public Connector {
+ public:
+  explicit TcpSocketConnector(
+      const boost::asio::ip::address_v4 &address, unsigned short port,
+      const std::shared_ptr<Runtime> &rt,
+      const std::shared_ptr<ConnectionCreator<boost::asio::ip::tcp>>
+          &connection_creator);
+  ~TcpSocketConnector() noexcept;
 
-    unsigned short port() const { return port_; }
+  unsigned short port() const { return port_; }
 
-private:
-    void start_accept();
-    void on_new_connection(
-        std::shared_ptr<boost::asio::ip::tcp::socket> const& socket,
-        boost::system::error_code const& err);
+ private:
+  void start_accept();
+  void on_new_connection(
+      std::shared_ptr<boost::asio::ip::tcp::socket> const &socket,
+      boost::system::error_code const &err);
 
-    boost::asio::ip::address_v4 address_;
-    unsigned short port_;
-    std::shared_ptr<Runtime> runtime_;
-    std::shared_ptr<ConnectionCreator<boost::asio::ip::tcp>> connection_creator_;
-    boost::asio::ip::tcp::acceptor acceptor_;
+  boost::asio::ip::address_v4 address_;
+  unsigned short port_;
+  std::shared_ptr<Runtime> runtime_;
+  std::shared_ptr<ConnectionCreator<boost::asio::ip::tcp>> connection_creator_;
+  boost::asio::ip::tcp::acceptor acceptor_;
 };
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox
 
 #endif

@@ -19,7 +19,6 @@
 
 namespace anbox {
 namespace wm {
-PlatformPolicy::~PlatformPolicy() {
-}
-} // namespace wm
-} // namespace anbox
+PlatformPolicy::~PlatformPolicy() {}
+}  // namespace wm
+}  // namespace anbox

@@ -23,9 +23,8 @@
 #include <boost/optional.hpp>
 #include <boost/optional/optional_io.hpp>
 
-namespace anbox
-{
-template<typename T>
+namespace anbox {
+template <typename T>
 using Optional = boost::optional<T>;
 }
 

@@ -23,53 +23,57 @@
 #include <memory>
 
 #include "anbox/do_not_copy_or_move.h"
-#include "anbox/runtime.h"
+#include "anbox/network/connection_creator.h"
 #include "anbox/network/connections.h"
 #include "anbox/network/socket_connection.h"
-#include "anbox/network/connection_creator.h"
 #include "anbox/network/socket_messenger.h"
+#include "anbox/runtime.h"
 
 namespace anbox {
 namespace qemu {
-class PipeConnectionCreator : public network::ConnectionCreator<boost::asio::local::stream_protocol> {
-public:
-    PipeConnectionCreator(
-            const std::shared_ptr<Runtime> &rt,
-            const std::string &renderer_socket_path,
-            const std::string &boot_animation_icon_path);
-    ~PipeConnectionCreator() noexcept;
+class PipeConnectionCreator
+    : public network::ConnectionCreator<boost::asio::local::stream_protocol> {
+ public:
+  PipeConnectionCreator(const std::shared_ptr<Runtime> &rt,
+                        const std::string &renderer_socket_path,
+                        const std::string &boot_animation_icon_path);
+  ~PipeConnectionCreator() noexcept;
 
-    void create_connection_for(
-        std::shared_ptr<boost::asio::basic_stream_socket<boost::asio::local::stream_protocol>> const& socket) override;
+  void create_connection_for(
+      std::shared_ptr<boost::asio::basic_stream_socket<
+          boost::asio::local::stream_protocol>> const &socket) override;
 
-    enum class client_type {
-        invalid,
-        opengles,
-        qemud_boot_properties,
-        qemud_hw_control,
-        qemud_sensors,
-        qemud_camera,
-        qemud_fingerprint,
-        qemud_gsm,
-        qemud_adb,
-        bootanimation,
-    };
+  enum class client_type {
+    invalid,
+    opengles,
+    qemud_boot_properties,
+    qemud_hw_control,
+    qemud_sensors,
+    qemud_camera,
+    qemud_fingerprint,
+    qemud_gsm,
+    qemud_adb,
+    bootanimation,
+  };
 
-private:
-    int next_id();
+ private:
+  int next_id();
 
-    client_type identify_client(std::shared_ptr<network::SocketMessenger> const& messenger);
-    std::shared_ptr<network::MessageProcessor> create_processor(
-            const client_type &type, const std::shared_ptr<network::SocketMessenger> &messenger);
+  client_type identify_client(
+      std::shared_ptr<network::SocketMessenger> const &messenger);
+  std::shared_ptr<network::MessageProcessor> create_processor(
+      const client_type &type,
+      const std::shared_ptr<network::SocketMessenger> &messenger);
 
-    std::shared_ptr<Runtime> runtime_;
-    std::atomic<int> next_connection_id_;
-    std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;
+  std::shared_ptr<Runtime> runtime_;
+  std::atomic<int> next_connection_id_;
+  std::shared_ptr<network::Connections<network::SocketConnection>> const
+      connections_;
 
-    std::string renderer_socket_path_;
-    std::string boot_animation_icon_path_;
+  std::string renderer_socket_path_;
+  std::string boot_animation_icon_path_;
 };
-} // namespace qemu
-} // namespace anbox
+}  // namespace qemu
+}  // namespace anbox
 
 #endif

@@ -30,29 +30,29 @@
 //      framebuffer with texture content.
 //
 class TextureDraw {
-public:
-    // Create a new instance.
-    TextureDraw(EGLDisplay display);
+ public:
+  // Create a new instance.
+  TextureDraw(EGLDisplay display);
 
-    // Destructor
-    ~TextureDraw();
+  // Destructor
+  ~TextureDraw();
 
-    // Fill the current framebuffer with the content of |texture|, which must
-    // be the name of a GLES 2.x texture object.
-    bool draw(GLuint texture);
+  // Fill the current framebuffer with the content of |texture|, which must
+  // be the name of a GLES 2.x texture object.
+  bool draw(GLuint texture);
 
-private:
-    EGLDisplay mDisplay;
-    GLuint mVertexShader;
-    GLuint mFragmentShader;
-    GLuint mProgram;
-    GLint mPositionSlot;
-    GLint mInCoordSlot;
-    GLint mTextureSlot;
-    GLint mRotationSlot;
-    GLint mTranslationSlot;
-    GLuint mVertexBuffer;
-    GLuint mIndexBuffer;
+ private:
+  EGLDisplay mDisplay;
+  GLuint mVertexShader;
+  GLuint mFragmentShader;
+  GLuint mProgram;
+  GLint mPositionSlot;
+  GLint mInCoordSlot;
+  GLint mTextureSlot;
+  GLint mRotationSlot;
+  GLint mTranslationSlot;
+  GLuint mVertexBuffer;
+  GLuint mIndexBuffer;
 };
 
 #endif  // TEXTURE_DRAW_H

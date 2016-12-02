@@ -24,26 +24,27 @@
 namespace anbox {
 namespace qemu {
 class QemudMessageProcessor : public network::MessageProcessor {
-public:
-    QemudMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~QemudMessageProcessor();
+ public:
+  QemudMessageProcessor(
+      const std::shared_ptr<network::SocketMessenger> &messenger);
+  ~QemudMessageProcessor();
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
+  bool process_data(const std::vector<std::uint8_t> &data) override;
 
-protected:
-    virtual void handle_command(const std::string &command) = 0;
+ protected:
+  virtual void handle_command(const std::string &command) = 0;
 
-    void send_header(const size_t &size);
-    void finish_message();
+  void send_header(const size_t &size);
+  void finish_message();
 
-    std::shared_ptr<network::SocketMessenger> messenger_;
+  std::shared_ptr<network::SocketMessenger> messenger_;
 
-private:
-    void process_commands();
+ private:
+  void process_commands();
 
-    std::vector<std::uint8_t> buffer_;
+  std::vector<std::uint8_t> buffer_;
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

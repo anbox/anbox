@@ -16,10 +16,10 @@
 #ifndef _LIB_OPENGL_RENDER_THREAD_INFO_H
 #define _LIB_OPENGL_RENDER_THREAD_INFO_H
 
-#include "RenderContext.h"
-#include "WindowSurface.h"
 #include "GLESv1Decoder.h"
 #include "GLESv2Decoder.h"
+#include "RenderContext.h"
+#include "WindowSurface.h"
 #include "renderControl_dec.h"
 
 #include <set>
@@ -30,31 +30,31 @@ typedef std::set<HandleType> WindowSurfaceSet;
 
 // A class used to model the state of each RenderThread related
 struct RenderThreadInfo {
-    // Create new instance. Only call this once per thread.
-    // Future callls to get() will return this instance until
-    // it is destroyed.
-    RenderThreadInfo();
+  // Create new instance. Only call this once per thread.
+  // Future callls to get() will return this instance until
+  // it is destroyed.
+  RenderThreadInfo();
 
-    // Destructor.
-    ~RenderThreadInfo();
+  // Destructor.
+  ~RenderThreadInfo();
 
-    // Return the current thread's instance, if any, or NULL.
-    static RenderThreadInfo* get();
+  // Return the current thread's instance, if any, or NULL.
+  static RenderThreadInfo* get();
 
-    // Current EGL context, draw surface and read surface.
-    RenderContextPtr currContext;
-    WindowSurfacePtr currDrawSurf;
-    WindowSurfacePtr currReadSurf;
+  // Current EGL context, draw surface and read surface.
+  RenderContextPtr currContext;
+  WindowSurfacePtr currDrawSurf;
+  WindowSurfacePtr currReadSurf;
 
-    // Decoder states.
-    GLESv1Decoder                   m_glDec;
-    GLESv2Decoder                   m_gl2Dec;
-    renderControl_decoder_context_t m_rcDec;
+  // Decoder states.
+  GLESv1Decoder m_glDec;
+  GLESv2Decoder m_gl2Dec;
+  renderControl_decoder_context_t m_rcDec;
 
-    // all the contexts that are created by this render thread
-    ThreadContextSet                m_contextSet;
-    // all the window surfaces that are created by this render thread
-    WindowSurfaceSet                m_windowSet;
+  // all the contexts that are created by this render thread
+  ThreadContextSet m_contextSet;
+  // all the window surfaces that are created by this render thread
+  WindowSurfaceSet m_windowSet;
 };
 
 #endif

@@ -21,19 +21,21 @@
 namespace anbox {
 namespace graphics {
 /**
- * @brief Defines different types of density being used in an Android system. See the
- *        documentation in frameworks/base/core/java/android/util/DisplayMetrics.java
+ * @brief Defines different types of density being used in an Android system.
+ * See the
+ *        documentation in
+ * frameworks/base/core/java/android/util/DisplayMetrics.java
  *        of the Android source tree which defines the different types.
  */
 enum class DensityType {
-    low = 120,
-    medium = 160,
-    tv = 213,
-    high = 240,
-    xhigh = 360,
-    xxhigh = 480,
+  low = 120,
+  medium = 160,
+  tv = 213,
+  high = 240,
+  xhigh = 360,
+  xxhigh = 480,
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

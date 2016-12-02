@@ -23,18 +23,18 @@
 namespace anbox {
 namespace wm {
 class Stack {
-public:
-    typedef std::int32_t Id;
+ public:
+  typedef std::int32_t Id;
 
-    static Id Invalid;
-    static Id Default;
-    static Id Fullscreen;
-    static Id Freeform;
+  static Id Invalid;
+  static Id Default;
+  static Id Fullscreen;
+  static Id Freeform;
 
-    Stack() = delete;
-    Stack(const Stack&) = delete;
+  Stack() = delete;
+  Stack(const Stack&) = delete;
 };
-} // namespace wm
-} // namespace anbox
+}  // namespace wm
+}  // namespace anbox
 
 #endif

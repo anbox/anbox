@@ -23,10 +23,11 @@
 namespace anbox {
 namespace graphics {
 class LayerComposer;
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 void initRenderControlContext(renderControl_decoder_context_t *dec);
-void registerLayerComposer(const std::shared_ptr<anbox::graphics::LayerComposer> &c);
+void registerLayerComposer(
+    const std::shared_ptr<anbox::graphics::LayerComposer> &c);
 
 #endif

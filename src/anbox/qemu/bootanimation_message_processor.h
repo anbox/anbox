@@ -23,20 +23,21 @@
 namespace anbox {
 namespace qemu {
 class BootAnimationMessageProcessor : public QemudMessageProcessor {
-public:
-    BootAnimationMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger,
-                                  const std::string &icon_path);
-    ~BootAnimationMessageProcessor();
+ public:
+  BootAnimationMessageProcessor(
+      const std::shared_ptr<network::SocketMessenger> &messenger,
+      const std::string &icon_path);
+  ~BootAnimationMessageProcessor();
 
-protected:
-    void handle_command(const std::string &command) override;
+ protected:
+  void handle_command(const std::string &command) override;
 
-private:
-    void retrieve_icon();
+ private:
+  void retrieve_icon();
 
-    std::string icon_path_;
+  std::string icon_path_;
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

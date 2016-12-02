@@ -18,53 +18,56 @@
 #ifndef ANBOX_QEMU_ADBD_MESSAGE_PROCESSOR_H_
 #define ANBOX_QEMU_ADBD_MESSAGE_PROCESSOR_H_
 
-#include "anbox/runtime.h"
 #include "anbox/network/message_processor.h"
-#include "anbox/network/socket_messenger.h"
 #include "anbox/network/socket_connection.h"
+#include "anbox/network/socket_messenger.h"
 #include "anbox/network/tcp_socket_connector.h"
 #include "anbox/network/tcp_socket_messenger.h"
+#include "anbox/runtime.h"
 
 #include <boost/asio.hpp>
 
 namespace anbox {
 namespace qemu {
 class AdbMessageProcessor : public network::MessageProcessor {
-public:
-    AdbMessageProcessor(const std::shared_ptr<Runtime> &rt,
-                         const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~AdbMessageProcessor();
+ public:
+  AdbMessageProcessor(
+      const std::shared_ptr<Runtime> &rt,
+      const std::shared_ptr<network::SocketMessenger> &messenger);
+  ~AdbMessageProcessor();
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
+  bool process_data(const std::vector<std::uint8_t> &data) override;
 
-private:
-    enum State {
-        waiting_for_guest_accept_command,
-        waiting_for_host_connection,
-        waiting_for_guest_start_command,
-        proxying_data,
-        closed_by_container,
-        closed_by_host,
-    };
+ private:
+  enum State {
+    waiting_for_guest_accept_command,
+    waiting_for_host_connection,
+    waiting_for_guest_start_command,
+    proxying_data,
+    closed_by_container,
+    closed_by_host,
+  };
 
-    void advance_state();
+  void advance_state();
 
-    void wait_for_host_connection();
-    void on_host_connection(std::shared_ptr<boost::asio::basic_stream_socket<boost::asio::ip::tcp>> const &socket);
-    void read_next_host_message();
-    void on_host_read_size(const boost::system::error_code& error, std::size_t bytes_read);
+  void wait_for_host_connection();
+  void on_host_connection(std::shared_ptr<boost::asio::basic_stream_socket<
+                              boost::asio::ip::tcp>> const &socket);
+  void read_next_host_message();
+  void on_host_read_size(const boost::system::error_code &error,
+                         std::size_t bytes_read);
 
-    std::shared_ptr<Runtime> runtime_;
-    State state_ = waiting_for_guest_accept_command;
-    std::string expected_command_;
-    std::shared_ptr<network::SocketMessenger> messenger_;
-    std::vector<std::uint8_t> buffer_;
-    std::shared_ptr<network::TcpSocketConnector> host_connector_;
-    std::shared_ptr<network::TcpSocketMessenger> host_messenger_;
-    std::array<std::uint8_t, 8192> host_buffer_;
-    boost::asio::deadline_timer host_notify_timer_;
+  std::shared_ptr<Runtime> runtime_;
+  State state_ = waiting_for_guest_accept_command;
+  std::string expected_command_;
+  std::shared_ptr<network::SocketMessenger> messenger_;
+  std::vector<std::uint8_t> buffer_;
+  std::shared_ptr<network::TcpSocketConnector> host_connector_;
+  std::shared_ptr<network::TcpSocketMessenger> host_messenger_;
+  std::array<std::uint8_t, 8192> host_buffer_;
+  boost::asio::deadline_timer host_notify_timer_;
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

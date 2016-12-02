@@ -22,86 +22,72 @@
 
 namespace anbox {
 namespace graphics {
-void ProgramFamily::Shader::init(GLenum type, const GLchar* src)
-{
-    if (!id)
-    {
-        id = s_gles2.glCreateShader(type);
-        if (id)
-        {
-            s_gles2.glShaderSource(id, 1, &src, NULL);
-            s_gles2.glCompileShader(id);
-            GLint ok;
-            s_gles2.glGetShaderiv(id, GL_COMPILE_STATUS, &ok);
-            if (!ok)
-            {
-                GLchar log[1024];
-                s_gles2.glGetShaderInfoLog(id, sizeof log - 1, NULL, log);
-                log[sizeof log - 1] = '\0';
-                s_gles2.glDeleteShader(id);
-                id = 0;
-                throw std::runtime_error(std::string("Compile failed: ")+
-                                         log + " for:\n" + src);
-            }
-        }
+void ProgramFamily::Shader::init(GLenum type, const GLchar* src) {
+  if (!id) {
+    id = s_gles2.glCreateShader(type);
+    if (id) {
+      s_gles2.glShaderSource(id, 1, &src, NULL);
+      s_gles2.glCompileShader(id);
+      GLint ok;
+      s_gles2.glGetShaderiv(id, GL_COMPILE_STATUS, &ok);
+      if (!ok) {
+        GLchar log[1024];
+        s_gles2.glGetShaderInfoLog(id, sizeof log - 1, NULL, log);
+        log[sizeof log - 1] = '\0';
+        s_gles2.glDeleteShader(id);
+        id = 0;
+        throw std::runtime_error(std::string("Compile failed: ") + log +
+                                 " for:\n" + src);
+      }
     }
+  }
 }
 
-ProgramFamily::~ProgramFamily() noexcept
-{
-    // shader and program lifetimes are managed manually, so that we don't
-    // need any reference counting or to worry about how many copy constructions
-    // might have been followed by destructor calls during container resizes.
+ProgramFamily::~ProgramFamily() noexcept {
+  // shader and program lifetimes are managed manually, so that we don't
+  // need any reference counting or to worry about how many copy constructions
+  // might have been followed by destructor calls during container resizes.
 
-    for (auto& p : program)
-    {
-        if (p.second.id)
-            s_gles2.glDeleteProgram(p.second.id);
-    }
+  for (auto& p : program) {
+    if (p.second.id) s_gles2.glDeleteProgram(p.second.id);
+  }
 
-    for (auto& v : vshader)
-    {
-        if (v.second.id)
-            s_gles2.glDeleteShader(v.second.id);
-    }
+  for (auto& v : vshader) {
+    if (v.second.id) s_gles2.glDeleteShader(v.second.id);
+  }
 
-    for (auto& f : fshader)
-    {
-        if (f.second.id)
-            s_gles2.glDeleteShader(f.second.id);
-    }
+  for (auto& f : fshader) {
+    if (f.second.id) s_gles2.glDeleteShader(f.second.id);
+  }
 }
 
 GLuint ProgramFamily::add_program(const GLchar* const vshader_src,
-                                    const GLchar* const fshader_src)
-{
-    auto& v = vshader[vshader_src];
-    if (!v.id) v.init(GL_VERTEX_SHADER, vshader_src);
+                                  const GLchar* const fshader_src) {
+  auto& v = vshader[vshader_src];
+  if (!v.id) v.init(GL_VERTEX_SHADER, vshader_src);
 
-    auto& f = fshader[fshader_src];
-    if (!f.id) f.init(GL_FRAGMENT_SHADER, fshader_src);
+  auto& f = fshader[fshader_src];
+  if (!f.id) f.init(GL_FRAGMENT_SHADER, fshader_src);
 
-    auto& p = program[{v.id, f.id}];
-    if (!p.id)
-    {
-        p.id = s_gles2.glCreateProgram();
-        s_gles2.glAttachShader(p.id, v.id);
-        s_gles2.glAttachShader(p.id, f.id);
-        s_gles2.glLinkProgram(p.id);
-        GLint ok;
-        s_gles2.glGetProgramiv(p.id, GL_LINK_STATUS, &ok);
-        if (!ok)
-        {
-            GLchar log[1024];
-            s_gles2.glGetProgramInfoLog(p.id, sizeof log - 1, NULL, log);
-            log[sizeof log - 1] = '\0';
-            s_gles2.glDeleteShader(p.id);
-            p.id = 0;
-            throw std::runtime_error(std::string("Link failed: ")+log);
-        }
+  auto& p = program[{v.id, f.id}];
+  if (!p.id) {
+    p.id = s_gles2.glCreateProgram();
+    s_gles2.glAttachShader(p.id, v.id);
+    s_gles2.glAttachShader(p.id, f.id);
+    s_gles2.glLinkProgram(p.id);
+    GLint ok;
+    s_gles2.glGetProgramiv(p.id, GL_LINK_STATUS, &ok);
+    if (!ok) {
+      GLchar log[1024];
+      s_gles2.glGetProgramInfoLog(p.id, sizeof log - 1, NULL, log);
+      log[sizeof log - 1] = '\0';
+      s_gles2.glDeleteShader(p.id);
+      p.id = 0;
+      throw std::runtime_error(std::string("Link failed: ") + log);
     }
+  }
 
-    return p.id;
+  return p.id;
 }
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox

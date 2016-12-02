@@ -26,15 +26,17 @@
 namespace anbox {
 namespace util {
 /// @brief NotReachable is thrown from not_reachable.
-struct NotReachable : public std::logic_error
-{
-    /// @brief NotImplemented initializes a new instance for the given function name.
-    NotReachable(const std::string& function, const std::string& file, std::uint32_t line);
+struct NotReachable : public std::logic_error {
+  /// @brief NotImplemented initializes a new instance for the given function
+  /// name.
+  NotReachable(const std::string& function, const std::string& file,
+               std::uint32_t line);
 };
 
 /// @brief not_reachable throws NotReachable.
-[[noreturn]] void not_reachable(const std::string& function, const std::string& file, std::uint32_t line);
-} // namespace util
-} // namespace anbox
+[[noreturn]] void not_reachable(const std::string& function,
+                                const std::string& file, std::uint32_t line);
+}  // namespace util
+}  // namespace anbox
 
 #endif

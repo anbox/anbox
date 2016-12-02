@@ -21,11 +21,8 @@ namespace anbox {
 namespace network {
 
 ConnectionContext::ConnectionContext(
-    std::function<void()> const connect_handler,
-    Connector const* connector) :
-    connect_handler(connect_handler),
-    connector(connector) {
-}
+    std::function<void()> const connect_handler, Connector const* connector)
+    : connect_handler(connect_handler), connector(connector) {}
 
-} // namespace anbox
-} // namespace network
+}  // namespace anbox
+}  // namespace network

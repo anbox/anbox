@@ -24,22 +24,22 @@
 
 namespace anbox {
 namespace container {
-ManagementApiMessageProcessor::ManagementApiMessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
-                                                   const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
-                                                   const std::shared_ptr<ManagementApiSkeleton> &server) :
-    rpc::MessageProcessor(sender, pending_calls),
-    server_(server) {
+ManagementApiMessageProcessor::ManagementApiMessageProcessor(
+    const std::shared_ptr<network::MessageSender> &sender,
+    const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
+    const std::shared_ptr<ManagementApiSkeleton> &server)
+    : rpc::MessageProcessor(sender, pending_calls), server_(server) {}
+
+ManagementApiMessageProcessor::~ManagementApiMessageProcessor() {}
+
+void ManagementApiMessageProcessor::dispatch(
+    rpc::Invocation const &invocation) {
+  if (invocation.method_name() == "start_container")
+    invoke(this, server_.get(), &ManagementApiSkeleton::start_container,
+           invocation);
 }
 
-ManagementApiMessageProcessor::~ManagementApiMessageProcessor() {
-}
-
-void ManagementApiMessageProcessor::dispatch(rpc::Invocation const& invocation) {
-    if (invocation.method_name() == "start_container")
-        invoke(this, server_.get(), &ManagementApiSkeleton::start_container, invocation);
-}
-
-void ManagementApiMessageProcessor::process_event_sequence(const std::string&) {
-}
-} // namespace container
-} // namespace anbox
+void ManagementApiMessageProcessor::process_event_sequence(
+    const std::string &) {}
+}  // namespace container
+}  // namespace anbox

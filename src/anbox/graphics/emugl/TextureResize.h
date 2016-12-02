@@ -19,33 +19,33 @@
 #include <GLES2/gl2.h>
 
 class TextureResize {
-public:
-    TextureResize(GLuint width, GLuint height);
-    ~TextureResize();
+ public:
+  TextureResize(GLuint width, GLuint height);
+  ~TextureResize();
 
-    // Scales the given texture for the current viewport and returns the scaled
-    // texture. May return the input if no scaling is required.
-    GLuint update(GLuint texture);
+  // Scales the given texture for the current viewport and returns the scaled
+  // texture. May return the input if no scaling is required.
+  GLuint update(GLuint texture);
 
-    struct Framebuffer {
-        GLuint texture;
-        GLuint framebuffer;
-        GLuint program;
-        GLuint aPosition;
-        GLuint uTexture;
-    };
+  struct Framebuffer {
+    GLuint texture;
+    GLuint framebuffer;
+    GLuint program;
+    GLuint aPosition;
+    GLuint uTexture;
+  };
 
-private:
-    void setupFramebuffers(unsigned int factor);
-    void resize(GLuint texture);
+ private:
+  void setupFramebuffers(unsigned int factor);
+  void resize(GLuint texture);
 
-private:
-    GLuint mWidth;
-    GLuint mHeight;
-    unsigned int mFactor;
-    Framebuffer mFBWidth;
-    Framebuffer mFBHeight;
-    GLuint mVertexBuffer;
+ private:
+  GLuint mWidth;
+  GLuint mHeight;
+  unsigned int mFactor;
+  Framebuffer mFBWidth;
+  Framebuffer mFBHeight;
+  GLuint mVertexBuffer;
 };
 
 #endif

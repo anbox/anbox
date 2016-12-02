@@ -18,16 +18,16 @@
 #ifndef ANBOX_APPLICATION_MANAGER_H_
 #define ANBOX_APPLICATION_MANAGER_H_
 
-#include "anbox/do_not_copy_or_move.h"
 #include "anbox/android/intent.h"
+#include "anbox/do_not_copy_or_move.h"
 
 #include <string>
 
 namespace anbox {
 class ApplicationManager : public DoNotCopyOrMove {
-public:
-    virtual void launch(const android::Intent &intent) = 0;
+ public:
+  virtual void launch(const android::Intent &intent) = 0;
 };
-} // namespace anbox
+}  // namespace anbox
 
 #endif

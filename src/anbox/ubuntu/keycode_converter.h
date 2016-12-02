@@ -27,12 +27,13 @@
 namespace anbox {
 namespace ubuntu {
 class KeycodeConverter {
-public:
-    static std::uint16_t convert(const SDL_Scancode &scan_code);
-private:
-    static const std::array<SDL_Scancode, 249> code_map;
+ public:
+  static std::uint16_t convert(const SDL_Scancode &scan_code);
+
+ private:
+  static const std::array<SDL_Scancode, 249> code_map;
 };
-} // namespace ubuntu
-} // namespace anbox
+}  // namespace ubuntu
+}  // namespace anbox
 
 #endif

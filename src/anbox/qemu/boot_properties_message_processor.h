@@ -23,17 +23,18 @@
 namespace anbox {
 namespace qemu {
 class BootPropertiesMessageProcessor : public QemudMessageProcessor {
-public:
-    BootPropertiesMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~BootPropertiesMessageProcessor();
+ public:
+  BootPropertiesMessageProcessor(
+      const std::shared_ptr<network::SocketMessenger> &messenger);
+  ~BootPropertiesMessageProcessor();
 
-protected:
-    void handle_command(const std::string &command) override;
+ protected:
+  void handle_command(const std::string &command) override;
 
-private:
-    void list_properties();
+ private:
+  void list_properties();
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

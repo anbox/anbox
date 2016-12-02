@@ -26,18 +26,19 @@
 namespace anbox {
 namespace network {
 class TcpSocketMessenger : public BaseSocketMessenger<boost::asio::ip::tcp> {
-public:
-    TcpSocketMessenger(const boost::asio::ip::address_v4 &addr, unsigned short port,
-                       const std::shared_ptr<Runtime> &rt);
-    TcpSocketMessenger(std::shared_ptr<boost::asio::ip::tcp::socket> const &socket);
-    ~TcpSocketMessenger();
+ public:
+  TcpSocketMessenger(const boost::asio::ip::address_v4 &addr,
+                     unsigned short port, const std::shared_ptr<Runtime> &rt);
+  TcpSocketMessenger(
+      std::shared_ptr<boost::asio::ip::tcp::socket> const &socket);
+  ~TcpSocketMessenger();
 
-    unsigned short local_port() const;
+  unsigned short local_port() const;
 
-private:
-    unsigned short local_port_;
+ private:
+  unsigned short local_port_;
 };
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox
 
 #endif

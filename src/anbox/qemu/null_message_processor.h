@@ -23,13 +23,13 @@
 namespace anbox {
 namespace qemu {
 class NullMessageProcessor : public network::MessageProcessor {
-public:
-    NullMessageProcessor();
-    ~NullMessageProcessor();
+ public:
+  NullMessageProcessor();
+  ~NullMessageProcessor();
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
+  bool process_data(const std::vector<std::uint8_t> &data) override;
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

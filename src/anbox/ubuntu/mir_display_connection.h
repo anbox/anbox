@@ -27,26 +27,26 @@
 namespace anbox {
 namespace ubuntu {
 class MirDisplayConnection {
-public:
-    MirDisplayConnection();
-    ~MirDisplayConnection();
+ public:
+  MirDisplayConnection();
+  ~MirDisplayConnection();
 
-    MirPixelFormat default_pixel_format() const;
+  MirPixelFormat default_pixel_format() const;
 
-    MirConnection* connection() const;
-    EGLNativeDisplayType native_display() const;
+  MirConnection* connection() const;
+  EGLNativeDisplayType native_display() const;
 
-    int output_id() const;
-    int vertical_resolution() const;
-    int horizontal_resolution() const;
+  int output_id() const;
+  int vertical_resolution() const;
+  int horizontal_resolution() const;
 
-private:
-    MirConnection *connection_;
-    int output_id_;
-    int vertical_resolution_;
-    int horizontal_resolution_;
+ private:
+  MirConnection* connection_;
+  int output_id_;
+  int vertical_resolution_;
+  int horizontal_resolution_;
 };
-} // namespace ubuntu
-} // namespace anbox
+}  // namespace ubuntu
+}  // namespace anbox
 
 #endif

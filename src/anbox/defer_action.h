@@ -25,20 +25,17 @@
 namespace anbox {
 
 class DeferAction : public DoNotCopyOrMove {
-public:
-    DeferAction(const std::function<void()> action) :
-        action_(action) {
-    }
+ public:
+  DeferAction(const std::function<void()> action) : action_(action) {}
 
-    ~DeferAction() {
-        if (action_)
-            action_();
-    }
+  ~DeferAction() {
+    if (action_) action_();
+  }
 
-private:
-    std::function<void()> action_;
+ private:
+  std::function<void()> action_;
 };
 
-} // namespace anbox
+}  // namespace anbox
 
 #endif

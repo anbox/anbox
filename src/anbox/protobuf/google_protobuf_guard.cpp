@@ -18,23 +18,21 @@
 
 #include <google/protobuf/stubs/common.h>
 
-extern "C" int __attribute__((constructor))
-init_google_protobuf()
-{
-    GOOGLE_PROTOBUF_VERIFY_VERSION;
-    return 0;
+extern "C" int __attribute__((constructor)) init_google_protobuf() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+  return 0;
 }
 
-extern "C" int __attribute__((destructor))
-shutdown_google_protobuf()
-{
-    google::protobuf::ShutdownProtobufLibrary();
-    return 0;
+extern "C" int __attribute__((destructor)) shutdown_google_protobuf() {
+  google::protobuf::ShutdownProtobufLibrary();
+  return 0;
 }
 
 // Preserve ABI
-namespace anbox { namespace protobuf { void google_protobuf_guard(); }}
-
-void anbox::protobuf::google_protobuf_guard()
-{
+namespace anbox {
+namespace protobuf {
+void google_protobuf_guard();
 }
+}
+
+void anbox::protobuf::google_protobuf_guard() {}

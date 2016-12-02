@@ -28,23 +28,24 @@ namespace anbox {
 namespace dbus {
 namespace stub {
 class ApplicationManager : public anbox::ApplicationManager {
-public:
-    static std::shared_ptr<ApplicationManager> create_for_bus(const core::dbus::Bus::Ptr &bus);
+ public:
+  static std::shared_ptr<ApplicationManager> create_for_bus(
+      const core::dbus::Bus::Ptr &bus);
 
-    ApplicationManager(const core::dbus::Bus::Ptr &bus,
-                       const core::dbus::Service::Ptr& service,
-                       const core::dbus::Object::Ptr& object);
-    ~ApplicationManager();
+  ApplicationManager(const core::dbus::Bus::Ptr &bus,
+                     const core::dbus::Service::Ptr &service,
+                     const core::dbus::Object::Ptr &object);
+  ~ApplicationManager();
 
-    void launch(const android::Intent &intent) override;
+  void launch(const android::Intent &intent) override;
 
-private:
-    core::dbus::Bus::Ptr bus_;
-    core::dbus::Service::Ptr service_;
-    core::dbus::Object::Ptr object_;
+ private:
+  core::dbus::Bus::Ptr bus_;
+  core::dbus::Service::Ptr service_;
+  core::dbus::Object::Ptr object_;
 };
-} // namespace stub
-} // namespace dbus
-} // namespace anbox
+}  // namespace stub
+}  // namespace dbus
+}  // namespace anbox
 
 #endif

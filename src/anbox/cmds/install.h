@@ -27,13 +27,13 @@
 namespace anbox {
 namespace cmds {
 class Install : public cli::CommandWithFlagsAndAction {
-public:
-    Install();
+ public:
+  Install();
 
-private:
-    std::string apk_;
+ private:
+  std::string apk_;
 };
-} // namespace cmds
-} // namespace anbox
+}  // namespace cmds
+}  // namespace anbox
 
 #endif

@@ -15,11 +15,10 @@
  *
  */
 
-
 #include "anbox/rpc/connection_creator.h"
-#include "anbox/rpc/message_processor.h"
-#include "anbox/network/local_socket_messenger.h"
 #include "anbox/logger.h"
+#include "anbox/network/local_socket_messenger.h"
+#include "anbox/rpc/message_processor.h"
 
 #include <string>
 
@@ -27,40 +26,40 @@ namespace ba = boost::asio;
 
 namespace anbox {
 namespace rpc {
-ConnectionCreator::ConnectionCreator(const std::shared_ptr<Runtime> &rt, const MessageProcessorFactory &factory) :
-    runtime_(rt),
-    next_connection_id_(0),
-    connections_(std::make_shared<network::Connections<network::SocketConnection>>()),
-    message_processor_factory_(factory) {
-}
+ConnectionCreator::ConnectionCreator(const std::shared_ptr<Runtime>& rt,
+                                     const MessageProcessorFactory& factory)
+    : runtime_(rt),
+      next_connection_id_(0),
+      connections_(
+          std::make_shared<network::Connections<network::SocketConnection>>()),
+      message_processor_factory_(factory) {}
 
-ConnectionCreator::~ConnectionCreator() {
-}
+ConnectionCreator::~ConnectionCreator() {}
 
 void ConnectionCreator::create_connection_for(
-        std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket) {
+    std::shared_ptr<boost::asio::local::stream_protocol::socket> const&
+        socket) {
+  if (connections_->size() >= 1) {
+    socket->close();
+    WARNING(
+        "A second client tried to connect. Denied request as we already have "
+        "one"
+        "and only allow a single client");
+    return;
+  }
 
-    if (connections_->size() >= 1) {
-        socket->close();
-        WARNING("A second client tried to connect. Denied request as we already have one"
-                "and only allow a single client");
-        return;
-    }
+  auto const messenger =
+      std::make_shared<network::LocalSocketMessenger>(socket);
+  auto const processor = message_processor_factory_(messenger);
 
-    auto const messenger = std::make_shared<network::LocalSocketMessenger>(socket);
-    auto const processor = message_processor_factory_(messenger);
-
-    auto const& connection = std::make_shared<network::SocketConnection>(
-                messenger, messenger, next_id(), connections_, processor);
-    connection->set_name("rpc");
-    connections_->add(connection);
-    connection->read_next_message();
+  auto const& connection = std::make_shared<network::SocketConnection>(
+      messenger, messenger, next_id(), connections_, processor);
+  connection->set_name("rpc");
+  connections_->add(connection);
+  connection->read_next_message();
 }
 
-int ConnectionCreator::next_id()
-{
-    return next_connection_id_.fetch_add(1);
-}
+int ConnectionCreator::next_id() { return next_connection_id_.fetch_add(1); }
 
-} // namespace rpc
-} // namespace anbox
+}  // namespace rpc
+}  // namespace anbox

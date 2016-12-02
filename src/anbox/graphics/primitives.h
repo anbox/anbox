@@ -17,7 +17,6 @@
  *              Kevin DuBois <kevin.dubois@canonical.com>
  */
 
-
 #ifndef ANBOX_GRAPHICS_PRIMITIVES_H_
 #define ANBOX_GRAPHICS_PRIMITIVES_H_
 
@@ -25,28 +24,24 @@
 
 namespace anbox {
 namespace graphics {
-struct Vertex
-{
-    GLfloat position[3];
-    GLfloat texcoord[2];
+struct Vertex {
+  GLfloat position[3];
+  GLfloat texcoord[2];
 };
 
-struct Primitive
-{
-    enum {max_vertices = 4};
+struct Primitive {
+  enum { max_vertices = 4 };
 
-    Primitive()
-        : type(GL_TRIANGLE_FAN), nvertices(4)
-    {
-        // Default is a quad. Just need to assign vertices[] and tex_id.
-    }
+  Primitive() : type(GL_TRIANGLE_FAN), nvertices(4) {
+    // Default is a quad. Just need to assign vertices[] and tex_id.
+  }
 
-    GLenum type; // GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_TRIANGLES etc
-    GLuint tex_id;  // GL texture ID (or 0 to represent the surface itself)
-    int nvertices;
-    Vertex vertices[max_vertices];
+  GLenum type;    // GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_TRIANGLES etc
+  GLuint tex_id;  // GL texture ID (or 0 to represent the surface itself)
+  int nvertices;
+  Vertex vertices[max_vertices];
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif
