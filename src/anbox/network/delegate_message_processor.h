@@ -25,16 +25,17 @@
 namespace anbox {
 namespace network {
 class DelegateMessageProcessor : public MessageProcessor {
-public:
-    DelegateMessageProcessor(std::function<bool(const std::vector<std::uint8_t>&)> process_data);
-    ~DelegateMessageProcessor();
+ public:
+  DelegateMessageProcessor(
+      std::function<bool(const std::vector<std::uint8_t> &)> process_data);
+  ~DelegateMessageProcessor();
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
+  bool process_data(const std::vector<std::uint8_t> &data) override;
 
-private:
-    std::function<bool(const std::vector<std::uint8_t>&)> process_data_;
+ private:
+  std::function<bool(const std::vector<std::uint8_t> &)> process_data_;
 };
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox
 
 #endif

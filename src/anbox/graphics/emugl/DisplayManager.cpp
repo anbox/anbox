@@ -21,22 +21,18 @@ namespace {
 std::shared_ptr<DisplayManager> display_mgr;
 
 class NullDisplayManager : public DisplayManager {
-public:
-    DisplayInfo display_info() const override {
-        return {1280, 720};
-    }
+ public:
+  DisplayInfo display_info() const override { return {1280, 720}; }
 };
 }
 
-DisplayManager::~DisplayManager() {
-}
+DisplayManager::~DisplayManager() {}
 
 std::shared_ptr<DisplayManager> DisplayManager::get() {
-    if (!display_mgr)
-        display_mgr = std::make_shared<NullDisplayManager>();
-    return display_mgr;
+  if (!display_mgr) display_mgr = std::make_shared<NullDisplayManager>();
+  return display_mgr;
 }
 
 void registerDisplayManager(const std::shared_ptr<DisplayManager> &mgr) {
-    display_mgr = mgr;
+  display_mgr = mgr;
 }

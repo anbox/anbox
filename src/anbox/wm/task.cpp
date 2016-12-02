@@ -20,5 +20,5 @@
 namespace anbox {
 namespace wm {
 Task::Id Task::Invalid = -1;
-} // namespace wm
-} // namespace anbox
+}  // namespace wm
+}  // namespace anbox

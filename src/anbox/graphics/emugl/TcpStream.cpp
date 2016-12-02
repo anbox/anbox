@@ -19,8 +19,8 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -29,46 +29,42 @@
 
 TcpStream::TcpStream(size_t bufSize) : SocketStream(bufSize) {}
 
-TcpStream::TcpStream(int sock, size_t bufSize) :
-    SocketStream(sock, bufSize) {
-    // disable Nagle algorithm to improve bandwidth of small
-    // packets which are quite common in our implementation.
-    emugl::socketTcpDisableNagle(sock);
+TcpStream::TcpStream(int sock, size_t bufSize) : SocketStream(sock, bufSize) {
+  // disable Nagle algorithm to improve bandwidth of small
+  // packets which are quite common in our implementation.
+  emugl::socketTcpDisableNagle(sock);
 }
 
 int TcpStream::listen(char addrstr[MAX_ADDRSTR_LEN]) {
-    m_sock = emugl::socketTcpLoopbackServer(0, SOCK_STREAM);
-    if (!valid())
-        return int(ERR_INVALID_SOCKET);
+  m_sock = emugl::socketTcpLoopbackServer(0, SOCK_STREAM);
+  if (!valid()) return int(ERR_INVALID_SOCKET);
 
-    int port = emugl::socketGetPort(m_sock);
-    if (port < 0) {
-        ::close(m_sock);
-        return int(ERR_INVALID_SOCKET);
-    }
+  int port = emugl::socketGetPort(m_sock);
+  if (port < 0) {
+    ::close(m_sock);
+    return int(ERR_INVALID_SOCKET);
+  }
 
-    snprintf(addrstr, MAX_ADDRSTR_LEN - 1, "%hu", port);
-    addrstr[MAX_ADDRSTR_LEN-1] = '\0';
+  snprintf(addrstr, MAX_ADDRSTR_LEN - 1, "%hu", port);
+  addrstr[MAX_ADDRSTR_LEN - 1] = '\0';
 
-    return 0;
+  return 0;
 }
 
-SocketStream * TcpStream::accept() {
-    int clientSock = emugl::socketAccept(m_sock);
-    if (clientSock < 0)
-        return NULL;
+SocketStream* TcpStream::accept() {
+  int clientSock = emugl::socketAccept(m_sock);
+  if (clientSock < 0) return NULL;
 
-    return new TcpStream(clientSock, m_bufsize);
+  return new TcpStream(clientSock, m_bufsize);
 }
 
 int TcpStream::connect(const char* addr) {
-    int port = atoi(addr);
-    m_sock = emugl::socketTcpLoopbackClient(port, SOCK_STREAM);
-    return valid() ? 0 : -1;
+  int port = atoi(addr);
+  m_sock = emugl::socketTcpLoopbackClient(port, SOCK_STREAM);
+  return valid() ? 0 : -1;
 }
 
-int TcpStream::connect(const char* hostname, unsigned short port)
-{
-    m_sock = emugl::socketTcpClient(hostname, port, SOCK_STREAM);
-    return valid() ? 0 : -1;
+int TcpStream::connect(const char* hostname, unsigned short port) {
+  m_sock = emugl::socketTcpClient(hostname, port, SOCK_STREAM);
+  return valid() ? 0 : -1;
 }

@@ -18,31 +18,37 @@
 #ifndef ANBOX_NETWORK_DELEGATE_CONNECTION_CREATOR_H_
 #define ANBOX_NETWORK_DELEGATE_CONNECTION_CREATOR_H_
 
-#include "anbox/network/connection_creator.h"
 #include <boost/asio.hpp>
+#include "anbox/network/connection_creator.h"
 
 #include <functional>
 
 namespace anbox {
 namespace network {
-template<typename stream_protocol>
+template <typename stream_protocol>
 class DelegateConnectionCreator : public ConnectionCreator<stream_protocol> {
-public:
-    DelegateConnectionCreator(std::function<void(std::shared_ptr<boost::asio::basic_stream_socket<stream_protocol>> const&)> delegate) :
-        delegate_(delegate) {
-    }
+ public:
+  DelegateConnectionCreator(
+      std::function<void(std::shared_ptr<boost::asio::basic_stream_socket<
+                             stream_protocol>> const&)>
+          delegate)
+      : delegate_(delegate) {}
 
-    void create_connection_for(
-            std::shared_ptr<boost::asio::basic_stream_socket<stream_protocol>> const& socket) override {
-        if (delegate_)
-            delegate_(socket);
-        else
-            socket->close();
-    }
-private:
-    std::function<void(std::shared_ptr<boost::asio::basic_stream_socket<stream_protocol>> const&)> delegate_;
+  void create_connection_for(
+      std::shared_ptr<boost::asio::basic_stream_socket<stream_protocol>> const&
+          socket) override {
+    if (delegate_)
+      delegate_(socket);
+    else
+      socket->close();
+  }
+
+ private:
+  std::function<void(std::shared_ptr<
+                     boost::asio::basic_stream_socket<stream_protocol>> const&)>
+      delegate_;
 };
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox
 
 #endif

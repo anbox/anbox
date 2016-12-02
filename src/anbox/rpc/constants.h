@@ -24,10 +24,10 @@ static constexpr const long header_size{3};
 static constexpr unsigned int const serialization_buffer_size{2048};
 
 enum MessageType {
-    invocation = 0,
-    response = 1,
+  invocation = 0,
+  response = 1,
 };
-} // namespace rpc
-} // namespace network
+}  // namespace rpc
+}  // namespace network
 
 #endif

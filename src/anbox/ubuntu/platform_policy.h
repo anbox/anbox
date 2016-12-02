@@ -18,13 +18,13 @@
 #ifndef ANBOX_UBUNTU_PLATFORM_POLICY_H_
 #define ANBOX_UBUNTU_PLATFORM_POLICY_H_
 
-#include "anbox/wm/platform_policy.h"
 #include "anbox/ubuntu/window.h"
+#include "anbox/wm/platform_policy.h"
 
 #include "anbox/graphics/emugl/DisplayManager.h"
 
-#include <thread>
 #include <map>
+#include <thread>
 
 #include <SDL.h>
 
@@ -32,46 +32,48 @@ namespace anbox {
 namespace input {
 class Device;
 class Manager;
-} // namespace input
+}  // namespace input
 namespace bridge {
 class AndroidApiStub;
-} // namespace bridge
+}  // namespace bridge
 namespace ubuntu {
 class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
                        public wm::PlatformPolicy,
                        public Window::Observer,
                        public DisplayManager {
-public:
-    PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager,
-                   const std::shared_ptr<bridge::AndroidApiStub> &android_api);
-    ~PlatformPolicy();
+ public:
+  PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager,
+                 const std::shared_ptr<bridge::AndroidApiStub> &android_api);
+  ~PlatformPolicy();
 
-    std::shared_ptr<wm::Window> create_window(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) override;
+  std::shared_ptr<wm::Window> create_window(
+      const anbox::wm::Task::Id &task,
+      const anbox::graphics::Rect &frame) override;
 
-    void window_deleted(const Window::Id &id) override;
-    void window_wants_focus(const Window::Id &id) override;
+  void window_deleted(const Window::Id &id) override;
+  void window_wants_focus(const Window::Id &id) override;
 
-    DisplayInfo display_info() const override;
+  DisplayInfo display_info() const override;
 
-private:
-    void process_events();
-    void process_input_event(const SDL_Event &event);
+ private:
+  void process_events();
+  void process_input_event(const SDL_Event &event);
 
-    static Window::Id next_window_id();
+  static Window::Id next_window_id();
 
-    std::shared_ptr<input::Manager> input_manager_;
-    std::shared_ptr<bridge::AndroidApiStub> android_api_;
-    // We don't own the windows anymore after the got created by us so we
-    // need to be careful once we try to use them again.
-    std::map<Window::Id, std::weak_ptr<Window>> windows_;
-    std::shared_ptr<Window> current_window_;
-    std::thread event_thread_;
-    bool event_thread_running_;
-    std::shared_ptr<input::Device> pointer_;
-    std::shared_ptr<input::Device> keyboard_;
-    DisplayManager::DisplayInfo display_info_;
+  std::shared_ptr<input::Manager> input_manager_;
+  std::shared_ptr<bridge::AndroidApiStub> android_api_;
+  // We don't own the windows anymore after the got created by us so we
+  // need to be careful once we try to use them again.
+  std::map<Window::Id, std::weak_ptr<Window>> windows_;
+  std::shared_ptr<Window> current_window_;
+  std::thread event_thread_;
+  bool event_thread_running_;
+  std::shared_ptr<input::Device> pointer_;
+  std::shared_ptr<input::Device> keyboard_;
+  DisplayManager::DisplayInfo display_info_;
 };
-} // namespace wm
-} // namespace anbox
+}  // namespace wm
+}  // namespace anbox
 
 #endif

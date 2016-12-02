@@ -22,19 +22,19 @@
 #include <iostream>
 #include <memory>
 
-#include "anbox/cli.h"
 #include "anbox/android/intent.h"
+#include "anbox/cli.h"
 
 namespace anbox {
 namespace cmds {
 class Launch : public cli::CommandWithFlagsAndAction {
-public:
-    Launch();
+ public:
+  Launch();
 
-private:
-    android::Intent intent_;
+ private:
+  android::Intent intent_;
 };
-} // namespace cmds
-} // namespace anbox
+}  // namespace cmds
+}  // namespace anbox
 
 #endif

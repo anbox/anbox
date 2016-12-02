@@ -21,72 +21,59 @@
 
 namespace anbox {
 namespace common {
-WaitHandle::WaitHandle() :
-    guard(),
-    wait_condition(),
-    expecting(0),
-    received(0)
-{
+WaitHandle::WaitHandle()
+    : guard(), wait_condition(), expecting(0), received(0) {}
+
+WaitHandle::~WaitHandle() {}
+
+void WaitHandle::expect_result() {
+  std::lock_guard<std::mutex> lock(guard);
+
+  expecting++;
 }
 
-WaitHandle::~WaitHandle()
-{
-}
+void WaitHandle::result_received() {
+  std::lock_guard<std::mutex> lock(guard);
 
-void WaitHandle::expect_result()
-{
-    std::lock_guard<std::mutex> lock(guard);
-
-    expecting++;
-}
-
-void WaitHandle::result_received()
-{
-    std::lock_guard<std::mutex> lock(guard);
-
-    received++;
-    wait_condition.notify_all();
+  received++;
+  wait_condition.notify_all();
 }
 
 void WaitHandle::wait_for_all()  // wait for all results you expect
 {
-    std::unique_lock<std::mutex> lock(guard);
+  std::unique_lock<std::mutex> lock(guard);
 
-    wait_condition.wait(lock, [&]{ return received == expecting; });
+  wait_condition.wait(lock, [&] { return received == expecting; });
 
-    received = 0;
-    expecting = 0;
+  received = 0;
+  expecting = 0;
 }
 
-void WaitHandle::wait_for_pending(std::chrono::milliseconds limit)
-{
-    std::unique_lock<std::mutex> lock(guard);
+void WaitHandle::wait_for_pending(std::chrono::milliseconds limit) {
+  std::unique_lock<std::mutex> lock(guard);
 
-    wait_condition.wait_for(lock, limit, [&]{ return received == expecting; });
+  wait_condition.wait_for(lock, limit, [&] { return received == expecting; });
 }
-
 
 void WaitHandle::wait_for_one()  // wait for any single result
 {
-    std::unique_lock<std::mutex> lock(guard);
+  std::unique_lock<std::mutex> lock(guard);
 
-    wait_condition.wait(lock, [&]{ return received != 0; });
+  wait_condition.wait(lock, [&] { return received != 0; });
 
-    --received;
-    --expecting;
+  --received;
+  --expecting;
 }
 
-bool WaitHandle::has_result()
-{
-    std::lock_guard<std::mutex> lock(guard);
+bool WaitHandle::has_result() {
+  std::lock_guard<std::mutex> lock(guard);
 
-    return received > 0;
+  return received > 0;
 }
 
-bool WaitHandle::is_pending()
-{
-    std::unique_lock<std::mutex> lock(guard);
-    return expecting > 0 && received != expecting;
+bool WaitHandle::is_pending() {
+  std::unique_lock<std::mutex> lock(guard);
+  return expecting > 0 && received != expecting;
 }
-} // namespace common
-} // namespace anbox
+}  // namespace common
+}  // namespace anbox

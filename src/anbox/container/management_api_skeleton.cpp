@@ -16,54 +16,52 @@
  */
 
 #include "anbox/container/management_api_skeleton.h"
-#include "anbox/container/container.h"
 #include "anbox/container/configuration.h"
+#include "anbox/container/container.h"
 #include "anbox/defer_action.h"
-#include "anbox/utils.h"
 #include "anbox/logger.h"
+#include "anbox/utils.h"
 
-#include "anbox_rpc.pb.h"
 #include "anbox_container.pb.h"
+#include "anbox_rpc.pb.h"
 
 namespace anbox {
 namespace container {
-ManagementApiSkeleton::ManagementApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
-                                             const std::shared_ptr<Container> &container) :
-    pending_calls_(pending_calls),
-    container_(container) {
-}
+ManagementApiSkeleton::ManagementApiSkeleton(
+    const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
+    const std::shared_ptr<Container> &container)
+    : pending_calls_(pending_calls), container_(container) {}
 
-ManagementApiSkeleton::~ManagementApiSkeleton() {
-}
+ManagementApiSkeleton::~ManagementApiSkeleton() {}
 
-void ManagementApiSkeleton::start_container(anbox::protobuf::container::StartContainer const *request,
-                                            anbox::protobuf::rpc::Void *response,
-                                            google::protobuf::Closure *done) {
-
-    if (container_->state() == Container::State::running) {
-        response->set_error("Container is already running");
-        done->Run();
-        return;
-    }
-
-    Configuration container_configuration;
-
-    const auto configuration = request->configuration();
-    for (int n = 0; n < configuration.bind_mounts_size(); n++) {
-        const auto bind_mount = configuration.bind_mounts(n);
-        container_configuration.bind_mounts.insert({ bind_mount.source(), bind_mount.target() });
-    }
-
-    try {
-        container_->start(container_configuration);
-    }
-    catch (std::exception &err) {
-        response->set_error(utils::string_format("Failed to start container: %s", err.what()));
-    }
-
-    DEBUG("");
-
+void ManagementApiSkeleton::start_container(
+    anbox::protobuf::container::StartContainer const *request,
+    anbox::protobuf::rpc::Void *response, google::protobuf::Closure *done) {
+  if (container_->state() == Container::State::running) {
+    response->set_error("Container is already running");
     done->Run();
+    return;
+  }
+
+  Configuration container_configuration;
+
+  const auto configuration = request->configuration();
+  for (int n = 0; n < configuration.bind_mounts_size(); n++) {
+    const auto bind_mount = configuration.bind_mounts(n);
+    container_configuration.bind_mounts.insert(
+        {bind_mount.source(), bind_mount.target()});
+  }
+
+  try {
+    container_->start(container_configuration);
+  } catch (std::exception &err) {
+    response->set_error(
+        utils::string_format("Failed to start container: %s", err.what()));
+  }
+
+  DEBUG("");
+
+  done->Run();
 }
-} // namespace container
-} // namespace anbox
+}  // namespace container
+}  // namespace anbox

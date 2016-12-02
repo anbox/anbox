@@ -18,55 +18,55 @@
 #ifndef ANBOX_RPC_CHANNEL_H_
 #define ANBOX_RPC_CHANNEL_H_
 
-#include <memory>
 #include <atomic>
+#include <memory>
 #include <mutex>
 
 namespace google {
 namespace protobuf {
 class Closure;
 class MessageLite;
-} // namespace protobuf
-} // namespace google
-
+}  // namespace protobuf
+}  // namespace google
 
 namespace anbox {
 namespace protobuf {
 namespace rpc {
 class Invocation;
-} // namespace rpc
-} // namespace protobuf
+}  // namespace rpc
+}  // namespace protobuf
 namespace network {
 class MessageSender;
-} // namespace network
+}  // namespace network
 namespace rpc {
 class PendingCallCache;
 class Channel {
-public:
-    Channel(const std::shared_ptr<PendingCallCache> &pending_calls,
-               const std::shared_ptr<network::MessageSender> &sender);
-    ~Channel();
+ public:
+  Channel(const std::shared_ptr<PendingCallCache> &pending_calls,
+          const std::shared_ptr<network::MessageSender> &sender);
+  ~Channel();
 
-    void call_method(std::string const& method_name,
-                     google::protobuf::MessageLite const *parameters,
-                     google::protobuf::MessageLite *response,
-                     google::protobuf::Closure *complete);
+  void call_method(std::string const &method_name,
+                   google::protobuf::MessageLite const *parameters,
+                   google::protobuf::MessageLite *response,
+                   google::protobuf::Closure *complete);
 
-    void send_event(google::protobuf::MessageLite const& event);
+  void send_event(google::protobuf::MessageLite const &event);
 
-private:
-    protobuf::rpc::Invocation invocation_for(
-        std::string const& method_name,
-        google::protobuf::MessageLite const* request);
-    void send_message(const std::uint8_t &type, google::protobuf::MessageLite const& message);
-    std::uint32_t next_id();
-    void notify_disconnected();
+ private:
+  protobuf::rpc::Invocation invocation_for(
+      std::string const &method_name,
+      google::protobuf::MessageLite const *request);
+  void send_message(const std::uint8_t &type,
+                    google::protobuf::MessageLite const &message);
+  std::uint32_t next_id();
+  void notify_disconnected();
 
-    std::shared_ptr<PendingCallCache> pending_calls_;
-    std::shared_ptr<network::MessageSender> sender_;
-    std::mutex write_mutex_;
+  std::shared_ptr<PendingCallCache> pending_calls_;
+  std::shared_ptr<network::MessageSender> sender_;
+  std::mutex write_mutex_;
 };
-} // namespace rpc
-} // namespace anbox
+}  // namespace rpc
+}  // namespace anbox
 
 #endif

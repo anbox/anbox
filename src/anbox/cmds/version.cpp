@@ -21,13 +21,13 @@
 #include "anbox/version.h"
 
 anbox::cmds::Version::Version()
-    : CommandWithFlagsAndAction{cli::Name{"version"}, cli::Usage{"version"}, cli::Description{"print the version of the daemon"}}
-{
-    action([](const cli::Command::Context& ctxt)
-    {
-        std::uint32_t major, minor, patch;
-        anbox::version(major, minor, patch);
-        ctxt.cout << "anbox " << major << "." << minor << "." << patch << std::endl;
-        return 0;
-    });
+    : CommandWithFlagsAndAction{
+          cli::Name{"version"}, cli::Usage{"version"},
+          cli::Description{"print the version of the daemon"}} {
+  action([](const cli::Command::Context& ctxt) {
+    std::uint32_t major, minor, patch;
+    anbox::version(major, minor, patch);
+    ctxt.cout << "anbox " << major << "." << minor << "." << patch << std::endl;
+    return 0;
+  });
 }

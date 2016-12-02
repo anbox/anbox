@@ -23,38 +23,39 @@
 namespace google {
 namespace protobuf {
 class Closure;
-} // namespace protobuf
-} // namespace google
+}  // namespace protobuf
+}  // namespace google
 
 namespace anbox {
 namespace protobuf {
 namespace rpc {
 class Void;
-} // namespace rpc
+}  // namespace rpc
 namespace container {
 class StartContainer;
-} // namespace container
-} // namespace protobuf
+}  // namespace container
+}  // namespace protobuf
 namespace rpc {
 class PendingCallCache;
-} // namespace rpc
+}  // namespace rpc
 namespace container {
 class Container;
 class ManagementApiSkeleton {
-public:
-    ManagementApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
-                          const std::shared_ptr<Container> &container);
-    ~ManagementApiSkeleton();
+ public:
+  ManagementApiSkeleton(
+      const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
+      const std::shared_ptr<Container> &container);
+  ~ManagementApiSkeleton();
 
-    void start_container(anbox::protobuf::container::StartContainer const *request,
-                         anbox::protobuf::rpc::Void *response,
-                         google::protobuf::Closure *done);
+  void start_container(
+      anbox::protobuf::container::StartContainer const *request,
+      anbox::protobuf::rpc::Void *response, google::protobuf::Closure *done);
 
-private:
-    std::shared_ptr<rpc::PendingCallCache> pending_calls_;
-    std::shared_ptr<Container> container_;
+ private:
+  std::shared_ptr<rpc::PendingCallCache> pending_calls_;
+  std::shared_ptr<Container> container_;
 };
-} // namespace container
-} // namespace anbox
+}  // namespace container
+}  // namespace anbox
 
 #endif

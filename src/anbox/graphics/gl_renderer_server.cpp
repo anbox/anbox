@@ -15,75 +15,83 @@
  *
  */
 
-#include "anbox/logger.h"
 #include "anbox/graphics/gl_renderer_server.h"
-#include "anbox/graphics/layer_composer.h"
 #include "anbox/graphics/emugl/RenderControl.h"
+#include "anbox/graphics/layer_composer.h"
+#include "anbox/logger.h"
 #include "anbox/wm/manager.h"
 
 #include "OpenglRender/render_api.h"
 
 #include <boost/throw_exception.hpp>
-#include <stdexcept>
 #include <cstdarg>
+#include <stdexcept>
 
 namespace anbox {
 namespace graphics {
-GLRendererServer::GLRendererServer(const std::shared_ptr<wm::Manager> &wm) :
-    wm_(wm),
-    composer_(std::make_shared<LayerComposer>(wm))
-{
+GLRendererServer::GLRendererServer(const std::shared_ptr<wm::Manager> &wm)
+    : wm_(wm), composer_(std::make_shared<LayerComposer>(wm)) {
+  if (utils::is_env_set("USE_HOST_GLES")) {
+    // Force the host EGL/GLES libraries as translator implementation
+    ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 0);
+    ::setenv("ANDROID_GLESv1_LIB", "libGLESv2.so.2", 0);
+    ::setenv("ANDROID_GLESv2_LIB", "libGLESv2.so.2", 0);
+  } else {
+    auto translator_dir =
+        utils::prefix_dir_from_env(TRANSLATOR_INSTALL_DIR, "SNAP");
+    ::setenv(
+        "ANDROID_EGL_LIB",
+        utils::string_format("%s/libEGL_translator.so", translator_dir).c_str(),
+        0);
+    ::setenv("ANDROID_GLESv1_LIB",
+             utils::string_format("%s/libGLES_CM_translator.so", translator_dir)
+                 .c_str(),
+             0);
+    ::setenv("ANDROID_GLESv2_LIB",
+             utils::string_format("%s/libGLES_V2_translator.so", translator_dir)
+                 .c_str(),
+             0);
+  }
 
-    if (utils::is_env_set("USE_HOST_GLES")) {
-        // Force the host EGL/GLES libraries as translator implementation
-        ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 0);
-        ::setenv("ANDROID_GLESv1_LIB", "libGLESv2.so.2", 0);
-        ::setenv("ANDROID_GLESv2_LIB", "libGLESv2.so.2", 0);
-    } else {
-        auto translator_dir = utils::prefix_dir_from_env(TRANSLATOR_INSTALL_DIR, "SNAP");
-        ::setenv("ANDROID_EGL_LIB", utils::string_format("%s/libEGL_translator.so", translator_dir).c_str(), 0);
-        ::setenv("ANDROID_GLESv1_LIB", utils::string_format("%s/libGLES_CM_translator.so", translator_dir).c_str(), 0);
-        ::setenv("ANDROID_GLESv2_LIB", utils::string_format("%s/libGLES_V2_translator.so", translator_dir).c_str(), 0);
-    }
+  if (!initLibrary())
+    BOOST_THROW_EXCEPTION(
+        std::runtime_error("Failed to initialize OpenGL renderer"));
 
-    if (!initLibrary())
-        BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize OpenGL renderer"));
-
-    registerLayerComposer(composer_);
+  registerLayerComposer(composer_);
 }
 
-GLRendererServer::~GLRendererServer() {
-    stopOpenGLRenderer();
-}
+GLRendererServer::~GLRendererServer() { stopOpenGLRenderer(); }
 
 void logger_write(const char *format, ...) {
-    char message[2048];
-    va_list args;
+  char message[2048];
+  va_list args;
 
-    va_start(args, format);
-    vsnprintf(message, sizeof(message) - 1, format, args);
-    va_end(args);
+  va_start(args, format);
+  vsnprintf(message, sizeof(message) - 1, format, args);
+  va_end(args);
 
-    DEBUG("%s", message);
+  DEBUG("%s", message);
 }
 
 void GLRendererServer::start() {
-    emugl_logger_struct log_funcs;
-    log_funcs.coarse = logger_write;
-    log_funcs.fine = logger_write;
+  emugl_logger_struct log_funcs;
+  log_funcs.coarse = logger_write;
+  log_funcs.fine = logger_write;
 
-    char server_addr[256] = { 0 };
-    // The width & height we supply here are the dimensions the internal framebuffer
-    // will use. Making this static prevents us for now to resize the window we create
-    // later for the actual display.
-    if (!initOpenGLRenderer(0, server_addr, sizeof(server_addr), log_funcs, logger_write))
-        BOOST_THROW_EXCEPTION(std::runtime_error("Failed to setup OpenGL renderer"));
+  char server_addr[256] = {0};
+  // The width & height we supply here are the dimensions the internal
+  // framebuffer
+  // will use. Making this static prevents us for now to resize the window we
+  // create
+  // later for the actual display.
+  if (!initOpenGLRenderer(0, server_addr, sizeof(server_addr), log_funcs,
+                          logger_write))
+    BOOST_THROW_EXCEPTION(
+        std::runtime_error("Failed to setup OpenGL renderer"));
 
-    socket_path_ = server_addr;
+  socket_path_ = server_addr;
 }
 
-std::string GLRendererServer::socket_path() const {
-    return socket_path_;
-}
-} // namespace graphics
-} // namespace anbox
+std::string GLRendererServer::socket_path() const { return socket_path_; }
+}  // namespace graphics
+}  // namespace anbox

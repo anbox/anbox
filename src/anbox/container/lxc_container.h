@@ -27,21 +27,21 @@
 namespace anbox {
 namespace container {
 class LxcContainer : public Container {
-public:
-    LxcContainer();
-    ~LxcContainer();
+ public:
+  LxcContainer();
+  ~LxcContainer();
 
-    void start(const Configuration &configuration) override;
-    void stop() override;
-    State state() override;
+  void start(const Configuration &configuration) override;
+  void stop() override;
+  State state() override;
 
-private:
-    void set_config_item(const std::string &key, const std::string &value);
+ private:
+  void set_config_item(const std::string &key, const std::string &value);
 
-    State state_;
-    lxc_container *container_;
+  State state_;
+  lxc_container *container_;
 };
-} // namespace container
-} // namespace anbox
+}  // namespace container
+}  // namespace anbox
 
 #endif

@@ -20,58 +20,55 @@
 #define ANBOX_RPC_PENDING_CALL_CACHE_
 
 #include <functional>
-#include <mutex>
 #include <map>
+#include <mutex>
 
 namespace google {
 namespace protobuf {
 class Closure;
 class MessageLite;
-} // namespace protobuf
-} // namespace google
+}  // namespace protobuf
+}  // namespace google
 
 namespace anbox {
 namespace protobuf {
 namespace rpc {
 class Invocation;
 class Result;
-} // namespace rpc
-} // namespace protobuf
+}  // namespace rpc
+}  // namespace protobuf
 namespace rpc {
 class PendingCallCache {
-public:
-    PendingCallCache();
+ public:
+  PendingCallCache();
 
-    void save_completion_details(anbox::protobuf::rpc::Invocation const &invocation,
-                                 google::protobuf::MessageLite *response,
-                                 google::protobuf::Closure *complete);
-    void populate_message_for_result(anbox::protobuf::rpc::Result &result,
-                                     std::function<void(google::protobuf::MessageLite*)> const& populator);
-    void complete_response(anbox::protobuf::rpc::Result& result);
-    void force_completion();
-    bool empty() const;
+  void save_completion_details(
+      anbox::protobuf::rpc::Invocation const &invocation,
+      google::protobuf::MessageLite *response,
+      google::protobuf::Closure *complete);
+  void populate_message_for_result(
+      anbox::protobuf::rpc::Result &result,
+      std::function<void(google::protobuf::MessageLite *)> const &populator);
+  void complete_response(anbox::protobuf::rpc::Result &result);
+  void force_completion();
+  bool empty() const;
 
-private:
-    struct PendingCall {
-        PendingCall(google::protobuf::MessageLite *response,
-                    google::protobuf::Closure *target) :
-            response(response),
-            complete(target) {
-        }
+ private:
+  struct PendingCall {
+    PendingCall(google::protobuf::MessageLite *response,
+                google::protobuf::Closure *target)
+        : response(response), complete(target) {}
 
-        PendingCall() :
-            response(0),
-            complete() {
-        }
+    PendingCall() : response(0), complete() {}
 
-        google::protobuf::MessageLite *response;
-        google::protobuf::Closure *complete;
-    };
+    google::protobuf::MessageLite *response;
+    google::protobuf::Closure *complete;
+  };
 
-    std::mutex mutable mutex_;
-    std::map<int, PendingCall> pending_calls_;
+  std::mutex mutable mutex_;
+  std::map<int, PendingCall> pending_calls_;
 };
-} // namespace rpc
-} // namespace anbox
+}  // namespace rpc
+}  // namespace anbox
 
 #endif

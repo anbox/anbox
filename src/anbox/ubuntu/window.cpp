@@ -16,113 +16,100 @@
  */
 
 #include "anbox/ubuntu/window.h"
-#include "anbox/wm/window_state.h"
 #include "anbox/logger.h"
+#include "anbox/wm/window_state.h"
 
 #include <boost/throw_exception.hpp>
 
 #include <SDL_syswm.h>
 
 namespace {
-constexpr const char* default_window_name{"anbox"};
+constexpr const char *default_window_name{"anbox"};
 }
 
 namespace anbox {
 namespace ubuntu {
 Window::Id Window::Invalid{-1};
 
-Window::Observer::~Observer() {
-}
+Window::Observer::~Observer() {}
 
-Window::Window(const Id &id,
-               const wm::Task::Id &task,
+Window::Window(const Id &id, const wm::Task::Id &task,
                const std::shared_ptr<Observer> &observer,
-               const graphics::Rect &frame) :
-    wm::Window(task, frame),
-    id_(id),
-    observer_(observer),
-    native_display_(0),
-    native_window_(0) {
+               const graphics::Rect &frame)
+    : wm::Window(task, frame),
+      id_(id),
+      observer_(observer),
+      native_display_(0),
+      native_window_(0) {
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+  window_ = SDL_CreateWindow(default_window_name, frame.left(), frame.top(),
+                             frame.width(), frame.height(),
+                             SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
+  if (!window_) {
+    const auto message =
+        utils::string_format("Failed to create window: %s", SDL_GetError());
+    BOOST_THROW_EXCEPTION(std::runtime_error(message));
+  }
 
-    window_ = SDL_CreateWindow(default_window_name,
-                               frame.left(),
-                               frame.top(),
-                               frame.width(),
-                               frame.height(),
-                               SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
-    if (!window_) {
-        const auto message = utils::string_format("Failed to create window: %s", SDL_GetError());
-        BOOST_THROW_EXCEPTION(std::runtime_error(message));
-    }
-
-    SDL_SysWMinfo info;
-    SDL_VERSION(&info.version);
-    SDL_GetWindowWMInfo(window_, &info);
-    switch (info.subsystem) {
+  SDL_SysWMinfo info;
+  SDL_VERSION(&info.version);
+  SDL_GetWindowWMInfo(window_, &info);
+  switch (info.subsystem) {
     case SDL_SYSWM_X11:
-        native_display_ = static_cast<EGLNativeDisplayType>(info.info.x11.display);
-        native_window_ = static_cast<EGLNativeWindowType>(info.info.x11.window);
-        break;
+      native_display_ =
+          static_cast<EGLNativeDisplayType>(info.info.x11.display);
+      native_window_ = static_cast<EGLNativeWindowType>(info.info.x11.window);
+      break;
     default:
-        ERROR("Unknown subsystem (%d)", info.subsystem);
-        BOOST_THROW_EXCEPTION(std::runtime_error("SDL subsystem not suported"));
-    }
+      ERROR("Unknown subsystem (%d)", info.subsystem);
+      BOOST_THROW_EXCEPTION(std::runtime_error("SDL subsystem not suported"));
+  }
 
-    int actual_width = 0, actual_height = 0;
-    int actual_x = 0, actual_y = 0;
-    SDL_GetWindowSize(window_, &actual_width, &actual_height);
-    SDL_GetWindowPosition(window_, &actual_x, &actual_y);
+  int actual_width = 0, actual_height = 0;
+  int actual_x = 0, actual_y = 0;
+  SDL_GetWindowSize(window_, &actual_width, &actual_height);
+  SDL_GetWindowPosition(window_, &actual_x, &actual_y);
 }
 
 Window::~Window() {
-    if (window_)
-        SDL_DestroyWindow(window_);
+  if (window_) SDL_DestroyWindow(window_);
 
-    if (observer_)
-        observer_->window_deleted(id_);
+  if (observer_) observer_->window_deleted(id_);
 }
 
 void Window::resize(int width, int height) {
-    SDL_SetWindowSize(window_, width, height);
+  SDL_SetWindowSize(window_, width, height);
 }
 
 void Window::update_position(int x, int y) {
-    SDL_SetWindowPosition(window_, x, y);
+  SDL_SetWindowPosition(window_, x, y);
 }
 
 void Window::process_event(const SDL_Event &event) {
-    switch (event.window.event) {
+  switch (event.window.event) {
     case SDL_WINDOWEVENT_FOCUS_GAINED:
-        if (observer_)
-            observer_->window_wants_focus(id_);
-        break;
+      if (observer_) observer_->window_wants_focus(id_);
+      break;
     case SDL_WINDOWEVENT_FOCUS_LOST:
-        break;
+      break;
     case SDL_WINDOWEVENT_RESIZED:
-        break;
+      break;
     case SDL_WINDOWEVENT_SIZE_CHANGED:
-        break;
+      break;
     case SDL_WINDOWEVENT_MOVED:
-        break;
+      break;
     case SDL_WINDOWEVENT_SHOWN:
-        break;
+      break;
     case SDL_WINDOWEVENT_HIDDEN:
-        break;
-    }
+      break;
+  }
 }
 
-EGLNativeWindowType Window::native_handle() const {
-    return native_window_;
-}
+EGLNativeWindowType Window::native_handle() const { return native_window_; }
 
-Window::Id Window::id() const {
-    return id_;
-}
+Window::Id Window::id() const { return id_; }
 
-std::uint32_t Window::window_id() const {
-    return SDL_GetWindowID(window_);
-}
-} // namespace bridge
-} // namespace anbox
+std::uint32_t Window::window_id() const { return SDL_GetWindowID(window_); }
+}  // namespace bridge
+}  // namespace anbox

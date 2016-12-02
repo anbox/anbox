@@ -20,9 +20,9 @@
 #define ANBOX_NETWORK_SOCKET_CONNECTION_H_
 
 #include "anbox/network/connections.h"
+#include "anbox/network/message_processor.h"
 #include "anbox/network/message_receiver.h"
 #include "anbox/network/message_sender.h"
-#include "anbox/network/message_processor.h"
 
 #include <boost/asio.hpp>
 
@@ -30,39 +30,40 @@
 
 namespace anbox {
 namespace network {
-class SocketConnection
-{
-public:
-    SocketConnection(
-        std::shared_ptr<MessageReceiver> const& message_receiver,
-        std::shared_ptr<MessageSender> const& message_sender,
-        int id,
-        std::shared_ptr<Connections<SocketConnection>> const& connections,
-        std::shared_ptr<MessageProcessor> const& processor);
+class SocketConnection {
+ public:
+  SocketConnection(
+      std::shared_ptr<MessageReceiver> const& message_receiver,
+      std::shared_ptr<MessageSender> const& message_sender, int id,
+      std::shared_ptr<Connections<SocketConnection>> const& connections,
+      std::shared_ptr<MessageProcessor> const& processor);
 
-    ~SocketConnection() noexcept;
+  ~SocketConnection() noexcept;
 
-    void set_name(const std::string &name) { name_ = name; }
+  void set_name(const std::string& name) { name_ = name; }
 
-    std::shared_ptr<MessageSender> message_sender() const { return message_sender_; }
+  std::shared_ptr<MessageSender> message_sender() const {
+    return message_sender_;
+  }
 
-    int id() const { return id_; }
+  int id() const { return id_; }
 
-    void send(char const* data, size_t length);
-    void read_next_message();
+  void send(char const* data, size_t length);
+  void read_next_message();
 
-private:
-    void on_read_size(const boost::system::error_code& ec, std::size_t bytes_read);
+ private:
+  void on_read_size(const boost::system::error_code& ec,
+                    std::size_t bytes_read);
 
-    std::shared_ptr<MessageReceiver> message_receiver_;
-    std::shared_ptr<MessageSender>  message_sender_;
-    int id_;
-    std::shared_ptr<Connections<SocketConnection>> connections_;
-    std::shared_ptr<MessageProcessor> processor_;
-    std::array<std::uint8_t, 8192> buffer_;
-    std::string name_;
+  std::shared_ptr<MessageReceiver> message_receiver_;
+  std::shared_ptr<MessageSender> message_sender_;
+  int id_;
+  std::shared_ptr<Connections<SocketConnection>> connections_;
+  std::shared_ptr<MessageProcessor> processor_;
+  std::array<std::uint8_t, 8192> buffer_;
+  std::string name_;
 };
-} // namespace anbox
-} // namespace network
+}  // namespace anbox
+}  // namespace network
 
 #endif

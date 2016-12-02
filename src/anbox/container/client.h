@@ -18,39 +18,40 @@
 #ifndef ANBOX_CONTAINER_CLIENT_H_
 #define ANBOX_CONTAINER_CLIENT_H_
 
-#include "anbox/runtime.h"
 #include "anbox/container/configuration.h"
+#include "anbox/runtime.h"
 
 namespace anbox {
 namespace rpc {
 class PendingCallCache;
 class Channel;
 class MessageProcessor;
-} // namespace rpc
+}  // namespace rpc
 namespace network {
 class LocalSocketMessenger;
-} // namespace network
+}  // namespace network
 namespace container {
 class ManagementApiStub;
 class Client {
-public:
-    Client(const std::shared_ptr<Runtime> &rt);
-    ~Client();
+ public:
+  Client(const std::shared_ptr<Runtime> &rt);
+  ~Client();
 
-    void start_container(const Configuration &configuration);
+  void start_container(const Configuration &configuration);
 
-private:
-    void read_next_message();
-    void on_read_size(const boost::system::error_code& ec, std::size_t bytes_read);
+ private:
+  void read_next_message();
+  void on_read_size(const boost::system::error_code &ec,
+                    std::size_t bytes_read);
 
-    std::shared_ptr<network::LocalSocketMessenger> messenger_;
-    std::shared_ptr<rpc::PendingCallCache> pending_calls_;
-    std::shared_ptr<rpc::Channel> rpc_channel_;
-    std::shared_ptr<ManagementApiStub> management_api_;
-    std::shared_ptr<rpc::MessageProcessor> processor_;
-    std::array<std::uint8_t, 8192> buffer_;
+  std::shared_ptr<network::LocalSocketMessenger> messenger_;
+  std::shared_ptr<rpc::PendingCallCache> pending_calls_;
+  std::shared_ptr<rpc::Channel> rpc_channel_;
+  std::shared_ptr<ManagementApiStub> management_api_;
+  std::shared_ptr<rpc::MessageProcessor> processor_;
+  std::array<std::uint8_t, 8192> buffer_;
 };
-} // namespace container
-} // namespace anbox
+}  // namespace container
+}  // namespace anbox
 
 #endif

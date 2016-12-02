@@ -28,43 +28,43 @@ namespace anbox {
 namespace protobuf {
 namespace rpc {
 class Void;
-} // namespace bridge
-} // namespace protobuf
+}  // namespace bridge
+}  // namespace protobuf
 namespace rpc {
 class Channel;
-} // namespace rpc
+}  // namespace rpc
 namespace bridge {
 class AndroidApiStub : public anbox::ApplicationManager {
-public:
-    AndroidApiStub();
-    ~AndroidApiStub();
+ public:
+  AndroidApiStub();
+  ~AndroidApiStub();
 
-    void set_rpc_channel(const std::shared_ptr<rpc::Channel> &channel);
-    void reset_rpc_channel();
+  void set_rpc_channel(const std::shared_ptr<rpc::Channel> &channel);
+  void reset_rpc_channel();
 
-    void launch(const android::Intent &intent) override;
+  void launch(const android::Intent &intent) override;
 
-    void set_focused_task(const std::int32_t &id);
+  void set_focused_task(const std::int32_t &id);
 
-private:
-    void ensure_rpc_channel();
+ private:
+  void ensure_rpc_channel();
 
-    template<typename Response>
-    struct Request {
-        Request() : response(std::make_shared<Response>()), success(true) { }
-        std::shared_ptr<Response> response;
-        bool success;
-    };
+  template <typename Response>
+  struct Request {
+    Request() : response(std::make_shared<Response>()), success(true) {}
+    std::shared_ptr<Response> response;
+    bool success;
+  };
 
-    void application_launched(Request<protobuf::rpc::Void> *request);
-    void focused_task_set(Request<protobuf::rpc::Void> *request);
+  void application_launched(Request<protobuf::rpc::Void> *request);
+  void focused_task_set(Request<protobuf::rpc::Void> *request);
 
-    mutable std::mutex mutex_;
-    std::shared_ptr<rpc::Channel> channel_;
-    common::WaitHandle launch_wait_handle_;
-    common::WaitHandle set_focused_task_handle_;
+  mutable std::mutex mutex_;
+  std::shared_ptr<rpc::Channel> channel_;
+  common::WaitHandle launch_wait_handle_;
+  common::WaitHandle set_focused_task_handle_;
 };
-} // namespace bridge
-} // namespace anbox
+}  // namespace bridge
+}  // namespace anbox
 
 #endif

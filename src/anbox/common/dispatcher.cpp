@@ -21,23 +21,20 @@
 
 namespace {
 struct AsioStrandDispatcher : public anbox::common::Dispatcher {
-public:
-    AsioStrandDispatcher(const std::shared_ptr<anbox::Runtime>& rt)
-        : rt{rt},
-          strand{rt->service()} {
-    }
+ public:
+  AsioStrandDispatcher(const std::shared_ptr<anbox::Runtime>& rt)
+      : rt{rt}, strand{rt->service()} {}
 
-    void dispatch(const Task &task) override {
-        strand.post(task);
-    }
+  void dispatch(const Task& task) override { strand.post(task); }
 
-private:
-    std::shared_ptr<anbox::Runtime> rt;
-    boost::asio::io_service::strand strand;
+ private:
+  std::shared_ptr<anbox::Runtime> rt;
+  boost::asio::io_service::strand strand;
 };
 }
 
-std::shared_ptr<anbox::common::Dispatcher> anbox::common::create_dispatcher_for_runtime(
-        const std::shared_ptr<anbox::Runtime>& rt) {
-    return std::make_shared<AsioStrandDispatcher>(rt);
+std::shared_ptr<anbox::common::Dispatcher>
+anbox::common::create_dispatcher_for_runtime(
+    const std::shared_ptr<anbox::Runtime>& rt) {
+  return std::make_shared<AsioStrandDispatcher>(rt);
 }

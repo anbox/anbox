@@ -29,10 +29,10 @@
 namespace anbox {
 namespace cmds {
 class Version : public cli::CommandWithFlagsAndAction {
-public:
-    Version();
+ public:
+  Version();
 };
-} // namespace cmds
-} // namespace anbox
+}  // namespace cmds
+}  // namespace anbox
 
 #endif

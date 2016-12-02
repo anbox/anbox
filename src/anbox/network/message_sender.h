@@ -23,18 +23,17 @@
 
 namespace anbox {
 namespace network {
-class MessageSender
-{
-public:
-    virtual void send(char const* data, size_t length) = 0;
+class MessageSender {
+ public:
+  virtual void send(char const* data, size_t length) = 0;
 
-protected:
-    MessageSender() = default;
-    virtual ~MessageSender() = default;
-    MessageSender(MessageSender const&) = delete;
-    MessageSender& operator=(MessageSender const&) = delete;
+ protected:
+  MessageSender() = default;
+  virtual ~MessageSender() = default;
+  MessageSender(MessageSender const&) = delete;
+  MessageSender& operator=(MessageSender const&) = delete;
 };
-} // namespace anbox
-} // namespace network
+}  // namespace anbox
+}  // namespace network
 
 #endif

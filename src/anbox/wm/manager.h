@@ -18,32 +18,32 @@
 #ifndef ANBOX_WM_MANAGER_H_
 #define ANBOX_WM_MANAGER_H_
 
-#include "anbox/wm/window_state.h"
 #include "anbox/wm/window.h"
+#include "anbox/wm/window_state.h"
 
-#include <memory>
 #include <map>
+#include <memory>
 #include <mutex>
 
 namespace anbox {
 namespace wm {
 class PlatformPolicy;
 class Manager {
-public:
-    Manager(const std::shared_ptr<PlatformPolicy> &platform);
-    ~Manager();
+ public:
+  Manager(const std::shared_ptr<PlatformPolicy> &platform);
+  ~Manager();
 
-    void apply_window_state_update(const WindowState::List &updated,
-                                   const WindowState::List &removed);
+  void apply_window_state_update(const WindowState::List &updated,
+                                 const WindowState::List &removed);
 
-    std::shared_ptr<Window> find_window_for_task(const Task::Id &task);
+  std::shared_ptr<Window> find_window_for_task(const Task::Id &task);
 
-private:
-    std::mutex mutex_;
-    std::shared_ptr<PlatformPolicy> platform_;
-    std::map<Task::Id, std::shared_ptr<Window>> windows_;
+ private:
+  std::mutex mutex_;
+  std::shared_ptr<PlatformPolicy> platform_;
+  std::map<Task::Id, std::shared_ptr<Window>> windows_;
 };
-} // namespace wm
-} // namespace anbox
+}  // namespace wm
+}  // namespace anbox
 
 #endif

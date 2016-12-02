@@ -19,9 +19,9 @@
 #ifndef ANBOX_GRAPHICS_PROGRAM_FAMILY_H_
 #define ANBOX_GRAPHICS_PROGRAM_FAMILY_H_
 
-#include <utility>
 #include <map>
 #include <unordered_map>
+#include <utility>
 
 #include <GLES2/gl2.h>
 
@@ -35,34 +35,31 @@ namespace graphics {
  * different programs within the family to share common patterns of uniform
  * usage too.
  */
-class ProgramFamily
-{
-public:
-    ProgramFamily() = default;
-    ProgramFamily(ProgramFamily const&) = delete;
-    ProgramFamily& operator=(ProgramFamily const&) = delete;
-    ~ProgramFamily() noexcept;
+class ProgramFamily {
+ public:
+  ProgramFamily() = default;
+  ProgramFamily(ProgramFamily const&) = delete;
+  ProgramFamily& operator=(ProgramFamily const&) = delete;
+  ~ProgramFamily() noexcept;
 
-    GLuint add_program(const GLchar* const static_vshader_src,
-                       const GLchar* const static_fshader_src);
+  GLuint add_program(const GLchar* const static_vshader_src,
+                     const GLchar* const static_fshader_src);
 
-private:
-    struct Shader
-    {
-        GLuint id = 0;
-        void init(GLenum type, const GLchar* src);
-    };
-    typedef std::unordered_map<const GLchar*, Shader> ShaderMap;
-    ShaderMap vshader, fshader;
+ private:
+  struct Shader {
+    GLuint id = 0;
+    void init(GLenum type, const GLchar* src);
+  };
+  typedef std::unordered_map<const GLchar*, Shader> ShaderMap;
+  ShaderMap vshader, fshader;
 
-    typedef std::pair<GLuint, GLuint> ShaderPair;
-    struct Program
-    {
-        GLuint id = 0;
-    };
-    std::map<ShaderPair, Program> program;
+  typedef std::pair<GLuint, GLuint> ShaderPair;
+  struct Program {
+    GLuint id = 0;
+  };
+  std::map<ShaderPair, Program> program;
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
-#endif // MIR_RENDERER_GL_PROGRAM_FAMILY_H_
+#endif  // MIR_RENDERER_GL_PROGRAM_FAMILY_H_

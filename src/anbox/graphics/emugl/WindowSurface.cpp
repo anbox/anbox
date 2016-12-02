@@ -25,163 +25,150 @@
 #include <stdio.h>
 #include <string.h>
 
-
-WindowSurface::WindowSurface(EGLDisplay display,
-                             EGLConfig config) :
-        mSurface(NULL),
-        mAttachedColorBuffer(NULL),
-        mReadContext(NULL),
-        mDrawContext(NULL),
-        mWidth(0),
-        mHeight(0),
-        mConfig(config),
-        mDisplay(display) {}
+WindowSurface::WindowSurface(EGLDisplay display, EGLConfig config)
+    : mSurface(NULL),
+      mAttachedColorBuffer(NULL),
+      mReadContext(NULL),
+      mDrawContext(NULL),
+      mWidth(0),
+      mHeight(0),
+      mConfig(config),
+      mDisplay(display) {}
 
 WindowSurface::~WindowSurface() {
-    if (mSurface) {
-        s_egl.eglDestroySurface(mDisplay, mSurface);
-    }
+  if (mSurface) {
+    s_egl.eglDestroySurface(mDisplay, mSurface);
+  }
 }
 
-WindowSurface *WindowSurface::create(EGLDisplay display,
-                                     EGLConfig config,
-                                     int p_width,
-                                     int p_height) {
-    // allocate space for the WindowSurface object
-    WindowSurface *win = new WindowSurface(display, config);
-    if (!win) {
-        return NULL;
-    }
+WindowSurface *WindowSurface::create(EGLDisplay display, EGLConfig config,
+                                     int p_width, int p_height) {
+  // allocate space for the WindowSurface object
+  WindowSurface *win = new WindowSurface(display, config);
+  if (!win) {
+    return NULL;
+  }
 
-    // Create a pbuffer to be used as the egl surface
-    // for that window.
-    if (!win->resize(p_width, p_height)) {
-        delete win;
-        return NULL;
-    }
+  // Create a pbuffer to be used as the egl surface
+  // for that window.
+  if (!win->resize(p_width, p_height)) {
+    delete win;
+    return NULL;
+  }
 
-    return win;
+  return win;
 }
-
 
 void WindowSurface::setColorBuffer(ColorBufferPtr p_colorBuffer) {
-    mAttachedColorBuffer = p_colorBuffer;
+  mAttachedColorBuffer = p_colorBuffer;
 
-    // resize the window if the attached color buffer is of different
-    // size.
-    unsigned int cbWidth = mAttachedColorBuffer->getWidth();
-    unsigned int cbHeight = mAttachedColorBuffer->getHeight();
+  // resize the window if the attached color buffer is of different
+  // size.
+  unsigned int cbWidth = mAttachedColorBuffer->getWidth();
+  unsigned int cbHeight = mAttachedColorBuffer->getHeight();
 
-    if (cbWidth != mWidth || cbHeight != mHeight) {
-        resize(cbWidth, cbHeight);
-    }
+  if (cbWidth != mWidth || cbHeight != mHeight) {
+    resize(cbWidth, cbHeight);
+  }
 }
 
 void WindowSurface::bind(RenderContextPtr p_ctx, BindType p_bindType) {
-    if (p_bindType == BIND_READ) {
-        mReadContext = p_ctx;
-    } else if (p_bindType == BIND_DRAW) {
-        mDrawContext = p_ctx;
-    } else if (p_bindType == BIND_READDRAW) {
-        mReadContext = p_ctx;
-        mDrawContext = p_ctx;
-    }
+  if (p_bindType == BIND_READ) {
+    mReadContext = p_ctx;
+  } else if (p_bindType == BIND_DRAW) {
+    mDrawContext = p_ctx;
+  } else if (p_bindType == BIND_READDRAW) {
+    mReadContext = p_ctx;
+    mDrawContext = p_ctx;
+  }
 }
 
 bool WindowSurface::flushColorBuffer() {
-    if (!mAttachedColorBuffer.Ptr()) {
-        return true;
-    }
-    if (!mWidth || !mHeight) {
-        return false;
-    }
-
-    if (mAttachedColorBuffer->getWidth() != mWidth ||
-        mAttachedColorBuffer->getHeight() != mHeight) {
-        // XXX: should never happen - how this needs to be handled?
-        fprintf(stderr, "Dimensions do not match\n");
-        return false;
-    }
-
-    if (!mDrawContext.Ptr()) {
-        fprintf(stderr, "Draw context is NULL\n");
-        return false;
-    }
-
-    // Make the surface current
-    EGLContext prevContext = s_egl.eglGetCurrentContext();
-    EGLSurface prevReadSurf = s_egl.eglGetCurrentSurface(EGL_READ);
-    EGLSurface prevDrawSurf = s_egl.eglGetCurrentSurface(EGL_DRAW);
-
-    if (!s_egl.eglMakeCurrent(mDisplay,
-                              mSurface,
-                              mSurface,
-                              mDrawContext->getEGLContext())) {
-        fprintf(stderr, "Error making draw context current\n");
-        return false;
-    }
-
-    mAttachedColorBuffer->blitFromCurrentReadBuffer();
-
-    // restore current context/surface
-    s_egl.eglMakeCurrent(mDisplay, prevDrawSurf, prevReadSurf, prevContext);
-
+  if (!mAttachedColorBuffer.Ptr()) {
     return true;
+  }
+  if (!mWidth || !mHeight) {
+    return false;
+  }
+
+  if (mAttachedColorBuffer->getWidth() != mWidth ||
+      mAttachedColorBuffer->getHeight() != mHeight) {
+    // XXX: should never happen - how this needs to be handled?
+    fprintf(stderr, "Dimensions do not match\n");
+    return false;
+  }
+
+  if (!mDrawContext.Ptr()) {
+    fprintf(stderr, "Draw context is NULL\n");
+    return false;
+  }
+
+  // Make the surface current
+  EGLContext prevContext = s_egl.eglGetCurrentContext();
+  EGLSurface prevReadSurf = s_egl.eglGetCurrentSurface(EGL_READ);
+  EGLSurface prevDrawSurf = s_egl.eglGetCurrentSurface(EGL_DRAW);
+
+  if (!s_egl.eglMakeCurrent(mDisplay, mSurface, mSurface,
+                            mDrawContext->getEGLContext())) {
+    fprintf(stderr, "Error making draw context current\n");
+    return false;
+  }
+
+  mAttachedColorBuffer->blitFromCurrentReadBuffer();
+
+  // restore current context/surface
+  s_egl.eglMakeCurrent(mDisplay, prevDrawSurf, prevReadSurf, prevContext);
+
+  return true;
 }
 
-bool WindowSurface::resize(unsigned int p_width, unsigned int p_height)
-{
-    if (mSurface && mWidth == p_width && mHeight == p_height) {
-        // no need to resize
-        return true;
-    }
-
-    EGLContext prevContext = s_egl.eglGetCurrentContext();
-    EGLSurface prevReadSurf = s_egl.eglGetCurrentSurface(EGL_READ);
-    EGLSurface prevDrawSurf = s_egl.eglGetCurrentSurface(EGL_DRAW);
-    EGLSurface prevPbuf = mSurface;
-    bool needRebindContext = mSurface &&
-                             (prevReadSurf == mSurface ||
-                              prevDrawSurf == mSurface);
-
-    if (needRebindContext) {
-        s_egl.eglMakeCurrent(
-                mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    }
-
-    //
-    // Destroy previous surface
-    //
-    if (mSurface) {
-        s_egl.eglDestroySurface(mDisplay, mSurface);
-        mSurface = NULL;
-    }
-
-    //
-    // Create pbuffer surface.
-    //
-    const EGLint pbufAttribs[5] = {
-        EGL_WIDTH, (EGLint) p_width, EGL_HEIGHT, (EGLint) p_height, EGL_NONE,
-    };
-
-    mSurface = s_egl.eglCreatePbufferSurface(mDisplay,
-                                             mConfig,
-                                             pbufAttribs);
-    if (mSurface == EGL_NO_SURFACE) {
-        fprintf(stderr, "Renderer error: failed to create/resize pbuffer!!\n");
-        return false;
-    }
-
-    mWidth = p_width;
-    mHeight = p_height;
-
-    if (needRebindContext) {
-        s_egl.eglMakeCurrent(
-                mDisplay,
-                (prevDrawSurf == prevPbuf) ? mSurface : prevDrawSurf,
-                (prevReadSurf == prevPbuf) ? mSurface : prevReadSurf,
-                prevContext);
-    }
-
+bool WindowSurface::resize(unsigned int p_width, unsigned int p_height) {
+  if (mSurface && mWidth == p_width && mHeight == p_height) {
+    // no need to resize
     return true;
+  }
+
+  EGLContext prevContext = s_egl.eglGetCurrentContext();
+  EGLSurface prevReadSurf = s_egl.eglGetCurrentSurface(EGL_READ);
+  EGLSurface prevDrawSurf = s_egl.eglGetCurrentSurface(EGL_DRAW);
+  EGLSurface prevPbuf = mSurface;
+  bool needRebindContext =
+      mSurface && (prevReadSurf == mSurface || prevDrawSurf == mSurface);
+
+  if (needRebindContext) {
+    s_egl.eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE,
+                         EGL_NO_CONTEXT);
+  }
+
+  //
+  // Destroy previous surface
+  //
+  if (mSurface) {
+    s_egl.eglDestroySurface(mDisplay, mSurface);
+    mSurface = NULL;
+  }
+
+  //
+  // Create pbuffer surface.
+  //
+  const EGLint pbufAttribs[5] = {
+      EGL_WIDTH, (EGLint)p_width, EGL_HEIGHT, (EGLint)p_height, EGL_NONE,
+  };
+
+  mSurface = s_egl.eglCreatePbufferSurface(mDisplay, mConfig, pbufAttribs);
+  if (mSurface == EGL_NO_SURFACE) {
+    fprintf(stderr, "Renderer error: failed to create/resize pbuffer!!\n");
+    return false;
+  }
+
+  mWidth = p_width;
+  mHeight = p_height;
+
+  if (needRebindContext) {
+    s_egl.eglMakeCurrent(
+        mDisplay, (prevDrawSurf == prevPbuf) ? mSurface : prevDrawSurf,
+        (prevReadSurf == prevPbuf) ? mSurface : prevReadSurf, prevContext);
+  }
+
+  return true;
 }

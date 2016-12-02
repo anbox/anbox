@@ -23,17 +23,18 @@
 namespace anbox {
 namespace qemu {
 class FingerprintMessageProcessor : public QemudMessageProcessor {
-public:
-    FingerprintMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~FingerprintMessageProcessor();
+ public:
+  FingerprintMessageProcessor(
+      const std::shared_ptr<network::SocketMessenger> &messenger);
+  ~FingerprintMessageProcessor();
 
-protected:
-    void handle_command(const std::string &command) override;
+ protected:
+  void handle_command(const std::string &command) override;
 
-private:
-    void listen();
+ private:
+  void listen();
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

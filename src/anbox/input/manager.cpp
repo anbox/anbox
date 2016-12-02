@@ -16,39 +16,38 @@
  */
 
 #include "anbox/input/manager.h"
+#include "anbox/config.h"
 #include "anbox/input/device.h"
 #include "anbox/runtime.h"
-#include "anbox/config.h"
 #include "anbox/utils.h"
 
 #include <boost/format.hpp>
 
 namespace anbox {
 namespace input {
-Manager::Manager(const std::shared_ptr<Runtime> &runtime) :
-    runtime_(runtime) {
-    utils::ensure_paths({ config::host_input_device_path() });
+Manager::Manager(const std::shared_ptr<Runtime> &runtime) : runtime_(runtime) {
+  utils::ensure_paths({config::host_input_device_path()});
 }
 
-Manager::~Manager() {
-}
+Manager::~Manager() {}
 
 std::shared_ptr<Device> Manager::create_device() {
-    const auto id = next_id();
-    const auto path = build_device_path(id);
-    auto device = Device::create(path, runtime_);
-    devices_.insert({id, device});
-    return device;
+  const auto id = next_id();
+  const auto path = build_device_path(id);
+  auto device = Device::create(path, runtime_);
+  devices_.insert({id, device});
+  return device;
 }
 
 std::uint32_t Manager::next_id() {
-    static std::uint32_t next_id = 0;
-    return next_id++;
+  static std::uint32_t next_id = 0;
+  return next_id++;
 }
 
 std::string Manager::build_device_path(const std::uint32_t &id) {
-    return (boost::format("%1%/event%2%") % config::host_input_device_path() % id).str();
+  return (boost::format("%1%/event%2%") % config::host_input_device_path() % id)
+      .str();
 }
 
-} // namespace input
-} // namespace anbox
+}  // namespace input
+}  // namespace anbox

@@ -18,22 +18,22 @@
 #ifndef ANBOX_DAEMON_H_
 #define ANBOX_DAEMON_H_
 
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "anbox/do_not_copy_or_move.h"
 #include "anbox/cli.h"
+#include "anbox/do_not_copy_or_move.h"
 
 namespace anbox {
 class Daemon : public DoNotCopyOrMove {
-public:
-    Daemon();
+ public:
+  Daemon();
 
-    int Run(const std::vector<std::string> &arguments);
+  int Run(const std::vector<std::string> &arguments);
 
-private:
-    cli::CommandWithSubcommands cmd;
+ private:
+  cli::CommandWithSubcommands cmd;
 };
-} // namespace anbox
+}  // namespace anbox
 
 #endif

@@ -24,48 +24,49 @@
 
 #include <memory>
 
-#include <google/protobuf/stubs/common.h>
 #include <google/protobuf/message_lite.h>
+#include <google/protobuf/stubs/common.h>
 
 namespace anbox {
 namespace protobuf {
 namespace rpc {
 class Invocation;
-} // namespace rpc
-} // namespace protobuf
+}  // namespace rpc
+}  // namespace protobuf
 namespace rpc {
-class Invocation
-{
-public:
-    Invocation(anbox::protobuf::rpc::Invocation const& invocation) :
-        invocation_(invocation) {}
+class Invocation {
+ public:
+  Invocation(anbox::protobuf::rpc::Invocation const& invocation)
+      : invocation_(invocation) {}
 
-    const ::std::string& method_name() const;
-    const ::std::string& parameters() const;
-    google::protobuf::uint32 id() const;
-private:
-    anbox::protobuf::rpc::Invocation const& invocation_;
+  const ::std::string& method_name() const;
+  const ::std::string& parameters() const;
+  google::protobuf::uint32 id() const;
+
+ private:
+  anbox::protobuf::rpc::Invocation const& invocation_;
 };
 
 class MessageProcessor : public network::MessageProcessor {
-public:
-    MessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
-                     const std::shared_ptr<PendingCallCache> &pending_calls);
-    ~MessageProcessor();
+ public:
+  MessageProcessor(const std::shared_ptr<network::MessageSender>& sender,
+                   const std::shared_ptr<PendingCallCache>& pending_calls);
+  ~MessageProcessor();
 
-    bool process_data(const std::vector<std::uint8_t> &data) override;
+  bool process_data(const std::vector<std::uint8_t>& data) override;
 
-    void send_response(::google::protobuf::uint32 id, google::protobuf::MessageLite *response);
+  void send_response(::google::protobuf::uint32 id,
+                     google::protobuf::MessageLite* response);
 
-    virtual void dispatch(Invocation const& invocation) { }
-    virtual void process_event_sequence(const std::string &event) { }
+  virtual void dispatch(Invocation const& invocation) {}
+  virtual void process_event_sequence(const std::string& event) {}
 
-private:
-    std::shared_ptr<network::MessageSender> sender_;
-    std::vector<std::uint8_t> buffer_;
-    std::shared_ptr<PendingCallCache> pending_calls_;
+ private:
+  std::shared_ptr<network::MessageSender> sender_;
+  std::vector<std::uint8_t> buffer_;
+  std::shared_ptr<PendingCallCache> pending_calls_;
 };
-} // namespace rpc
-} // namespace anbox
+}  // namespace rpc
+}  // namespace anbox
 
 #endif

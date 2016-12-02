@@ -20,34 +20,34 @@
 #include "IOStream.h"
 
 class SocketStream : public IOStream {
-public:
-    typedef enum { ERR_INVALID_SOCKET = -1000 } SocketStreamError;
-    static const size_t MAX_ADDRSTR_LEN = 256;
+ public:
+  typedef enum { ERR_INVALID_SOCKET = -1000 } SocketStreamError;
+  static const size_t MAX_ADDRSTR_LEN = 256;
 
-    explicit SocketStream(size_t bufsize = 10000);
-    virtual ~SocketStream();
+  explicit SocketStream(size_t bufsize = 10000);
+  virtual ~SocketStream();
 
-    virtual int listen(char addrstr[MAX_ADDRSTR_LEN]) = 0;
-    virtual SocketStream *accept() = 0;
-    virtual int connect(const char* addr) = 0;
+  virtual int listen(char addrstr[MAX_ADDRSTR_LEN]) = 0;
+  virtual SocketStream *accept() = 0;
+  virtual int connect(const char *addr) = 0;
 
-    virtual void *allocBuffer(size_t minSize);
-    virtual int commitBuffer(size_t size);
-    virtual const unsigned char *readFully(void *buf, size_t len);
-    virtual const unsigned char *read(void *buf, size_t *inout_len);
+  virtual void *allocBuffer(size_t minSize);
+  virtual int commitBuffer(size_t size);
+  virtual const unsigned char *readFully(void *buf, size_t len);
+  virtual const unsigned char *read(void *buf, size_t *inout_len);
 
-    bool valid() { return m_sock >= 0; }
-    virtual int recv(void *buf, size_t len);
-    virtual int writeFully(const void *buf, size_t len);
+  bool valid() { return m_sock >= 0; }
+  virtual int recv(void *buf, size_t len);
+  virtual int writeFully(const void *buf, size_t len);
 
-    virtual void forceStop();
+  virtual void forceStop();
 
-protected:
-    int            m_sock;
-    size_t         m_bufsize;
-    unsigned char *m_buf;
+ protected:
+  int m_sock;
+  size_t m_bufsize;
+  unsigned char *m_buf;
 
-    SocketStream(int sock, size_t bufSize);
+  SocketStream(int sock, size_t bufSize);
 };
 
 #endif /* __SOCKET_STREAM_H */

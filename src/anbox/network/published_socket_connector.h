@@ -23,34 +23,35 @@
 #include "anbox/do_not_copy_or_move.h"
 #include "anbox/runtime.h"
 
-#include "anbox/network/connector.h"
 #include "anbox/network/connection_creator.h"
+#include "anbox/network/connector.h"
 
 namespace anbox {
 namespace network {
-class PublishedSocketConnector : public DoNotCopyOrMove,
-                                 public Connector {
-public:
-    explicit PublishedSocketConnector(
-            const std::string& socket_file,
-            const std::shared_ptr<Runtime> &rt,
-            const std::shared_ptr<ConnectionCreator<boost::asio::local::stream_protocol>> &connection_creator);
-    ~PublishedSocketConnector() noexcept;
+class PublishedSocketConnector : public DoNotCopyOrMove, public Connector {
+ public:
+  explicit PublishedSocketConnector(
+      const std::string& socket_file, const std::shared_ptr<Runtime>& rt,
+      const std::shared_ptr<ConnectionCreator<
+          boost::asio::local::stream_protocol>>& connection_creator);
+  ~PublishedSocketConnector() noexcept;
 
-    std::string socket_file() const { return socket_file_; }
+  std::string socket_file() const { return socket_file_; }
 
-private:
-    void start_accept();
-    void on_new_connection(
-        std::shared_ptr<boost::asio::local::stream_protocol::socket> const& socket,
-        boost::system::error_code const& err);
+ private:
+  void start_accept();
+  void on_new_connection(
+      std::shared_ptr<boost::asio::local::stream_protocol::socket> const&
+          socket,
+      boost::system::error_code const& err);
 
-    const std::string socket_file_;
-    std::shared_ptr<Runtime> runtime_;
-    std::shared_ptr<ConnectionCreator<boost::asio::local::stream_protocol>> connection_creator_;
-    boost::asio::local::stream_protocol::acceptor acceptor_;
+  const std::string socket_file_;
+  std::shared_ptr<Runtime> runtime_;
+  std::shared_ptr<ConnectionCreator<boost::asio::local::stream_protocol>>
+      connection_creator_;
+  boost::asio::local::stream_protocol::acceptor acceptor_;
 };
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox
 
 #endif

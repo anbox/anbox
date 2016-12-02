@@ -16,76 +16,77 @@
  */
 
 #include "anbox/container/service.h"
+#include "anbox/config.h"
+#include "anbox/container/lxc_container.h"
+#include "anbox/container/management_api_message_processor.h"
+#include "anbox/container/management_api_skeleton.h"
+#include "anbox/logger.h"
 #include "anbox/network/delegate_connection_creator.h"
 #include "anbox/network/delegate_message_processor.h"
 #include "anbox/network/local_socket_messenger.h"
 #include "anbox/qemu/null_message_processor.h"
-#include "anbox/rpc/pending_call_cache.h"
 #include "anbox/rpc/channel.h"
-#include "anbox/container/lxc_container.h"
-#include "anbox/container/management_api_message_processor.h"
-#include "anbox/container/management_api_skeleton.h"
-#include "anbox/config.h"
-#include "anbox/logger.h"
+#include "anbox/rpc/pending_call_cache.h"
 
 namespace anbox {
 namespace container {
 std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt) {
-    auto sp = std::make_shared<Service>(rt);
+  auto sp = std::make_shared<Service>(rt);
 
-    auto delegate_connector = std::make_shared<network::DelegateConnectionCreator<boost::asio::local::stream_protocol>>(
-            [sp](std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket) {
-        sp->new_client(socket);
-    });
+  auto delegate_connector = std::make_shared<
+      network::DelegateConnectionCreator<boost::asio::local::stream_protocol>>(
+      [sp](std::shared_ptr<boost::asio::local::stream_protocol::socket> const
+               &socket) { sp->new_client(socket); });
 
-    sp->connector_ = std::make_shared<network::PublishedSocketConnector>(
-                config::container_socket_path(), rt, delegate_connector);
+  sp->connector_ = std::make_shared<network::PublishedSocketConnector>(
+      config::container_socket_path(), rt, delegate_connector);
 
-    // Make sure others can connect to our socket
-    ::chmod(config::container_socket_path().c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+  // Make sure others can connect to our socket
+  ::chmod(config::container_socket_path().c_str(),
+          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 
-    DEBUG("Everything setup. Waiting for incoming connections.");
+  DEBUG("Everything setup. Waiting for incoming connections.");
 
-    return sp;
+  return sp;
 }
 
-Service::Service(const std::shared_ptr<Runtime> &rt) :
-    dispatcher_(anbox::common::create_dispatcher_for_runtime(rt)),
-    next_connection_id_(0),
-    connections_(std::make_shared<network::Connections<network::SocketConnection>>()) {
+Service::Service(const std::shared_ptr<Runtime> &rt)
+    : dispatcher_(anbox::common::create_dispatcher_for_runtime(rt)),
+      next_connection_id_(0),
+      connections_(
+          std::make_shared<network::Connections<network::SocketConnection>>()) {
 }
 
-Service::~Service() {
-    DEBUG("");
+Service::~Service() { DEBUG(""); }
+
+int Service::next_id() { return next_connection_id_++; }
+
+void Service::new_client(
+    std::shared_ptr<boost::asio::local::stream_protocol::socket> const
+        &socket) {
+  if (connections_->size() >= 1) {
+    socket->close();
+    return;
+  }
+
+  auto const messenger =
+      std::make_shared<network::LocalSocketMessenger>(socket);
+
+  DEBUG("Got connection from pid %d", messenger->creds().pid());
+
+  auto pending_calls = std::make_shared<rpc::PendingCallCache>();
+  auto rpc_channel = std::make_shared<rpc::Channel>(pending_calls, messenger);
+  auto server = std::make_shared<container::ManagementApiSkeleton>(
+      pending_calls, std::make_shared<LxcContainer>());
+  auto processor = std::make_shared<container::ManagementApiMessageProcessor>(
+      messenger, pending_calls, server);
+
+  auto const &connection = std::make_shared<network::SocketConnection>(
+      messenger, messenger, next_id(), connections_, processor);
+  connection->set_name("container-service");
+
+  connections_->add(connection);
+  connection->read_next_message();
 }
-
-int Service::next_id() {
-    return next_connection_id_++;
-}
-
-void Service::new_client(std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket) {
-    if (connections_->size() >= 1) {
-        socket->close();
-        return;
-    }
-
-    auto const messenger = std::make_shared<network::LocalSocketMessenger>(socket);
-
-    DEBUG("Got connection from pid %d", messenger->creds().pid());
-
-    auto pending_calls = std::make_shared<rpc::PendingCallCache>();
-    auto rpc_channel = std::make_shared<rpc::Channel>(pending_calls, messenger);
-    auto server = std::make_shared<container::ManagementApiSkeleton>(
-                pending_calls, std::make_shared<LxcContainer>());
-    auto processor = std::make_shared<container::ManagementApiMessageProcessor>(
-                messenger, pending_calls, server);
-
-    auto const& connection = std::make_shared<network::SocketConnection>(
-                messenger, messenger, next_id(), connections_, processor);
-    connection->set_name("container-service");
-
-    connections_->add(connection);
-    connection->read_next_message();
-}
-} // namespace container
-} // namespace anbox
+}  // namespace container
+}  // namespace anbox

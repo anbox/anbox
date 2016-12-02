@@ -23,14 +23,15 @@
 namespace anbox {
 namespace qemu {
 class HwControlMessageProcessor : public QemudMessageProcessor {
-public:
-    HwControlMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~HwControlMessageProcessor();
+ public:
+  HwControlMessageProcessor(
+      const std::shared_ptr<network::SocketMessenger> &messenger);
+  ~HwControlMessageProcessor();
 
-protected:
-    void handle_command(const std::string &command) override;
+ protected:
+  void handle_command(const std::string &command) override;
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

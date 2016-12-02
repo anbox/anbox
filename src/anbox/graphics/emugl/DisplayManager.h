@@ -21,17 +21,17 @@
 #include <memory>
 
 class DisplayManager {
-public:
-    virtual ~DisplayManager();
+ public:
+  virtual ~DisplayManager();
 
-    struct DisplayInfo {
-        int horizontal_resolution;
-        int vertical_resolution;
-    };
+  struct DisplayInfo {
+    int horizontal_resolution;
+    int vertical_resolution;
+  };
 
-    virtual DisplayInfo display_info() const = 0;
+  virtual DisplayInfo display_info() const = 0;
 
-    static std::shared_ptr<DisplayManager> get();
+  static std::shared_ptr<DisplayManager> get();
 };
 
 void registerDisplayManager(const std::shared_ptr<DisplayManager> &mgr);

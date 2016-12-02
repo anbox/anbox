@@ -24,19 +24,23 @@
 
 namespace anbox {
 namespace build {
-/// @brief version_major marks the major version of the library. The constant is meant to be used
+/// @brief version_major marks the major version of the library. The constant is
+/// meant to be used
 /// by client code both at build and runtime, enabling version checks.
 static constexpr const std::uint32_t version_major{1};
-/// @brief version_major marks the minor version of the library. The constant is meant to be used
+/// @brief version_major marks the minor version of the library. The constant is
+/// meant to be used
 /// by client code both at build and runtime, enabling version checks.
 static constexpr const std::uint32_t version_minor{0};
-/// @brief version_patch marks the major version of the library. The constant is meant to be used
+/// @brief version_patch marks the major version of the library. The constant is
+/// meant to be used
 /// by client code both at build and runtime, enabling version checks.
 static constexpr const std::uint32_t version_patch{1};
-} // namespace build
+}  // namespace build
 
-/// @brief version queries the version of the library, placing the result in major, minor and patch.
+/// @brief version queries the version of the library, placing the result in
+/// major, minor and patch.
 void version(std::uint32_t& major, std::uint32_t& minor, std::uint32_t& patch);
-} // namespace build
+}  // namespace build
 
-#endif // ANBOX_VERSION_H_
+#endif  // ANBOX_VERSION_H_

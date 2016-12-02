@@ -17,86 +17,78 @@
 
 #include "anbox/graphics/layer_composer.h"
 #include "anbox/graphics/emugl/Renderer.h"
-#include "anbox/wm/manager.h"
 #include "anbox/logger.h"
+#include "anbox/wm/manager.h"
 
 namespace anbox {
 namespace graphics {
-LayerComposer::LayerComposer(const std::shared_ptr<wm::Manager> &wm) :
-    wm_(wm)
-{
-}
+LayerComposer::LayerComposer(const std::shared_ptr<wm::Manager> &wm)
+    : wm_(wm) {}
 
-LayerComposer::~LayerComposer()
-{
-}
+LayerComposer::~LayerComposer() {}
 
-void LayerComposer::submit_layers(const RenderableList &renderables)
-{
-    std::map<std::shared_ptr<wm::Window>,RenderableList> win_layers;
-    for (const auto &renderable : renderables)
-    {
-        // Ignore all surfaces which are not meant for a task
-        if (!utils::string_starts_with(renderable.name(), "org.anbox.surface."))
-            continue;
+void LayerComposer::submit_layers(const RenderableList &renderables) {
+  std::map<std::shared_ptr<wm::Window>, RenderableList> win_layers;
+  for (const auto &renderable : renderables) {
+    // Ignore all surfaces which are not meant for a task
+    if (!utils::string_starts_with(renderable.name(), "org.anbox.surface."))
+      continue;
 
-        wm::Task::Id task_id = 0;
-        if (sscanf(renderable.name().c_str(), "org.anbox.surface.%d", &task_id) != 1 || !task_id)
-            continue;
+    wm::Task::Id task_id = 0;
+    if (sscanf(renderable.name().c_str(), "org.anbox.surface.%d", &task_id) !=
+            1 ||
+        !task_id)
+      continue;
 
-        auto w = wm_->find_window_for_task(task_id);
-        if (!w)
-            continue;
+    auto w = wm_->find_window_for_task(task_id);
+    if (!w) continue;
 
-        if (win_layers.find(w) == win_layers.end()) {
-            win_layers.insert({w, {renderable}});
-            continue;
-        }
-
-        win_layers[w].push_back(renderable);
+    if (win_layers.find(w) == win_layers.end()) {
+      win_layers.insert({w, {renderable}});
+      continue;
     }
 
-    for (const auto &w : win_layers)
-    {
-        const auto &window = w.first;
-        const auto &renderables = w.second;
-        RenderableList final_renderables;
-        auto new_window_frame = Rect::Invalid;
+    win_layers[w].push_back(renderable);
+  }
 
-        for (auto &r : renderables)
-        {
-            if (new_window_frame == Rect::Invalid)
-                new_window_frame = r.screen_position();
-            else
-                new_window_frame.merge(r.screen_position());
-        }
+  for (const auto &w : win_layers) {
+    const auto &window = w.first;
+    const auto &renderables = w.second;
+    RenderableList final_renderables;
+    auto new_window_frame = Rect::Invalid;
 
-        for (auto &r : renderables)
-        {
-            // As we get absolute display coordinates from the Android hwcomposer we
-            // need to recalculate all layer coordinates into relatives ones to the
-            // window they are drawn into.
-            auto left = r.screen_position().left() - new_window_frame.left();
-            auto top = r.screen_position().top() - new_window_frame.top();
-
-            auto rect = Rect{
-                left - r.crop().left(),
-                top - r.crop().top(),
-                r.screen_position().width() + left,
-                r.screen_position().height() + top,
-            };
-
-            auto new_renderable = r;
-            new_renderable.set_screen_position(rect);
-            final_renderables.push_back(new_renderable);
-        }
-
-        w.first->update_frame(new_window_frame);
-
-        Renderer::get()->draw(window->native_handle(),
-                              Rect{0, 0, window->frame().width(), window->frame().height()},
-                              final_renderables);
+    for (auto &r : renderables) {
+      if (new_window_frame == Rect::Invalid)
+        new_window_frame = r.screen_position();
+      else
+        new_window_frame.merge(r.screen_position());
     }
+
+    for (auto &r : renderables) {
+      // As we get absolute display coordinates from the Android hwcomposer we
+      // need to recalculate all layer coordinates into relatives ones to the
+      // window they are drawn into.
+      auto left = r.screen_position().left() - new_window_frame.left();
+      auto top = r.screen_position().top() - new_window_frame.top();
+
+      auto rect = Rect{
+          left - r.crop().left(), top - r.crop().top(),
+          r.screen_position().width() + left,
+          r.screen_position().height() + top,
+      };
+
+      auto new_renderable = r;
+      new_renderable.set_screen_position(rect);
+      final_renderables.push_back(new_renderable);
+    }
+
+    w.first->update_frame(new_window_frame);
+
+    Renderer::get()->draw(
+        window->native_handle(),
+        Rect{0, 0, window->frame().width(), window->frame().height()},
+        final_renderables);
+  }
 }
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox

@@ -14,61 +14,54 @@
 * limitations under the License.
 */
 #include "ReadBuffer.h"
-#include <string.h>
 #include <assert.h>
 #include <limits.h>
+#include <string.h>
 #include "ErrorLog.h"
 
-ReadBuffer::ReadBuffer(size_t bufsize)
-{
-    m_size = bufsize;
-    m_buf = (unsigned char*)malloc(m_size*sizeof(unsigned char));
-    m_validData = 0;
-    m_readPtr = m_buf;
+ReadBuffer::ReadBuffer(size_t bufsize) {
+  m_size = bufsize;
+  m_buf = (unsigned char*)malloc(m_size * sizeof(unsigned char));
+  m_validData = 0;
+  m_readPtr = m_buf;
 }
 
-ReadBuffer::~ReadBuffer()
-{
-    free(m_buf);
+ReadBuffer::~ReadBuffer() { free(m_buf); }
+
+int ReadBuffer::getData(IOStream* stream) {
+  if (stream == NULL) return -1;
+  if ((m_validData > 0) && (m_readPtr > m_buf)) {
+    memmove(m_buf, m_readPtr, m_validData);
+  }
+  // get fresh data into the buffer;
+  size_t len = m_size - m_validData;
+  if (len == 0) {
+    // we need to inc our buffer
+    size_t new_size = m_size * 2;
+    unsigned char* new_buf;
+    if (new_size < m_size) {  // overflow check
+      new_size = INT_MAX;
+    }
+
+    new_buf = (unsigned char*)realloc(m_buf, new_size);
+    if (!new_buf) {
+      ERR("Failed to alloc %zu bytes for ReadBuffer\n", new_size);
+      return -1;
+    }
+    m_size = new_size;
+    m_buf = new_buf;
+    len = m_size - m_validData;
+  }
+  m_readPtr = m_buf;
+  if (NULL != stream->read(m_buf + m_validData, &len)) {
+    m_validData += len;
+    return len;
+  }
+  return -1;
 }
 
-int ReadBuffer::getData(IOStream *stream)
-{
-    if(stream == NULL)
-        return -1;
-    if ((m_validData > 0) && (m_readPtr > m_buf)) {
-        memmove(m_buf, m_readPtr, m_validData);
-    }
-    // get fresh data into the buffer;
-    size_t len = m_size - m_validData;
-    if (len==0) {
-        //we need to inc our buffer
-        size_t new_size = m_size*2;
-        unsigned char* new_buf;
-        if (new_size < m_size) { // overflow check
-            new_size = INT_MAX;
-        }
-
-        new_buf = (unsigned char*)realloc(m_buf, new_size);
-        if (!new_buf) {
-            ERR("Failed to alloc %zu bytes for ReadBuffer\n", new_size);
-            return -1;
-        }
-        m_size = new_size;
-        m_buf  = new_buf;
-        len    = m_size - m_validData;
-    }
-    m_readPtr = m_buf;
-    if (NULL != stream->read(m_buf + m_validData, &len)) {
-        m_validData += len;
-        return len;
-    }
-    return -1;
-}
-
-void ReadBuffer::consume(size_t amount)
-{
-    assert(amount <= m_validData);
-    m_validData -= amount;
-    m_readPtr += amount;
+void ReadBuffer::consume(size_t amount) {
+  assert(amount <= m_validData);
+  m_validData -= amount;
+  m_readPtr += amount;
 }

@@ -27,10 +27,10 @@
 namespace anbox {
 namespace cmds {
 class ContainerManager : public cli::CommandWithFlagsAndAction {
-public:
-    ContainerManager();
+ public:
+  ContainerManager();
 };
-} // namespace cmds
-} // namespace anbox
+}  // namespace cmds
+}  // namespace anbox
 
 #endif

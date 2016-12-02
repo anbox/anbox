@@ -23,5 +23,5 @@ Stack::Id Stack::Invalid = -1;
 Stack::Id Stack::Default = 0;
 Stack::Id Stack::Fullscreen = 1;
 Stack::Id Stack::Freeform = 2;
-} // namespace wm
-} // namespace anbox
+}  // namespace wm
+}  // namespace anbox

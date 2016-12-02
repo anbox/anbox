@@ -21,12 +21,15 @@
 
 #include <boost/format.hpp>
 
-anbox::util::NotReachable::NotReachable(const std::string& function, const std::string& file, std::uint32_t line)
-    : std::logic_error{(boost::format{"Code should not be reachable: %1% in %2%:%3%"} % function % file % line).str()}
-{
-}
+anbox::util::NotReachable::NotReachable(const std::string& function,
+                                        const std::string& file,
+                                        std::uint32_t line)
+    : std::logic_error{
+          (boost::format{"Code should not be reachable: %1% in %2%:%3%"} %
+           function % file % line)
+              .str()} {}
 
-void anbox::util::not_reachable(const std::string& function, const std::string& file, std::uint32_t line)
-{
-    throw NotReachable{function, file, line};
+void anbox::util::not_reachable(const std::string& function,
+                                const std::string& file, std::uint32_t line) {
+  throw NotReachable{function, file, line};
 }

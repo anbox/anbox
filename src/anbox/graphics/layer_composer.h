@@ -25,19 +25,19 @@
 namespace anbox {
 namespace wm {
 class Manager;
-} // namespace wm
+}  // namespace wm
 namespace graphics {
 class LayerComposer {
-public:
-    LayerComposer(const std::shared_ptr<wm::Manager> &wm);
-    ~LayerComposer();
+ public:
+  LayerComposer(const std::shared_ptr<wm::Manager> &wm);
+  ~LayerComposer();
 
-    void submit_layers(const RenderableList &renderables);
+  void submit_layers(const RenderableList &renderables);
 
-private:
-    std::shared_ptr<wm::Manager> wm_;
+ private:
+  std::shared_ptr<wm::Manager> wm_;
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

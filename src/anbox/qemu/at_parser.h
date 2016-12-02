@@ -18,31 +18,31 @@
 #ifndef ANBOX_QEMU_AT_PARSER_H_
 #define ANBOX_QEMU_AT_PARSER_H_
 
-#include <vector>
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "anbox/do_not_copy_or_move.h"
 
 namespace anbox {
 namespace qemu {
 class AtParser {
-public:
-    typedef std::function<void(const std::string&)> CommandHandler;
+ public:
+  typedef std::function<void(const std::string &)> CommandHandler;
 
-    AtParser();
+  AtParser();
 
-    void register_command(const std::string &command, CommandHandler handler);
+  void register_command(const std::string &command, CommandHandler handler);
 
-    void process_data(std::vector<std::uint8_t> &data);
+  void process_data(std::vector<std::uint8_t> &data);
 
-private:
-    void processs_command(const std::string &command);
+ private:
+  void processs_command(const std::string &command);
 
-    std::map<std::string,CommandHandler> handlers_;
+  std::map<std::string, CommandHandler> handlers_;
 };
-} // namespace qemu
-} // namespace anbox
+}  // namespace qemu
+}  // namespace anbox
 
 #endif

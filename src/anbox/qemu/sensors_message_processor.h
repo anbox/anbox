@@ -23,17 +23,18 @@
 namespace anbox {
 namespace qemu {
 class SensorsMessageProcessor : public QemudMessageProcessor {
-public:
-    SensorsMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger);
-    ~SensorsMessageProcessor();
+ public:
+  SensorsMessageProcessor(
+      const std::shared_ptr<network::SocketMessenger> &messenger);
+  ~SensorsMessageProcessor();
 
-protected:
-    void handle_command(const std::string &command) override;
+ protected:
+  void handle_command(const std::string &command) override;
 
-private:
-    void list_sensors();
+ private:
+  void list_sensors();
 };
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

@@ -15,37 +15,34 @@
  *
  */
 
-#include "anbox/logger.h"
 #include "anbox/qemu//bootanimation_message_processor.h"
+#include "anbox/logger.h"
 
 #include <fstream>
 
 namespace anbox {
 namespace qemu {
-BootAnimationMessageProcessor::BootAnimationMessageProcessor(const std::shared_ptr<network::SocketMessenger> &messenger,
-                                                             const std::string &icon_path) :
-    QemudMessageProcessor(messenger),
-    icon_path_(icon_path) {
-}
+BootAnimationMessageProcessor::BootAnimationMessageProcessor(
+    const std::shared_ptr<network::SocketMessenger> &messenger,
+    const std::string &icon_path)
+    : QemudMessageProcessor(messenger), icon_path_(icon_path) {}
 
-BootAnimationMessageProcessor::~BootAnimationMessageProcessor() {
-}
+BootAnimationMessageProcessor::~BootAnimationMessageProcessor() {}
 
 void BootAnimationMessageProcessor::handle_command(const std::string &command) {
-    if (command == "retrieve-icon")
-        retrieve_icon();
+  if (command == "retrieve-icon") retrieve_icon();
 }
 
 void BootAnimationMessageProcessor::retrieve_icon() {
-    std::ifstream icon_file(icon_path_, std::ifstream::binary);
-    std::array<char, 1024> buffer;
+  std::ifstream icon_file(icon_path_, std::ifstream::binary);
+  std::array<char, 1024> buffer;
 
-    while (icon_file.read(buffer.data(), buffer.size())) {
-        const auto bytes_read = icon_file.gcount();
-        messenger_->send(buffer.data(), bytes_read);
-        DEBUG("Sending %d bytes", bytes_read);
-    }
+  while (icon_file.read(buffer.data(), buffer.size())) {
+    const auto bytes_read = icon_file.gcount();
+    messenger_->send(buffer.data(), bytes_read);
+    DEBUG("Sending %d bytes", bytes_read);
+  }
 }
 
-} // namespace qemu
-} // namespace anbox
+}  // namespace qemu
+}  // namespace anbox

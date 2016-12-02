@@ -21,30 +21,27 @@
 
 #include "anbox/common/fd.h"
 
-#include <vector>
-#include <system_error>
 #include <stdexcept>
+#include <system_error>
+#include <vector>
 
-namespace anbox
-{
-struct socket_error : std::system_error
-{
-    socket_error(std::string const& message);
+namespace anbox {
+struct socket_error : std::system_error {
+  socket_error(std::string const& message);
 };
 
-struct socket_disconnected_error : std::system_error
-{
-    socket_disconnected_error(std::string const& message);
+struct socket_disconnected_error : std::system_error {
+  socket_disconnected_error(std::string const& message);
 };
 
-struct fd_reception_error : std::runtime_error
-{
-    fd_reception_error(std::string const& message);
+struct fd_reception_error : std::runtime_error {
+  fd_reception_error(std::string const& message);
 };
 
 bool socket_error_is_transient(int error_code);
 void send_fds(Fd const& socket, std::vector<Fd> const& fd);
-void receive_data(Fd const& socket, void* buffer, size_t bytes_requested, std::vector<Fd>& fds);
+void receive_data(Fd const& socket, void* buffer, size_t bytes_requested,
+                  std::vector<Fd>& fds);
 }
 
 #endif

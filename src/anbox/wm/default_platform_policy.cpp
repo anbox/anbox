@@ -16,36 +16,31 @@
  */
 
 #include "anbox/wm/default_platform_policy.h"
-#include "anbox/wm/window.h"
 #include "anbox/logger.h"
+#include "anbox/wm/window.h"
 
 namespace {
 class NullWindow : public anbox::wm::Window {
-public:
-    NullWindow(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) :
-        anbox::wm::Window(0, frame) {
-    }
+ public:
+  NullWindow(const anbox::wm::Task::Id &task,
+             const anbox::graphics::Rect &frame)
+      : anbox::wm::Window(0, frame) {}
 
-protected:
-    void resize(int width, int height) override {
-        WARNING("Not implemented");
-    }
+ protected:
+  void resize(int width, int height) override { WARNING("Not implemented"); }
 
-    void update_position(int x, int y) override {
-        WARNING("Not implemented");
-    }
+  void update_position(int x, int y) override { WARNING("Not implemented"); }
 };
 }
 
 namespace anbox {
 namespace wm {
-DefaultPlatformPolicy::DefaultPlatformPolicy() {
-}
+DefaultPlatformPolicy::DefaultPlatformPolicy() {}
 
-std::shared_ptr<Window> DefaultPlatformPolicy::create_window(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame)
-{
-    DEBUG("");
-    return std::make_shared<::NullWindow>(task, frame);
+std::shared_ptr<Window> DefaultPlatformPolicy::create_window(
+    const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) {
+  DEBUG("");
+  return std::make_shared<::NullWindow>(task, frame);
 }
-} // namespace wm
-} // namespace anbox
+}  // namespace wm
+}  // namespace anbox

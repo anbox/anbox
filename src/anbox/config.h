@@ -32,7 +32,7 @@ std::string socket_path();
 std::string container_config_path();
 std::string container_socket_path();
 std::string host_input_device_path();
-} // namespace config
-} // namespace anbox
+}  // namespace config
+}  // namespace anbox
 
 #endif

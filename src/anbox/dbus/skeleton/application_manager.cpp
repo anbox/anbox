@@ -16,22 +16,20 @@
  */
 
 #include "anbox/dbus/skeleton/application_manager.h"
-#include "anbox/dbus/interface.h"
 #include "anbox/android/intent.h"
+#include "anbox/dbus/interface.h"
 #include "anbox/logger.h"
 
 namespace anbox {
 namespace dbus {
 namespace skeleton {
-ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
-                                       const core::dbus::Object::Ptr& object,
-                                       const std::shared_ptr<anbox::ApplicationManager> &impl) :
-    bus_(bus),
-    object_(object),
-    impl_(impl) {
-
-    object_->install_method_handler<anbox::dbus::interface::ApplicationManager::Methods::Launch>(
-                [this](const core::dbus::Message::Ptr &msg) {
+ApplicationManager::ApplicationManager(
+    const core::dbus::Bus::Ptr &bus, const core::dbus::Object::Ptr &object,
+    const std::shared_ptr<anbox::ApplicationManager> &impl)
+    : bus_(bus), object_(object), impl_(impl) {
+  object_->install_method_handler<
+      anbox::dbus::interface::ApplicationManager::Methods::Launch>(
+      [this](const core::dbus::Message::Ptr &msg) {
         auto reader = msg->reader();
 
         android::Intent intent;
@@ -45,25 +43,22 @@ ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
         core::dbus::Message::Ptr reply;
 
         try {
-            launch(intent);
-            reply = core::dbus::Message::make_method_return(msg);
-        }
-        catch (std::exception const &err) {
-            reply = core::dbus::Message::make_error(msg,
-                                                    "org.anbox.Error.Failed",
-                                                    err.what());
+          launch(intent);
+          reply = core::dbus::Message::make_method_return(msg);
+        } catch (std::exception const &err) {
+          reply = core::dbus::Message::make_error(msg, "org.anbox.Error.Failed",
+                                                  err.what());
         }
 
         bus_->send(reply);
-    });
+      });
 }
 
-ApplicationManager::~ApplicationManager() {
-}
+ApplicationManager::~ApplicationManager() {}
 
 void ApplicationManager::launch(const android::Intent &intent) {
-    impl_->launch(intent);
+  impl_->launch(intent);
 }
-} // namespace skeleton
-} // namespace dbus
-} // namespace anbox
+}  // namespace skeleton
+}  // namespace dbus
+}  // namespace anbox

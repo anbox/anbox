@@ -18,8 +18,8 @@
 #ifndef ANBOX_DBUS_SKELETON_SERVICE_H_
 #define ANBOX_DBUS_SKELETON_SERVICE_H_
 
-#include "anbox/do_not_copy_or_move.h"
 #include "anbox/application_manager.h"
+#include "anbox/do_not_copy_or_move.h"
 
 #include <core/dbus/bus.h>
 #include <core/dbus/object.h>
@@ -30,24 +30,25 @@ namespace dbus {
 namespace skeleton {
 class ApplicationManager;
 class Service : public DoNotCopyOrMove {
-public:
-    static std::shared_ptr<Service> create_for_bus(const core::dbus::Bus::Ptr &bus,
-                                                   const std::shared_ptr<anbox::ApplicationManager> &application_manager);
+ public:
+  static std::shared_ptr<Service> create_for_bus(
+      const core::dbus::Bus::Ptr &bus,
+      const std::shared_ptr<anbox::ApplicationManager> &application_manager);
 
-    Service(const core::dbus::Bus::Ptr &bus,
-            const core::dbus::Service::Ptr& service,
-            const core::dbus::Object::Ptr& object,
-            const std::shared_ptr<anbox::ApplicationManager> &application_manager);
-    ~Service();
+  Service(
+      const core::dbus::Bus::Ptr &bus, const core::dbus::Service::Ptr &service,
+      const core::dbus::Object::Ptr &object,
+      const std::shared_ptr<anbox::ApplicationManager> &application_manager);
+  ~Service();
 
-private:
-    core::dbus::Bus::Ptr bus_;
-    core::dbus::Service::Ptr service_;
-    core::dbus::Object::Ptr object_;
-    std::shared_ptr<ApplicationManager> application_manager_;
+ private:
+  core::dbus::Bus::Ptr bus_;
+  core::dbus::Service::Ptr service_;
+  core::dbus::Object::Ptr object_;
+  std::shared_ptr<ApplicationManager> application_manager_;
 };
-} // namespace skeleton
-} // namespace dbus
-} // namespace anbox
+}  // namespace skeleton
+}  // namespace dbus
+}  // namespace anbox
 
 #endif

@@ -15,38 +15,36 @@
  *
  */
 
-#include <sys/prctl.h>
 #include <signal.h>
+#include <sys/prctl.h>
 
-#include "anbox/logger.h"
-#include "anbox/daemon.h"
 #include "anbox/config.h"
+#include "anbox/daemon.h"
+#include "anbox/logger.h"
 
-#include "anbox/cmds/version.h"
-#include "anbox/cmds/run.h"
-#include "anbox/cmds/launch.h"
 #include "anbox/cmds/container_manager.h"
+#include "anbox/cmds/launch.h"
+#include "anbox/cmds/run.h"
+#include "anbox/cmds/version.h"
 
 #include <boost/filesystem.hpp>
 
 namespace fs = boost::filesystem;
 
 namespace anbox {
-Daemon::Daemon() :
-    cmd{cli::Name{"anbox"}, cli::Usage{"anbox"}, cli::Description{"The Android in a Box runtime"}} {
-
-    cmd.command(std::make_shared<cmds::Version>())
-       .command(std::make_shared<cmds::Run>())
-       .command(std::make_shared<cmds::Launch>())
-       .command(std::make_shared<cmds::ContainerManager>());
+Daemon::Daemon()
+    : cmd{cli::Name{"anbox"}, cli::Usage{"anbox"},
+          cli::Description{"The Android in a Box runtime"}} {
+  cmd.command(std::make_shared<cmds::Version>())
+      .command(std::make_shared<cmds::Run>())
+      .command(std::make_shared<cmds::Launch>())
+      .command(std::make_shared<cmds::ContainerManager>());
 }
 
-int Daemon::Run(const std::vector<std::string> &arguments)
-try {
-    return cmd.run({std::cin, std::cout, arguments});
+int Daemon::Run(const std::vector<std::string> &arguments) try {
+  return cmd.run({std::cin, std::cout, arguments});
+} catch (std::exception &err) {
+  ERROR("%s", err.what());
+  return EXIT_FAILURE;
 }
-catch(std::exception &err) {
-    ERROR("%s", err.what());
-    return EXIT_FAILURE;
-}
-} // namespace anbox
+}  // namespace anbox

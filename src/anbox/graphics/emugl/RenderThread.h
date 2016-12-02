@@ -24,35 +24,35 @@
 // A class used to model a thread of the RenderServer. Each one of them
 // handles a single guest client / protocol byte stream.
 class RenderThread : public emugl::Thread {
-public:
-    // Create a new RenderThread instance.
-    // |stream| is an input stream that will be read from the thread,
-    // and deleted by it when it exits.
-    // |mutex| is a pointer to a shared mutex used to serialize
-    // decoding operations between all threads.
-    // TODO(digit): Why is this needed here? Shouldn't this be handled
-    //              by the decoders themselves or at a lower-level?
-    static RenderThread* create(IOStream* stream, emugl::Mutex* mutex);
+ public:
+  // Create a new RenderThread instance.
+  // |stream| is an input stream that will be read from the thread,
+  // and deleted by it when it exits.
+  // |mutex| is a pointer to a shared mutex used to serialize
+  // decoding operations between all threads.
+  // TODO(digit): Why is this needed here? Shouldn't this be handled
+  //              by the decoders themselves or at a lower-level?
+  static RenderThread* create(IOStream* stream, emugl::Mutex* mutex);
 
-    // Destructor.
-    virtual ~RenderThread();
+  // Destructor.
+  virtual ~RenderThread();
 
-    // Returns true iff the thread has finished.
-    // Note that this also means that the thread's stack has been
-    bool isFinished() { return tryWait(NULL); }
+  // Returns true iff the thread has finished.
+  // Note that this also means that the thread's stack has been
+  bool isFinished() { return tryWait(NULL); }
 
-    // Force a thread to stop.
-    void forceStop();
+  // Force a thread to stop.
+  void forceStop();
 
-private:
-    RenderThread();  // No default constructor
+ private:
+  RenderThread();  // No default constructor
 
-    RenderThread(IOStream* stream, emugl::Mutex* mutex);
+  RenderThread(IOStream* stream, emugl::Mutex* mutex);
 
-    virtual intptr_t main();
+  virtual intptr_t main();
 
-    emugl::Mutex* m_lock;
-    IOStream* m_stream;
+  emugl::Mutex* m_lock;
+  IOStream* m_stream;
 };
 
 #endif

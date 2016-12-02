@@ -15,21 +15,16 @@
 */
 #include "TimeUtils.h"
 
-
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 
-long long GetCurrentTimeMS()
-{
-    struct timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
-    long long iDiff = (now.tv_sec * 1000LL) + now.tv_nsec/1000000LL;
-    return iDiff;
+long long GetCurrentTimeMS() {
+  struct timespec now;
+  clock_gettime(CLOCK_MONOTONIC, &now);
+  long long iDiff = (now.tv_sec * 1000LL) + now.tv_nsec / 1000000LL;
+  return iDiff;
 }
 
-void TimeSleepMS(int p_mili)
-{
-    usleep(p_mili * 1000);
-}
+void TimeSleepMS(int p_mili) { usleep(p_mili * 1000); }

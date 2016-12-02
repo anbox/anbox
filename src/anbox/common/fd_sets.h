@@ -19,13 +19,13 @@
 #ifndef ANBOX_COMMON_FD_SETS_H_
 #define ANBOX_COMMON_FD_SETS_H_
 
-#include <vector>
 #include <initializer_list>
+#include <vector>
 
 #include "anbox/common/fd.h"
 
 namespace anbox {
 typedef std::vector<std::vector<Fd>> FdSets;
-} // namespace anbox
+}  // namespace anbox
 
 #endif

@@ -15,45 +15,46 @@
  *
  */
 
-#include "anbox/logger.h"
 #include "anbox/graphics/opengles_message_processor.h"
-#include "anbox/network/local_socket_messenger.h"
+#include "anbox/logger.h"
 #include "anbox/network/connections.h"
 #include "anbox/network/delegate_message_processor.h"
+#include "anbox/network/local_socket_messenger.h"
 
 namespace anbox {
 namespace graphics {
-OpenGlesMessageProcessor::OpenGlesMessageProcessor(const std::string &renderer_socket_path,
-                                                   const std::shared_ptr<Runtime> &rt,
-                                                   const std::shared_ptr<network::SocketMessenger> &messenger) :
-    client_messenger_(messenger) {
-
-    connect_and_attach(renderer_socket_path, rt);
+OpenGlesMessageProcessor::OpenGlesMessageProcessor(
+    const std::string &renderer_socket_path, const std::shared_ptr<Runtime> &rt,
+    const std::shared_ptr<network::SocketMessenger> &messenger)
+    : client_messenger_(messenger) {
+  connect_and_attach(renderer_socket_path, rt);
 }
 
-OpenGlesMessageProcessor::~OpenGlesMessageProcessor() {
+OpenGlesMessageProcessor::~OpenGlesMessageProcessor() {}
+
+void OpenGlesMessageProcessor::connect_and_attach(
+    const std::string &socket_path, const std::shared_ptr<Runtime> &rt) {
+  auto socket = std::make_shared<boost::asio::local::stream_protocol::socket>(
+      rt->service());
+  socket->connect(boost::asio::local::stream_protocol::endpoint(socket_path));
+
+  messenger_ = std::make_shared<network::LocalSocketMessenger>(socket);
+  renderer_ = std::make_shared<network::SocketConnection>(
+      messenger_, messenger_, 0, nullptr,
+      std::make_shared<network::DelegateMessageProcessor>(
+          [&](const std::vector<std::uint8_t> &data) {
+            client_messenger_->send(reinterpret_cast<const char *>(data.data()),
+                                    data.size());
+            return true;
+          }));
+  renderer_->set_name("opengles-renderer");
+  renderer_->read_next_message();
 }
 
-void OpenGlesMessageProcessor::connect_and_attach(const std::string &socket_path,
-                                                  const std::shared_ptr<Runtime> &rt) {
-
-    auto socket = std::make_shared<boost::asio::local::stream_protocol::socket>(rt->service());
-    socket->connect(boost::asio::local::stream_protocol::endpoint(socket_path));
-
-    messenger_ = std::make_shared<network::LocalSocketMessenger>(socket);
-    renderer_ = std::make_shared<network::SocketConnection>(
-                    messenger_, messenger_, 0, nullptr,
-                    std::make_shared<network::DelegateMessageProcessor>([&](const std::vector<std::uint8_t> &data) {
-        client_messenger_->send(reinterpret_cast<const char*>(data.data()), data.size());
-        return true;
-    }));
-    renderer_->set_name("opengles-renderer");
-    renderer_->read_next_message();
+bool OpenGlesMessageProcessor::process_data(
+    const std::vector<std::uint8_t> &data) {
+  messenger_->send(reinterpret_cast<const char *>(data.data()), data.size());
+  return true;
 }
-
-bool OpenGlesMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
-    messenger_->send(reinterpret_cast<const char*>(data.data()), data.size());
-    return true;
-}
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox

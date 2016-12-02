@@ -20,19 +20,17 @@
 
 namespace anbox {
 
-class DoNotCopyOrMove
-{
-public:
-    DoNotCopyOrMove(const DoNotCopyOrMove&) = delete;
-    DoNotCopyOrMove(DoNotCopyOrMove&&) = delete;
-    virtual ~DoNotCopyOrMove() = default;
-    DoNotCopyOrMove& operator=(const DoNotCopyOrMove&) = delete;
-    DoNotCopyOrMove& operator=(DoNotCopyOrMove&&) = delete;
+class DoNotCopyOrMove {
+ public:
+  DoNotCopyOrMove(const DoNotCopyOrMove&) = delete;
+  DoNotCopyOrMove(DoNotCopyOrMove&&) = delete;
+  virtual ~DoNotCopyOrMove() = default;
+  DoNotCopyOrMove& operator=(const DoNotCopyOrMove&) = delete;
+  DoNotCopyOrMove& operator=(DoNotCopyOrMove&&) = delete;
 
-protected:
-    DoNotCopyOrMove() = default;
+ protected:
+  DoNotCopyOrMove() = default;
 };
-
 }
 
 #endif

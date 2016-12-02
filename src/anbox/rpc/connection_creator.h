@@ -23,35 +23,39 @@
 #include <memory>
 
 #include "anbox/do_not_copy_or_move.h"
-#include "anbox/runtime.h"
+#include "anbox/network/connection_creator.h"
 #include "anbox/network/connections.h"
 #include "anbox/network/socket_connection.h"
-#include "anbox/network/connection_creator.h"
 #include "anbox/network/socket_messenger.h"
+#include "anbox/runtime.h"
 
 namespace anbox {
 namespace rpc {
-class ConnectionCreator : public network::ConnectionCreator<boost::asio::local::stream_protocol> {
-public:
-    typedef std::function<std::shared_ptr<network::MessageProcessor>(
-            const std::shared_ptr<network::MessageSender>&)> MessageProcessorFactory;
+class ConnectionCreator
+    : public network::ConnectionCreator<boost::asio::local::stream_protocol> {
+ public:
+  typedef std::function<std::shared_ptr<network::MessageProcessor>(
+      const std::shared_ptr<network::MessageSender> &)>
+      MessageProcessorFactory;
 
-    ConnectionCreator(
-            const std::shared_ptr<Runtime> &rt, const MessageProcessorFactory &factory);
-    ~ConnectionCreator() noexcept;
+  ConnectionCreator(const std::shared_ptr<Runtime> &rt,
+                    const MessageProcessorFactory &factory);
+  ~ConnectionCreator() noexcept;
 
-    void create_connection_for(
-        std::shared_ptr<boost::asio::basic_stream_socket<boost::asio::local::stream_protocol>> const& socket) override;
+  void create_connection_for(
+      std::shared_ptr<boost::asio::basic_stream_socket<
+          boost::asio::local::stream_protocol>> const &socket) override;
 
-private:
-    int next_id();
+ private:
+  int next_id();
 
-    std::shared_ptr<Runtime> runtime_;
-    std::atomic<int> next_connection_id_;
-    std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;
-    MessageProcessorFactory message_processor_factory_;
+  std::shared_ptr<Runtime> runtime_;
+  std::atomic<int> next_connection_id_;
+  std::shared_ptr<network::Connections<network::SocketConnection>> const
+      connections_;
+  MessageProcessorFactory message_processor_factory_;
 };
-} // namespace rpc
-} // namespace anbox
+}  // namespace rpc
+}  // namespace anbox
 
 #endif

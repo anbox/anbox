@@ -22,51 +22,46 @@
 namespace anbox {
 namespace network {
 TcpSocketConnector::TcpSocketConnector(
-        const boost::asio::ip::address_v4 &address,
-        unsigned short port,
-        const std::shared_ptr<Runtime> &rt,
-        const std::shared_ptr<ConnectionCreator<boost::asio::ip::tcp>> &connection_creator) :
-    address_(address),
-    port_(port),
-    runtime_(rt),
-    connection_creator_(connection_creator),
-    acceptor_(rt->service(), boost::asio::ip::tcp::endpoint(address, port)) {
-
-    start_accept();
+    const boost::asio::ip::address_v4& address, unsigned short port,
+    const std::shared_ptr<Runtime>& rt,
+    const std::shared_ptr<ConnectionCreator<boost::asio::ip::tcp>>&
+        connection_creator)
+    : address_(address),
+      port_(port),
+      runtime_(rt),
+      connection_creator_(connection_creator),
+      acceptor_(rt->service(), boost::asio::ip::tcp::endpoint(address, port)) {
+  start_accept();
 }
 
-TcpSocketConnector::~TcpSocketConnector() {
-    acceptor_.cancel();
-}
+TcpSocketConnector::~TcpSocketConnector() { acceptor_.cancel(); }
 
 void TcpSocketConnector::start_accept() {
-    auto socket = std::make_shared<boost::asio::ip::tcp::socket>(runtime_->service());
+  auto socket =
+      std::make_shared<boost::asio::ip::tcp::socket>(runtime_->service());
 
-    acceptor_.async_accept(
-        *socket,
-        [this, socket](boost::system::error_code const& err) {
-            on_new_connection(socket, err);
-        });
+  acceptor_.async_accept(*socket,
+                         [this, socket](boost::system::error_code const& err) {
+                           on_new_connection(socket, err);
+                         });
 }
 
 void TcpSocketConnector::on_new_connection(
-        std::shared_ptr<boost::asio::ip::tcp::socket> const& socket,
-        boost::system::error_code const& err) {
-
-
-    switch (err.value()) {
+    std::shared_ptr<boost::asio::ip::tcp::socket> const& socket,
+    boost::system::error_code const& err) {
+  switch (err.value()) {
     case boost::system::errc::success:
-        connection_creator_->create_connection_for(socket);
-        break;
+      connection_creator_->create_connection_for(socket);
+      break;
     case boost::system::errc::operation_canceled:
-        // Socket was closed so don't listen for any further incoming
-        // connection attempts.
-        return;
+      // Socket was closed so don't listen for any further incoming
+      // connection attempts.
+      return;
     default:
-        break;
-    }
+      break;
+  }
 
-    start_accept();
+  start_accept();
 }
-} // namespace network
-} // namespace anbox
+}  // namespace network
+}  // namespace anbox

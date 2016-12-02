@@ -19,22 +19,22 @@
 #define ANBOX_QEMU_TELEPHONY_MANAGER_H_
 
 #include <core/dbus/bus.h>
-#include <core/dbus/service.h>
 #include <core/dbus/object.h>
+#include <core/dbus/service.h>
 
 namespace anbox {
 namespace qemu {
 class TelephonyManager {
-public:
-    TelephonyManager(const core::dbus::Bus::Ptr &bus);
-    ~TelephonyManager();
+ public:
+  TelephonyManager(const core::dbus::Bus::Ptr &bus);
+  ~TelephonyManager();
 
-private:
-    core::dbus::Bus::Ptr bus_;
-    core::dbus::Service::Ptr ofono_;
-    core::dbus::Object::Ptr modem_;
+ private:
+  core::dbus::Bus::Ptr bus_;
+  core::dbus::Service::Ptr ofono_;
+  core::dbus::Object::Ptr modem_;
 };
-} // namespace qemu
-} // namespace anbox
+}  // namespace qemu
+}  // namespace anbox
 
 #endif

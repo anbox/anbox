@@ -18,34 +18,34 @@
 #ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
 #define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
 
-#include <string>
 #include <memory>
+#include <string>
 
 namespace anbox {
 namespace input {
 class Manager;
-} // namespace input
+}  // namespace input
 namespace wm {
 class Manager;
-} // namespace wm
+}  // namespace wm
 namespace graphics {
 class LayerComposer;
 class GLRendererServer {
-public:
-    GLRendererServer(const std::shared_ptr<wm::Manager> &wm);
-    ~GLRendererServer();
+ public:
+  GLRendererServer(const std::shared_ptr<wm::Manager> &wm);
+  ~GLRendererServer();
 
-    void start();
+  void start();
 
-    std::string socket_path() const;
+  std::string socket_path() const;
 
-private:
-    std::string socket_path_;
-    std::shared_ptr<wm::Manager> wm_;
-    std::shared_ptr<LayerComposer> composer_;
+ private:
+  std::string socket_path_;
+  std::shared_ptr<wm::Manager> wm_;
+  std::shared_ptr<LayerComposer> composer_;
 };
 
-} // namespace graphics
-} // namespace anbox
+}  // namespace graphics
+}  // namespace anbox
 
 #endif

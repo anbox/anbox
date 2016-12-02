@@ -19,9 +19,9 @@
 
 #include "anbox/version.h"
 
-void anbox::version(std::uint32_t& major, std::uint32_t& minor, std::uint32_t& patch)
-{
-    major = anbox::build::version_major;
-    minor = anbox::build::version_minor;
-    patch = anbox::build::version_patch;
+void anbox::version(std::uint32_t& major, std::uint32_t& minor,
+                    std::uint32_t& patch) {
+  major = anbox::build::version_major;
+  minor = anbox::build::version_minor;
+  patch = anbox::build::version_patch;
 }

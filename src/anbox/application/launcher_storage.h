@@ -28,22 +28,22 @@
 namespace anbox {
 namespace application {
 class LauncherStorage {
-public:
-    LauncherStorage(const boost::filesystem::path &path);
-    ~LauncherStorage();
+ public:
+  LauncherStorage(const boost::filesystem::path &path);
+  ~LauncherStorage();
 
-    struct Item {
-        std::string name;
-        std::string package;
-        android::Intent launch_intent;
-    };
+  struct Item {
+    std::string name;
+    std::string package;
+    android::Intent launch_intent;
+  };
 
-    void add(const Item &item);
+  void add(const Item &item);
 
-private:
-    boost::filesystem::path path_;
+ private:
+  boost::filesystem::path path_;
 };
-} // namespace application
-} // namespace anbox
+}  // namespace application
+}  // namespace anbox
 
 #endif

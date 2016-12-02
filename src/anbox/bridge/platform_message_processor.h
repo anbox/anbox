@@ -24,19 +24,20 @@ namespace anbox {
 namespace bridge {
 class PlatformApiSkeleton;
 class PlatformMessageProcessor : public rpc::MessageProcessor {
-public:
-    PlatformMessageProcessor(const std::shared_ptr<network::MessageSender> &sender,
-                             const std::shared_ptr<PlatformApiSkeleton> &server,
-                             const std::shared_ptr<rpc::PendingCallCache> &pending_calls);
-    ~PlatformMessageProcessor();
+ public:
+  PlatformMessageProcessor(
+      const std::shared_ptr<network::MessageSender> &sender,
+      const std::shared_ptr<PlatformApiSkeleton> &server,
+      const std::shared_ptr<rpc::PendingCallCache> &pending_calls);
+  ~PlatformMessageProcessor();
 
-    void dispatch(rpc::Invocation const& invocation) override;
-    void process_event_sequence(const std::string &event) override;
+  void dispatch(rpc::Invocation const &invocation) override;
+  void process_event_sequence(const std::string &event) override;
 
-private:
-    std::shared_ptr<PlatformApiSkeleton> server_;
+ private:
+  std::shared_ptr<PlatformApiSkeleton> server_;
 };
-} // namespace anbox
-} // namespace network
+}  // namespace anbox
+}  // namespace network
 
 #endif

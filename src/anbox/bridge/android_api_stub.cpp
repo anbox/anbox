@@ -16,13 +16,13 @@
  */
 
 #include "anbox/bridge/android_api_stub.h"
-#include "anbox/rpc/channel.h"
-#include "anbox/utils.h"
 #include "anbox/config.h"
 #include "anbox/logger.h"
+#include "anbox/rpc/channel.h"
+#include "anbox/utils.h"
 
-#include "anbox_rpc.pb.h"
 #include "anbox_bridge.pb.h"
+#include "anbox_rpc.pb.h"
 
 #include <boost/filesystem.hpp>
 
@@ -30,101 +30,90 @@ namespace fs = boost::filesystem;
 
 namespace anbox {
 namespace bridge {
-AndroidApiStub::AndroidApiStub() {
+AndroidApiStub::AndroidApiStub() {}
+
+AndroidApiStub::~AndroidApiStub() {}
+
+void AndroidApiStub::set_rpc_channel(
+    const std::shared_ptr<rpc::Channel> &channel) {
+  channel_ = channel;
 }
 
-AndroidApiStub::~AndroidApiStub() {
-}
-
-void AndroidApiStub::set_rpc_channel(const std::shared_ptr<rpc::Channel> &channel) {
-    channel_ = channel;
-}
-
-void AndroidApiStub::reset_rpc_channel() {
-    channel_.reset();
-}
+void AndroidApiStub::reset_rpc_channel() { channel_.reset(); }
 
 void AndroidApiStub::ensure_rpc_channel() {
-    if (!channel_)
-        throw std::runtime_error("No remote client connected");
+  if (!channel_) throw std::runtime_error("No remote client connected");
 }
 
 void AndroidApiStub::launch(const android::Intent &intent) {
-    ensure_rpc_channel();
+  ensure_rpc_channel();
 
-    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
-    protobuf::bridge::LaunchApplication message;
+  auto c = std::make_shared<Request<protobuf::rpc::Void>>();
+  protobuf::bridge::LaunchApplication message;
 
-    {
-        std::lock_guard<decltype(mutex_)> lock(mutex_);
-        launch_wait_handle_.expect_result();
-    }
+  {
+    std::lock_guard<decltype(mutex_)> lock(mutex_);
+    launch_wait_handle_.expect_result();
+  }
 
-    auto launch_intent = message.mutable_intent();
+  auto launch_intent = message.mutable_intent();
 
-    if (!intent.action.empty())
-        launch_intent->set_action(intent.action);
+  if (!intent.action.empty()) launch_intent->set_action(intent.action);
 
-    if (!intent.uri.empty())
-        launch_intent->set_uri(intent.uri);
+  if (!intent.uri.empty()) launch_intent->set_uri(intent.uri);
 
-    if (!intent.type.empty())
-        launch_intent->set_type(intent.type);
+  if (!intent.type.empty()) launch_intent->set_type(intent.type);
 
-    if (!intent.package.empty())
-        launch_intent->set_package(intent.package);
+  if (!intent.package.empty()) launch_intent->set_package(intent.package);
 
-    if (!intent.component.empty())
-        launch_intent->set_component(intent.component);
+  if (!intent.component.empty()) launch_intent->set_component(intent.component);
 
-    for (const auto &category : intent.categories) {
-        auto c = launch_intent->add_categories();
-        *c = category;
-    }
+  for (const auto &category : intent.categories) {
+    auto c = launch_intent->add_categories();
+    *c = category;
+  }
 
-    channel_->call_method("launch_application",
-                          &message,
-                          c->response.get(),
-                          google::protobuf::NewCallback(this, &AndroidApiStub::application_launched, c.get()));
+  channel_->call_method(
+      "launch_application", &message, c->response.get(),
+      google::protobuf::NewCallback(this, &AndroidApiStub::application_launched,
+                                    c.get()));
 
-    launch_wait_handle_.wait_for_all();
+  launch_wait_handle_.wait_for_all();
 
-    if (c->response->has_error())
-        throw std::runtime_error(c->response->error());
+  if (c->response->has_error()) throw std::runtime_error(c->response->error());
 }
 
-void AndroidApiStub::application_launched(Request<protobuf::rpc::Void> *request) {
-    (void) request;
-    launch_wait_handle_.result_received();
+void AndroidApiStub::application_launched(
+    Request<protobuf::rpc::Void> *request) {
+  (void)request;
+  launch_wait_handle_.result_received();
 }
 
 void AndroidApiStub::set_focused_task(const std::int32_t &id) {
-    ensure_rpc_channel();
+  ensure_rpc_channel();
 
-    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
+  auto c = std::make_shared<Request<protobuf::rpc::Void>>();
 
-    protobuf::bridge::SetFocusedTask message;
-    message.set_id(id);
+  protobuf::bridge::SetFocusedTask message;
+  message.set_id(id);
 
-    {
-        std::lock_guard<decltype(mutex_)> lock(mutex_);
-        set_focused_task_handle_.expect_result();
-    }
+  {
+    std::lock_guard<decltype(mutex_)> lock(mutex_);
+    set_focused_task_handle_.expect_result();
+  }
 
-    channel_->call_method("set_focused_task",
-                          &message,
-                          c->response.get(),
-                          google::protobuf::NewCallback(this, &AndroidApiStub::focused_task_set, c.get()));
+  channel_->call_method("set_focused_task", &message, c->response.get(),
+                        google::protobuf::NewCallback(
+                            this, &AndroidApiStub::focused_task_set, c.get()));
 
-    set_focused_task_handle_.wait_for_all();
+  set_focused_task_handle_.wait_for_all();
 
-    if (c->response->has_error())
-        throw std::runtime_error(c->response->error());
+  if (c->response->has_error()) throw std::runtime_error(c->response->error());
 }
 
 void AndroidApiStub::focused_task_set(Request<protobuf::rpc::Void> *request) {
-    (void) request;
-    set_focused_task_handle_.result_received();
+  (void)request;
+  set_focused_task_handle_.result_received();
 }
-} // namespace bridge
-} // namespace anbox
+}  // namespace bridge
+}  // namespace anbox

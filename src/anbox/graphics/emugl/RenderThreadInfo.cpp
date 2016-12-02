@@ -22,22 +22,18 @@
 namespace {
 
 class ThreadInfoStore : public ::emugl::ThreadStore {
-public:
-    ThreadInfoStore() : ::emugl::ThreadStore(NULL) {}
+ public:
+  ThreadInfoStore() : ::emugl::ThreadStore(NULL) {}
 };
 
 }  // namespace
 
 static ::emugl::LazyInstance<ThreadInfoStore> s_tls = LAZY_INSTANCE_INIT;
 
-RenderThreadInfo::RenderThreadInfo() {
-    s_tls->set(this);
-}
+RenderThreadInfo::RenderThreadInfo() { s_tls->set(this); }
 
-RenderThreadInfo::~RenderThreadInfo() {
-    s_tls->set(NULL);
-}
+RenderThreadInfo::~RenderThreadInfo() { s_tls->set(NULL); }
 
 RenderThreadInfo* RenderThreadInfo::get() {
-    return static_cast<RenderThreadInfo*>(s_tls->get());
+  return static_cast<RenderThreadInfo*>(s_tls->get());
 }
