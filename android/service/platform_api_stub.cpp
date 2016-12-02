@@ -61,4 +61,28 @@ void PlatformApiStub::update_window_state(const WindowStateUpdate &state) {
 
     rpc_channel_->send_event(seq);
 }
+
+void PlatformApiStub::update_application_list(const ApplicationListUpdate &update) {
+    protobuf::bridge::EventSequence seq;
+    auto event = seq.mutable_application_list_update();
+
+    for (const auto &a : update.applications) {
+        auto app = event->add_applications();
+        app->set_name(a.name);
+        app->set_package(a.package);
+
+        auto launch_intent = app->mutable_launch_intent();
+        launch_intent->set_action(a.launch_intent.action);
+        launch_intent->set_uri(a.launch_intent.uri);
+        launch_intent->set_type(a.launch_intent.type);
+        launch_intent->set_package(a.launch_intent.package);
+        launch_intent->set_component(a.launch_intent.component);
+        for (const auto &category : a.launch_intent.categories) {
+            auto c = launch_intent->add_categories();
+            *c = category;
+        }
+    }
+
+    rpc_channel_->send_event(seq);
+}
 } // namespace anbox

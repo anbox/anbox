@@ -16,6 +16,7 @@
  */
 
 #include "anbox/bridge/platform_api_skeleton.h"
+#include "anbox/application/launcher_storage.h"
 #include "anbox/wm/manager.h"
 #include "anbox/wm/window_state.h"
 #include "anbox/logger.h"
@@ -25,9 +26,11 @@
 namespace anbox {
 namespace bridge {
 PlatformApiSkeleton::PlatformApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
-                                         const std::shared_ptr<wm::Manager> &window_manager) :
+                                         const std::shared_ptr<wm::Manager> &window_manager,
+                                         const std::shared_ptr<application::LauncherStorage> &launcher_storage) :
     pending_calls_(pending_calls),
-    window_manager_(window_manager) {
+    window_manager_(window_manager),
+    launcher_storage_(launcher_storage) {
 }
 
 PlatformApiSkeleton::~PlatformApiSkeleton() {
@@ -64,6 +67,29 @@ void PlatformApiSkeleton::handle_window_state_update_event(const anbox::protobuf
     }
 
     window_manager_->apply_window_state_update(updated, removed);
+}
+
+void PlatformApiSkeleton::handle_application_list_update_event(const anbox::protobuf::bridge::ApplicationListUpdateEvent &event) {
+    for (int n = 0; n < event.applications_size(); n++) {
+        application::LauncherStorage::Item item;
+
+        const auto app = event.applications(n);
+        item.name = app.name();
+        item.package = app.package();
+
+        const auto li = app.launch_intent();
+        item.launch_intent.action = li.action();
+        item.launch_intent.uri = li.uri();
+        item.launch_intent.type = li.uri();
+        item.launch_intent.package = li.package();
+        item.launch_intent.component = li.component();
+
+        for (int m = 0; m < li.categories_size(); m++)
+            item.launch_intent.categories.push_back(li.categories(m));
+
+        // If the item is already stored it will be updated
+        launcher_storage_->add(item);
+    }
 }
 
 void PlatformApiSkeleton::register_boot_finished_handler(const std::function<void()> &action) {

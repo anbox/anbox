@@ -35,12 +35,8 @@ MessageProcessor::~MessageProcessor() {
 }
 
 void MessageProcessor::dispatch(rpc::Invocation const& invocation) {
-    if (invocation.method_name() == "install_application")
-        invoke(this, platform_api_.get(), &AndroidApiSkeleton::install_application, invocation);
-    else if (invocation.method_name() == "launch_application")
+    if (invocation.method_name() == "launch_application")
         invoke(this, platform_api_.get(), &AndroidApiSkeleton::launch_application, invocation);
-    else if (invocation.method_name() == "set_dns_servers")
-        invoke(this, platform_api_.get(), &AndroidApiSkeleton::set_dns_servers, invocation);
     else if (invocation.method_name() == "set_focused_task")
         invoke(this, platform_api_.get(), &AndroidApiSkeleton::set_focused_task, invocation);
 }

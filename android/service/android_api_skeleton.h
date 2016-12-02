@@ -49,17 +49,9 @@ public:
     AndroidApiSkeleton();
     ~AndroidApiSkeleton();
 
-    void install_application(anbox::protobuf::bridge::InstallApplication const *request,
-                             anbox::protobuf::rpc::Void *response,
-                             google::protobuf::Closure *done);
-
     void launch_application(anbox::protobuf::bridge::LaunchApplication const *request,
                             anbox::protobuf::rpc::Void *response,
                             google::protobuf::Closure *done);
-
-    void set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *request,
-                         anbox::protobuf::rpc::Void *response,
-                         google::protobuf::Closure *done);
 
     void set_focused_task(anbox::protobuf::bridge::SetFocusedTask const *request,
                           anbox::protobuf::rpc::Void *response,

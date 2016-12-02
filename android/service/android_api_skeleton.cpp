@@ -27,6 +27,8 @@
 
 #include <binder/IServiceManager.h>
 
+#include <string>
+
 namespace {
 std::map<std::string,std::string> common_env = {
     {"ANDROID_DATA", "/data"},
@@ -60,65 +62,56 @@ void AndroidApiSkeleton::connect_services() {
     }
 }
 
-void AndroidApiSkeleton::install_application(anbox::protobuf::bridge::InstallApplication const *request,
-                                 anbox::protobuf::rpc::Void *response,
-                                 google::protobuf::Closure *done) {
-    (void) response;
-
-    std::vector<std::string> argv = {
-        "/system/bin/pm",
-        "install",
-        request->path(),
-    };
-
-    auto process = core::posix::exec("/system/bin/sh", argv, common_env, core::posix::StandardStream::empty);
-    wait_for_process(process, response);
-
-    done->Run();
-}
-
 void AndroidApiSkeleton::launch_application(anbox::protobuf::bridge::LaunchApplication const *request,
                                 anbox::protobuf::rpc::Void *response,
                                 google::protobuf::Closure *done) {
     (void) response;
 
-    std::string intent = request->package_name();
-    if (request->has_activity()) {
-        intent += "/";
-        intent += request->activity();
-    }
+    auto intent = request->intent();
 
     std::vector<std::string> argv = {
         "/system/bin/am",
         "start",
-        // Launch any applications always in freeform stack
+        // Launch any application always in the freeform stack
         "--stack", "2",
-        intent,
     };
+
+    if (intent.has_action()) {
+        argv.push_back("-a");
+        argv.push_back(intent.action());
+    }
+
+    if (intent.has_uri()) {
+        argv.push_back("-d");
+        argv.push_back(intent.uri());
+    }
+
+    if (intent.has_type()) {
+        argv.push_back("-t");
+        argv.push_back(intent.type());
+    }
+
+    std::string component;
+    if (intent.has_package())
+        component += intent.package();
+    if (!component.empty() && intent.has_component()) {
+        component += "/";
+        component += intent.component();
+    }
+
+    if (!component.empty())
+        argv.push_back(component);
+
+    ALOGI("Launch am with the following arguments: ");
+    std::string test;
+    for (const auto &a : argv) {
+        test += a;
+        test += " ";
+    }
+    ALOGI("%s", test.c_str());
 
     auto process = core::posix::exec("/system/bin/sh", argv, common_env, core::posix::StandardStream::empty);
         wait_for_process(process, response);
-
-    done->Run();
-}
-
-void AndroidApiSkeleton::set_dns_servers(anbox::protobuf::bridge::SetDnsServers const *request,
-                             anbox::protobuf::rpc::Void *response,
-                             google::protobuf::Closure *done) {
-    (void) response;
-
-    std::vector<std::string> argv = {
-        "resolver",
-        "setnetdns",
-        "0",
-        request->domain(),
-    };
-
-    for (int n = 0; n < request->servers_size(); n++)
-        argv.push_back(request->servers(n).address());
-
-    auto process = core::posix::exec("/system/bin/ndc", argv, common_env, core::posix::StandardStream::empty);
-    wait_for_process(process, response);
 
     done->Run();
 }

@@ -25,19 +25,20 @@
 namespace fs = boost::filesystem;
 
 anbox::cmds::Launch::Launch()
-    : CommandWithFlagsAndAction{cli::Name{"launch"}, cli::Usage{"launch"}, cli::Description{"Launch specified application in the Android container"}}
+    : CommandWithFlagsAndAction{cli::Name{"launch"}, cli::Usage{"launch"}, cli::Description{"Launch an Activity by sending an intent"}}
 {
-    flag(cli::make_flag(cli::Name{"package"}, cli::Description{"Package the application is part of"}, package_));
-    flag(cli::make_flag(cli::Name{"activity"}, cli::Description{"Activity of the application to start"}, activity_));
-    action([this](const cli::Command::Context&) {
-        if (package_.empty() && activity_.empty())
-            BOOST_THROW_EXCEPTION(std::runtime_error("Package or activity name not specified"));
+    flag(cli::make_flag(cli::Name{"action"}, cli::Description{"Action of the intent"}, intent_.action));
+    flag(cli::make_flag(cli::Name{"type"}, cli::Description{"MIME type for the intent"}, intent_.type));
+    flag(cli::make_flag(cli::Name{"uri"}, cli::Description{"URI used as data within the intent"}, intent_.uri));
+    flag(cli::make_flag(cli::Name{"package"}, cli::Description{"Package the intent should go to"}, intent_.package));
+    flag(cli::make_flag(cli::Name{"component"}, cli::Description{"Component of a package the intent should go"}, intent_.component));
 
+    action([this](const cli::Command::Context&) {
         auto bus = std::make_shared<core::dbus::Bus>(core::dbus::WellKnownBus::session);
         bus->install_executor(core::dbus::asio::make_executor(bus));
         auto stub = dbus::stub::ApplicationManager::create_for_bus(bus);
 
-        stub->launch(package_, activity_);
+        stub->launch(intent_);
 
         return EXIT_SUCCESS;
     });

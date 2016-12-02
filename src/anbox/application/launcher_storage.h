@@ -15,19 +15,35 @@
  *
  */
 
-#ifndef ANBOX_APPLICATION_MANAGER_H_
-#define ANBOX_APPLICATION_MANAGER_H_
+#ifndef ANBOX_APPLICATION_LAUNCHER_STORAGE_H_
+#define ANBOX_APPLICATION_LAUNCHER_STORAGE_H_
 
-#include "anbox/do_not_copy_or_move.h"
 #include "anbox/android/intent.h"
 
 #include <string>
+#include <vector>
+
+#include <boost/filesystem.hpp>
 
 namespace anbox {
-class ApplicationManager : public DoNotCopyOrMove {
+namespace application {
+class LauncherStorage {
 public:
-    virtual void launch(const android::Intent &intent) = 0;
+    LauncherStorage(const boost::filesystem::path &path);
+    ~LauncherStorage();
+
+    struct Item {
+        std::string name;
+        std::string package;
+        android::Intent launch_intent;
+    };
+
+    void add(const Item &item);
+
+private:
+    boost::filesystem::path path_;
 };
+} // namespace application
 } // namespace anbox
 
 #endif

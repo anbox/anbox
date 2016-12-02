@@ -7,6 +7,15 @@ message StructuredError {
   optional uint32 code = 2;
 }
 
+message Intent {
+    optional string action = 1;
+    optional string uri = 2;
+    optional string type = 3;
+    optional string package = 4;
+    optional string component = 5;
+    repeated string categories = 6;
+}
+
 message Notification {
     required string package_name = 1;
     required string category = 2;
@@ -15,21 +24,8 @@ message Notification {
     optional string text = 5;
 }
 
-message InstallApplication {
-    required string path = 1;
-}
-
 message LaunchApplication {
-    required string package_name = 1;
-    optional string activity = 2;
-}
-
-message SetDnsServers {
-    required string domain = 1;
-    message Server {
-        required string address = 1;
-    }
-    repeated Server servers = 2;
+    required Intent intent = 1;
 }
 
 message SetFocusedTask {
@@ -55,9 +51,19 @@ message WindowStateUpdateEvent {
     repeated WindowState removed_windows = 2;
 }
 
+message ApplicationListUpdateEvent {
+    message Application {
+        required string name = 1;
+        required string package = 2;
+        optional Intent launch_intent = 3;
+    }
+    repeated Application applications = 1;
+}
+
 message EventSequence {
     optional BootFinishedEvent boot_finished = 1;
     optional WindowStateUpdateEvent window_state_update = 2;
+    optional ApplicationListUpdateEvent application_list_update = 3;
 
     optional string error = 127;
     optional StructuredError structured_error = 128;

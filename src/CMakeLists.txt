@@ -60,6 +60,8 @@ set(SOURCES
     anbox/not_reachable.cpp
     anbox/application_manager.h
 
+    anbox/android/intent.cpp
+
     anbox/common/fd.cpp
     anbox/common/fd_sets.h
     anbox/common/variable_length_array.h
@@ -168,9 +170,10 @@ set(SOURCES
     anbox/dbus/skeleton/application_manager.cpp
     anbox/dbus/stub/application_manager.cpp
 
+    anbox/application/launcher_storage.cpp
+
     anbox/cmds/version.cpp
     anbox/cmds/run.cpp
-    anbox/cmds/install.cpp
     anbox/cmds/launch.cpp
     anbox/cmds/container_manager.cpp
 
@@ -193,7 +196,8 @@ target_link_libraries(anbox-core
   renderControl_dec
   OpenGLESDispatch
   OpenglCodecCommon
-  anbox-protobuf)
+  anbox-protobuf
+  xdg)
 
 add_executable(anbox main.cpp)
 target_link_libraries(anbox

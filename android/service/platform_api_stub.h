@@ -60,6 +60,25 @@ public:
 
     void update_window_state(const WindowStateUpdate &state);
 
+    struct ApplicationListUpdate {
+        struct Application {
+            std::string name;
+            std::string package;
+            struct Intent {
+                std::string action;
+                std::string uri;
+                std::string type;
+                std::string package;
+                std::string component;
+                std::vector<std::string> categories;
+            };
+            Intent launch_intent;
+        };
+        std::vector<Application> applications;
+    };
+
+    void update_application_list(const ApplicationListUpdate &update);
+
 private:
     template<typename Response>
     struct Request {

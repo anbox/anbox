@@ -44,11 +44,14 @@ void PlatformMessageProcessor::process_event_sequence(const std::string &raw_eve
         return;
     }
 
+    if (seq.has_boot_finished())
+        server_->handle_boot_finished_event(seq.boot_finished());
+
     if (seq.has_window_state_update())
         server_->handle_window_state_update_event(seq.window_state_update());
 
-    if (seq.has_boot_finished())
-        server_->handle_boot_finished_event(seq.boot_finished());
+    if (seq.has_application_list_update())
+        server_->handle_application_list_update_event(seq.application_list_update());
 }
 } // namespace anbox
 } // namespace network

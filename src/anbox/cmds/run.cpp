@@ -37,6 +37,9 @@
 #include "anbox/container/client.h"
 #include "anbox/wm/manager.h"
 #include "anbox/ubuntu/platform_policy.h"
+#include "anbox/application/launcher_storage.h"
+
+#include "external/xdg/xdg.h"
 
 #include <sys/prctl.h>
 
@@ -97,6 +100,9 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
 
         auto window_manager = std::make_shared<wm::Manager>(policy);
 
+        auto launcher_storage = std::make_shared<application::LauncherStorage>(
+                    xdg::data().home() / "applications");
+
         auto renderer = std::make_shared<graphics::GLRendererServer>(window_manager);
         renderer->start();
 
@@ -130,14 +136,11 @@ anbox::cmds::Run::Run(const BusFactory& bus_factory)
                     // more than one one day we need proper dispatching to the right one.
                     android_api_stub->set_rpc_channel(rpc_channel);
 
-                    auto server = std::make_shared<bridge::PlatformApiSkeleton>(pending_calls, window_manager);
+                    auto server = std::make_shared<bridge::PlatformApiSkeleton>(pending_calls,
+                                                                                window_manager,
+                                                                                launcher_storage);
                     server->register_boot_finished_handler([&]() {
                         DEBUG("Android successfully booted");
-                        dispatcher->dispatch([&]() {
-                            // FIXME make this configurable or once we have a bridge let the host
-                            // act as a DNS proxy.
-                            android_api_stub->set_dns_servers("anbox", std::vector<std::string>{ "8.8.8.8" });
-                        });
                     });
                     return std::make_shared<bridge::PlatformMessageProcessor>(sender, server, pending_calls);
                 }));

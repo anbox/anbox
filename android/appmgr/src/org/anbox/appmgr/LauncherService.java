@@ -1,0 +1,53 @@
+/*
+ * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 3, as published
+ * by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranties of
+ * MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+package org.anbox.appmgr;
+
+import android.app.Service;
+import android.util.Log;
+import android.content.Intent;
+import android.os.IBinder;
+
+public final class LauncherService extends Service {
+    public static final String TAG = "AnboxAppMgr";
+
+    private PlatformService mPlatformService;
+
+    public LauncherService() {
+        super();
+        Log.i(TAG, "Service created");
+    }
+
+    @Override
+    public void onCreate() {
+        mPlatformService = new PlatformService(getBaseContext());
+        // Send all necessary initial updates
+        mPlatformService.sendApplicationListUpdate();
+
+        Log.i(TAG, "Service started");
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.i(TAG, "Service stopped");
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+}

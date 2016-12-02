@@ -34,6 +34,12 @@ status_t BpPlatformService::update_window_state(const Parcel&) {
     return remote()->transact(IPlatformService::UPDATE_WINDOW_STATE, data, &reply);
 }
 
+status_t BpPlatformService::update_application_list(const Parcel&) {
+    Parcel data, reply;
+    data.writeInterfaceToken(IPlatformService::getInterfaceDescriptor());
+    return remote()->transact(IPlatformService::UPDATE_APPLICATION_LIST, data, &reply);
+}
+
 IMPLEMENT_META_INTERFACE(PlatformService, "org.anbox.IPlatformService");
 
 status_t BnPlatformService::onTransact(uint32_t code, const Parcel &data,
@@ -45,6 +51,9 @@ status_t BnPlatformService::onTransact(uint32_t code, const Parcel &data,
     case UPDATE_WINDOW_STATE:
         CHECK_INTERFACE(IPlatformService, data, reply);
         return update_window_state(data);
+    case UPDATE_APPLICATION_LIST:
+        CHECK_INTERFACE(IPlatformService, data, reply);
+        return update_application_list(data);
     default:
         break;
     }

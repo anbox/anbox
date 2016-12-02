@@ -34,6 +34,7 @@ public:
 
     status_t boot_finished() override;
     status_t update_window_state(const Parcel &data) override;
+    status_t update_application_list(const Parcel &data) override;
 
 private:
     anbox::PlatformApiStub::WindowStateUpdate::Window unpack_window_state(const Parcel &data);

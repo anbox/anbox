@@ -34,6 +34,7 @@ LOCAL_SRC_FILES := \
     android/service/platform_service_interface.cpp \
     android/service/platform_service.cpp \
     android/service/platform_api_stub.cpp \
+    android/service/intent.cpp \
     src/anbox/common/fd.cpp \
     src/anbox/common/wait_handle.cpp \
     src/anbox/rpc/message_processor.cpp \
@@ -60,15 +61,6 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_CFLAGS := \
     -fexceptions \
     -std=c++1y
-# Drop a few packages we don't want in our images as they
-# are not needed (e.g. a home/launcher application as we
-# don't have this concept).
-LOCAL_OVERRIDES_PACKAGES := \
-    Launcher \
-    Launcher2 \
-    LatinIME \
-    Home \
-    QuickSearchBox
 include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
@@ -107,3 +99,5 @@ include $(BUILD_SHARED_LIBRARY)
 # Include the Android.mk files below will override LOCAL_PATH so we
 # have to take a copy of it here.
 TMP_PATH := $(LOCAL_PATH)
+
+include $(TMP_PATH)/android/appmgr/Android.mk

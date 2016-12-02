@@ -17,6 +17,7 @@
 
 #include "anbox/dbus/skeleton/application_manager.h"
 #include "anbox/dbus/interface.h"
+#include "anbox/android/intent.h"
 #include "anbox/logger.h"
 
 namespace anbox {
@@ -29,41 +30,22 @@ ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
     object_(object),
     impl_(impl) {
 
-    object_->install_method_handler<anbox::dbus::interface::ApplicationManager::Methods::Install>(
-                [this](const core::dbus::Message::Ptr &msg) {
-        std::string path;
-        auto reader = msg->reader();
-        reader >> path;
-
-        core::dbus::Message::Ptr reply;
-
-        try {
-            install(path);
-            DEBUG("install done");
-            reply = core::dbus::Message::make_method_return(msg);
-            DEBUG("Successfully installed application");
-        }
-        catch (std::exception const &err) {
-            DEBUG("Failed to install application: %s", err.what());
-            reply = core::dbus::Message::make_error(msg,
-                                                    "org.anbox.Error.Failed",
-                                                    err.what());
-        }
-
-        bus_->send(reply);
-    });
-
     object_->install_method_handler<anbox::dbus::interface::ApplicationManager::Methods::Launch>(
                 [this](const core::dbus::Message::Ptr &msg) {
-        std::string package, activity;
         auto reader = msg->reader();
-        reader >> package;
-        reader >> activity;
+
+        android::Intent intent;
+        reader >> intent.action;
+        reader >> intent.uri;
+        reader >> intent.type;
+        reader >> intent.flags;
+        reader >> intent.package;
+        reader >> intent.component;
 
         core::dbus::Message::Ptr reply;
 
         try {
-            launch(package, activity);
+            launch(intent);
             reply = core::dbus::Message::make_method_return(msg);
         }
         catch (std::exception const &err) {
@@ -77,15 +59,10 @@ ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
 }
 
 ApplicationManager::~ApplicationManager() {
-    object_->uninstall_method_handler<anbox::dbus::interface::ApplicationManager::Methods::Install>();
 }
 
-void ApplicationManager::install(const std::string &path) {
-    impl_->install(path);
-}
-
-void ApplicationManager::launch(const std::string &package, const std::string &activity) {
-    impl_->launch(package, activity);
+void ApplicationManager::launch(const android::Intent &intent) {
+    impl_->launch(intent);
 }
 } // namespace skeleton
 } // namespace dbus
