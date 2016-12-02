@@ -16,7 +16,6 @@
  */
 
 #include "android/service/platform_service.h"
-#include "android/service/intent.h"
 #include "anbox/rpc/channel.h"
 
 #include "anbox_rpc.pb.h"

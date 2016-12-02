@@ -34,7 +34,6 @@ LOCAL_SRC_FILES := \
     android/service/platform_service_interface.cpp \
     android/service/platform_service.cpp \
     android/service/platform_api_stub.cpp \
-    android/service/intent.cpp \
     src/anbox/common/fd.cpp \
     src/anbox/common/wait_handle.cpp \
     src/anbox/rpc/message_processor.cpp \
