@@ -32,6 +32,7 @@ public:
     Renderable(const std::string &name,
                const std::uint32_t &buffer,
                const anbox::graphics::Rect &screen_position,
+               const anbox::graphics::Rect &crop = {},
                const glm::mat4 &transformation = {},
                const float &alpha = 1.0f);
     ~Renderable();
@@ -39,6 +40,7 @@ public:
     std::string name() const;
     std::uint32_t buffer() const;
     anbox::graphics::Rect screen_position() const;
+    anbox::graphics::Rect crop() const;
     glm::mat4 transformation() const;
     float alpha() const;
 
@@ -48,6 +50,7 @@ private:
     std::string name_;
     std::uint32_t buffer_;
     anbox::graphics::Rect screen_position_;
+    anbox::graphics::Rect crop_;
     glm::mat4 transformation_;
     float alpha_;
 };

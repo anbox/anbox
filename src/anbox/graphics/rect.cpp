@@ -18,6 +18,7 @@
 #include "anbox/graphics/rect.h"
 
 #include <algorithm>
+#include <string>
 
 namespace anbox {
 namespace graphics {
@@ -30,6 +31,11 @@ void Rect::merge(const Rect &rhs)
     top_ = std::min(top_, rhs.top());
     right_ = std::max(right_, rhs.right());
     bottom_ = std::max(bottom_, rhs.bottom());
+}
+
+std::ostream& operator<<(std::ostream &out, const Rect &rect)
+{
+    return out << "{" << rect.left() << "," << rect.top() << ","<< rect.right() << "," << rect.bottom() << "}";
 }
 } // namespace graphics
 } // namespace anbox

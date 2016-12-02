@@ -20,6 +20,8 @@
 
 #include <cstdint>
 
+#include <ostream>
+
 namespace anbox {
 namespace graphics {
 class Rect {
@@ -97,6 +99,8 @@ private:
     std::int32_t right_;
     std::int32_t bottom_;
 };
+
+std::ostream& operator<<(std::ostream &out, const Rect &rect);
 } // namespace graphics
 } // namespace anbox
 

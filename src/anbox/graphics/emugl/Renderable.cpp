@@ -19,11 +19,13 @@
 Renderable::Renderable(const std::string &name,
                        const std::uint32_t &buffer,
                        const anbox::graphics::Rect &screen_position,
+                       const anbox::graphics::Rect &crop,
                        const glm::mat4 &transformation,
                        const float &alpha) :
     name_(name),
     buffer_(buffer),
     screen_position_(screen_position),
+    crop_(crop),
     transformation_(transformation),
     alpha_(alpha)
 {
@@ -46,6 +48,11 @@ std::uint32_t Renderable::buffer() const
 anbox::graphics::Rect Renderable::screen_position() const
 {
     return screen_position_;
+}
+
+anbox::graphics::Rect Renderable::crop() const
+{
+    return crop_;
 }
 
 glm::mat4 Renderable::transformation() const
