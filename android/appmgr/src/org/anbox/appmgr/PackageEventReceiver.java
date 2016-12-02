@@ -15,19 +15,18 @@
  *
  */
 
-#ifndef ANBOX_APPLICATION_MANAGER_H_
-#define ANBOX_APPLICATION_MANAGER_H_
+package org.anbox.appmgr;
 
-#include "anbox/do_not_copy_or_move.h"
-#include "anbox/android/intent.h"
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 
-#include <string>
+public class PackageEventReceiver extends BroadcastReceiver {
+    private static final String TAG = "AnboxAppMgr";
 
-namespace anbox {
-class ApplicationManager : public DoNotCopyOrMove {
-public:
-    virtual void launch(const android::Intent &intent) = 0;
-};
-} // namespace anbox
-
-#endif
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Log.i(TAG, "Received intent " + intent.toString());
+    }
+}

@@ -42,10 +42,8 @@ public:
     void set_rpc_channel(const std::shared_ptr<rpc::Channel> &channel);
     void reset_rpc_channel();
 
-    void install(const std::string &path) override;
-    void launch(const std::string &package, const std::string &activity) override;
+    void launch(const android::Intent &intent) override;
 
-    void set_dns_servers(const std::string &domain, const std::vector<std::string> &servers);
     void set_focused_task(const std::int32_t &id);
 
 private:
@@ -58,16 +56,12 @@ private:
         bool success;
     };
 
-    void application_installed(Request<protobuf::rpc::Void> *request);
     void application_launched(Request<protobuf::rpc::Void> *request);
-    void dns_servers_set(Request<protobuf::rpc::Void> *request);
     void focused_task_set(Request<protobuf::rpc::Void> *request);
 
     mutable std::mutex mutex_;
     std::shared_ptr<rpc::Channel> channel_;
-    common::WaitHandle install_wait_handle_;
     common::WaitHandle launch_wait_handle_;
-    common::WaitHandle set_dns_servers_wait_handle_;
     common::WaitHandle set_focused_task_handle_;
 };
 } // namespace bridge

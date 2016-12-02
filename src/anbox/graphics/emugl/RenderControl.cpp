@@ -444,7 +444,12 @@ void rcPostLayer(const char *name, uint32_t color_buffer,
                  int32_t displayFrameLeft, int32_t displayFrameTop,
                  int32_t displayFrameRight, int32_t displayFrameBottom)
 {
-    Renderable r{name, color_buffer, {displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom}};
+    Renderable r{
+        name,
+        color_buffer,
+        {displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom},
+        {sourceCropLeft, sourceCropTop, sourceCropRight, sourceCropBottom}
+    };
     frame_layers.push_back(r);
 }
 

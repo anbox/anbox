@@ -23,6 +23,7 @@
 #include <memory>
 
 #include "anbox/cli.h"
+#include "anbox/android/intent.h"
 
 namespace anbox {
 namespace cmds {
@@ -31,8 +32,7 @@ public:
     Launch();
 
 private:
-    std::string package_;
-    std::string activity_;
+    android::Intent intent_;
 };
 } // namespace cmds
 } // namespace anbox

@@ -15,19 +15,27 @@
  *
  */
 
-#ifndef ANBOX_APPLICATION_MANAGER_H_
-#define ANBOX_APPLICATION_MANAGER_H_
-
-#include "anbox/do_not_copy_or_move.h"
-#include "anbox/android/intent.h"
+#ifndef ANBOX_ANDROID_INTENT_H_
+#define ANBOX_ANDROID_INTENT_H_
 
 #include <string>
+#include <vector>
 
 namespace anbox {
-class ApplicationManager : public DoNotCopyOrMove {
-public:
-    virtual void launch(const android::Intent &intent) = 0;
+namespace android {
+struct Intent {
+    std::string action;
+    std::string uri;
+    std::string type;
+    int flags = 0;
+    std::string package;
+    std::string component;
+    std::vector<std::string> categories;
 };
+
+std::ostream& operator<<(std::ostream &out, const Intent &intent);
+} // namespace android
 } // namespace anbox
+
 
 #endif

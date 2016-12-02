@@ -34,6 +34,7 @@ class Void;
 namespace bridge {
 class BootFinishedEvent;
 class WindowStateUpdateEvent;
+class ApplicationListUpdateEvent;
 } // namespace bridge
 } // namespace protobuf
 namespace rpc {
@@ -42,21 +43,27 @@ class PendingCallCache;
 namespace wm {
 class Manager;
 } // namespace wm
+namespace application {
+class LauncherStorage;
+} // namespace application
 namespace bridge {
 class PlatformApiSkeleton {
 public:
     PlatformApiSkeleton(const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
-                        const std::shared_ptr<wm::Manager> &window_manager);
+                        const std::shared_ptr<wm::Manager> &window_manager,
+                        const std::shared_ptr<application::LauncherStorage> &launcher_storage);
     virtual ~PlatformApiSkeleton();
 
     void handle_boot_finished_event(const anbox::protobuf::bridge::BootFinishedEvent &event);
     void handle_window_state_update_event(const anbox::protobuf::bridge::WindowStateUpdateEvent &event);
+    void handle_application_list_update_event(const anbox::protobuf::bridge::ApplicationListUpdateEvent &event);
 
     void register_boot_finished_handler(const std::function<void()> &action);
 
 private:
     std::shared_ptr<rpc::PendingCallCache> pending_calls_;
     std::shared_ptr<wm::Manager> window_manager_;
+    std::shared_ptr<application::LauncherStorage> launcher_storage_;
     std::function<void()> boot_finished_handler_;
 };
 } // namespace bridge

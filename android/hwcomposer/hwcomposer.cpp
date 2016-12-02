@@ -308,6 +308,7 @@ static int hwc_device_open(const hw_module_t* module, const char* name, hw_devic
     dev->device.getDisplayConfigs = hwc_get_display_configs;
     dev->device.getDisplayAttributes = hwc_get_display_attributes;
     dev->device.registerProcs = hwc_register_procs;
+    dev->device.dump = nullptr;
 
     *device = &dev->device.common;
 

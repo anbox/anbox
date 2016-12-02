@@ -33,12 +33,6 @@ struct Service {
 struct ApplicationManager {
     static inline std::string name() { return "org.anbox.ApplicationManager"; }
     struct Methods {
-        struct Install {
-            static inline std::string name() { return "Install"; }
-            typedef anbox::dbus::interface::ApplicationManager Interface;
-            typedef void ResultType;
-            static inline std::chrono::milliseconds default_timeout() { return std::chrono::seconds{240}; }
-        };
         struct Launch {
             static inline std::string name() { return "Launch"; }
             typedef anbox::dbus::interface::ApplicationManager Interface;

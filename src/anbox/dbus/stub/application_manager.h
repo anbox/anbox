@@ -36,8 +36,7 @@ public:
                        const core::dbus::Object::Ptr& object);
     ~ApplicationManager();
 
-    void install(const std::string &path) override;
-    void launch(const std::string &package, const std::string &activity) override;
+    void launch(const android::Intent &intent) override;
 
 private:
     core::dbus::Bus::Ptr bus_;

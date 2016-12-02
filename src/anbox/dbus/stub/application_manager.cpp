@@ -39,23 +39,16 @@ ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
 ApplicationManager::~ApplicationManager() {
 }
 
-void ApplicationManager::install(const std::string &path) {
-    DEBUG("path %s", path);
-
-    auto result = object_->invoke_method_synchronously<
-            anbox::dbus::interface::ApplicationManager::Methods::Install,
-            anbox::dbus::interface::ApplicationManager::Methods::Install::ResultType>(path);
-
-    if (result.is_error())
-        throw std::runtime_error(result.error().print());
-}
-
-void ApplicationManager::launch(const std::string &package, const std::string &activity) {
-    DEBUG("package %s activity %s", package, activity);
-
+void ApplicationManager::launch(const android::Intent &intent) {
     auto result = object_->invoke_method_synchronously<
             anbox::dbus::interface::ApplicationManager::Methods::Launch,
-            anbox::dbus::interface::ApplicationManager::Methods::Launch::ResultType>(package, activity);
+            anbox::dbus::interface::ApplicationManager::Methods::Launch::ResultType>(
+                intent.action,
+                intent.uri,
+                intent.type,
+                intent.flags,
+                intent.package,
+                intent.component);
 
     if (result.is_error())
         throw std::runtime_error(result.error().print());

@@ -24,7 +24,6 @@
 
 #include "anbox/cmds/version.h"
 #include "anbox/cmds/run.h"
-#include "anbox/cmds/install.h"
 #include "anbox/cmds/launch.h"
 #include "anbox/cmds/container_manager.h"
 
@@ -38,7 +37,6 @@ Daemon::Daemon() :
 
     cmd.command(std::make_shared<cmds::Version>())
        .command(std::make_shared<cmds::Run>())
-       .command(std::make_shared<cmds::Install>())
        .command(std::make_shared<cmds::Launch>())
        .command(std::make_shared<cmds::ContainerManager>());
 }

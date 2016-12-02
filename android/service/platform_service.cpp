@@ -84,4 +84,44 @@ status_t PlatformService::update_window_state(const Parcel &data) {
 
     return OK;
 }
+
+status_t PlatformService::update_application_list(const Parcel &data) {
+    anbox::PlatformApiStub::ApplicationListUpdate update;
+    const auto num_packages = data.readInt32();
+    for (auto n = 0; n < num_packages; n++) {
+        String8 name(data.readString16());
+        String8 package_name(data.readString16());
+
+        auto p = anbox::PlatformApiStub::ApplicationListUpdate::Application{
+                name.string(),
+                package_name.string(),
+        };
+
+        if (data.readInt32() == 1) {
+            String8 action(data.readString16());
+            String8 uri(data.readString16());
+            String8 type(data.readString16());
+            String8 component_package(data.readString16());
+            String8 component_class(data.readString16());
+
+            std::vector<std::string> categories;
+            unsigned int num_categories = data.readInt32();
+            for (int m = 0; m < num_categories; m++)
+                categories.push_back(String8(data.readString16()).string());
+
+            p.launch_intent.action = action;
+            p.launch_intent.uri = uri;
+            p.launch_intent.type = type;
+            p.launch_intent.package = component_package;
+            p.launch_intent.component = component_class;
+            p.launch_intent.categories = categories;
+
+            update.applications.push_back(p);
+        };
+    }
+
+    platform_api_stub_->update_application_list(update);
+
+    return OK;
+}
 } // namespace android

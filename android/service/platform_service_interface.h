@@ -36,10 +36,12 @@ public:
         // Keep this synchronized with frameworks/base/services/java/com/android/server/wm/AnboxPlatformServiceProxy.java
         BOOT_FINISHED = IBinder::FIRST_CALL_TRANSACTION,
         UPDATE_WINDOW_STATE = IBinder::FIRST_CALL_TRANSACTION + 1,
+        UPDATE_APPLICATION_LIST = IBinder::FIRST_CALL_TRANSACTION + 2,
     };
 
     virtual status_t boot_finished() = 0;
     virtual status_t update_window_state(const Parcel &data) = 0;
+    virtual status_t update_application_list(const Parcel &data) = 0;
 };
 
 class BpPlatformService : public BpInterface<IPlatformService> {
@@ -48,6 +50,7 @@ public:
 
     status_t boot_finished() override;
     status_t update_window_state(const Parcel &data) override;
+    status_t update_application_list(const Parcel &data) override;
 };
 
 class BnPlatformService : public BnInterface<IPlatformService> {
