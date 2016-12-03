@@ -42,7 +42,10 @@ Daemon::Daemon()
 }
 
 int Daemon::Run(const std::vector<std::string> &arguments) try {
-  return cmd.run({std::cin, std::cout, arguments});
+  auto argv = arguments;
+  if (arguments.size() == 0)
+    argv = {"run"};
+  return cmd.run({std::cin, std::cout, argv});
 } catch (std::exception &err) {
   ERROR("%s", err.what());
   return EXIT_FAILURE;
