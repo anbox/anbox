@@ -136,9 +136,12 @@ void LxcContainer::start(const Configuration &configuration) {
     if (fs::is_directory(bind_mount.first)) create_type = "dir";
 
     auto target_path = bind_mount.second;
-    // LXC wants target paths relative to the container rootfs so
-    // prividing an absolute path doesn't work.
-    if (utils::string_starts_with(target_path, "/")) target_path.erase(0, 1);
+    // The target path needs to be absolute and pointing to the right
+    // location inside the target rootfs as otherwise we get problems
+    // when running in confined environments like snap's.
+    if (!utils::string_starts_with(target_path, "/"))
+      target_path = std::string("/") + target_path;
+    target_path = config::rootfs_path() + target_path;
 
     set_config_item(
         "lxc.mount.entry",
