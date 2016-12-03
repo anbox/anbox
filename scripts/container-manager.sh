@@ -13,6 +13,7 @@ if [ ! -e $ROOTFS_PATH ] || [ "$ROOTFS_VERSION" != "$(cat $ROOTFS_PATH/.version)
 	echo "Copying rootfs into $ROOTFS_PATH .."
 	mkdir -p $ROOTFS_PATH
 	tar xf $SNAP/android-rootfs.tar -C $ROOTFS_PATH/ --strip-components=1
+	chown -R root:root $ROOTFS_PATH
 	echo $ROOTFS_VERSION > $ROOTFS_PATH/.version
 fi
 
