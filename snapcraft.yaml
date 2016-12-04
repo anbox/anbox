@@ -36,6 +36,10 @@ parts:
       - bin/anbox-bridge.sh
       - bin/anbox-wrapper.sh
       - bin/container-manager.sh
+  apparmor:
+    plugin: nil
+    stage-packages:
+      - apparmor
   lxc:
     source: git://github.com/morphis/lxc
     source-branch: snappy-support

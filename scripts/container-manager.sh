@@ -29,4 +29,4 @@ chmod 666 /dev/ashmem
 # this path.
 mkdir -p $SNAP_COMMON/lxc
 
-exec $SNAP/bin/anbox-wrapper.sh container-manager
+exec $SNAP/usr/sbin/aa-exec -p unconfined -- $SNAP/bin/anbox-wrapper.sh container-manager
