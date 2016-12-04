@@ -113,9 +113,11 @@ void LxcContainer::start(const Configuration &configuration) {
       "lxc.logfile",
       utils::string_format("%s/container.log", config::log_path()).c_str());
 
-  set_config_item("lxc.network.type", "veth");
-  set_config_item("lxc.network.flags", "up");
-  set_config_item("lxc.network.link", "anboxbr0");
+  if (fs::exists("/sys/class/net/anboxbr0")) {
+    set_config_item("lxc.network.type", "veth");
+    set_config_item("lxc.network.flags", "up");
+    set_config_item("lxc.network.link", "anboxbr0");
+  }
 
 #if 0
     // Android uses namespaces as well so we have to allow nested namespaces for LXC
