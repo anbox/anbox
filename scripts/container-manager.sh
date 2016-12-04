@@ -17,13 +17,6 @@ if [ ! -e $ROOTFS_PATH ] || [ "$ROOTFS_VERSION" != "$(cat $ROOTFS_PATH/.version)
 	echo $ROOTFS_VERSION > $ROOTFS_PATH/.version
 fi
 
-# Load binder and ashmem kernel drivers. This will just horrible break
-# if kernel versions are changing ...
-insmod $SNAP/binder_linux.ko || true
-chmod 666 /dev/binder
-insmod $SNAP/ashmem_linux.ko || true
-chmod 666 /dev/ashmem
-
 # Make sure our setup path for the container rootfs
 # is present as lxc is statically configured for
 # this path.
