@@ -29,4 +29,12 @@ chmod 666 /dev/ashmem
 # this path.
 mkdir -p $SNAP_COMMON/lxc
 
-exec $SNAP/usr/sbin/aa-exec -p unconfined -- $SNAP/bin/anbox-wrapper.sh container-manager
+# We start the bridge here as long as a oneshot service unit is not
+# possible. See snapcraft.yaml for further details.
+$SNAP/bin/anbox-bridge.sh start
+
+$SNAP/usr/sbin/aa-exec -p unconfined -- $SNAP/bin/anbox-wrapper.sh container-manager
+pid=$!
+waitpid $pid
+
+$SNAP/bin/anbox-bridge.sh stop
