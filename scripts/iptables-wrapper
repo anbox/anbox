@@ -1,2 +1,0 @@
-#!/system/bin/sh
-echo "Dummy iptables wrapper"
