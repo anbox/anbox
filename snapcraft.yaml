@@ -22,11 +22,12 @@ apps:
 #    daemon: oneshot
 
 parts:
-  android-rootfs:
+  android:
     plugin: copy
     source: .
     files:
-      android-rootfs.tar: android-rootfs.tar
+      system.img: system.img
+      ramdisk.img: ramdisk.img
   anbox-common:
     plugin: copy
     source: .
