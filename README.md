@@ -27,6 +27,53 @@ For more details have a look at the following documentation pages:
  * The Android "qemud" multiplexing daemon (https://goo.gl/DeYa5J)
  * Android Qemud services (https://goo.gl/W8Lx6t)
 
+## Installation
+
+Anbox is available as a snap in the public Ubuntu Store. Currently it
+is only available in the edge channel and requires to be installed in
+devmode as we don't have proper confinement for it in place yet.
+
+Additionally you need to manually load the binder and ashmem kernel
+drivers everytime as we build them out-of-tree with a hack as this
+isn't officially supported. Before you start anbox you always need
+to execute
+
+$ cd anbox
+$ scripts/load-kmods.sh
+
+Anbox can be installed from the Ubuntu Store with
+
+$ snap install --edge --devmode anbox
+
+Afterwards run it with
+
+$ anbox
+
+After the first installation the container management service needs
+a few minutes to setup the container the first time before it is
+available.
+
+Applications can be launched via the launch subcommand of the anbox
+binary. For example
+
+$ anbox launch --package com.android.settings
+
+## Build from source
+
+To build the Anbox runtime itself there is nothing special to know
+about. We're using cmake as build system.
+
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+
+That will build the whole stack. A simple
+
+$ make install
+
+will install the necessary bits into your system.
+
 ## Copyright and Licensing
 
 Anbox reuses code from other projects like the Android Qemu emulator
