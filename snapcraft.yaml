@@ -10,21 +10,24 @@ grade: devel
 
 apps:
   anbox:
-    command: bin/anbox-wrapper.sh run
+    command: bin/anbox-wrapper.sh
   container-manager:
     command: bin/container-manager.sh
     daemon: simple
-  bridge:
-    command: bin/anbox-bridge.sh start
-    stop-command: bin/anbox-bridge.sh stop
-    daemon: oneshot
+# FIXME: a oneshot unit with start/stop commands needs also RemainAfterExit=yes
+# but this isn't supported by snapd yet. See LP #1647169 for details.
+#  bridge:
+#    command: bin/anbox-bridge.sh start
+#    stop-command: bin/anbox-bridge.sh stop
+#    daemon: oneshot
 
 parts:
-  android-rootfs:
+  android:
     plugin: copy
     source: .
     files:
-      android-rootfs.tar: android-rootfs.tar
+      system.img: system.img
+      ramdisk.img: ramdisk.img
   anbox-common:
     plugin: copy
     source: .
@@ -36,6 +39,10 @@ parts:
       - bin/anbox-bridge.sh
       - bin/anbox-wrapper.sh
       - bin/container-manager.sh
+  apparmor:
+    plugin: nil
+    stage-packages:
+      - apparmor
   lxc:
     source: git://github.com/morphis/lxc
     source-branch: snappy-support

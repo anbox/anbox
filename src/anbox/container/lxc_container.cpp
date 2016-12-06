@@ -113,9 +113,11 @@ void LxcContainer::start(const Configuration &configuration) {
       "lxc.logfile",
       utils::string_format("%s/container.log", config::log_path()).c_str());
 
-  set_config_item("lxc.network.type", "veth");
-  set_config_item("lxc.network.flags", "up");
-  set_config_item("lxc.network.link", "anboxbr0");
+  if (fs::exists("/sys/class/net/anboxbr0")) {
+    set_config_item("lxc.network.type", "veth");
+    set_config_item("lxc.network.flags", "up");
+    set_config_item("lxc.network.link", "anboxbr0");
+  }
 
 #if 0
     // Android uses namespaces as well so we have to allow nested namespaces for LXC
@@ -136,9 +138,12 @@ void LxcContainer::start(const Configuration &configuration) {
     if (fs::is_directory(bind_mount.first)) create_type = "dir";
 
     auto target_path = bind_mount.second;
-    // LXC wants target paths relative to the container rootfs so
-    // prividing an absolute path doesn't work.
-    if (utils::string_starts_with(target_path, "/")) target_path.erase(0, 1);
+    // The target path needs to be absolute and pointing to the right
+    // location inside the target rootfs as otherwise we get problems
+    // when running in confined environments like snap's.
+    if (!utils::string_starts_with(target_path, "/"))
+      target_path = std::string("/") + target_path;
+    target_path = config::rootfs_path() + target_path;
 
     set_config_item(
         "lxc.mount.entry",
