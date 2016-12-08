@@ -52,6 +52,8 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
 
   void window_deleted(const Window::Id &id) override;
   void window_wants_focus(const Window::Id &id) override;
+  void window_moved(const Window::Id &id, const std::int32_t &x, const std::int32_t &y) override;
+  void window_resized(const Window::Id &id, const std::int32_t &width, const std::int32_t &height) override;
 
   DisplayInfo display_info() const override;
 

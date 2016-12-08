@@ -32,6 +32,20 @@ void Rect::merge(const Rect &rhs) {
   bottom_ = std::max(bottom_, rhs.bottom());
 }
 
+void Rect::translate(const std::int32_t &x, const std::int32_t &y) {
+  auto old_width = width();
+  auto old_height = height();
+  left_ = x;
+  top_ = y;
+  right_ = x + old_width;
+  bottom_ = y + old_height;
+}
+
+void Rect::resize(const std::int32_t &width, const std::int32_t &height) {
+  right_ = left_ + width;
+  bottom_ = top_ + height;
+}
+
 std::ostream &operator<<(std::ostream &out, const Rect &rect) {
   return out << "{" << rect.left() << "," << rect.top() << "," << rect.right()
              << "," << rect.bottom() << "}";

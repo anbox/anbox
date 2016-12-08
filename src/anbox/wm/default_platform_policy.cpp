@@ -25,11 +25,6 @@ class NullWindow : public anbox::wm::Window {
   NullWindow(const anbox::wm::Task::Id &task,
              const anbox::graphics::Rect &frame)
       : anbox::wm::Window(0, frame) {}
-
- protected:
-  void resize(int width, int height) override { WARNING("Not implemented"); }
-
-  void update_position(int x, int y) override { WARNING("Not implemented"); }
 };
 }
 

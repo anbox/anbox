@@ -45,7 +45,7 @@ Window::Window(const Id &id, const wm::Task::Id &task,
 
   window_ = SDL_CreateWindow(default_window_name, frame.left(), frame.top(),
                              frame.width(), frame.height(),
-                             SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
+                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
   if (!window_) {
     const auto message =
         utils::string_format("Failed to create window: %s", SDL_GetError());
@@ -75,15 +75,7 @@ Window::Window(const Id &id, const wm::Task::Id &task,
 Window::~Window() {
   if (window_) SDL_DestroyWindow(window_);
 
-  if (observer_) observer_->window_deleted(id_);
-}
-
-void Window::resize(int width, int height) {
-  SDL_SetWindowSize(window_, width, height);
-}
-
-void Window::update_position(int x, int y) {
-  SDL_SetWindowPosition(window_, x, y);
+  // if (observer_) observer_->window_deleted(id_);
 }
 
 void Window::process_event(const SDL_Event &event) {
@@ -93,15 +85,24 @@ void Window::process_event(const SDL_Event &event) {
       break;
     case SDL_WINDOWEVENT_FOCUS_LOST:
       break;
-    case SDL_WINDOWEVENT_RESIZED:
-      break;
+    // Not need to listen for SDL_WINDOWEVENT_RESIZED here as the
+    // SDL_WINDOWEVENT_SIZE_CHANGED is always sent.
     case SDL_WINDOWEVENT_SIZE_CHANGED:
+      if (observer_)
+        observer_->window_resized(id_, event.window.data1, event.window.data2);
       break;
     case SDL_WINDOWEVENT_MOVED:
+      if (observer_)
+        observer_->window_moved(id_, event.window.data1, event.window.data2);
       break;
     case SDL_WINDOWEVENT_SHOWN:
       break;
     case SDL_WINDOWEVENT_HIDDEN:
+      break;
+    case SDL_WINDOWEVENT_CLOSE:
+      DEBUG("Got close event");
+      if (observer_)
+        observer_->window_deleted(id_);
       break;
   }
 }

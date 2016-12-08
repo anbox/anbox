@@ -85,10 +85,6 @@ void PlatformPolicy::process_events() {
     while (SDL_WaitEventTimeout(&event, 100)) {
       switch (event.type) {
         case SDL_QUIT:
-          // This is the best way to reliable terminate the whole application
-          // for now. It will
-          // trigger a correct shutdown in the main part.
-          ::kill(getpid(), SIGTERM);
           break;
         case SDL_WINDOWEVENT:
           for (auto &iter : windows_) {
@@ -198,6 +194,8 @@ void PlatformPolicy::window_deleted(const Window::Id &id) {
     WARNING("Got window removed event for unknown window (id %d)", id);
     return;
   }
+  if (auto window = w->second.lock())
+    android_api_->remove_task(window->task());
   windows_.erase(w);
 }
 
@@ -207,6 +205,33 @@ void PlatformPolicy::window_wants_focus(const Window::Id &id) {
 
   if (auto window = w->second.lock())
     android_api_->set_focused_task(window->task());
+}
+
+void PlatformPolicy::window_moved(const Window::Id &id, const std::int32_t &x, const std::int32_t &y) {
+  auto w = windows_.find(id);
+  if (w == windows_.end()) return;
+
+  if (auto window = w->second.lock()) {
+    auto new_frame = window->frame();
+    new_frame.translate(x, y);
+    android_api_->resize_task(window->task(), new_frame, 3);
+  }
+}
+
+void PlatformPolicy::window_resized(const Window::Id &id, const std::int32_t &width, const std::int32_t &height) {
+  auto w = windows_.find(id);
+  if (w == windows_.end()) return;
+
+  if (auto window = w->second.lock()) {
+    auto new_frame = window->frame();
+    new_frame.resize(width, height);
+    // We need to update the window frame in advance here as otherwise we may
+    // get a movement event before we got an update of the actual layer
+    // representing this window and then we're back to the original size of
+    // the task.
+    window->update_frame(new_frame);
+    android_api_->resize_task(window->task(), new_frame, 1);
+  }
 }
 
 DisplayManager::DisplayInfo PlatformPolicy::display_info() const {
