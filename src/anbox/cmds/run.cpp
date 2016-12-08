@@ -161,6 +161,7 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
         {config::host_input_device_path(), "/dev/input"},
         {"/dev/binder", "/dev/binder"},
         {"/dev/ashmem", "/dev/ashmem"},
+        {"/dev/fuse", "/dev/fuse"},
     };
 
     dispatcher->dispatch(
