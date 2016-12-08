@@ -12,7 +12,8 @@ apps:
   anbox:
     command: bin/anbox-wrapper.sh
   container-manager:
-    command: bin/container-manager.sh
+    command: bin/container-manager.sh start
+    stop-command: bin/container-manager.sh stop
     daemon: simple
 # FIXME: a oneshot unit with start/stop commands needs also RemainAfterExit=yes
 # but this isn't supported by snapd yet. See LP #1647169 for details.
