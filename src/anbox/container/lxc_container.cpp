@@ -80,10 +80,6 @@ void LxcContainer::start(const Configuration &configuration) {
     if (container_->is_running(container_)) container_->stop(container_);
   }
 
-  // We drop all not needed capabilities
-  set_config_item("lxc.cap.drop",
-                  "mac_admin mac_override sys_time sys_module sys_rawio");
-
   // We can mount proc/sys as rw here as we will run the container unprivileged
   // in the end
   set_config_item("lxc.mount.auto", "proc:mixed sys:mixed cgroup:mixed");
