@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # We need to put the rootfs somewhere where we can modify some
 # parts of the content on first boot (namely file permissions).
@@ -10,7 +10,6 @@ ROOTFS_PATH=$DATA_PATH/rootfs
 RAMDISK_PATH=$DATA_PATH/ramdisk
 INITRD=$SNAP/ramdisk.img
 SYSTEM_IMG=$SNAP/system.img
-ANDROID_DATA_PATH=$DATA_PATH/android-data
 
 if [ ! -e $INITRD ]; then
 	echo "ERROR: boot ramdisk does not exist"
@@ -37,9 +36,11 @@ mkdir -p $ROOTFS_PATH
 mount -o bind,ro $RAMDISK_PATH $ROOTFS_PATH
 mount -o loop,ro $SYSTEM_IMG $ROOTFS_PATH/system
 
-# ... but we keep /data in the read/write space
-mkdir -p $ANDROID_DATA_PATH
-mount -o bind $ANDROID_DATA_PATH $ROOTFS_PATH/data
+# but certain top-level directories need to be in a writable space
+for dir in cache data; do
+	mkdir -p $DATA_PATH/android-$dir
+	mount -o bind $DATA_PATH/android-$dir $ROOTFS_PATH/$dir
+done
 
 # Make sure our setup path for the container rootfs
 # is present as lxc is statically configured for
