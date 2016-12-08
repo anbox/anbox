@@ -27,6 +27,8 @@
 
 #include <cstdint>
 
+#include "anbox/graphics/rect.h"
+
 namespace android {
 class IActivityManager : public IInterface {
 public:
@@ -35,9 +37,13 @@ public:
     enum {
         // This needs to stay synchronized with frameworks/base/core/java/android/app/IActivityManager.java
         SET_FOCUSED_TASK = IBinder::FIRST_CALL_TRANSACTION + 130,
+        REMOVE_TASK = IBinder::FIRST_CALL_TRANSACTION + 131,
+        RESIZE_TASK = IBinder::FIRST_CALL_TRANSACTION + 285,
     };
 
     virtual status_t setFocusedTask(int32_t id) = 0;
+    virtual status_t removeTask(int32_t id) = 0;
+    virtual status_t resizeTask(int32_t id, const anbox::graphics::Rect &rect, int resize_mode) = 0;
 };
 
 class BpActivityManager : public BpInterface<IActivityManager> {
@@ -45,6 +51,8 @@ public:
     BpActivityManager(const sp<IBinder> &binder);
 
     status_t setFocusedTask(int32_t id) override;
+    status_t removeTask(int32_t id) override;
+    status_t resizeTask(int32_t id, const anbox::graphics::Rect &rect, int resize_mode);
 };
 } // namespace android
 #endif

@@ -20,6 +20,7 @@
 
 #include "anbox/application_manager.h"
 #include "anbox/common/wait_handle.h"
+#include "anbox/graphics/rect.h"
 
 #include <memory>
 #include <vector>
@@ -45,6 +46,8 @@ class AndroidApiStub : public anbox::ApplicationManager {
   void launch(const android::Intent &intent) override;
 
   void set_focused_task(const std::int32_t &id);
+  void remove_task(const std::int32_t &id);
+  void resize_task(const std::int32_t &id, const anbox::graphics::Rect &rect, const std::int32_t &resize_mode);
 
  private:
   void ensure_rpc_channel();
@@ -58,11 +61,15 @@ class AndroidApiStub : public anbox::ApplicationManager {
 
   void application_launched(Request<protobuf::rpc::Void> *request);
   void focused_task_set(Request<protobuf::rpc::Void> *request);
+  void task_removed(Request<protobuf::rpc::Void> *request);
+  void task_resized(Request<protobuf::rpc::Void> *request);
 
   mutable std::mutex mutex_;
   std::shared_ptr<rpc::Channel> channel_;
   common::WaitHandle launch_wait_handle_;
   common::WaitHandle set_focused_task_handle_;
+  common::WaitHandle remove_task_handle_;
+  common::WaitHandle resize_task_handle_;
 };
 }  // namespace bridge
 }  // namespace anbox

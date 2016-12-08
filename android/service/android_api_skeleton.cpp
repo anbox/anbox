@@ -119,8 +119,6 @@ void AndroidApiSkeleton::launch_application(anbox::protobuf::bridge::LaunchAppli
 void AndroidApiSkeleton::set_focused_task(anbox::protobuf::bridge::SetFocusedTask const *request,
                                           anbox::protobuf::rpc::Void *response,
                                           google::protobuf::Closure *done) {
-    (void) response;
-
     connect_services();
 
     if (activity_manager_.get())
@@ -129,5 +127,36 @@ void AndroidApiSkeleton::set_focused_task(anbox::protobuf::bridge::SetFocusedTas
         response->set_error("ActivityManager is not available");
 
     done->Run();
+}
+
+void AndroidApiSkeleton::remove_task(anbox::protobuf::bridge::RemoveTask const *request,
+                                     anbox::protobuf::rpc::Void *response,
+                                     google::protobuf::Closure *done) {
+  connect_services();
+
+  if (activity_manager_.get())
+    activity_manager_->removeTask(request->id());
+  else
+    response->set_error("ActivityManager is not available");
+
+  done->Run();
+
+}
+
+void AndroidApiSkeleton::resize_task(anbox::protobuf::bridge::ResizeTask const *request,
+                                     anbox::protobuf::rpc::Void *response,
+                                     google::protobuf::Closure *done) {
+  connect_services();
+
+  if (activity_manager_.get()) {
+    auto r = request->rect();
+    activity_manager_->resizeTask(request->id(),
+                                  anbox::graphics::Rect{r.left(), r.top(), r.right(), r.bottom()},
+                                  request->resize_mode());
+  } else {
+    response->set_error("ActivityManager is not available");
+  }
+
+  done->Run();
 }
 } // namespace anbox

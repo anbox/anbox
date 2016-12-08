@@ -31,12 +31,6 @@ void Window::update_state(const WindowState::List &states) {}
 void Window::update_frame(const graphics::Rect &frame) {
   if (frame == frame_) return;
 
-  if (frame.width() != frame_.width() || frame.height() != frame_.height())
-    resize(frame.width(), frame.height());
-
-  if (frame.top() != frame_.top() || frame.left() != frame_.left())
-    update_position(frame.left(), frame.top());
-
   frame_ = frame;
 }
 

@@ -39,6 +39,8 @@ class InstallApplication;
 class LaunchApplication;
 class SetDnsServers;
 class SetFocusedTask;
+class RemoveTask;
+class ResizeTask;
 } // namespace bridge
 namespace rpc {
 class Void;
@@ -56,6 +58,14 @@ public:
     void set_focused_task(anbox::protobuf::bridge::SetFocusedTask const *request,
                           anbox::protobuf::rpc::Void *response,
                           google::protobuf::Closure *done);
+
+    void remove_task(anbox::protobuf::bridge::RemoveTask const *request,
+                     anbox::protobuf::rpc::Void *response,
+                     google::protobuf::Closure *done);
+
+    void resize_task(anbox::protobuf::bridge::ResizeTask const *request,
+                     anbox::protobuf::rpc::Void *response,
+                     google::protobuf::Closure *done);
 
 private:
     void wait_for_process(core::posix::ChildProcess &process,

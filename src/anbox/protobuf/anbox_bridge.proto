@@ -16,6 +16,13 @@ message Intent {
     repeated string categories = 6;
 }
 
+message Rect {
+    optional int32 left = 1;
+    optional int32 top = 2;
+    optional int32 right = 3;
+    optional int32 bottom = 4;
+}
+
 message Notification {
     required string package_name = 1;
     required string category = 2;
@@ -30,6 +37,16 @@ message LaunchApplication {
 
 message SetFocusedTask {
     required int32 id = 1;
+}
+
+message RemoveTask {
+    required int32 id = 1;
+}
+
+message ResizeTask {
+    required int32 id = 1;
+    required int32 resize_mode = 2;
+    required Rect rect = 3;
 }
 
 message BootFinishedEvent {

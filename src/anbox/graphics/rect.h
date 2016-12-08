@@ -63,6 +63,10 @@ class Rect {
 
   void merge(const Rect &rhs);
 
+  void translate(const std::int32_t &x, const std::int32_t &y);
+
+  void resize(const std::int32_t &width, const std::int32_t &height);
+
  private:
   std::int32_t left_;
   std::int32_t top_;

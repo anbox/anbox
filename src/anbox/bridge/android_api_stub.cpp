@@ -115,5 +115,69 @@ void AndroidApiStub::focused_task_set(Request<protobuf::rpc::Void> *request) {
   (void)request;
   set_focused_task_handle_.result_received();
 }
+
+void AndroidApiStub::remove_task(const std::int32_t &id) {
+  ensure_rpc_channel();
+
+  auto c = std::make_shared<Request<protobuf::rpc::Void>>();
+
+  DEBUG("");
+
+  protobuf::bridge::RemoveTask message;
+  message.set_id(id);
+
+  {
+    std::lock_guard<decltype(mutex_)> lock(mutex_);
+    remove_task_handle_.expect_result();
+  }
+
+  channel_->call_method("remove_task", &message, c->response.get(),
+                        google::protobuf::NewCallback(
+                            this, &AndroidApiStub::task_removed, c.get()));
+
+  remove_task_handle_.wait_for_all();
+
+  if (c->response->has_error()) throw std::runtime_error(c->response->error());
+}
+
+void AndroidApiStub::task_removed(Request<protobuf::rpc::Void> *request) {
+  (void)request;
+  remove_task_handle_.result_received();
+}
+
+void AndroidApiStub::resize_task(const std::int32_t &id, const anbox::graphics::Rect &rect,
+                                 const std::int32_t &resize_mode) {
+  ensure_rpc_channel();
+
+  auto c = std::make_shared<Request<protobuf::rpc::Void>>();
+
+  protobuf::bridge::ResizeTask message;
+  message.set_id(id);
+  message.set_resize_mode(resize_mode);
+
+  auto r = message.mutable_rect();
+  r->set_left(rect.left());
+  r->set_top(rect.top());
+  r->set_right(rect.right());
+  r->set_bottom(rect.bottom());
+
+  {
+    std::lock_guard<decltype(mutex_)> lock(mutex_);
+    resize_task_handle_.expect_result();
+  }
+
+  channel_->call_method("resize_task", &message, c->response.get(),
+                        google::protobuf::NewCallback(
+                            this, &AndroidApiStub::task_resized, c.get()));
+
+  resize_task_handle_.wait_for_all();
+
+  if (c->response->has_error()) throw std::runtime_error(c->response->error());
+}
+
+void AndroidApiStub::task_resized(Request<protobuf::rpc::Void> *request) {
+  (void)request;
+  resize_task_handle_.result_received();
+}
 }  // namespace bridge
 }  // namespace anbox

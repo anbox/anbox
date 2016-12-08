@@ -54,10 +54,6 @@ class Window {
   graphics::Rect frame() const;
   Task::Id task() const;
 
- protected:
-  virtual void resize(int width, int height) = 0;
-  virtual void update_position(int x, int y) = 0;
-
  private:
   Task::Id task_;
   graphics::Rect frame_;

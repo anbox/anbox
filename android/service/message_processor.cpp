@@ -15,6 +15,8 @@
  *
  */
 
+#define LOG_TAG "Anboxd"
+
 #include "android/service/message_processor.h"
 #include "android/service/android_api_skeleton.h"
 
@@ -35,10 +37,14 @@ MessageProcessor::~MessageProcessor() {
 }
 
 void MessageProcessor::dispatch(rpc::Invocation const& invocation) {
-    if (invocation.method_name() == "launch_application")
-        invoke(this, platform_api_.get(), &AndroidApiSkeleton::launch_application, invocation);
-    else if (invocation.method_name() == "set_focused_task")
-        invoke(this, platform_api_.get(), &AndroidApiSkeleton::set_focused_task, invocation);
+  if (invocation.method_name() == "launch_application")
+    invoke(this, platform_api_.get(), &AndroidApiSkeleton::launch_application, invocation);
+  else if (invocation.method_name() == "set_focused_task")
+    invoke(this, platform_api_.get(), &AndroidApiSkeleton::set_focused_task, invocation);
+  else if (invocation.method_name() == "remove_task")
+    invoke(this, platform_api_.get(), &AndroidApiSkeleton::remove_task, invocation);
+  else if (invocation.method_name() == "resize_task")
+    invoke(this, platform_api_.get(), &AndroidApiSkeleton::resize_task, invocation);
 }
 
 void MessageProcessor::process_event_sequence(const std::string&) {

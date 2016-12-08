@@ -39,6 +39,8 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
     virtual ~Observer();
     virtual void window_deleted(const Id &id) = 0;
     virtual void window_wants_focus(const Id &id) = 0;
+    virtual void window_moved(const Id &id, const std::int32_t &x, const std::int32_t &y) = 0;
+    virtual void window_resized(const Id &id, const std::int32_t &x, const std::int32_t &y) = 0;
   };
 
   Window(const Id &id, const wm::Task::Id &task,
@@ -51,10 +53,6 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
   EGLNativeWindowType native_handle() const override;
   Id id() const;
   std::uint32_t window_id() const;
-
- protected:
-  void resize(int width, int height) override;
-  void update_position(int x, int y) override;
 
  private:
   Id id_;
