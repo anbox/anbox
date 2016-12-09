@@ -24,11 +24,6 @@ target_link_libraries(anboxd
     process-cpp
     anbox-protobuf)
 
-set(TEST_PLATFORM_SERVICE
-    service/test_platform_service.cpp)
-
-add_executable(test_platform_service ${TEST_PLATFORM_SERVICE})
-
 set(HWCOMPOSER_SOURCES
     hwcomposer/hwcomposer.cpp)
 
@@ -38,9 +33,6 @@ add_library(hwcomposer.anbox SHARED ${HWCOMPOSER_SOURCES})
 # build this safely within default build anymore. We keep this
 # for easy integration into used IDEs.
 set_target_properties(anboxd
-    PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-
-set_target_properties(test_platform_service
     PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
 
 set_target_properties(hwcomposer.anbox

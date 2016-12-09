@@ -63,21 +63,6 @@ LOCAL_CFLAGS := \
 include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE_CLASS := EXECUTABLES
-LOCAL_MODULE := anbox_test_platform_service
-LOCAL_SRC_FILES := \
-    android/service/platform_service_interface.cpp \
-    android/service/test_platform_service.cpp
-LOCAL_C_INCLUDES += \
-    $(LOCAL_PATH)/android/service
-LOCAL_SHARED_LIBRARIES := \
-    liblog \
-    libbinder \
-    libcutils \
-    libutils
-include $(BUILD_EXECUTABLE)
-
-include $(CLEAR_VARS)
 LOCAL_MODULE_RELATIVE_PATH := hw
 LOCAL_SHARED_LIBRARIES := \
     liblog \
