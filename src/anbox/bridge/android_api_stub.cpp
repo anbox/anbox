@@ -121,8 +121,6 @@ void AndroidApiStub::remove_task(const std::int32_t &id) {
 
   auto c = std::make_shared<Request<protobuf::rpc::Void>>();
 
-  DEBUG("");
-
   protobuf::bridge::RemoveTask message;
   message.set_id(id);
 
