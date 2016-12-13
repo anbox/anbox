@@ -6,13 +6,17 @@
     <application
         android:name="org.anbox.appmgr.MainApplication">
         <activity
-            android:name=".LauncherActivity"
-            android:launchMode="singleTask">
+            android:name=".LauncherActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.HOME"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".AppViewActivity"
+            android:label="@string/app_name"
+            android:excludeFromRecents="true">
         </activity>
         <service
             android:name=".LauncherService"
