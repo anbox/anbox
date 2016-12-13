@@ -1,0 +1,61 @@
+#!/bin/sh
+
+set -eu
+
+ROOT=$SNAP_COMMON/classic
+
+if [ -d $ROOT ]; then
+    echo "classic already enabled"
+    exit 1
+fi
+
+if [ $(id -u) -ne 0 ]; then
+    echo "This script needs to be called as root" >&2
+    exit 1
+fi
+
+CORE=""
+if [ -e /snap/core/current ]; then
+    CORE="core"
+elif [ -e /snap/ubuntu-core/current ]; then
+    CORE="ubuntu-core"
+else
+    echo "Cannot find core snap"
+    exit 1
+fi
+
+# FIXME: confinement will prevent this
+echo "Creating classic environment"
+VERSION="$(/bin/readlink /snap/${CORE}/current)"
+SNAPROOT="/var/lib/snapd/snaps/${CORE}_${VERSION}.snap"
+/usr/bin/unsquashfs -d $ROOT $SNAPROOT
+mkdir $ROOT/snappy
+
+# enable
+sudo chroot $ROOT /var/lib/classic/enable.sh
+
+# copy important config
+for f in hostname timezone localtime; do
+    cp -a /etc/writable/$f $ROOT/etc/writable
+done
+for f in hosts; do
+    cp -a /etc/$f $ROOT/etc/
+done
+
+
+# don't start services in the chroot on apt-get install
+cat <<EOF > "$ROOT/usr/sbin/policy-rc.d"
+#!/bin/sh
+while true; do
+    case "\$1" in
+      -*) shift ;;
+      makedev) exit 0;;
+      x11-common) exit 0;;
+      *) exit 101;;
+    esac
+done
+EOF
+chmod 755 "$ROOT/usr/sbin/policy-rc.d"
+
+# workaround bug in livecd-rootfs
+chmod 1777 "$ROOT/tmp"
