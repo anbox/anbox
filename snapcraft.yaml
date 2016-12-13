@@ -29,6 +29,9 @@ parts:
     files:
       system.img: system.img
       ramdisk.img: ramdisk.img
+  kernel-modules:
+    plugin: dump
+    source: kernel
   anbox-common:
     plugin: copy
     source: .
@@ -36,10 +39,16 @@ parts:
       scripts/snap-wrapper.sh: bin/anbox-wrapper.sh
       scripts/container-manager.sh: bin/container-manager.sh
       scripts/anbox-bridge.sh: bin/anbox-bridge.sh
+      scripts/classic: bin/classic
+      scripts/classic-create: bin/classic-create
+      scripts/classic-reset: bin/classic-reset
     snap:
       - bin/anbox-bridge.sh
       - bin/anbox-wrapper.sh
       - bin/container-manager.sh
+      - bin/classic
+      - bin/classic-create
+      - bin/classic-reset
   apparmor:
     plugin: nil
     stage-packages:

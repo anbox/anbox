@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -eu
+
+ROOT=$SNAP_COMMON/classic
+
+if [ "$(id -u)" != "0" ]; then
+    echo "needs to run as root"
+    exit 1
+fi
+
+for d in /home /run /proc /sys /dev /var/lib/extrausers /etc/sudoers /etc/sudoers.d /snappy; do
+  if mountpoint -q "$ROOT/$d"; then
+    umount "$ROOT/$d"
+  fi
+done
+
+# cleanup
+rm -rf $ROOT
