@@ -50,7 +50,9 @@ available.
 Applications can be launched via the launch subcommand of the anbox
 binary. For example
 
+```
 $ anbox launch --package com.android.settings
+```
 
 When installed as snap there will be also a desktop launcher available
 which will directly start the application viewer activity to give
@@ -62,14 +64,18 @@ them.
 To build the Anbox runtime itself there is nothing special to know
 about. We're using cmake as build system.
 
+```
 $ mkdir build
 $ cd build
 $ cmake ..
 $ make
+```
 
 That will build the whole stack. A simple
 
+```
 $ make install
+```
 
 will install the necessary bits into your system.
 
