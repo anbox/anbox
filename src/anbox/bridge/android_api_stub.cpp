@@ -143,7 +143,8 @@ void AndroidApiStub::task_removed(Request<protobuf::rpc::Void> *request) {
   remove_task_handle_.result_received();
 }
 
-void AndroidApiStub::resize_task(const std::int32_t &id, const anbox::graphics::Rect &rect,
+void AndroidApiStub::resize_task(const std::int32_t &id,
+                                 const anbox::graphics::Rect &rect,
                                  const std::int32_t &resize_mode) {
   ensure_rpc_channel();
 

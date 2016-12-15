@@ -194,8 +194,7 @@ void PlatformPolicy::window_deleted(const Window::Id &id) {
     WARNING("Got window removed event for unknown window (id %d)", id);
     return;
   }
-  if (auto window = w->second.lock())
-    android_api_->remove_task(window->task());
+  if (auto window = w->second.lock()) android_api_->remove_task(window->task());
   windows_.erase(w);
 }
 
@@ -207,7 +206,8 @@ void PlatformPolicy::window_wants_focus(const Window::Id &id) {
     android_api_->set_focused_task(window->task());
 }
 
-void PlatformPolicy::window_moved(const Window::Id &id, const std::int32_t &x, const std::int32_t &y) {
+void PlatformPolicy::window_moved(const Window::Id &id, const std::int32_t &x,
+                                  const std::int32_t &y) {
   auto w = windows_.find(id);
   if (w == windows_.end()) return;
 
@@ -218,7 +218,9 @@ void PlatformPolicy::window_moved(const Window::Id &id, const std::int32_t &x, c
   }
 }
 
-void PlatformPolicy::window_resized(const Window::Id &id, const std::int32_t &width, const std::int32_t &height) {
+void PlatformPolicy::window_resized(const Window::Id &id,
+                                    const std::int32_t &width,
+                                    const std::int32_t &height) {
   auto w = windows_.find(id);
   if (w == windows_.end()) return;
 

@@ -47,7 +47,8 @@ class AndroidApiStub : public anbox::ApplicationManager {
 
   void set_focused_task(const std::int32_t &id);
   void remove_task(const std::int32_t &id);
-  void resize_task(const std::int32_t &id, const anbox::graphics::Rect &rect, const std::int32_t &resize_mode);
+  void resize_task(const std::int32_t &id, const anbox::graphics::Rect &rect,
+                   const std::int32_t &resize_mode);
 
  private:
   void ensure_rpc_channel();
