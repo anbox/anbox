@@ -76,9 +76,8 @@ will install the necessary bits into your system.
 
 ## Copyright and Licensing
 
-Anbox reuses code from other projects like the Android Qemu emulator
-or bubblewrap (https://github.com/projectatomic/bubblewrap). These
-projects are available in the external/ subdirectory with the
+Anbox reuses code from other projects like the Android Qemu emulator.
+These projects are available in the external/ subdirectory with the
 licensing terms included.
 
 The anbox source itself (in src/) is licensed under the terms of
