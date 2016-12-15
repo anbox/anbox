@@ -23,9 +23,9 @@ apps:
 #    daemon: oneshot
 
 parts:
-  android:
+  android-images:
     plugin: copy
-    source: .
+    source: android-images
     files:
       system.img: system.img
       ramdisk.img: ramdisk.img
