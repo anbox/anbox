@@ -68,13 +68,11 @@ void LayerComposer::submit_layers(const RenderableList &renderables) {
       // As we get absolute display coordinates from the Android hwcomposer we
       // need to recalculate all layer coordinates into relatives ones to the
       // window they are drawn into.
-      auto left = r.screen_position().left() - new_window_frame.left();
-      auto top = r.screen_position().top() - new_window_frame.top();
-
       auto rect = Rect{
-          left + r.crop().left(), top + r.crop().top(),
-          r.crop().right(),
-          r.crop().bottom(),
+          r.screen_position().left() - new_window_frame.left() + r.crop().left(),
+          r.screen_position().top() - new_window_frame.top() + r.crop().top(),
+          r.screen_position().right() - new_window_frame.left() + r.crop().left(),
+          r.screen_position().bottom() - new_window_frame.top() + r.crop().top()
       };
 
       auto new_renderable = r;
