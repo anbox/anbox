@@ -73,8 +73,10 @@ PlatformPolicy::PlatformPolicy(
 }
 
 PlatformPolicy::~PlatformPolicy() {
-  event_thread_running_ = false;
-  event_thread_.join();
+  if (event_thread_running_) {
+    event_thread_running_ = false;
+    event_thread_.join();
+  }
 }
 
 void PlatformPolicy::process_events() {
