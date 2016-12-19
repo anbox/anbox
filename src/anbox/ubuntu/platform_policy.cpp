@@ -39,15 +39,25 @@ PlatformPolicy::PlatformPolicy(
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize SDL"));
 
-  event_thread_ = std::thread(&PlatformPolicy::process_events, this);
+  auto display_frame = graphics::Rect::Invalid;
+  for (auto n = 0; n < SDL_GetNumVideoDisplays(); n++) {
+    SDL_Rect r;
+    if (SDL_GetDisplayBounds(n, &r) != 0)
+      continue;
 
-  SDL_DisplayMode display_mode;
-  // FIXME statically just check the first (primary) display for its mode;
-  // once we get multi-monitor support we need to do this better.
-  if (SDL_GetCurrentDisplayMode(0, &display_mode) == 0) {
-    display_info_.horizontal_resolution = display_mode.w;
-    display_info_.vertical_resolution = display_mode.h;
+    graphics::Rect frame{r.x, r.y, r.x + r.w, r.y + r.h};
+
+    if (display_frame == graphics::Rect::Invalid)
+      display_frame = frame;
+    else
+      display_frame.merge(frame);
   }
+
+  if (display_frame == graphics::Rect::Invalid)
+    BOOST_THROW_EXCEPTION(std::runtime_error("No valid display configuration found"));
+
+  display_info_.horizontal_resolution = display_frame.width();
+  display_info_.vertical_resolution = display_frame.height();
 
   pointer_ = input_manager->create_device();
   pointer_->set_name("anbox-pointer");
@@ -70,6 +80,8 @@ PlatformPolicy::PlatformPolicy(
   keyboard_->set_physical_location("none");
   keyboard_->set_key_bit(BTN_MISC);
   keyboard_->set_key_bit(KEY_OK);
+
+  event_thread_ = std::thread(&PlatformPolicy::process_events, this);
 }
 
 PlatformPolicy::~PlatformPolicy() {
