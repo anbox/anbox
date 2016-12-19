@@ -232,7 +232,7 @@ void PlatformPolicy::window_resized(const Window::Id &id,
     // representing this window and then we're back to the original size of
     // the task.
     window->update_frame(new_frame);
-    android_api_->resize_task(window->task(), new_frame, 1);
+    android_api_->resize_task(window->task(), new_frame, 3);
   }
 }
 

@@ -48,7 +48,7 @@ void Rect::resize(const std::int32_t &width, const std::int32_t &height) {
 
 std::ostream &operator<<(std::ostream &out, const Rect &rect) {
   return out << "{" << rect.left() << "," << rect.top() << "," << rect.right()
-             << "," << rect.bottom() << "}";
+             << "," << rect.bottom() << "} {" << rect.width() << "," << rect.height() << "}";
 }
 }  // namespace graphics
 }  // namespace anbox

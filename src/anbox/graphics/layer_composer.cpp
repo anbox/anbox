@@ -72,9 +72,9 @@ void LayerComposer::submit_layers(const RenderableList &renderables) {
       auto top = r.screen_position().top() - new_window_frame.top();
 
       auto rect = Rect{
-          left - r.crop().left(), top - r.crop().top(),
-          r.screen_position().width() + left,
-          r.screen_position().height() + top,
+          left + r.crop().left(), top + r.crop().top(),
+          r.crop().right(),
+          r.crop().bottom(),
       };
 
       auto new_renderable = r;
@@ -82,7 +82,6 @@ void LayerComposer::submit_layers(const RenderableList &renderables) {
       final_renderables.push_back(new_renderable);
     }
 
-    w.first->update_frame(new_window_frame);
 
     Renderer::get()->draw(
         window->native_handle(),

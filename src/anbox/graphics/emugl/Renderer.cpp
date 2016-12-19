@@ -996,7 +996,7 @@ void Renderer::setupViewport(RendererWindow *window,
 void Renderer::tessellate(std::vector<anbox::graphics::Primitive> &primitives,
                           const anbox::graphics::Rect &buf_size,
                           const Renderable &renderable) {
-  auto rect = renderable.screen_position();
+  auto rect = renderable.crop();
   GLfloat left = rect.left();
   GLfloat right = rect.right();
   GLfloat top = rect.top();
@@ -1006,13 +1006,15 @@ void Renderer::tessellate(std::vector<anbox::graphics::Primitive> &primitives,
   rectangle.tex_id = 0;
   rectangle.type = GL_TRIANGLE_STRIP;
 
-  GLfloat tex_right = static_cast<GLfloat>(rect.width()) / buf_size.width();
-  GLfloat tex_bottom = static_cast<GLfloat>(rect.height()) / buf_size.height();
+  GLfloat tex_left = static_cast<GLfloat>(left) / buf_size.width();
+  GLfloat tex_top = static_cast<GLfloat>(top) / buf_size.height();
+  GLfloat tex_right = static_cast<GLfloat>(right) / buf_size.width();
+  GLfloat tex_bottom = static_cast<GLfloat>(bottom) / buf_size.height();
 
   auto &vertices = rectangle.vertices;
-  vertices[0] = {{left, top, 0.0f}, {0.0f, 0.0f}};
-  vertices[1] = {{left, bottom, 0.0f}, {0.0f, tex_bottom}};
-  vertices[2] = {{right, top, 0.0f}, {tex_right, 0.0f}};
+  vertices[0] = {{left, top, 0.0f}, {tex_left, tex_top}};
+  vertices[1] = {{left, bottom, 0.0f}, {tex_left, tex_bottom}};
+  vertices[2] = {{right, top, 0.0f}, {tex_right, tex_top}};
   vertices[3] = {{right, bottom, 0.0f}, {tex_right, tex_bottom}};
 
   primitives.resize(1);

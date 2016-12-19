@@ -65,17 +65,10 @@ Window::Window(const Id &id, const wm::Task::Id &task,
       ERROR("Unknown subsystem (%d)", info.subsystem);
       BOOST_THROW_EXCEPTION(std::runtime_error("SDL subsystem not suported"));
   }
-
-  int actual_width = 0, actual_height = 0;
-  int actual_x = 0, actual_y = 0;
-  SDL_GetWindowSize(window_, &actual_width, &actual_height);
-  SDL_GetWindowPosition(window_, &actual_x, &actual_y);
 }
 
 Window::~Window() {
   if (window_) SDL_DestroyWindow(window_);
-
-  // if (observer_) observer_->window_deleted(id_);
 }
 
 void Window::process_event(const SDL_Event &event) {
