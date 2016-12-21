@@ -1,19 +1,16 @@
-/*
- * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 3, as published
- * by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranties of
- * MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
- * PURPOSE.  See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
+// Copyright (C) 2016 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "anbox/graphics/buffer_queue.h"
 
@@ -22,58 +19,56 @@ namespace graphics {
 BufferQueue::BufferQueue(size_t capacity)
     : capacity_(capacity), buffers_(new Buffer[capacity]) {}
 
-BufferQueue::Result BufferQueue::try_push_locked(Buffer &&buffer) {
-  if (closed_) {
-    return Result::Error;
-  }
-  if (count_ >= capacity_) {
-    return Result::TryAgain;
-  }
+int BufferQueue::try_push_locked(Buffer &&buffer) {
+  if (closed_)
+    return -EIO;
+
+  if (count_ >= capacity_)
+    return -EAGAIN;
+
   size_t pos = pos_ + count_;
-  if (pos >= capacity_) {
+  if (pos >= capacity_)
     pos -= capacity_;
-  }
+
   buffers_[pos] = std::move(buffer);
-  if (count_++ == 0) {
+  if (count_++ == 0)
     can_pop_.notify_one();
-  }
-  return Result::Ok;
+
+  return 0;
 }
 
-BufferQueue::Result BufferQueue::push_locked(
+int BufferQueue::push_locked(
     Buffer &&buffer, std::unique_lock<std::mutex> &lock) {
   while (count_ == capacity_) {
-    if (closed_) {
-      return Result::Error;
-    }
+    if (closed_)
+      return -EIO;
     can_push_.wait(lock);
   }
   return try_push_locked(std::move(buffer));
 }
 
-BufferQueue::Result BufferQueue::try_pop_locked(Buffer *buffer) {
-  if (count_ == 0) {
-    return closed_ ? Result::Error : Result::TryAgain;
-  }
+int BufferQueue::try_pop_locked(Buffer *buffer) {
+  if (count_ == 0)
+    return closed_ ? -EIO : -EAGAIN;
+
   *buffer = std::move(buffers_[pos_]);
   size_t pos = pos_ + 1;
-  if (pos >= capacity_) {
+  if (pos >= capacity_)
     pos -= capacity_;
-  }
+
   pos_ = pos;
-  if (count_-- == capacity_) {
+  if (count_-- == capacity_)
     can_push_.notify_one();
-  }
-  return Result::Ok;
+
+  return 0;
 }
 
-BufferQueue::Result BufferQueue::pop_locked(
+int BufferQueue::pop_locked(
     Buffer *buffer, std::unique_lock<std::mutex> &lock) {
   while (count_ == 0) {
-    if (closed_) {
+    if (closed_)
       // Closed queue is empty.
-      return Result::Error;
-    }
+      return -EIO;
     can_pop_.wait(lock);
   }
   return try_pop_locked(buffer);

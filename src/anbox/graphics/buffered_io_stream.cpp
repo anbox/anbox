@@ -72,13 +72,13 @@ const unsigned char *BufferedIOStream::read(void *buf, size_t *inout_len) {
     }
 
     bool blocking = (count == 0);
-    auto result = BufferQueue::Result::Error;
+    auto result = -EIO;
     if (blocking)
       result = in_queue_.pop_locked(&read_buffer_, l);
     else
       result = in_queue_.try_pop_locked(&read_buffer_);
 
-    if (result == BufferQueue::Result::Ok) {
+    if (result == 0) {
       read_buffer_left_ = read_buffer_.size();
       continue;
     }
@@ -111,7 +111,7 @@ void BufferedIOStream::thread_main() {
 
     Buffer buffer;
     auto result = out_queue_.pop_locked(&buffer, l);
-    if (result == BufferQueue::Result::Error) break;
+    if (result != 0 && result != -EAGAIN) break;
 
     auto bytes_left = buffer.size();
     while (bytes_left > 0) {

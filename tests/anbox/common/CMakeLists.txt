@@ -1,0 +1,4 @@
+ANBOX_ADD_TEST(message_channel_tests message_channel_tests.cpp)
+ANBOX_ADD_TEST(small_vector_tests small_vector_tests.cpp)
+ANBOX_ADD_TEST(type_traits_tests type_traits_tests.cpp)
+ANBOX_ADD_TEST(scope_ptr_tests scope_ptr_tests.cpp)

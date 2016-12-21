@@ -69,6 +69,10 @@ set(SOURCES
     anbox/common/dispatcher.cpp
     anbox/common/small_vector.h
     anbox/common/type_traits.h
+    anbox/common/message_channel.cpp
+    anbox/common/scope_ptr.h
+
+    anbox/testing/gtest_utils.h
 
     anbox/container/service.cpp
     anbox/container/client.cpp

@@ -30,18 +30,12 @@ using Buffer = anbox::common::SmallFixedVector<char, 512>;
 
 class BufferQueue {
  public:
-  enum class Result {
-    Ok = 0,
-    TryAgain = 1,
-    Error = 2,
-  };
-
   BufferQueue(size_t capacity);
 
-  Result try_push_locked(Buffer &&buffer);
-  Result push_locked(Buffer &&buffer, std::unique_lock<std::mutex> &lock);
-  Result try_pop_locked(Buffer *buffer);
-  Result pop_locked(Buffer *buffer, std::unique_lock<std::mutex> &lock);
+  int try_push_locked(Buffer &&buffer);
+  int push_locked(Buffer &&buffer, std::unique_lock<std::mutex> &lock);
+  int try_pop_locked(Buffer *buffer);
+  int pop_locked(Buffer *buffer, std::unique_lock<std::mutex> &lock);
   void close_locked();
 
  private:

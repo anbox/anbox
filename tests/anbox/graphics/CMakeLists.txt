@@ -1,0 +1,1 @@
+ANBOX_ADD_TEST(buffer_queue_tests buffer_queue_tests.cpp)
