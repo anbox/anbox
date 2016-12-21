@@ -33,10 +33,11 @@ Window::Id Window::Invalid{-1};
 
 Window::Observer::~Observer() {}
 
-Window::Window(const Id &id, const wm::Task::Id &task,
+Window::Window(const std::shared_ptr<Renderer> &renderer,
+               const Id &id, const wm::Task::Id &task,
                const std::shared_ptr<Observer> &observer,
                const graphics::Rect &frame)
-    : wm::Window(task, frame),
+    : wm::Window(renderer, task, frame),
       id_(id),
       observer_(observer),
       native_display_(0),

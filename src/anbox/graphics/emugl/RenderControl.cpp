@@ -32,32 +32,34 @@
 
 static const GLint rendererVersion = 1;
 static std::shared_ptr<anbox::graphics::LayerComposer> composer;
+static std::shared_ptr<Renderer> renderer;
 
 void registerLayerComposer(
     const std::shared_ptr<anbox::graphics::LayerComposer> &c) {
   composer = c;
 }
 
+void registerRenderer(const std::shared_ptr<Renderer> &r) {
+  renderer = r;
+}
+
 static GLint rcGetRendererVersion() { return rendererVersion; }
 
 static EGLint rcGetEGLVersion(EGLint *major, EGLint *minor) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return EGL_FALSE;
-  }
-  *major = (EGLint)fb->getCaps().eglMajor;
-  *minor = (EGLint)fb->getCaps().eglMinor;
+
+  *major = (EGLint)renderer->getCaps().eglMajor;
+  *minor = (EGLint)renderer->getCaps().eglMinor;
 
   return EGL_TRUE;
 }
 
 static EGLint rcQueryEGLString(EGLenum name, void *buffer, EGLint bufferSize) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return 0;
-  }
 
-  const char *str = s_egl.eglQueryString(fb->getDisplay(), name);
+  const char *str = s_egl.eglQueryString(renderer->getDisplay(), name);
   if (!str) {
     return 0;
   }
@@ -121,7 +123,7 @@ static EGLint rcGetGLString(EGLenum name, void *buffer, EGLint bufferSize) {
 static EGLint rcGetNumConfigs(uint32_t *p_numAttribs) {
   int numConfigs = 0, numAttribs = 0;
 
-  Renderer::get()->getConfigs()->getPackInfo(&numConfigs, &numAttribs);
+  renderer->getConfigs()->getPackInfo(&numConfigs, &numAttribs);
   if (p_numAttribs) {
     *p_numAttribs = static_cast<uint32_t>(numAttribs);
   }
@@ -130,25 +132,21 @@ static EGLint rcGetNumConfigs(uint32_t *p_numAttribs) {
 
 static EGLint rcGetConfigs(uint32_t bufSize, GLuint *buffer) {
   GLuint bufferSize = (GLuint)bufSize;
-  return Renderer::get()->getConfigs()->packConfigs(bufferSize, buffer);
+  return renderer->getConfigs()->packConfigs(bufferSize, buffer);
 }
 
 static EGLint rcChooseConfig(EGLint *attribs, uint32_t attribs_size,
                              uint32_t *configs, uint32_t configs_size) {
-  Renderer *fb = Renderer::get();
-  if (!fb || attribs_size == 0) {
+  if (!renderer || attribs_size == 0)
     return 0;
-  }
 
-  return fb->getConfigs()->chooseConfig(attribs, (EGLint *)configs,
+  return renderer->getConfigs()->chooseConfig(attribs, (EGLint *)configs,
                                         (EGLint)configs_size);
 }
 
 static EGLint rcGetFBParam(EGLint param) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return 0;
-  }
 
   EGLint ret = 0;
 
@@ -183,62 +181,51 @@ static EGLint rcGetFBParam(EGLint param) {
 
 static uint32_t rcCreateContext(uint32_t config, uint32_t share,
                                 uint32_t glVersion) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return 0;
-  }
 
   // To make it consistent with the guest, create GLES2 context when GL
   // version==2 or 3
   HandleType ret =
-      fb->createRenderContext(config, share, glVersion == 2 || glVersion == 3);
+      renderer->createRenderContext(config, share, glVersion == 2 || glVersion == 3);
   return ret;
 }
 
 static void rcDestroyContext(uint32_t context) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return;
-  }
 
-  fb->DestroyRenderContext(context);
+  renderer->DestroyRenderContext(context);
 }
 
 static uint32_t rcCreateWindowSurface(uint32_t config, uint32_t width,
                                       uint32_t height) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return 0;
-  }
 
-  return fb->createWindowSurface(config, width, height);
+  return renderer->createWindowSurface(config, width, height);
 }
 
 static void rcDestroyWindowSurface(uint32_t windowSurface) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return;
-  }
 
-  fb->DestroyWindowSurface(windowSurface);
+  renderer->DestroyWindowSurface(windowSurface);
 }
 
 static uint32_t rcCreateColorBuffer(uint32_t width, uint32_t height,
                                     GLenum internalFormat) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return 0;
-  }
 
-  return fb->createColorBuffer(width, height, internalFormat);
+  return renderer->createColorBuffer(width, height, internalFormat);
 }
 
 static int rcOpenColorBuffer2(uint32_t colorbuffer) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return -1;
-  }
-  return fb->openColorBuffer(colorbuffer);
+
+  return renderer->openColorBuffer(colorbuffer);
 }
 
 // Deprecated, kept for compatibility with old system images only.
@@ -248,41 +235,36 @@ static void rcOpenColorBuffer(uint32_t colorbuffer) {
 }
 
 static void rcCloseColorBuffer(uint32_t colorbuffer) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return;
-  }
-  fb->closeColorBuffer(colorbuffer);
+
+  renderer->closeColorBuffer(colorbuffer);
 }
 
 static int rcFlushWindowColorBuffer(uint32_t windowSurface) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return -1;
-  }
-  if (!fb->flushWindowSurfaceColorBuffer(windowSurface)) {
+
+  if (!renderer->flushWindowSurfaceColorBuffer(windowSurface))
     return -1;
-  }
+
   return 0;
 }
 
 static void rcSetWindowColorBuffer(uint32_t windowSurface,
                                    uint32_t colorBuffer) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return;
-  }
-  fb->setWindowSurfaceColorBuffer(windowSurface, colorBuffer);
+
+  renderer->setWindowSurfaceColorBuffer(windowSurface, colorBuffer);
 }
 
 static EGLint rcMakeCurrent(uint32_t context, uint32_t drawSurf,
                             uint32_t readSurf) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return EGL_FALSE;
-  }
 
-  bool ret = fb->bindContext(context, drawSurf, readSurf);
+  bool ret = renderer->bindContext(context, drawSurf, readSurf);
 
   return (ret ? EGL_TRUE : EGL_FALSE);
 }
@@ -294,21 +276,17 @@ static void rcFBSetSwapInterval(EGLint interval) {
 }
 
 static void rcBindTexture(uint32_t colorBuffer) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return;
-  }
 
-  fb->bindColorBufferToTexture(colorBuffer);
+  renderer->bindColorBufferToTexture(colorBuffer);
 }
 
 static void rcBindRenderbuffer(uint32_t colorBuffer) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return;
-  }
 
-  fb->bindColorBufferToRenderbuffer(colorBuffer);
+  renderer->bindColorBufferToRenderbuffer(colorBuffer);
 }
 
 static EGLint rcColorBufferCacheFlush(uint32_t colorBuffer, EGLint postCount,
@@ -320,43 +298,35 @@ static EGLint rcColorBufferCacheFlush(uint32_t colorBuffer, EGLint postCount,
 static void rcReadColorBuffer(uint32_t colorBuffer, GLint x, GLint y,
                               GLint width, GLint height, GLenum format,
                               GLenum type, void *pixels) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return;
-  }
 
-  fb->readColorBuffer(colorBuffer, x, y, width, height, format, type, pixels);
+  renderer->readColorBuffer(colorBuffer, x, y, width, height, format, type, pixels);
 }
 
 static int rcUpdateColorBuffer(uint32_t colorBuffer, GLint x, GLint y,
                                GLint width, GLint height, GLenum format,
                                GLenum type, void *pixels) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return -1;
-  }
 
-  fb->updateColorBuffer(colorBuffer, x, y, width, height, format, type, pixels);
+  renderer->updateColorBuffer(colorBuffer, x, y, width, height, format, type, pixels);
   return 0;
 }
 
 static uint32_t rcCreateClientImage(uint32_t context, EGLenum target,
                                     GLuint buffer) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return 0;
-  }
 
-  return fb->createClientImage(context, target, buffer);
+  return renderer->createClientImage(context, target, buffer);
 }
 
 static int rcDestroyClientImage(uint32_t image) {
-  Renderer *fb = Renderer::get();
-  if (!fb) {
+  if (!renderer)
     return 0;
-  }
 
-  return fb->destroyClientImage(image);
+  return renderer->destroyClientImage(image);
 }
 
 static void rcSelectChecksumCalculator(uint32_t protocol, uint32_t reserved) {

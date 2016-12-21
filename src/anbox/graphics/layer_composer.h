@@ -22,6 +22,8 @@
 
 #include <memory>
 
+class Renderer;
+
 namespace anbox {
 namespace wm {
 class Manager;
@@ -29,12 +31,13 @@ class Manager;
 namespace graphics {
 class LayerComposer {
  public:
-  LayerComposer(const std::shared_ptr<wm::Manager> &wm);
+  LayerComposer(const std::shared_ptr<Renderer> renderer, const std::shared_ptr<wm::Manager> &wm);
   ~LayerComposer();
 
   void submit_layers(const RenderableList &renderables);
 
  private:
+  std::shared_ptr<Renderer> renderer_;
   std::shared_ptr<wm::Manager> wm_;
 };
 }  // namespace graphics

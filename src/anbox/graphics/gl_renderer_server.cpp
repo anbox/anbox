@@ -43,7 +43,10 @@ void logger_write(const char *format, ...) {
 namespace anbox {
 namespace graphics {
 GLRendererServer::GLRendererServer(const std::shared_ptr<wm::Manager> &wm)
-    : wm_(wm), composer_(std::make_shared<LayerComposer>(wm)) {
+    : renderer_(std::make_shared<Renderer>()),
+      wm_(wm),
+      composer_(std::make_shared<LayerComposer>(renderer_, wm)) {
+
   if (utils::is_env_set("USE_HOST_GLES")) {
     // Force the host EGL/GLES libraries as translator implementation
     ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 0);
@@ -74,13 +77,14 @@ GLRendererServer::GLRendererServer(const std::shared_ptr<wm::Manager> &wm)
     BOOST_THROW_EXCEPTION(
         std::runtime_error("Failed to initialize OpenGL renderer"));
 
+  renderer_->initialize(0);
+
+  registerRenderer(renderer_);
   registerLayerComposer(composer_);
 }
 
 GLRendererServer::~GLRendererServer() {
-  if (const auto r = Renderer::get()) r->finalize();
+  renderer_->finalize();
 }
-
-void GLRendererServer::start() { Renderer::initialize(0); }
 }  // namespace graphics
 }  // namespace anbox

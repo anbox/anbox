@@ -73,6 +73,9 @@ struct RendererWindow;
 //
 class Renderer {
  public:
+  Renderer();
+  ~Renderer();
+
   // Initialize the global instance.
   // |width| and |height| are the dimensions of the emulator GPU display
   // in pixels. |useSubWindow| is true to indicate that the caller
@@ -80,14 +83,10 @@ class Renderer {
   // own sub-windows. If false, this means the caller will use
   // setPostCallback() instead to retrieve the content.
   // Returns true on success, false otherwise.
-  static bool initialize(EGLNativeDisplayType nativeDisplay);
+  bool initialize(EGLNativeDisplayType nativeDisplay);
 
   // Finalize the instance.
   void finalize();
-
-  // Return a pointer to the global instance. initialize() must be called
-  // previously, or this will return NULL.
-  static Renderer* get() { return s_renderer; }
 
   // Return the capabilities of the underlying display.
   const RendererCaps& getCaps() const { return m_caps; }
@@ -242,8 +241,6 @@ class Renderer {
   bool unbind_locked();
 
  private:
-  Renderer();
-  ~Renderer();
   HandleType genHandle();
 
   bool bindWindow_locked(RendererWindow* window);

@@ -32,6 +32,7 @@ namespace graphics {
 emugl::Mutex OpenGlesMessageProcessor::global_lock{};
 
 OpenGlesMessageProcessor::OpenGlesMessageProcessor(
+    const std::shared_ptr<Renderer> &renderer,
     const std::shared_ptr<network::SocketMessenger> &messenger)
     : messenger_(messenger),
       stream_(std::make_shared<BufferedIOStream>(messenger_)) {
@@ -42,15 +43,15 @@ OpenGlesMessageProcessor::OpenGlesMessageProcessor(
       boost::asio::buffer(&client_flags, sizeof(unsigned int)));
   if (err) ERROR("%s", err.message());
 
-  renderer_.reset(RenderThread::create(stream_.get(), &global_lock));
-  if (!renderer_->start())
+  render_thread_.reset(RenderThread::create(renderer, stream_.get(), &global_lock));
+  if (!render_thread_->start())
     BOOST_THROW_EXCEPTION(
         std::runtime_error("Failed to start renderer thread"));
 }
 
 OpenGlesMessageProcessor::~OpenGlesMessageProcessor() {
-  renderer_->forceStop();
-  renderer_->wait(nullptr);
+  render_thread_->forceStop();
+  render_thread_->wait(nullptr);
 }
 
 bool OpenGlesMessageProcessor::process_data(

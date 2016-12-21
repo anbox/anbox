@@ -25,6 +25,10 @@
 
 #include <EGL/egl.h>
 
+#include <memory>
+
+class Renderer;
+
 namespace anbox {
 namespace wm {
 // FIXME(morphis): move this somewhere else once we have the integration
@@ -41,7 +45,7 @@ class Window {
  public:
   typedef std::vector<Window> List;
 
-  Window(const Task::Id &task, const graphics::Rect &frame);
+  Window(const std::shared_ptr<Renderer> &renderer, const Task::Id &task, const graphics::Rect &frame);
   virtual ~Window();
 
   bool attach();
@@ -55,6 +59,7 @@ class Window {
   Task::Id task() const;
 
  private:
+  std::shared_ptr<Renderer> renderer_;
   Task::Id task_;
   graphics::Rect frame_;
 };

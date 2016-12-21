@@ -30,13 +30,13 @@
 
 #define STREAM_BUFFER_SIZE 4 * 1024 * 1024
 
-RenderThread::RenderThread(IOStream *stream, emugl::Mutex *lock)
-    : emugl::Thread(), m_lock(lock), m_stream(stream) {}
+RenderThread::RenderThread(const std::shared_ptr<Renderer> &renderer, IOStream *stream, emugl::Mutex *lock)
+    : emugl::Thread(), renderer_(renderer), m_lock(lock), m_stream(stream) {}
 
 RenderThread::~RenderThread() {}
 
-RenderThread *RenderThread::create(IOStream *stream, emugl::Mutex *lock) {
-  return new RenderThread(stream, lock);
+RenderThread *RenderThread::create(const std::shared_ptr<Renderer> &renderer, IOStream *stream, emugl::Mutex *lock) {
+  return new RenderThread(renderer, stream, lock);
 }
 
 void RenderThread::forceStop() { m_stream->forceStop(); }
@@ -87,12 +87,12 @@ intptr_t RenderThread::main() {
   }
 
   // Release references to the current thread's context/surfaces if any
-  Renderer::get()->bindContext(0, 0, 0);
+  renderer_->bindContext(0, 0, 0);
   if (threadInfo.currContext || threadInfo.currDrawSurf || threadInfo.currReadSurf)
     ERROR("RenderThread exiting with current context/surfaces");
 
-  Renderer::get()->drainWindowSurface();
-  Renderer::get()->drainRenderContext();
+  renderer_->drainWindowSurface();
+  renderer_->drainRenderContext();
 
   return 0;
 }

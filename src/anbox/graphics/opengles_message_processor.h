@@ -31,12 +31,14 @@
 
 class IOStream;
 class RenderThread;
+class Renderer;
 
 namespace anbox {
 namespace graphics {
 class OpenGlesMessageProcessor : public network::MessageProcessor {
  public:
   OpenGlesMessageProcessor(
+      const std::shared_ptr<Renderer> &renderer,
       const std::shared_ptr<network::SocketMessenger> &messenger);
   ~OpenGlesMessageProcessor();
 
@@ -47,7 +49,7 @@ class OpenGlesMessageProcessor : public network::MessageProcessor {
 
   std::shared_ptr<network::SocketMessenger> messenger_;
   std::shared_ptr<IOStream> stream_;
-  std::shared_ptr<RenderThread> renderer_;
+  std::shared_ptr<RenderThread> render_thread_;
 };
 }  // namespace graphics
 }  // namespace anbox

@@ -21,6 +21,8 @@
 #include <memory>
 #include <string>
 
+class Renderer;
+
 namespace anbox {
 namespace input {
 class Manager;
@@ -35,9 +37,10 @@ class GLRendererServer {
   GLRendererServer(const std::shared_ptr<wm::Manager> &wm);
   ~GLRendererServer();
 
-  void start();
+  std::shared_ptr<Renderer> renderer() const { return renderer_; }
 
  private:
+  std::shared_ptr<Renderer> renderer_;
   std::shared_ptr<wm::Manager> wm_;
   std::shared_ptr<LayerComposer> composer_;
 };

@@ -29,12 +29,14 @@
 #include "anbox/network/socket_messenger.h"
 #include "anbox/runtime.h"
 
+class Renderer;
+
 namespace anbox {
 namespace qemu {
 class PipeConnectionCreator
     : public network::ConnectionCreator<boost::asio::local::stream_protocol> {
  public:
-  PipeConnectionCreator(const std::shared_ptr<Runtime> &rt);
+  PipeConnectionCreator(const std::shared_ptr<Renderer> &renderer, const std::shared_ptr<Runtime> &rt);
   ~PipeConnectionCreator() noexcept;
 
   void create_connection_for(
@@ -63,6 +65,7 @@ class PipeConnectionCreator
       const client_type &type,
       const std::shared_ptr<network::SocketMessenger> &messenger);
 
+  std::shared_ptr<Renderer> renderer_;
   std::shared_ptr<Runtime> runtime_;
   std::atomic<int> next_connection_id_;
   std::shared_ptr<network::Connections<network::SocketConnection>> const

@@ -27,6 +27,8 @@
 
 #include <SDL.h>
 
+class Renderer;
+
 namespace anbox {
 namespace ubuntu {
 class Window : public std::enable_shared_from_this<Window>, public wm::Window {
@@ -45,7 +47,8 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
                                 const std::int32_t &y) = 0;
   };
 
-  Window(const Id &id, const wm::Task::Id &task,
+  Window(const std::shared_ptr<Renderer> &renderer,
+         const Id &id, const wm::Task::Id &task,
          const std::shared_ptr<Observer> &observer,
          const graphics::Rect &frame);
   ~Window();

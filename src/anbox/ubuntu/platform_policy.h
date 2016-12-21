@@ -28,6 +28,8 @@
 
 #include <SDL.h>
 
+class Renderer;
+
 namespace anbox {
 namespace input {
 class Device;
@@ -59,12 +61,15 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
 
   DisplayInfo display_info() const override;
 
+  void set_renderer(const std::shared_ptr<Renderer> &renderer);
+
  private:
   void process_events();
   void process_input_event(const SDL_Event &event);
 
   static Window::Id next_window_id();
 
+  std::shared_ptr<Renderer> renderer_;
   std::shared_ptr<input::Manager> input_manager_;
   std::shared_ptr<bridge::AndroidApiStub> android_api_;
   // We don't own the windows anymore after the got created by us so we

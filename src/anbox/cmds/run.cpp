@@ -110,25 +110,17 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
     auto launcher_storage = std::make_shared<application::LauncherStorage>(
         xdg::data().home() / "applications");
 
-    auto renderer =
+    auto gl_server =
         std::make_shared<graphics::GLRendererServer>(window_manager);
-    renderer->start();
 
-// Socket which will be used by the qemud service inside the Android
-// container for things like sensors, vibrtator etc.
-#if 0
-        auto qemud_connector = std::make_shared<network::PublishedSocketConnector>(
-            utils::string_format("%s/qemud", config::socket_path()),
-            rt,
-            std::make_shared<NullConnectionCreator>());
-#endif
+    policy->set_renderer(gl_server->renderer());
 
     // The qemu pipe is used as a very fast communication channel between guest
     // and host for things like the GLES emulation/translation, the RIL or ADB.
     auto qemu_pipe_connector =
         std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/qemu_pipe", config::socket_path()), rt,
-            std::make_shared<qemu::PipeConnectionCreator>(rt));
+            std::make_shared<qemu::PipeConnectionCreator>(gl_server->renderer(), rt));
 
     auto bridge_connector = std::make_shared<network::PublishedSocketConnector>(
         utils::string_format("%s/anbox_bridge", config::socket_path()), rt,
@@ -154,7 +146,6 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
     container::Client container(rt);
     container::Configuration container_configuration;
     container_configuration.bind_mounts = {
-        // { qemud_connector->socket_file(), "/dev/qemud" },
         {qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"},
         {bridge_connector->socket_file(), "/dev/anbox_bridge"},
         {config::host_input_device_path(), "/dev/input"},

@@ -91,6 +91,10 @@ PlatformPolicy::~PlatformPolicy() {
   }
 }
 
+void PlatformPolicy::set_renderer(const std::shared_ptr<Renderer> &renderer) {
+  renderer_ = renderer;
+}
+
 void PlatformPolicy::process_events() {
   event_thread_running_ = true;
 
@@ -196,8 +200,13 @@ Window::Id PlatformPolicy::next_window_id() {
 
 std::shared_ptr<wm::Window> PlatformPolicy::create_window(
     const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) {
+  if (!renderer_) {
+    ERROR("Can't create window without a renderer set");
+    return nullptr;
+  }
+
   auto id = next_window_id();
-  auto w = std::make_shared<Window>(id, task, shared_from_this(), frame);
+  auto w = std::make_shared<Window>(renderer_, id, task, shared_from_this(), frame);
   windows_.insert({id, w});
   return w;
 }

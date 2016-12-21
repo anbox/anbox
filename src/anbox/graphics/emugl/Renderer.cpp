@@ -41,7 +41,7 @@ class ScopedBind {
   // Constructor will call bind_locked() on |fb|.
   // Use isValid() to check for errors.
   ScopedBind(Renderer *fb) : mFb(fb) {
-    if (!mFb->bind_locked()) {
+    if (!fb->bind_locked()) {
       mFb = NULL;
     }
   }
@@ -83,7 +83,6 @@ class ColorBufferHelper : public ColorBuffer::Helper {
 
 }  // namespace
 
-Renderer *Renderer::s_renderer = NULL;
 HandleType Renderer::s_nextHandle = 0;
 
 static char *getGLES1ExtensionString(EGLDisplay p_dpy) {
@@ -150,41 +149,27 @@ void Renderer::finalize() {
 }
 
 bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
-  GL_LOG("FrameBuffer::initialize");
-  if (s_renderer != NULL) {
-    return true;
-  }
-
-  //
-  // allocate space for the FrameBuffer object
-  //
-  Renderer *fb = new Renderer();
-  if (!fb) {
-    ERR("Failed to create fb\n");
-    return false;
-  }
+  GL_LOG("Renderer::initialize");
 
   //
   // Initialize backend EGL display
   //
-  fb->m_eglDisplay = s_egl.eglGetDisplay(nativeDisplay);
-  if (fb->m_eglDisplay == EGL_NO_DISPLAY) {
+  m_eglDisplay = s_egl.eglGetDisplay(nativeDisplay);
+  if (m_eglDisplay == EGL_NO_DISPLAY) {
     ERR("Failed to Initialize backend EGL display\n");
-    delete fb;
     return false;
   }
 
   GL_LOG("call eglInitialize");
-  if (!s_egl.eglInitialize(fb->m_eglDisplay, &fb->m_caps.eglMajor,
-                           &fb->m_caps.eglMinor)) {
+  if (!s_egl.eglInitialize(m_eglDisplay, &m_caps.eglMajor,
+                           &m_caps.eglMinor)) {
     ERR("Failed to eglInitialize\n");
     GL_LOG("Failed to eglInitialize");
-    delete fb;
     return false;
   }
 
-  DBG("egl: %d %d\n", fb->m_caps.eglMajor, fb->m_caps.eglMinor);
-  GL_LOG("egl: %d %d", fb->m_caps.eglMajor, fb->m_caps.eglMinor);
+  DBG("egl: %d %d\n", m_caps.eglMajor, m_caps.eglMinor);
+  GL_LOG("egl: %d %d", m_caps.eglMajor, m_caps.eglMinor);
   s_egl.eglBindAPI(EGL_OPENGL_ES_API);
 
   //
@@ -192,11 +177,10 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   // get GLES2 extension string
   //
   char *gles1Extensions = NULL;
-  gles1Extensions = getGLES1ExtensionString(fb->m_eglDisplay);
+  gles1Extensions = getGLES1ExtensionString(m_eglDisplay);
   if (!gles1Extensions) {
     // Could not create GLES2 context - drop GL2 capability
     ERR("Failed to obtain GLES 2.x extensions string!\n");
-    delete fb;
     return false;
   }
 
@@ -217,11 +201,10 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
                                  EGL_NONE};
 
   int n;
-  if (!s_egl.eglChooseConfig(fb->m_eglDisplay, configAttribs, &fb->m_eglConfig,
+  if (!s_egl.eglChooseConfig(m_eglDisplay, configAttribs, &m_eglConfig,
                              1, &n)) {
     ERR("Failed on eglChooseConfig\n");
     free(gles1Extensions);
-    delete fb;
     return false;
   }
 
@@ -229,12 +212,11 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
                                            EGL_NONE};
 
   GL_LOG("attempting to create egl context");
-  fb->m_eglContext = s_egl.eglCreateContext(fb->m_eglDisplay, fb->m_eglConfig,
+  m_eglContext = s_egl.eglCreateContext(m_eglDisplay, m_eglConfig,
                                             EGL_NO_CONTEXT, glContextAttribs);
-  if (fb->m_eglContext == EGL_NO_CONTEXT) {
+  if (m_eglContext == EGL_NO_CONTEXT) {
     ERR("Failed to create context 0x%x\n", s_egl.eglGetError());
     free(gles1Extensions);
-    delete fb;
     return false;
   }
 
@@ -247,12 +229,11 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   // on Mac platform when switching binded drawable for a context however
   // it is more efficient on other platforms as well.
   //
-  fb->m_pbufContext = s_egl.eglCreateContext(
-      fb->m_eglDisplay, fb->m_eglConfig, fb->m_eglContext, glContextAttribs);
-  if (fb->m_pbufContext == EGL_NO_CONTEXT) {
+  m_pbufContext = s_egl.eglCreateContext(
+      m_eglDisplay, m_eglConfig, m_eglContext, glContextAttribs);
+  if (m_pbufContext == EGL_NO_CONTEXT) {
     ERR("Failed to create Pbuffer Context 0x%x\n", s_egl.eglGetError());
     free(gles1Extensions);
-    delete fb;
     return false;
   }
 
@@ -264,35 +245,26 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   //
   static const EGLint pbufAttribs[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
 
-  fb->m_pbufSurface = s_egl.eglCreatePbufferSurface(
-      fb->m_eglDisplay, fb->m_eglConfig, pbufAttribs);
-  if (fb->m_pbufSurface == EGL_NO_SURFACE) {
+  m_pbufSurface = s_egl.eglCreatePbufferSurface(
+      m_eglDisplay, m_eglConfig, pbufAttribs);
+  if (m_pbufSurface == EGL_NO_SURFACE) {
     ERR("Failed to create pbuf surface for FB 0x%x\n", s_egl.eglGetError());
     free(gles1Extensions);
-    delete fb;
     return false;
   }
 
   GL_LOG("attempting to make context current");
   // Make the context current
-  ScopedBind bind(fb);
+  ScopedBind bind(this);
   if (!bind.isValid()) {
     ERR("Failed to make current\n");
     free(gles1Extensions);
-    delete fb;
     return false;
   }
   GL_LOG("context-current successful");
 
-  //
   // Initilize framebuffer capabilities
-  //
-  // const char* gles2Extensions = (const char
-  // *)s_gles2.glGetString(GL_EXTENSIONS);
   bool has_gl_oes_image = false;
-
-  //     printf("GLES1 [%s]\n", gles1Extensions);
-  //     printf("GLES2 [%s]\n", gles2Extensions);
 
   has_gl_oes_image = true;
 
@@ -303,16 +275,16 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   gles1Extensions = NULL;
 
   const char *eglExtensions =
-      s_egl.eglQueryString(fb->m_eglDisplay, EGL_EXTENSIONS);
+      s_egl.eglQueryString(m_eglDisplay, EGL_EXTENSIONS);
 
   if (eglExtensions && has_gl_oes_image) {
-    fb->m_caps.has_eglimage_texture_2d =
+    m_caps.has_eglimage_texture_2d =
         strstr(eglExtensions, "EGL_KHR_gl_texture_2D_image") != NULL;
-    fb->m_caps.has_eglimage_renderbuffer =
+    m_caps.has_eglimage_renderbuffer =
         strstr(eglExtensions, "EGL_KHR_gl_renderbuffer_image") != NULL;
   } else {
-    fb->m_caps.has_eglimage_texture_2d = false;
-    fb->m_caps.has_eglimage_renderbuffer = false;
+    m_caps.has_eglimage_texture_2d = false;
+    m_caps.has_eglimage_renderbuffer = false;
   }
 
   //
@@ -321,10 +293,9 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   //     EGL_KHR_gl_texture_2d_image
   //     GL_OES_EGL_IMAGE (by both GLES implementations [1 and 2])
   //
-  if (!fb->m_caps.has_eglimage_texture_2d) {
+  if (!m_caps.has_eglimage_texture_2d) {
     ERR("Failed: Missing egl_image related extension(s)\n");
     bind.release();
-    delete fb;
     return false;
   }
 
@@ -332,22 +303,21 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   //
   // Initialize set of configs
   //
-  fb->m_configs = new RendererConfigList(fb->m_eglDisplay);
-  if (fb->m_configs->empty()) {
+  m_configs = new RendererConfigList(m_eglDisplay);
+  if (m_configs->empty()) {
     ERR("Failed: Initialize set of configs\n");
     bind.release();
-    delete fb;
     return false;
   }
 
   //
   // Check that we have config for each GLES and GLES2
   //
-  size_t nConfigs = fb->m_configs->size();
+  size_t nConfigs = m_configs->size();
   int nGLConfigs = 0;
   int nGL2Configs = 0;
   for (size_t i = 0; i < nConfigs; ++i) {
-    GLint rtype = fb->m_configs->get(i)->getRenderableType();
+    GLint rtype = m_configs->get(i)->getRenderableType();
     if (0 != (rtype & EGL_OPENGL_ES_BIT)) {
       nGLConfigs++;
     }
@@ -361,7 +331,6 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   //
   if (nGLConfigs == 0) {
     bind.release();
-    delete fb;
     return false;
   }
 
@@ -371,7 +340,6 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   if (nGL2Configs == 0) {
     ERR("Failed: No GLES 2.x configs found!\n");
     bind.release();
-    delete fb;
     return false;
   }
 
@@ -381,29 +349,25 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   // Cache the GL strings so we don't have to think about threading or
   // current-context when asked for them.
   //
-  fb->m_glVendor = (const char *)s_gles2.glGetString(GL_VENDOR);
-  fb->m_glRenderer = (const char *)s_gles2.glGetString(GL_RENDERER);
-  fb->m_glVersion = (const char *)s_gles2.glGetString(GL_VERSION);
+  m_glVendor = (const char *)s_gles2.glGetString(GL_VENDOR);
+  m_glRenderer = (const char *)s_gles2.glGetString(GL_RENDERER);
+  m_glVersion = (const char *)s_gles2.glGetString(GL_VERSION);
 
-  fb->m_textureDraw = new TextureDraw(fb->m_eglDisplay);
-  if (!fb->m_textureDraw) {
+  m_textureDraw = new TextureDraw(m_eglDisplay);
+  if (!m_textureDraw) {
     ERR("Failed: creation of TextureDraw instance\n");
     bind.release();
-    delete fb;
     return false;
   }
 
-  fb->m_defaultProgram = fb->m_family.add_program(vshader, defaultFShader);
-  fb->m_alphaProgram = fb->m_family.add_program(vshader, alphaFShader);
+  m_defaultProgram = m_family.add_program(vshader, defaultFShader);
+  m_alphaProgram = m_family.add_program(vshader, alphaFShader);
 
   // release the FB context
   bind.release();
 
-  //
-  // Keep the singleton framebuffer pointer
-  //
-  s_renderer = fb;
   GL_LOG("basic EGL initialization successful");
+
   return true;
 }
 

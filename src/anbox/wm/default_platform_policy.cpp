@@ -24,7 +24,7 @@ class NullWindow : public anbox::wm::Window {
  public:
   NullWindow(const anbox::wm::Task::Id &task,
              const anbox::graphics::Rect &frame)
-      : anbox::wm::Window(0, frame) {}
+      : anbox::wm::Window(nullptr, 0, frame) {}
 };
 }
 

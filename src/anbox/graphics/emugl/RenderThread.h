@@ -21,6 +21,10 @@
 #include "emugl/common/mutex.h"
 #include "emugl/common/thread.h"
 
+#include <memory>
+
+class Renderer;
+
 // A class used to model a thread of the RenderServer. Each one of them
 // handles a single guest client / protocol byte stream.
 class RenderThread : public emugl::Thread {
@@ -32,7 +36,7 @@ class RenderThread : public emugl::Thread {
   // decoding operations between all threads.
   // TODO(digit): Why is this needed here? Shouldn't this be handled
   //              by the decoders themselves or at a lower-level?
-  static RenderThread* create(IOStream* stream, emugl::Mutex* mutex);
+  static RenderThread* create(const std::shared_ptr<Renderer> &renderer, IOStream* stream, emugl::Mutex* mutex);
 
   // Destructor.
   virtual ~RenderThread();
@@ -47,10 +51,11 @@ class RenderThread : public emugl::Thread {
  private:
   RenderThread();  // No default constructor
 
-  RenderThread(IOStream* stream, emugl::Mutex* mutex);
+  RenderThread(const std::shared_ptr<Renderer> &renderer, IOStream* stream, emugl::Mutex* mutex);
 
   virtual intptr_t main();
 
+  std::shared_ptr<Renderer> renderer_;
   emugl::Mutex* m_lock;
   IOStream* m_stream;
 };

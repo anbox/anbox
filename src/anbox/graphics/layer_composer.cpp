@@ -22,8 +22,8 @@
 
 namespace anbox {
 namespace graphics {
-LayerComposer::LayerComposer(const std::shared_ptr<wm::Manager> &wm)
-    : wm_(wm) {}
+LayerComposer::LayerComposer(const std::shared_ptr<Renderer> renderer, const std::shared_ptr<wm::Manager> &wm)
+    : renderer_(renderer), wm_(wm) {}
 
 LayerComposer::~LayerComposer() {}
 
@@ -82,7 +82,7 @@ void LayerComposer::submit_layers(const RenderableList &renderables) {
       final_renderables.push_back(new_renderable);
     }
 
-    Renderer::get()->draw(
+    renderer_->draw(
         window->native_handle(),
         Rect{0, 0, window->frame().width(), window->frame().height()},
         final_renderables);
