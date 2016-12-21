@@ -19,6 +19,7 @@
 #define ANBOX_APPLICATION_MANAGER_H_
 
 #include "anbox/android/intent.h"
+#include "anbox/graphics/rect.h"
 #include "anbox/do_not_copy_or_move.h"
 
 #include <string>
@@ -26,7 +27,7 @@
 namespace anbox {
 class ApplicationManager : public DoNotCopyOrMove {
  public:
-  virtual void launch(const android::Intent &intent) = 0;
+  virtual void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) = 0;
 };
 }  // namespace anbox
 

@@ -40,10 +40,17 @@ ApplicationManager::ApplicationManager(
         reader >> intent.package;
         reader >> intent.component;
 
+        std::int32_t left, top, right, bottom;
+        reader >> left;
+        reader >> top;
+        reader >> right;
+        reader >> bottom;
+        graphics::Rect launch_bounds{left,top,right,bottom};
+
         core::dbus::Message::Ptr reply;
 
         try {
-          launch(intent);
+          launch(intent, launch_bounds);
           reply = core::dbus::Message::make_method_return(msg);
         } catch (std::exception const &err) {
           reply = core::dbus::Message::make_error(msg, "org.anbox.Error.Failed",
@@ -56,8 +63,8 @@ ApplicationManager::ApplicationManager(
 
 ApplicationManager::~ApplicationManager() {}
 
-void ApplicationManager::launch(const android::Intent &intent) {
-  impl_->launch(intent);
+void ApplicationManager::launch(const android::Intent &intent, const graphics::Rect &launch_bounds) {
+  impl_->launch(intent, launch_bounds);
 }
 }  // namespace skeleton
 }  // namespace dbus

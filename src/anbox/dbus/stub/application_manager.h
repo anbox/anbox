@@ -37,7 +37,7 @@ class ApplicationManager : public anbox::ApplicationManager {
                      const core::dbus::Object::Ptr &object);
   ~ApplicationManager();
 
-  void launch(const android::Intent &intent) override;
+  void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) override;
 
  private:
   core::dbus::Bus::Ptr bus_;

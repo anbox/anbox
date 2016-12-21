@@ -33,6 +33,7 @@ message Notification {
 
 message LaunchApplication {
     required Intent intent = 1;
+    optional Rect launch_bounds = 2;
 }
 
 message SetFocusedTask {
