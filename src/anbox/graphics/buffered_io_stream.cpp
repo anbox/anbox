@@ -118,7 +118,7 @@ void BufferedIOStream::thread_main() {
       const auto written = messenger_->send_raw(
           buffer.data() + (buffer.size() - bytes_left), bytes_left);
       if (written < 0) {
-        if (errno != EINTR || errno != EAGAIN) {
+        if (errno != EINTR && errno != EAGAIN) {
           ERROR("Failed to write data: %s", std::strerror(errno));
           break;
         }
