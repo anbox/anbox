@@ -45,7 +45,8 @@ void AndroidApiStub::ensure_rpc_channel() {
   if (!channel_) throw std::runtime_error("No remote client connected");
 }
 
-void AndroidApiStub::launch(const android::Intent &intent) {
+void AndroidApiStub::launch(const android::Intent &intent,
+                            const graphics::Rect &launch_bounds) {
   ensure_rpc_channel();
 
   auto c = std::make_shared<Request<protobuf::rpc::Void>>();
@@ -54,6 +55,14 @@ void AndroidApiStub::launch(const android::Intent &intent) {
   {
     std::lock_guard<decltype(mutex_)> lock(mutex_);
     launch_wait_handle_.expect_result();
+  }
+
+  if (launch_bounds != graphics::Rect::Invalid) {
+    auto rect = message.mutable_launch_bounds();
+    rect->set_left(launch_bounds_.left());
+    rect->set_top(launch_bounds_.top());
+    rect->set_right(launch_bounds_.right());
+    rect->set_bottom(launch_bounds_.bottom());
   }
 
   auto launch_intent = message.mutable_intent();

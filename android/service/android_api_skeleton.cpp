@@ -28,6 +28,7 @@
 #include <binder/IServiceManager.h>
 
 #include <string>
+#include <sstream>
 
 namespace {
 std::map<std::string,std::string> common_env = {
@@ -48,9 +49,9 @@ void AndroidApiSkeleton::wait_for_process(core::posix::ChildProcess &process,
     const auto result = process.wait_for(core::posix::wait::Flags::untraced);
     if (result.status != core::posix::wait::Result::Status::exited ||
         result.detail.if_exited.status != core::posix::exit::Status::success) {
-        response->set_error("Failed to install application");
+        response->set_error("Failed to execute process");
         // FIXME once we add proper error codes/domains we need to add structured error
-        // info the response here.
+        // info to the response here.
     }
 }
 
@@ -75,6 +76,16 @@ void AndroidApiSkeleton::launch_application(anbox::protobuf::bridge::LaunchAppli
         // Launch any application always in the freeform stack
         "--stack", "2",
     };
+
+    if (request->has_launch_bounds()) {
+        argv.push_back("--launch-bounds");
+        std::stringstream launch_bounds;
+        launch_bounds << request->launch_bounds().left() << " "
+                      << request->launch_bounds().top() << " "
+                      << request->launch_bounds().right() << " "
+                      << request->launch_bounds().bottom();
+        argv.push_back(launch_bounds.str());
+    }
 
     if (intent.has_action()) {
         argv.push_back("-a");
