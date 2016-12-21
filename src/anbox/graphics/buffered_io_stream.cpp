@@ -105,6 +105,11 @@ void BufferedIOStream::post_data(Buffer &&data) {
   in_queue_.push_locked(std::move(data), l);
 }
 
+bool BufferedIOStream::needs_data() {
+  std::unique_lock<std::mutex> l(lock_);
+  return !in_queue_.can_pop_locked();
+}
+
 void BufferedIOStream::thread_main() {
   while (true) {
     std::unique_lock<std::mutex> l(out_lock_);

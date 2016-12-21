@@ -19,8 +19,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "ErrorLog.h"
-
 class IOStream {
 public:
     IOStream(size_t bufSize) {
@@ -40,19 +38,15 @@ public:
 
     unsigned char *alloc(size_t len) {
         if (m_buf && len > m_free) {
-            if (flush() < 0) {
-                ERR("Failed to flush in alloc\n");
+            if (flush() < 0)
                 return NULL; // we failed to flush so something is wrong
-            }
         }
 
         if (!m_buf || len > m_bufsize) {
             int allocLen = m_bufsize < len ? len : m_bufsize;
             m_buf = (unsigned char *)allocBuffer(allocLen);
-            if (!m_buf) {
-                ERR("Alloc (%u bytes) failed\n", allocLen);
+            if (!m_buf)
                 return NULL;
-            }
             m_bufsize = m_free = allocLen;
         }
 

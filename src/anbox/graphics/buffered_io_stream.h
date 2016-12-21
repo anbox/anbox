@@ -44,6 +44,8 @@ class BufferedIOStream : public IOStream {
   void forceStop() override;
   void post_data(Buffer &&data);
 
+  bool needs_data();
+
  private:
   void thread_main();
 

@@ -27,6 +27,8 @@
 
 #include "anbox/logger.h"
 
+#include "ErrorLog.h"
+
 #include <stdio.h>
 
 #include <glm/glm.hpp>

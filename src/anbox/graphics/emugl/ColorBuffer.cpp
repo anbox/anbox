@@ -22,6 +22,8 @@
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
+#include "ErrorLog.h"
+
 #include <stdio.h>
 
 namespace {
