@@ -54,13 +54,12 @@ bool isCompatibleHostConfig(EGLConfig config, EGLDisplay display) {
   }
 
   // Filter out configs that do not support RGB pixel values.
-  EGLint redSize = 0, greenSize = 0, blueSize = 0, alphaSize = 0;
+  EGLint redSize = 0, greenSize = 0, blueSize = 0;
   s_egl.eglGetConfigAttrib(display, config, EGL_RED_SIZE, &redSize);
   s_egl.eglGetConfigAttrib(display, config, EGL_GREEN_SIZE, &greenSize);
   s_egl.eglGetConfigAttrib(display, config, EGL_BLUE_SIZE, &blueSize);
-  s_egl.eglGetConfigAttrib(display, config, EGL_ALPHA_SIZE, &alphaSize);
 
-  if (!redSize || !greenSize || !blueSize || !alphaSize) {
+  if (!redSize || !greenSize || !blueSize) {
     return false;
   }
 
