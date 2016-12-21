@@ -32,6 +32,7 @@ public:
 
     ssize_t read_all(std::uint8_t *buffer, const size_t &size);
     void send(char const* data, size_t length) override;
+    ssize_t send_raw(char const* data, size_t length) override;
 
 private:
     Fd fd_;

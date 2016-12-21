@@ -75,4 +75,10 @@ void LocalSocketConnection::send(char const* data, size_t length) {
         bytes_written += result;
     }
 }
+
+ssize_t LocalSocketConnection::send_raw(char const* data, size_t length) {
+  (void)data;
+  (void)length;
+  return -EIO;
+}
 } // namespace anbox

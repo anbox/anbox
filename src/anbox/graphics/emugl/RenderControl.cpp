@@ -363,30 +363,36 @@ static void rcSelectChecksumCalculator(uint32_t protocol, uint32_t reserved) {
   ChecksumCalculatorThreadInfo::setVersion(protocol);
 }
 
-int rcGetNumDisplays() { return 1; }
+int rcGetNumDisplays() {
+  // For now we only support a single display but that single display
+  // will contain more than one display so that we simply spawn up a big
+  // virtual display which should match the real display arrangement
+  // in most cases.
+  return 1;
+}
 
 int rcGetDisplayWidth(uint32_t display_id) {
-  printf("%s: display_id=%d\n", __func__, display_id);
+  (void)display_id;
   return DisplayManager::get()->display_info().horizontal_resolution;
 }
 
 int rcGetDisplayHeight(uint32_t display_id) {
-  printf("%s: display_id=%d\n", __func__, display_id);
+  (void)display_id;
   return DisplayManager::get()->display_info().vertical_resolution;
 }
 
 int rcGetDisplayDpiX(uint32_t display_id) {
-  printf("%s: display_id=%d\n", __func__, display_id);
+  (void)display_id;
   return 120;
 }
 
 int rcGetDisplayDpiY(uint32_t display_id) {
-  printf("%s: display_id=%d\n", __func__, display_id);
+  (void)display_id;
   return 120;
 }
 
 int rcGetDisplayVsyncPeriod(uint32_t display_id) {
-  printf("%s: display_id=%d\n", __func__, display_id);
+  (void)display_id;
   return 1;
 }
 
@@ -394,6 +400,10 @@ static std::vector<Renderable> frame_layers;
 
 bool is_layer_blacklisted(const std::string &name) {
   static std::vector<std::string> blacklist = {
+      // The 'Sprite' layer is the mouse cursor Android uses as soon
+      // as it has a pointer input device available. We don't want to
+      // display this layer at all but don't have a good way of disabling
+      // the cursor on the Android side yet.
       "Sprite",
   };
   return std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end();

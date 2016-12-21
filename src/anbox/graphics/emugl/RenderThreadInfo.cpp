@@ -20,13 +20,11 @@
 #include "emugl/common/thread_store.h"
 
 namespace {
-
 class ThreadInfoStore : public ::emugl::ThreadStore {
  public:
   ThreadInfoStore() : ::emugl::ThreadStore(NULL) {}
 };
-
-}  // namespace
+}
 
 static ::emugl::LazyInstance<ThreadInfoStore> s_tls = LAZY_INSTANCE_INIT;
 
