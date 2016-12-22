@@ -237,6 +237,7 @@ void PlatformPolicy::window_moved(const Window::Id &id, const std::int32_t &x,
   if (auto window = w->second.lock()) {
     auto new_frame = window->frame();
     new_frame.translate(x, y);
+    window->update_frame(new_frame);
     android_api_->resize_task(window->task(), new_frame, 3);
   }
 }

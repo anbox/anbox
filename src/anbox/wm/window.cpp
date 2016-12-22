@@ -27,15 +27,7 @@ Window::Window(const std::shared_ptr<Renderer> &renderer, const Task::Id &task, 
 Window::~Window() {}
 
 void Window::update_state(const WindowState::List &states) {
-  graphics::Rect new_frame = graphics::Rect::Invalid;
-  for (const auto &s : states) {
-    if (new_frame == graphics::Rect::Invalid)
-      new_frame = s.frame();
-    else
-      new_frame.merge(s.frame());
-  }
-
-  update_frame(new_frame);
+  (void)states;
 }
 
 void Window::update_frame(const graphics::Rect &frame) {
