@@ -56,12 +56,15 @@ void LayerComposer::submit_layers(const RenderableList &renderables) {
     const auto &renderables = w.second;
     RenderableList final_renderables;
     auto new_window_frame = Rect::Invalid;
+    auto max_layer_area = -1;
 
     for (auto &r : renderables) {
-      if (new_window_frame == Rect::Invalid)
-        new_window_frame = r.screen_position();
-      else
-        new_window_frame.merge(r.screen_position());
+      const auto layer_area = r.screen_position().width() * r.screen_position().height();
+      if (layer_area < max_layer_area)
+        continue;
+
+      max_layer_area = layer_area;
+      new_window_frame = r.screen_position();
     }
 
     for (auto &r : renderables) {
