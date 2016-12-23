@@ -47,3 +47,9 @@ void Renderable::set_screen_position(
     const anbox::graphics::Rect &screen_position) {
   screen_position_ = screen_position;
 }
+
+std::ostream &operator<<(std::ostream &out, const Renderable &r) {
+  return out << "{ name " << r.name() << " buffer " << r.buffer()
+             << " screen position " << r.screen_position() << " crop "
+             << r.crop() << " alpha " << r.alpha();
+}

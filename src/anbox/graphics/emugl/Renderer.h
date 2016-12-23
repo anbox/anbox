@@ -27,6 +27,7 @@
 
 #include "anbox/graphics/primitives.h"
 #include "anbox/graphics/program_family.h"
+#include "anbox/graphics/renderer.h"
 
 #include <EGL/egl.h>
 
@@ -71,10 +72,10 @@ struct RendererWindow;
 // There is only one global instance, that can be retrieved with getFB(),
 // and which must be previously setup by calling initialize().
 //
-class Renderer {
+class Renderer : public anbox::graphics::Renderer {
  public:
   Renderer();
-  ~Renderer();
+  virtual ~Renderer();
 
   // Initialize the global instance.
   // |width| and |height| are the dimensions of the emulator GPU display
@@ -223,7 +224,7 @@ class Renderer {
 
   bool draw(EGLNativeWindowType native_window,
             const anbox::graphics::Rect& window_frame,
-            const RenderableList& renderables);
+            const RenderableList& renderables) override;
 
   // Return the host EGLDisplay used by this instance.
   EGLDisplay getDisplay() const { return m_eglDisplay; }

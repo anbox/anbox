@@ -43,10 +43,9 @@ void logger_write(const char *format, ...) {
 namespace anbox {
 namespace graphics {
 GLRendererServer::GLRendererServer(const std::shared_ptr<wm::Manager> &wm)
-    : renderer_(std::make_shared<Renderer>()),
+    : renderer_(std::make_shared<::Renderer>()),
       wm_(wm),
       composer_(std::make_shared<LayerComposer>(renderer_, wm)) {
-
   if (utils::is_env_set("USE_HOST_GLES")) {
     // Force the host EGL/GLES libraries as translator implementation
     ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 0);
@@ -83,8 +82,6 @@ GLRendererServer::GLRendererServer(const std::shared_ptr<wm::Manager> &wm)
   registerLayerComposer(composer_);
 }
 
-GLRendererServer::~GLRendererServer() {
-  renderer_->finalize();
-}
+GLRendererServer::~GLRendererServer() { renderer_->finalize(); }
 }  // namespace graphics
 }  // namespace anbox

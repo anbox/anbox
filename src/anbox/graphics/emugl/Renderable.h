@@ -43,6 +43,16 @@ class Renderable {
 
   void set_screen_position(const anbox::graphics::Rect &screen_position);
 
+  inline bool operator==(const Renderable &rhs) const {
+    return (name_ == rhs.name() && buffer_ == rhs.buffer() &&
+            screen_position_ == rhs.screen_position() && crop_ == rhs.crop() &&
+            transformation_ == rhs.transformation() && alpha_ == rhs.alpha());
+  }
+
+  inline bool operator!=(const Renderable &rhs) const {
+    return !operator==(rhs);
+  }
+
  private:
   std::string name_;
   std::uint32_t buffer_;
@@ -51,6 +61,8 @@ class Renderable {
   glm::mat4 transformation_;
   float alpha_;
 };
+
+std::ostream &operator<<(std::ostream &out, const Renderable &r);
 
 typedef std::vector<Renderable> RenderableList;
 

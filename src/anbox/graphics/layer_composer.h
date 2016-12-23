@@ -18,11 +18,9 @@
 #ifndef ANBOX_GRAPHICS_LAYER_COMPOSER_H_
 #define ANBOX_GRAPHICS_LAYER_COMPOSER_H_
 
-#include "anbox/graphics/emugl/Renderable.h"
+#include "anbox/graphics/renderer.h"
 
 #include <memory>
-
-class Renderer;
 
 namespace anbox {
 namespace wm {
@@ -31,7 +29,8 @@ class Manager;
 namespace graphics {
 class LayerComposer {
  public:
-  LayerComposer(const std::shared_ptr<Renderer> renderer, const std::shared_ptr<wm::Manager> &wm);
+  LayerComposer(const std::shared_ptr<Renderer> renderer,
+                const std::shared_ptr<wm::Manager> &wm);
   ~LayerComposer();
 
   void submit_layers(const RenderableList &renderables);

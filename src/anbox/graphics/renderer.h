@@ -15,26 +15,24 @@
  *
  */
 
-#include "anbox/wm/default_platform_policy.h"
-#include "anbox/logger.h"
-#include "anbox/wm/window.h"
+#ifndef ANBOX_GRAPHICS_RENDERER_H_
+#define ANBOX_GRAPHICS_RENDERER_H_
 
-namespace {
-class NullWindow : public anbox::wm::Window {
- public:
-  NullWindow(const anbox::wm::Task::Id &task,
-             const anbox::graphics::Rect &frame)
-      : anbox::wm::Window(nullptr, task, frame) {}
-};
-}
+#include "anbox/graphics/emugl/Renderable.h"
+
+#include <EGL/egl.h>
 
 namespace anbox {
-namespace wm {
-DefaultPlatformPolicy::DefaultPlatformPolicy() {}
+namespace graphics {
+class Renderer {
+ public:
+  virtual ~Renderer() {}
 
-std::shared_ptr<Window> DefaultPlatformPolicy::create_window(
-    const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) {
-  return std::make_shared<::NullWindow>(task, frame);
-}
-}  // namespace wm
+  virtual bool draw(EGLNativeWindowType native_window,
+                    const anbox::graphics::Rect& window_frame,
+                    const RenderableList& renderables) = 0;
+};
+}  // namespace graphics
 }  // namespace anbox
+
+#endif
