@@ -33,11 +33,16 @@ class Logger : public DoNotCopyOrMove {
  public:
   // Severity enumerates all known severity levels
   // applicable to log messages.
-  enum class Severity { kTrace, kDebug, kInfo, kWarning, kError, kFatal };
+  enum class Severity { kTrace,
+                        kDebug,
+                        kInfo,
+                        kWarning,
+                        kError,
+                        kFatal };
 
   // A Location describes the origin of a log message.
   struct Location {
-    std::string file;  // The name of the file that contains the log message.
+    std::string file;      // The name of the file that contains the log message.
     std::string function;  // The function that contains the log message.
     std::uint32_t line;    // The line in file that resulted in the log message.
   };

@@ -23,48 +23,49 @@ namespace anbox {
 namespace common {
 
 struct FreeDelete {
-    template <class T>
-    void operator()(T ptr) const {
-        free((void*)ptr);
-    }
+  template <class T>
+  void operator()(T ptr) const {
+    free((void*)ptr);
+  }
 };
 
 template <class Func>
 struct FuncDelete {
-    explicit FuncDelete(Func f = {}) : mF(f) {}
+  explicit FuncDelete(Func f = {}) : mF(f) {}
 
-    FuncDelete(const FuncDelete& other) = default;
-    FuncDelete(FuncDelete&& other) = default;
-    FuncDelete& operator=(const FuncDelete& other) = default;
-    FuncDelete& operator=(FuncDelete&& other) = default;
+  FuncDelete(const FuncDelete& other) = default;
+  FuncDelete(FuncDelete&& other) = default;
+  FuncDelete& operator=(const FuncDelete& other) = default;
+  FuncDelete& operator=(FuncDelete&& other) = default;
 
-    // To be able to copy/move from all compatible template instantiations.
-    template <class U> friend struct FuncDelete;
+  // To be able to copy/move from all compatible template instantiations.
+  template <class U>
+  friend struct FuncDelete;
 
-    // Template constructors and move assignment from compatible instantiations.
-    template <class U>
-    FuncDelete(const FuncDelete<U>& other) : mF(other.mF) {}
-    template <class U>
-    FuncDelete(FuncDelete<U>&& other) : mF(std::move(other.mF)) {}
-    template <class U>
-    FuncDelete& operator=(const FuncDelete<U>& other) {
-        mF = other.mF;
-        return *this;
-    }
-    template <class U>
-    FuncDelete& operator=(FuncDelete<U>&& other) {
-        mF = std::move(other.mF);
-        return *this;
-    }
+  // Template constructors and move assignment from compatible instantiations.
+  template <class U>
+  FuncDelete(const FuncDelete<U>& other) : mF(other.mF) {}
+  template <class U>
+  FuncDelete(FuncDelete<U>&& other) : mF(std::move(other.mF)) {}
+  template <class U>
+  FuncDelete& operator=(const FuncDelete<U>& other) {
+    mF = other.mF;
+    return *this;
+  }
+  template <class U>
+  FuncDelete& operator=(FuncDelete<U>&& other) {
+    mF = std::move(other.mF);
+    return *this;
+  }
 
-    // This is the actual deleter call.
-    template <class T>
-    void operator()(T t) const {
-        mF(t);
-    }
+  // This is the actual deleter call.
+  template <class T>
+  void operator()(T t) const {
+    mF(t);
+  }
 
-private:
-    Func mF;
+ private:
+  Func mF;
 };
 
 template <class T, class Deleter = std::default_delete<T>>
@@ -85,13 +86,13 @@ template <class T,
           class = enable_if_c<std::is_same<T, std::nullptr_t>::value ||
                               std::is_pointer<T>::value>>
 ScopedCustomPtr<
-        typename std::decay<typename std::remove_pointer<T>::type>::type,
-        typename std::decay<Func>::type>
+    typename std::decay<typename std::remove_pointer<T>::type>::type,
+    typename std::decay<Func>::type>
 makeCustomScopedPtr(T data, Func deleter) {
-    return ScopedCustomPtr<
-            typename std::decay<typename std::remove_pointer<T>::type>::type,
-                           typename std::decay<Func>::type>(
-            data, FuncDelete<typename std::decay<Func>::type>(deleter));
+  return ScopedCustomPtr<
+      typename std::decay<typename std::remove_pointer<T>::type>::type,
+      typename std::decay<Func>::type>(
+      data, FuncDelete<typename std::decay<Func>::type>(deleter));
 }
 
 }  // namespace common

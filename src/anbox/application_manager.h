@@ -19,8 +19,8 @@
 #define ANBOX_APPLICATION_MANAGER_H_
 
 #include "anbox/android/intent.h"
-#include "anbox/graphics/rect.h"
 #include "anbox/do_not_copy_or_move.h"
+#include "anbox/graphics/rect.h"
 
 #include <string>
 

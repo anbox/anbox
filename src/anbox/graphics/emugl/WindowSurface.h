@@ -56,7 +56,9 @@ class WindowSurface {
   bool flushColorBuffer();
 
   // Used by bind() below.
-  enum BindType { BIND_READ, BIND_DRAW, BIND_READDRAW };
+  enum BindType { BIND_READ,
+                  BIND_DRAW,
+                  BIND_READDRAW };
 
   // TODO(digit): What is this used for exactly? For example, the
   // mReadContext is never used by this class. The mDrawContext is only

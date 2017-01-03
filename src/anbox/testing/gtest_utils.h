@@ -36,27 +36,27 @@ template <typename Range1,
                                          common::is_range<Range2>::value>>
 inline ::testing::AssertionResult RangesMatch(const Range1& expected,
                                               const Range2& actual) {
-    const auto expectedSize =
-            std::distance(std::begin(expected), std::end(expected));
-    const auto actualSize = std::distance(std::begin(actual), std::end(actual));
-    if (actualSize != expectedSize) {
-        return ::testing::AssertionFailure()
-               << "actual range size " << actualSize << " != expected size "
-               << expectedSize;
-    }
+  const auto expectedSize =
+      std::distance(std::begin(expected), std::end(expected));
+  const auto actualSize = std::distance(std::begin(actual), std::end(actual));
+  if (actualSize != expectedSize) {
+    return ::testing::AssertionFailure()
+           << "actual range size " << actualSize << " != expected size "
+           << expectedSize;
+  }
 
-    auto itExp = std::begin(expected);
-    for (const auto& act : actual) {
-        if (*itExp != act) {
-            const auto index = std::distance(std::begin(expected), itExp);
-            return ::testing::AssertionFailure()
-                   << "range[" << index << "] (" << act << ") != expected["
-                   << index << "] (" << *itExp << ")";
-        }
-        ++itExp;
+  auto itExp = std::begin(expected);
+  for (const auto& act : actual) {
+    if (*itExp != act) {
+      const auto index = std::distance(std::begin(expected), itExp);
+      return ::testing::AssertionFailure()
+             << "range[" << index << "] (" << act << ") != expected["
+             << index << "] (" << *itExp << ")";
     }
+    ++itExp;
+  }
 
-    return ::testing::AssertionSuccess();
+  return ::testing::AssertionSuccess();
 }
 }  // namespace testing
 }  // namespace anbox

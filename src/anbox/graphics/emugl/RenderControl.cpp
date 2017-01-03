@@ -141,7 +141,7 @@ static EGLint rcChooseConfig(EGLint *attribs, uint32_t attribs_size,
     return 0;
 
   return renderer->getConfigs()->chooseConfig(attribs, (EGLint *)configs,
-                                        (EGLint)configs_size);
+                                              (EGLint)configs_size);
 }
 
 static EGLint rcGetFBParam(EGLint param) {

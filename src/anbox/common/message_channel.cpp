@@ -16,50 +16,49 @@
 
 namespace anbox {
 namespace common {
-MessageChannelBase::MessageChannelBase(size_t capacity) :
-        pos_(0U),
-        count_(0U),
-        capacity_(capacity),
-        lock_(),
-        can_read_(),
-        can_write_() {}
+MessageChannelBase::MessageChannelBase(size_t capacity) : pos_(0U),
+                                                          count_(0U),
+                                                          capacity_(capacity),
+                                                          lock_(),
+                                                          can_read_(),
+                                                          can_write_() {}
 
 MessageChannelBase::~MessageChannelBase() {}
 
 size_t MessageChannelBase::before_write() {
-    std::unique_lock<std::mutex> l(lock_, std::defer_lock);
-    lock_.lock();
+  std::unique_lock<std::mutex> l(lock_, std::defer_lock);
+  lock_.lock();
 
-    while (count_ >= capacity_)
-        can_write_.wait(l);
+  while (count_ >= capacity_)
+    can_write_.wait(l);
 
-    size_t result = pos_ + count_;
-    if (result >= capacity_)
-        result -= capacity_;
+  size_t result = pos_ + count_;
+  if (result >= capacity_)
+    result -= capacity_;
 
-    return result;
+  return result;
 }
 
 void MessageChannelBase::after_write() {
-    count_++;
-    can_read_.notify_one();
-    lock_.unlock();
+  count_++;
+  can_read_.notify_one();
+  lock_.unlock();
 }
 
 size_t MessageChannelBase::before_read() {
-    std::unique_lock<std::mutex> l(lock_, std::defer_lock);
-    lock_.lock();
-    while (count_ == 0)
-        can_read_.wait(l);
-    return pos_;
+  std::unique_lock<std::mutex> l(lock_, std::defer_lock);
+  lock_.lock();
+  while (count_ == 0)
+    can_read_.wait(l);
+  return pos_;
 }
 
 void MessageChannelBase::after_read() {
-    if (++pos_ == capacity_)
-        pos_ = 0U;
-    count_--;
-    can_write_.notify_one();
-    lock_.unlock();
+  if (++pos_ == capacity_)
+    pos_ = 0U;
+  count_--;
+  can_write_.notify_one();
+  lock_.unlock();
 }
-} // namespace common
-} // namespace anbox
+}  // namespace common
+}  // namespace anbox

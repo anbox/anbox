@@ -36,7 +36,7 @@ class RenderThread : public emugl::Thread {
   // decoding operations between all threads.
   // TODO(digit): Why is this needed here? Shouldn't this be handled
   //              by the decoders themselves or at a lower-level?
-  static RenderThread* create(const std::shared_ptr<Renderer> &renderer, IOStream* stream, emugl::Mutex* mutex);
+  static RenderThread* create(const std::shared_ptr<Renderer>& renderer, IOStream* stream, emugl::Mutex* mutex);
 
   // Destructor.
   virtual ~RenderThread();
@@ -51,7 +51,7 @@ class RenderThread : public emugl::Thread {
  private:
   RenderThread();  // No default constructor
 
-  RenderThread(const std::shared_ptr<Renderer> &renderer, IOStream* stream, emugl::Mutex* mutex);
+  RenderThread(const std::shared_ptr<Renderer>& renderer, IOStream* stream, emugl::Mutex* mutex);
 
   virtual intptr_t main();
 

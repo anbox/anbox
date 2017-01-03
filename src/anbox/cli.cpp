@@ -105,14 +105,16 @@ void cli::CommandWithSubcommands::help(std::ostream& out) {
       << std::endl;
 
   if (flags_.size() > 0) {
-    out << std::endl << pattern::options << std::endl;
+    out << std::endl
+        << pattern::options << std::endl;
     for (const auto& flag : flags_)
       out << boost::format(pattern::option) % flag->name() % flag->description()
           << std::endl;
   }
 
   if (commands_.size() > 0) {
-    out << std::endl << pattern::commands << std::endl;
+    out << std::endl
+        << pattern::commands << std::endl;
     for (const auto& cmd : commands_) {
       if (cmd.second)
         out << boost::format(pattern::command) % cmd.second->name() %
@@ -222,7 +224,8 @@ void cli::CommandWithFlagsAndAction::help(std::ostream& out) {
       << std::endl;
 
   if (flags_.size() > 0) {
-    out << std::endl << boost::format(pattern::options) << std::endl;
+    out << std::endl
+        << boost::format(pattern::options) << std::endl;
     for (const auto& flag : flags_)
       out << boost::format(pattern::option) % flag->name() % flag->description()
           << std::endl;

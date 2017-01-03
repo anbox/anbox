@@ -18,11 +18,11 @@
 #include "anbox/container/client.h"
 #include "anbox/config.h"
 #include "anbox/container/management_api_stub.h"
+#include "anbox/logger.h"
 #include "anbox/network/local_socket_messenger.h"
 #include "anbox/rpc/channel.h"
 #include "anbox/rpc/message_processor.h"
 #include "anbox/rpc/pending_call_cache.h"
-#include "anbox/logger.h"
 
 namespace ba = boost::asio;
 namespace bs = boost::system;

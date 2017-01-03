@@ -45,7 +45,7 @@ ApplicationManager::ApplicationManager(
         reader >> top;
         reader >> right;
         reader >> bottom;
-        graphics::Rect launch_bounds{left,top,right,bottom};
+        graphics::Rect launch_bounds{left, top, right, bottom};
 
         core::dbus::Message::Ptr reply;
 

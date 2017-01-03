@@ -215,7 +215,7 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
 
   GL_LOG("attempting to create egl context");
   m_eglContext = s_egl.eglCreateContext(m_eglDisplay, m_eglConfig,
-                                            EGL_NO_CONTEXT, glContextAttribs);
+                                        EGL_NO_CONTEXT, glContextAttribs);
   if (m_eglContext == EGL_NO_CONTEXT) {
     ERR("Failed to create context 0x%x\n", s_egl.eglGetError());
     free(gles1Extensions);

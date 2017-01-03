@@ -198,8 +198,8 @@ class Command : public DoNotCopyOrMove {
 
   /// @brief Context bundles information passed to Command::run invocations.
   struct Context {
-    std::istream& cin;   ///< The std::istream that should be used for reading.
-    std::ostream& cout;  ///< The std::ostream that should be used for writing.
+    std::istream& cin;              ///< The std::istream that should be used for reading.
+    std::ostream& cout;             ///< The std::ostream that should be used for writing.
     std::vector<std::string> args;  ///< The command line args.
   };
 
