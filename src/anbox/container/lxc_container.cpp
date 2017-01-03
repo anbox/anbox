@@ -201,8 +201,7 @@ void LxcContainer::start(const Configuration &configuration) {
 
 void LxcContainer::stop() {
   if (not container_ || not container_->is_running(container_))
-    BOOST_THROW_EXCEPTION(
-        std::runtime_error("Cannot stop container as it is not running"));
+    return;
 
   if (not container_->stop(container_))
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to stop container"));
