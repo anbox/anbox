@@ -96,6 +96,12 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
     auto rt = Runtime::create();
     auto dispatcher = anbox::common::create_dispatcher_for_runtime(rt);
 
+    container::Client container(rt);
+    container.register_terminate_handler([&]() {
+      WARNING("Lost connection to container manager, terminating.");
+      trap->stop();
+    });
+
     auto input_manager = std::make_shared<input::Manager>(rt);
 
     auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
@@ -143,11 +149,6 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
                   sender, server, pending_calls);
             }));
 
-    container::Client container(rt);
-    container.register_terminate_handler([&]() {
-      WARNING("Lost connection to container manager, terminating.");
-      trap->stop();
-    });
     container::Configuration container_configuration;
     container_configuration.bind_mounts = {
         {qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"},
