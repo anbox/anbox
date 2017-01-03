@@ -35,7 +35,8 @@ namespace fs = boost::filesystem;
 
 namespace anbox {
 namespace container {
-LxcContainer::LxcContainer() : state_(State::inactive), container_(nullptr) {
+LxcContainer::LxcContainer(const network::Credentials &creds)
+    : state_(State::inactive), container_(nullptr), creds_(creds) {
   utils::ensure_paths({
       config::container_config_path(), config::log_path(),
   });
@@ -47,6 +48,32 @@ LxcContainer::~LxcContainer() {
   stop();
 
   if (container_) lxc_container_put(container_);
+}
+
+void LxcContainer::setup_id_maps() {
+  const auto base_id = 100000;
+  const auto max_id = 65536;
+  set_config_item("lxc.id_map",
+                  utils::string_format("u 0 %d %d", base_id, creds_.uid() - 1));
+  set_config_item("lxc.id_map",
+                  utils::string_format("g 0 %d %d", base_id, creds_.gid() - 1));
+
+  // We need to bind the user id for the one running the client side
+  // process as he is the owner of various socket files we bind mount
+  // into the container.
+  set_config_item("lxc.id_map",
+                  utils::string_format("u %d %d 1", creds_.uid(), creds_.uid()));
+  set_config_item("lxc.id_map",
+                  utils::string_format("g %d %d 1", creds_.gid(), creds_.gid()));
+
+  set_config_item("lxc.id_map",
+                  utils::string_format("u %d %d %d", creds_.uid() + 1,
+                                       base_id + creds_.uid() + 1,
+                                       max_id - creds_.uid() - 1));
+  set_config_item("lxc.id_map",
+                  utils::string_format("g %d %d %d", creds_.uid() + 1,
+                                       base_id + creds_.gid() + 1,
+                                       max_id - creds_.gid() - 1));
 }
 
 void LxcContainer::start(const Configuration &configuration) {
@@ -128,7 +155,20 @@ void LxcContainer::start(const Configuration &configuration) {
   set_config_item("lxc.aa_profile", "unconfined");
 #endif
 
-  for (const auto &bind_mount : configuration.bind_mounts) {
+  setup_id_maps();
+
+  auto bind_mounts = configuration.bind_mounts;
+
+  // Extra bind-mounts for user-namespace setup
+  bind_mounts.insert({"/dev/console", "dev/console"});
+  bind_mounts.insert({"/dev/full", "dev/full"});
+  bind_mounts.insert({"/dev/null", "dev/null"});
+  bind_mounts.insert({"/dev/random", "dev/random"});
+  bind_mounts.insert({"/dev/tty", "dev/tty"});
+  bind_mounts.insert({"/dev/urandom", "dev/urandom"});
+  bind_mounts.insert({"/dev/zero", "dev/zero"});
+
+  for (const auto &bind_mount : bind_mounts) {
     std::string create_type = "file";
 
     if (fs::is_directory(bind_mount.first)) create_type = "dir";

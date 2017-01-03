@@ -19,6 +19,7 @@
 #define ANBOX_CONTAINER_LXC_CONTAINER_H_
 
 #include "anbox/container/container.h"
+#include "anbox/network/credentials.h"
 
 #include <string>
 
@@ -28,7 +29,7 @@ namespace anbox {
 namespace container {
 class LxcContainer : public Container {
  public:
-  LxcContainer();
+  LxcContainer(const network::Credentials &creds);
   ~LxcContainer();
 
   void start(const Configuration &configuration) override;
@@ -37,9 +38,11 @@ class LxcContainer : public Container {
 
  private:
   void set_config_item(const std::string &key, const std::string &value);
+  void setup_id_maps();
 
   State state_;
   lxc_container *container_;
+  network::Credentials creds_;
 };
 }  // namespace container
 }  // namespace anbox

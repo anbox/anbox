@@ -59,8 +59,6 @@ void ManagementApiSkeleton::start_container(
         utils::string_format("Failed to start container: %s", err.what()));
   }
 
-  DEBUG("");
-
   done->Run();
 }
 }  // namespace container

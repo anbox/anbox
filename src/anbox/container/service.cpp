@@ -77,7 +77,7 @@ void Service::new_client(
   auto pending_calls = std::make_shared<rpc::PendingCallCache>();
   auto rpc_channel = std::make_shared<rpc::Channel>(pending_calls, messenger);
   auto server = std::make_shared<container::ManagementApiSkeleton>(
-      pending_calls, std::make_shared<LxcContainer>());
+      pending_calls, std::make_shared<LxcContainer>(messenger->creds()));
   auto processor = std::make_shared<container::ManagementApiMessageProcessor>(
       messenger, pending_calls, server);
 
