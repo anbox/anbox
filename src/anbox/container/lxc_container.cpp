@@ -148,10 +148,9 @@ void LxcContainer::start(const Configuration &configuration) {
     set_config_item("lxc.aa_profile", "lxc-container-default-with-nesting");
 #else
   // FIXME: when using the nested profile we still get various denials from
-  // things
-  // Android tries to do but isn't allowed to. We need to look into those and
-  // see
-  // how we can switch back to a confined way of running the container.
+  // things Android tries to do but isn't allowed to. We need to look into
+  // those and see how we can switch back to a confined way of running the
+  // container.
   set_config_item("lxc.aa_profile", "unconfined");
 #endif
 
