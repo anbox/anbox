@@ -18,11 +18,11 @@
 #include "anbox/container/client.h"
 #include "anbox/config.h"
 #include "anbox/container/management_api_stub.h"
-#include "anbox/logger.h"
 #include "anbox/network/local_socket_messenger.h"
 #include "anbox/rpc/channel.h"
 #include "anbox/rpc/message_processor.h"
 #include "anbox/rpc/pending_call_cache.h"
+#include "anbox/logger.h"
 
 namespace ba = boost::asio;
 namespace bs = boost::system;
@@ -43,7 +43,17 @@ Client::Client(const std::shared_ptr<Runtime> &rt)
 Client::~Client() {}
 
 void Client::start_container(const Configuration &configuration) {
-  management_api_->start_container(configuration);
+  try {
+    management_api_->start_container(configuration);
+  } catch (const std::exception &e) {
+    ERROR("Failed to start container: %s", e.what());
+    if (terminate_callback_)
+      terminate_callback_();
+  }
+}
+
+void Client::register_terminate_handler(const TerminateCallback &callback) {
+  terminate_callback_ = callback;
 }
 
 void Client::read_next_message() {
@@ -54,7 +64,11 @@ void Client::read_next_message() {
 
 void Client::on_read_size(const boost::system::error_code &error,
                           std::size_t bytes_read) {
-  if (error) BOOST_THROW_EXCEPTION(std::runtime_error(error.message()));
+  if (error) {
+    if (terminate_callback_)
+      terminate_callback_();
+    return;
+  }
 
   std::vector<std::uint8_t> data(bytes_read);
   std::copy(buffer_.data(), buffer_.data() + bytes_read, data.data());

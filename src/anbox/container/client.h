@@ -34,10 +34,14 @@ namespace container {
 class ManagementApiStub;
 class Client {
  public:
+  typedef std::function<void()> TerminateCallback;
+
   Client(const std::shared_ptr<Runtime> &rt);
   ~Client();
 
   void start_container(const Configuration &configuration);
+
+  void register_terminate_handler(const TerminateCallback &callback);
 
  private:
   void read_next_message();
@@ -50,6 +54,7 @@ class Client {
   std::shared_ptr<ManagementApiStub> management_api_;
   std::shared_ptr<rpc::MessageProcessor> processor_;
   std::array<std::uint8_t, 8192> buffer_;
+  TerminateCallback terminate_callback_;
 };
 }  // namespace container
 }  // namespace anbox
