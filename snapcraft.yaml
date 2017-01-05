@@ -15,12 +15,6 @@ apps:
     command: bin/container-manager.sh start
     stop-command: bin/container-manager.sh stop
     daemon: simple
-# FIXME: a oneshot unit with start/stop commands needs also RemainAfterExit=yes
-# but this isn't supported by snapd yet. See LP #1647169 for details.
-#  bridge:
-#    command: bin/anbox-bridge.sh start
-#    stop-command: bin/anbox-bridge.sh stop
-#    daemon: oneshot
 
 parts:
   android-images:
