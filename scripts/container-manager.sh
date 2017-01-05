@@ -8,17 +8,11 @@ set -x
 
 DATA_PATH=$SNAP_COMMON/var/lib/anbox
 ROOTFS_PATH=$DATA_PATH/rootfs
-RAMDISK_PATH=$DATA_PATH/ramdisk
-INITRD=$SNAP/ramdisk.img
-SYSTEM_IMG=$SNAP/system.img
+ANDROID_IMG=$SNAP/android.img
+CONTAINER_BASE_UID=100000
 
-if [ ! -e $INITRD ]; then
-	echo "ERROR: boot ramdisk does not exist"
-	exit 1
-fi
-
-if [ ! -e $SYSTEM_IMG ]; then
-	echo "ERROR: system image does not exist"
+if [ ! -e $ANDROID_IMG ]; then
+	echo "ERROR: android image does not exist"
 	exit 1
 fi
 
@@ -67,24 +61,14 @@ load_kernel_modules() {
 }
 
 start() {
-	# Extract ramdisk content instead of trying to bind mount the
-	# cpio image file to allow modifications.
-	rm -Rf $RAMDISK_PATH
-	mkdir -p $RAMDISK_PATH
-	cd $RAMDISK_PATH
-	cat $INITRD | gzip -d | cpio -i
-
-	# FIXME those things should be fixed in the build process
-	chmod +x $RAMDISK_PATH/anbox-init.sh
-
 	# Setup the read-only rootfs
 	mkdir -p $ROOTFS_PATH
-	mount -o bind,ro $RAMDISK_PATH $ROOTFS_PATH
-	mount -o loop,ro $SYSTEM_IMG $ROOTFS_PATH/system
+	mount -o loop,ro $ANDROID_IMG $ROOTFS_PATH
 
 	# but certain top-level directories need to be in a writable space
 	for dir in cache data; do
 		mkdir -p $DATA_PATH/android-$dir
+		chown $CONTAINER_BASE_UID:$CONTAINER_BASE_UID $DATA_PATH/android-$dir
 		mount -o bind $DATA_PATH/android-$dir $ROOTFS_PATH/$dir
 	done
 
@@ -104,6 +88,9 @@ start() {
 
 	load_kernel_modules
 
+	# Ensure FUSE support for user namespaces is enabled
+	echo Y > /sys/module/fuse/parameters/userns_mounts
+
 	exec $SNAP/usr/sbin/aa-exec -p unconfined -- $SNAP/bin/anbox-wrapper.sh container-manager
 }
 
@@ -111,7 +98,6 @@ stop() {
 	for dir in cache data; do
 		umount $ROOTFS_PATH/$dir
 	done
-	umount $ROOTFS_PATH/system
 	umount $ROOTFS_PATH
 
 	$SNAP/bin/anbox-bridge.sh stop

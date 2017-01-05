@@ -1,45 +1,34 @@
 #!/bin/bash
 
-TOPDIR=`echo $ANDROID_BUILD_TOP`
-OUTDIR=`echo $ANDROID_PRODUCT_OUT`
-CURDIR=`pwd`
-TARGET=rootfs
+set -ex
 
-if [ -d $TARGET ] ; then
-	rm -rf $TARGET
-fi
+ramdisk=$1
+system=$2
 
-mkdir $TARGET
-cp -r $OUTDIR/root/* $TARGET/
-cp -r $OUTDIR/system/* $TARGET/system/
-
-mkdir $TARGET/cache
-
-find out -name filesystem_config.txt -exec cp {} $TARGET \;
-if [ ! -e $TARGET/filesystem_config.txt ] ; then
-	echo "ERROR: Filesystem config is not available. You have to run"
-	echo "ERROR: $ make target-files-package"
-	echo "ERROR: to generate it as part of the Android build."
-	rm -rf $TARGET
+if [ -z "$ramdisk" ] || [ -z "$system" ]; then
+	echo "Usage: $0 <ramdisk> <system image>"
 	exit 1
 fi
 
-if [ -z "$TOPDIR" ] || [ "$CURDIR" != "$TOPDIR" ] ; then
-	echo "ERROR: You have to execute this script from the ANDROID_BUILD_TOP"
-	echo "ERROR: directory."
-	exit 1
-fi
+workdir=`mktemp -d`
+rootfs=$workdir/rootfs
 
-cp anbox/scripts/anbox-init.sh $TARGET/
-chmod +x $TARGET/anbox-init.sh
+mkdir -p $rootfs
 
-chmod 755 $TARGET/init.*
-chmod 755 $TARGET/default.prop
-chmod 755 $TARGET/system/build.prop
-chmod +x $TARGET/anbox-init.sh
+# Extract ramdisk and preserve ownership of files
+(cd $rootfs ; cat $ramdisk | gzip -d | sudo cpio -i)
 
-TARBALL_NAME=anbox-rootfs-`date +%Y%m%d%H%M`.tar
-tar cf $TARBALL_NAME $TARGET
-rm -rf $TARGET
+mkdir $workdir/system
+sudo mount -o loop,ro $system $workdir/system
+sudo cp -ar $workdir/system/* $rootfs/system
+sudo umount $workdir/system
 
-echo "Created $TARBALL_NAME"
+gcc -o $workdir/uidmapshift external/nsexec/uidmapshift.c
+sudo $workdir/uidmapshift -b $rootfs 0 100000 65536
+
+# FIXME
+sudo chmod +x $rootfs/anbox-init.sh
+
+sudo mksquashfs $rootfs android.img -comp xz -no-xattrs
+
+sudo rm -rf $workdir
