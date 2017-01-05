@@ -27,8 +27,7 @@ parts:
     plugin: copy
     source: android-images
     files:
-      system.img: system.img
-      ramdisk.img: ramdisk.img
+      android.img: android.img
   kernel-modules:
     plugin: dump
     source: kernel
