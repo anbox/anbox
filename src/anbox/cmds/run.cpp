@@ -114,7 +114,8 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
     auto window_manager = std::make_shared<wm::Manager>(policy);
 
     auto launcher_storage = std::make_shared<application::LauncherStorage>(
-        xdg::data().home() / "applications");
+        xdg::data().home() / "applications" / "anbox",
+        xdg::data().home() / "anbox" / "icons");
 
     auto gl_server =
         std::make_shared<graphics::GLRendererServer>(window_manager);

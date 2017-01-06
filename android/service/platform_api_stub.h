@@ -73,6 +73,7 @@ public:
                 std::vector<std::string> categories;
             };
             Intent launch_intent;
+            std::vector<int8_t> icon;
         };
         std::vector<Application> applications;
     };

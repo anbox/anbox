@@ -97,27 +97,27 @@ status_t PlatformService::update_application_list(const Parcel &data) {
                 package_name.string(),
         };
 
-        if (data.readInt32() == 1) {
-            String8 action(data.readString16());
-            String8 uri(data.readString16());
-            String8 type(data.readString16());
-            String8 component_package(data.readString16());
-            String8 component_class(data.readString16());
+        String8 action(data.readString16());
+        String8 uri(data.readString16());
+        String8 type(data.readString16());
+        String8 component_package(data.readString16());
+        String8 component_class(data.readString16());
 
-            std::vector<std::string> categories;
-            unsigned int num_categories = data.readInt32();
-            for (int m = 0; m < num_categories; m++)
-                categories.push_back(String8(data.readString16()).string());
+        std::vector<std::string> categories;
+        unsigned int num_categories = data.readInt32();
+        for (int m = 0; m < num_categories; m++)
+            categories.push_back(String8(data.readString16()).string());
 
-            p.launch_intent.action = action;
-            p.launch_intent.uri = uri;
-            p.launch_intent.type = type;
-            p.launch_intent.package = component_package;
-            p.launch_intent.component = component_class;
-            p.launch_intent.categories = categories;
+        p.launch_intent.action = action;
+        p.launch_intent.uri = uri;
+        p.launch_intent.type = type;
+        p.launch_intent.package = component_package;
+        p.launch_intent.component = component_class;
+        p.launch_intent.categories = categories;
 
-            update.applications.push_back(p);
-        };
+        data.readByteVector(&p.icon);
+
+        update.applications.push_back(p);
     }
 
     platform_api_stub_->update_application_list(update);

@@ -27,8 +27,14 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
 
 import java.util.List;
+import java.io.ByteArrayOutputStream;
 
 public final class PlatformService {
     private static final String TAG = "AnboxAppMgr";
@@ -69,28 +75,41 @@ public final class PlatformService {
         data.writeInt(apps.size());
         for (int n = 0; n < apps.size(); n++) {
             ApplicationInfo appInfo = apps.get(n);
+
+            Intent launchIntent = mPm.getLaunchIntentForPackage(appInfo.packageName);
+            if (launchIntent == null)
+                continue;
+
+            Drawable icon = null;
+            try {
+                icon = mPm.getApplicationIcon(appInfo.packageName);
+            }
+            catch (PackageManager.NameNotFoundException ex) {
+                continue;
+            }
+
+            if (icon == null)
+                continue;
+
             data.writeString(appInfo.name);
             data.writeString(appInfo.packageName);
 
-            Intent launchIntent = mPm.getLaunchIntentForPackage(appInfo.packageName);
-            if (launchIntent != null) {
-                data.writeInt(1);
-                data.writeString(launchIntent.getAction());
-                if (launchIntent.getData() != null)
-                    data.writeString(launchIntent.getData().toString());
-                else
-                    data.writeString("");
-                data.writeString(launchIntent.getType());
-                data.writeString(launchIntent.getComponent().getPackageName());
-                data.writeString(launchIntent.getComponent().getClassName());
-                data.writeInt(launchIntent.getCategories().size());
-                for (String category : launchIntent.getCategories())
-                    data.writeString(category);
-            } else {
-                data.writeInt(0);
-            }
+            data.writeString(launchIntent.getAction());
+            if (launchIntent.getData() != null)
+                data.writeString(launchIntent.getData().toString());
+            else
+                data.writeString("");
+            data.writeString(launchIntent.getType());
+            data.writeString(launchIntent.getComponent().getPackageName());
+            data.writeString(launchIntent.getComponent().getClassName());
+            data.writeInt(launchIntent.getCategories().size());
+            for (String category : launchIntent.getCategories())
+                data.writeString(category);
 
-            // FIXME add icon, flags, ...
+            Bitmap iconBitmap = drawableToBitmap(icon);
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            iconBitmap.compress(Bitmap.CompressFormat.PNG, 90, outStream);
+            data.writeByteArray(outStream.toByteArray());
         }
 
         Parcel reply = Parcel.obtain();
@@ -106,5 +125,17 @@ public final class PlatformService {
     }
 
     public void notifyPackageRemoved(Intent intent) {
+    }
+
+    private Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable)
+            return ((BitmapDrawable)drawable).getBitmap();
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
     }
 }

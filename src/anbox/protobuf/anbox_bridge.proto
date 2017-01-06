@@ -74,6 +74,7 @@ message ApplicationListUpdateEvent {
         required string name = 1;
         required string package = 2;
         optional Intent launch_intent = 3;
+        optional bytes icon = 4;
     }
     repeated Application applications = 1;
 }

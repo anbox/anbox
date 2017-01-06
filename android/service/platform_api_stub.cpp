@@ -81,6 +81,8 @@ void PlatformApiStub::update_application_list(const ApplicationListUpdate &updat
             auto c = launch_intent->add_categories();
             *c = category;
         }
+
+        app->set_icon(a.icon.data(), a.icon.size());
     }
 
     rpc_channel_->send_event(seq);

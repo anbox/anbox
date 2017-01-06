@@ -158,5 +158,10 @@ std::string prefix_dir_from_env(const std::string &path,
   return result;
 }
 
+std::string process_get_exe_path(const pid_t &pid) {
+  auto exe_path = string_format("/proc/%d/exe", pid);
+  return boost::filesystem::read_symlink(exe_path).string();
+}
+
 }  // namespace utils
 }  // namespace anbox

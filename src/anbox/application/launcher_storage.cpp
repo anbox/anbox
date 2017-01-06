@@ -17,6 +17,7 @@
 
 #include "anbox/application/launcher_storage.h"
 #include "anbox/utils.h"
+#include "anbox/logger.h"
 
 #include <algorithm>
 #include <fstream>
@@ -26,19 +27,25 @@ namespace fs = boost::filesystem;
 
 namespace anbox {
 namespace application {
-LauncherStorage::LauncherStorage(const fs::path &path) : path_(path) {}
+LauncherStorage::LauncherStorage(const fs::path &path,
+                                 const boost::filesystem::path &icon_path) : path_(path), icon_path_(icon_path) {
+}
 
 LauncherStorage::~LauncherStorage() {}
 
 void LauncherStorage::add(const Item &item) {
   if (!fs::exists(path_)) fs::create_directories(path_);
+  if (!fs::exists(icon_path_)) fs::create_directories(icon_path_);
 
   auto package_name = item.package;
   std::replace(package_name.begin(), package_name.end(), '.', '-');
 
   const auto item_path =
       path_ / utils::string_format("anbox-%s.desktop", package_name);
-  std::string exec = "anbox launch ";
+  const auto item_icon_path =
+      icon_path_ / utils::string_format("anbox-%s.png", package_name);
+
+  std::string exec = utils::string_format("%s launch ", utils::process_get_exe_path(getpid()));
 
   if (!item.launch_intent.action.empty())
     exec += utils::string_format("--action=%s ", item.launch_intent.action);
@@ -62,7 +69,11 @@ void LauncherStorage::add(const Item &item) {
     << "Exec=" << exec << std::endl
     << "Terminal=false" << std::endl
     << "Type=Application" << std::endl
-    << "Encoding=UTF-8" << std::endl;
+    << "Icon=" << item_icon_path.string() << std::endl;
+  f.close();
+
+  f = std::ofstream(item_icon_path.string());
+  f.write(item.icon.data(), item.icon.size());
   f.close();
 }
 }  // namespace application

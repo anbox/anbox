@@ -89,6 +89,11 @@ void PlatformApiSkeleton::handle_application_list_update_event(
     for (int m = 0; m < li.categories_size(); m++)
       item.launch_intent.categories.push_back(li.categories(m));
 
+    item.icon = std::vector<char>(app.icon().begin(), app.icon().end());
+
+    if (item.package.empty())
+      continue;
+
     // If the item is already stored it will be updated
     launcher_storage_->add(item);
   }
