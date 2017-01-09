@@ -1,0 +1,45 @@
+GLOBAL
+	base_opcode 10000
+	encoder_headers <stdint.h> <EGL/egl.h> "glUtils.h"
+
+rcGetEGLVersion
+    dir major out
+    len major sizeof(EGLint)
+    dir minor out
+    len minor sizeof(EGLint)
+
+rcQueryEGLString
+    dir buffer out
+    len buffer bufferSize
+
+rcGetGLString
+    dir buffer out
+    len buffer bufferSize
+
+rcGetNumConfigs
+    dir numAttribs out
+    len numAttribs sizeof(uint32_t)
+
+rcGetConfigs
+    dir buffer out
+    len buffer bufSize
+
+rcChooseConfig
+    dir attribs in
+    len attribs attribs_size
+    dir configs out
+    var_flag configs nullAllowed
+    len configs configs_size*sizeof(uint32_t)
+
+rcReadColorBuffer
+    dir pixels out
+    len pixels (((glUtilsPixelBitSize(format, type) * width) >> 3) * height)
+
+rcUpdateColorBuffer
+    dir pixels in
+    len pixels (((glUtilsPixelBitSize(format, type) * width) >> 3) * height)
+    var_flag pixels isLarge
+
+rcCloseColorBuffer
+    flag flushOnEncode
+

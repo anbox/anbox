@@ -1,0 +1,19 @@
+This directory contains Android-side modules related to hardware OpenGL ES
+emulation. The host-side modules and documentation are in
+$ANDROID_BUILD_TOP/sdk/emulator/opengl.
+
+Note that this directory contains encoder sources that are auto-generated
+with the 'emugen' host tool (see sdk/emulator/opengl/host/tools/emugen).
+
+To regenerate them, run external/qemu/distrib/update-emugl-sources.sh,
+after building the emulator from sources, this will populate the content
+here with the appropriate updated source files.
+
+You should do this whenever you update one of the *.types, *.in and *.attrib
+files located under one of:
+
+  $AOSP/sdk/emulator/opengl/libs/GLESv1_dec/
+  $AOSP/sdk/emulator/opengl/libs/GLESv2_dec/
+  $AOSP/sdk/emulator/opengl/libs/renderControl_dec/
+
+or when the 'emugen' tool itself is modified.

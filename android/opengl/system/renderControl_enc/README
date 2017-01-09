@@ -1,0 +1,142 @@
+The renderControl.in file in this directory defines an API which is decoded
+on the android guest into a stream and get decoded and executed on the host.
+It is used in order to query the host renderer as well as send the host renderer
+control commands.
+
+The following describes each of the entries defined by this renderControl API.
+
+
+GLint rcGetRendererVersion();
+       This function queries the host renderer version number.
+
+EGLint rcGetEGLVersion(EGLint* major, EGLint* minor);
+       This function queries the host renderer for the EGL version
+       it supports. returns EGL_FALSE on failure.
+
+EGLint rcQueryEGLString(EGLenum name, void* buffer, EGLint bufferSize);
+       This function queries the host for EGL string (.i.e EGL_EXTENSIONS).
+       if buffer is NULL or the bufferSize is not big enough the return value
+       is the negative number of bytes required to store the string value
+       otherwise the string value is copied to buffer and its size is
+       returned.
+
+EGLint rcGetNumConfigs(uint32_t* numAttribs);
+       queries the host for the number of supported EGL configs.
+       The function returns the number of supported configs and returns in
+       numAttribs the number of attributes available for each config.
+
+EGLint rcGetConfigs(uint32_t bufSize, GLuint* buffer);
+       This function queries the host for the all set of supported configs
+       with their attribute values.
+       bufSize is the size of buffer, the size should be at least equal to
+       (numConfigs + 1) * numAttribs * sizeof(GLuint)
+       where numConfigs and numAttribs are the values returned in 
+       rcGetNumConfigs. if bufSize is not big enough then the negative number
+       of required bytes is returned otherwise the function returns the number
+       of configs and buffer is filled as follows: The first 'numAttribs'
+       integer values are filled with the EGL enumerant describing a config
+       attribute, next for each config there are 'numAttribs' integer values
+       holding the attribute values for that config, the values are specified
+       in the same order as the attribute vector.
+
+EGLint rcChooseConfig(EGLint *attribs, uint32_t attribs_size, uint32_t *configs, uint32_t configs_size)
+       This function triggers an eglChooseConfig on the host, to get a list of 
+       configs matching the given attribs values.
+ 	attribs - a list of attribute names followed by the desired values, terminated by EGL_NONE
+	attribs_size - the size of the list
+	configs - the returned matching configuration names (same names as familiar to the client in rcGetConfigs)
+	configs_size - the size of the configs buffers
+	returns - the actual number of matching configurations (<= configs_size) 
+
+EGLint rcGetFBParam(EGLint param);
+       queries the host for framebuffer parameter, see renderControl_types.h
+       for possible values of 'param'.
+
+uint32_t rcCreateContext(uint32_t config, uint32_t share, uint32_t glVersion);
+       This function creates a rendering context on the host and returns its
+       handle. config is the config index for the context, share is either zero
+       or a handle to a sharing context. glVersion is either 1 or 2 for GLES1
+       or GLES2 context respectively.
+
+
+void rcDestroyContext(uint32_t context);
+       This function destroys a rendering context on the host.
+       context is a handle returned in rcCreateContext.
+
+uint32_t rcCreateWindowSurface(uint32_t config, uint32_t width, uint32_t height);
+       This function creates a 'window' surface on the host which can be then
+       bind for rendering through rcMakeCurrent.
+       The function returns a handle to the created window surface.
+
+void rcDestroyWindowSurface(uint32_t windowSurface);
+       This function destoys a window surface.
+
+uint32_t rcCreateColorBuffer(uint32_t width, uint32_t height, GLenum internalFormat);
+       This function creates a colorBuffer object on the host which can be then
+       be specified as a render target for a window surface through 
+       rcSetWindowColorBuffer or to be displayed on the framebuffer window
+       through rcFBPost.
+       The function returns a handle to the colorBuffer object, with an initial
+       reference count of 1.
+
+void rcOpenColorBuffer(uint32_t colorbuffer);
+       Adds an additional reference to the colorbuffer, typically from a
+       different Android process than the one which created it.
+
+void rcCloseColorBuffer(uint32_t colorbuffer);
+       Removes a reference to the colorbuffer. When the reference count drops
+       to zero the colorbuffer is automatically destroyed.
+
+void rcFlushWindowColorBuffer(uint32_t windowSurface, uint32_t colorBuffer);
+       This flushes the current window color buffer
+
+void rcSetWindowColorBuffer(uint32_t windowSurface, uint32_t colorBuffer);
+       This set the target color buffer for a windowSurface, when set the
+       previous target colorBuffer gets updated before switching to the new
+       colorBuffer.
+
+EGLint rcMakeCurrent(uint32_t context, uint32_t drawSurf, uint32_t readSurf);
+       Binds a windowSurface(s) and current rendering context for the 
+       calling thread.
+
+void rcFBPost(uint32_t colorBuffer);
+       This function causes the content of the colorBuffer object to be
+       displayed on the host framebuffer window. The function returns
+       immediatly, the buffer will be displayed at the next swap interval.
+
+void rcFBSetSwapInterval(EGLint interval);
+       Sets the swap interval for the host framebuffer window.
+
+void rcBindTexture(uint32_t colorBuffer);
+       This function instruct the host to bind the content of the specified
+       colorBuffer to the current binded texture object of the calling thread.
+       This function should be used to implement eglBindTexImage.
+
+EGLint rcColorBufferCacheFlush(uint32_t colorbuffer, EGLint postCount, int forRead);
+       This function returns only after all rendering requests for the specified
+       colorBuffer rendering target has been processed and after all 'postCount'
+       posts for the buffer requested previously through rcFBPost has been
+       processed.
+       if 'forRead' is not-zero, the function returns positive value in case
+       there was rendering done to the buffer since the last CacheFlush request
+       with non-zero 'forRead' value, otherwise the function returns zero or
+       negative value on failure.
+
+void rcReadColorBuffer(uint32_t colorbuffer, GLint x, GLint y, 
+                       GLint width, GLint height, GLenum format, 
+                       GLenum type, void* pixels);
+       This function queries the host for the pixel content of a colorBuffer's
+       subregion. It act the same as OpenGL glReadPixels however pixels
+       are always packed with alignment of 1.
+
+void rcUpdateColorBuffer(uint32_t colorbuffer, GLint x, GLint y, 
+                         GLint width, GLint height, GLenum format, 
+                         GLenum type, void* pixels);
+       Updates the content of a subregion of a colorBuffer object.
+       pixels are always unpacked with alignment of 1.
+
+uint32_t rcCreateClientImage(uint32_t context, EGLenum target, GLuint buffer)
+       Create an EGLImage from a client object.
+
+int rcDestroyClientImage(uint32_t image)
+       Destroy an EGLImage object.

@@ -1,0 +1,99 @@
+
+on early-init
+    mount debugfs debugfs /sys/kernel/debug
+
+on init
+
+on boot
+    setprop ARGH ARGH
+    setprop net.eth0.gw 10.0.2.2
+    setprop net.eth0.dns1 10.0.2.3
+    setprop net.dns1 10.0.2.3
+    setprop net.gprs.local-ip 10.0.2.15
+    setprop ro.radio.use-ppp no
+    setprop ro.build.product generic
+    setprop ro.product.device generic
+
+# fake some battery state
+    setprop status.battery.state Slow
+    setprop status.battery.level 5
+    setprop status.battery.level_raw  50
+    setprop status.battery.level_scale 9
+
+# set up the GPU caching
+    setprop ro.hwui.texture_cache_size 72
+    setprop ro.hwui.layer_cache_size 48
+    setprop ro.hwui.r_buffer_cache_size 8
+    setprop ro.hwui.path_cache_size 32
+    setprop ro.hwui.gradient_cache_size 1
+    setprop ro.hwui.drop_shadow_cache_size 6
+    setprop ro.hwui.texture_cache_flushrate 0.4
+    setprop ro.hwui.text_small_cache_width 1024
+    setprop ro.hwui.text_small_cache_height 1024
+    setprop ro.hwui.text_large_cache_width 2048
+    setprop ro.hwui.text_large_cache_height 1024
+
+# disable some daemons the emulator doesn't want
+    stop dund
+    stop akmd
+
+# start essential services
+    start qemud
+    start goldfish-logcat
+    start goldfish-setup
+
+    setprop ro.setupwizard.mode EMULATOR
+
+# enable Google-specific location features,
+# like NetworkLocationProvider and LocationCollector
+    setprop ro.com.google.locationfeatures 1
+
+# For the emulator, which bypasses Setup Wizard, you can specify
+# account info for the device via these two properties.  Google
+# Login Service will insert these accounts into the database when
+# it is created (ie, after a data wipe).
+#
+#   setprop ro.config.hosted_account username@hosteddomain.org:password
+#   setprop ro.config.google_account username@gmail.com:password
+#
+# You MUST have a Google account on the device, and you MAY
+# additionally have a hosted account.  No other configuration is
+# supported, and arbitrary breakage may result if you specify
+# something else.
+
+on fs
+        mount_all /fstab.goldfish
+
+service goldfish-setup /system/etc/init.goldfish.sh
+    user root
+    group root
+    oneshot
+
+# The qemu-props program is used to set various system
+# properties on boot. It must be run early during the boot
+# process to avoid race conditions with other daemons that
+# might read them (e.g. surface flinger), so define it in
+# class 'core'
+#
+service qemu-props /system/bin/qemu-props
+    class core
+    user root
+    group root
+    oneshot
+
+service qemud /system/bin/qemud
+    socket qemud    stream 666
+    oneshot
+
+# -Q is a special logcat option that forces the
+# program to check wether it runs on the emulator
+# if it does, it redirects its output to the device
+# named by the androidboot.console kernel option
+# if not, is simply exits immediately
+
+service goldfish-logcat /system/bin/logcat -Q
+    oneshot
+
+service fingerprintd /system/bin/fingerprintd
+    class late_start
+    user system

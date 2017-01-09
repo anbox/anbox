@@ -85,3 +85,14 @@ include $(BUILD_SHARED_LIBRARY)
 TMP_PATH := $(LOCAL_PATH)
 
 include $(TMP_PATH)/android/appmgr/Android.mk
+include $(TMP_PATH)/android/fingerprint/Android.mk
+include $(TMP_PATH)/android/power/Android.mk
+include $(TMP_PATH)/android/qemu-props/Android.mk
+include $(TMP_PATH)/android/qemud/Android.mk
+include $(TMP_PATH)/android/audio/Android.mk
+include $(TMP_PATH)/android/sensors/Android.mk
+include $(TMP_PATH)/android/opengl/Android.mk
+include $(TMP_PATH)/android/gps/Android.mk
+include $(TMP_PATH)/android/lights/Android.mk
+include $(TMP_PATH)/android/camera/Android.mk
+include $(TMP_PATH)/android/vibrator/Android.mk

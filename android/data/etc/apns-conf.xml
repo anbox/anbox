@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<!-- use empty string to specify no proxy or port -->
+<!-- This version must agree with that in apps/common/res/apns.xml -->
+<apns version="8">
+    <apn carrier="T-Mobile US"
+         mcc="310"
+         mnc="260"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+    />
+
+    <apn carrier="T-Mobile US 250"
+         mcc="310"
+         mnc="250"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 660"
+         mcc="310"
+         mnc="660"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 230"
+         mcc="310"
+         mnc="230"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 310"
+         mcc="310"
+         mnc="310"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 580"
+         mcc="310"
+         mnc="580"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 240"
+         mcc="310"
+         mnc="240"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 800"
+         mcc="310"
+         mnc="800"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 210"
+         mcc="310"
+         mnc="210"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 160"
+         mcc="310"
+         mnc="160"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 270"
+         mcc="310"
+         mnc="270"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 200"
+         mcc="310"
+         mnc="200"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 220"
+         mcc="310"
+         mnc="220"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <apn carrier="T-Mobile US 490"
+         mcc="310"
+         mnc="490"
+         apn="epc.tmobile.com"
+         user="none"
+         server="*"
+         password="none"
+         mmsc="http://mms.msg.eng.t-mobile.com/mms/wapenc"
+            />
+
+    <!-- T-Mobile Europe -->
+    <apn carrier="T-Mobile UK"
+         mcc="234"
+         mnc="30"
+         apn="general.t-mobile.uk"
+         user="t-mobile"
+         password="tm"
+         server="*"
+         mmsproxy="149.254.201.135"
+         mmsport="8080"
+         mmsc="http://mmsc.t-mobile.co.uk:8002"
+    />
+
+    <apn carrier="T-Mobile D"
+         mcc="262"
+         mnc="01"
+         apn="internet.t-mobile"
+         user="t-mobile"
+         password="tm"
+         server="*"
+         mmsproxy="172.028.023.131"
+         mmsport="8008"
+         mmsc="http://mms.t-mobile.de/servlets/mms"
+    />
+
+    <apn carrier="T-Mobile A"
+         mcc="232"
+         mnc="03"
+         apn="gprsinternet"
+         user="t-mobile"
+         password="tm"
+         server="*"
+         mmsproxy="010.012.000.020"
+         mmsport="80"
+         mmsc="http://mmsc.t-mobile.at/servlets/mms"
+         type="default,supl"
+    />
+
+    <apn carrier="T-Mobile A MMS"
+         mcc="232"
+         mnc="03"
+         apn="gprsmms"
+         user="t-mobile"
+         password="tm"
+         server="*"
+         mmsproxy="010.012.000.020"
+         mmsport="80"
+         mmsc="http://mmsc.t-mobile.at/servlets/mms"
+         type="mms"
+    />
+
+    <apn carrier="T-Mobile CZ"
+         mcc="230"
+         mnc="01"
+         apn="internet.t-mobile.cz"
+         user="wap"
+         password="wap"
+         server="*"
+         mmsproxy="010.000.000.010"
+         mmsport="80"
+         mmsc="http://mms"
+         type="default,supl"
+    />
+
+    <apn carrier="T-Mobile CZ MMS"
+         mcc="230"
+         mnc="01"
+         apn="mms.t-mobile.cz"
+         user="mms"
+         password="mms"
+         server="*"
+         mmsproxy="010.000.000.010"
+         mmsport="80"
+         mmsc="http://mms"
+         type="mms"
+    />
+
+    <apn carrier="T-Mobile NL"
+         mcc="204"
+         mnc="16"
+         apn="internet"
+         user="*"
+         password="*"
+         server="*"
+         mmsproxy="010.010.010.011"
+         mmsport="8080"
+         mmsc="http://t-mobilemms"
+         type="default,supl"
+    />
+
+    <apn carrier="T-Mobile NL MMS"
+         mcc="204"
+         mnc="16"
+         apn="mms"
+         user="tmobilemms"
+         password="tmobilemms"
+         server="*"
+         mmsproxy="010.010.010.011"
+         mmsport="8080"
+         mmsc="http://t-mobilemms"
+         type="mms"
+    />
+</apns>
