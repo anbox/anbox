@@ -121,12 +121,6 @@ public final class PlatformService {
         }
     }
 
-    public void notifyPackageAdded(Intent intent) {
-    }
-
-    public void notifyPackageRemoved(Intent intent) {
-    }
-
     private Bitmap drawableToBitmap(Drawable drawable) {
         if (drawable instanceof BitmapDrawable)
             return ((BitmapDrawable)drawable).getBitmap();
