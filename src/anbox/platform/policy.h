@@ -15,26 +15,34 @@
  *
  */
 
-#include "anbox/wm/default_platform_policy.h"
-#include "anbox/logger.h"
-#include "anbox/wm/window.h"
+#ifndef ANBOX_PLATFORM_POLICY_H_
+#define ANBOX_PLATFORM_POLICY_H_
 
-namespace {
-class NullWindow : public anbox::wm::Window {
- public:
-  NullWindow(const anbox::wm::Task::Id &task,
-             const anbox::graphics::Rect &frame)
-      : anbox::wm::Window(nullptr, task, frame) {}
-};
-}
+#include "anbox/graphics/rect.h"
+#include "anbox/wm/window_state.h"
+
+#include <memory>
 
 namespace anbox {
+namespace audio {
+class Sink;
+class Source;
+} // namespace audio
 namespace wm {
-DefaultPlatformPolicy::DefaultPlatformPolicy() {}
+class Window;
+} // namespace wm
+namespace platform {
+class Policy {
+ public:
+  virtual ~Policy();
 
-std::shared_ptr<Window> DefaultPlatformPolicy::create_window(
-    const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) {
-  return std::make_shared<::NullWindow>(task, frame);
-}
+  virtual std::shared_ptr<wm::Window> create_window(
+      const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) = 0;
+
+  virtual std::shared_ptr<audio::Sink> create_audio_sink() = 0;
+  virtual std::shared_ptr<audio::Source> create_audio_source() = 0;
+};
 }  // namespace wm
 }  // namespace anbox
+
+#endif

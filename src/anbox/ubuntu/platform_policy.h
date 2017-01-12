@@ -19,7 +19,7 @@
 #define ANBOX_UBUNTU_PLATFORM_POLICY_H_
 
 #include "anbox/ubuntu/window.h"
-#include "anbox/wm/platform_policy.h"
+#include "anbox/platform/policy.h"
 
 #include "anbox/graphics/emugl/DisplayManager.h"
 
@@ -40,7 +40,7 @@ class AndroidApiStub;
 }  // namespace bridge
 namespace ubuntu {
 class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
-                       public wm::PlatformPolicy,
+                       public platform::Policy,
                        public Window::Observer,
                        public DisplayManager {
  public:
@@ -62,6 +62,9 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
   DisplayInfo display_info() const override;
 
   void set_renderer(const std::shared_ptr<Renderer> &renderer);
+
+  std::shared_ptr<audio::Sink> create_audio_sink() override;
+  std::shared_ptr<audio::Source> create_audio_source() override;
 
  private:
   void process_events();

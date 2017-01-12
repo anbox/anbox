@@ -15,37 +15,36 @@
  *
  */
 
-#ifndef ANBOX_WM_MANAGER_H_
-#define ANBOX_WM_MANAGER_H_
-
+#include "anbox/platform/default_policy.h"
 #include "anbox/wm/window.h"
-#include "anbox/wm/window_state.h"
+#include "anbox/logger.h"
 
-#include <map>
-#include <memory>
-#include <mutex>
+namespace {
+class NullWindow : public anbox::wm::Window {
+ public:
+  NullWindow(const anbox::wm::Task::Id &task,
+             const anbox::graphics::Rect &frame)
+      : anbox::wm::Window(nullptr, task, frame) {}
+};
+}
 
 namespace anbox {
 namespace platform {
-class Policy;
-} // namespace platform
-namespace wm {
-class Manager {
- public:
-  Manager(const std::shared_ptr<platform::Policy> &policy);
-  ~Manager();
+DefaultPolicy::DefaultPolicy() {}
 
-  void apply_window_state_update(const WindowState::List &updated,
-                                 const WindowState::List &removed);
+std::shared_ptr<wm::Window> DefaultPolicy::create_window(
+    const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) {
+  return std::make_shared<::NullWindow>(task, frame);
+}
 
-  std::shared_ptr<Window> find_window_for_task(const Task::Id &task);
+std::shared_ptr<audio::Sink> DefaultPolicy::create_audio_sink() {
+  ERROR("Not implemented");
+  return nullptr;
+}
 
- private:
-  std::mutex mutex_;
-  std::shared_ptr<platform::Policy> platform_policy_;
-  std::map<Task::Id, std::shared_ptr<Window>> windows_;
-};
+std::shared_ptr<audio::Source> DefaultPolicy::create_audio_source() {
+  ERROR("Not implemented");
+  return nullptr;
+}
 }  // namespace wm
 }  // namespace anbox
-
-#endif

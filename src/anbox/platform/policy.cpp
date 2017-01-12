@@ -15,37 +15,10 @@
  *
  */
 
-#ifndef ANBOX_WM_MANAGER_H_
-#define ANBOX_WM_MANAGER_H_
-
-#include "anbox/wm/window.h"
-#include "anbox/wm/window_state.h"
-
-#include <map>
-#include <memory>
-#include <mutex>
+#include "anbox/platform/policy.h"
 
 namespace anbox {
 namespace platform {
-class Policy;
-} // namespace platform
-namespace wm {
-class Manager {
- public:
-  Manager(const std::shared_ptr<platform::Policy> &policy);
-  ~Manager();
-
-  void apply_window_state_update(const WindowState::List &updated,
-                                 const WindowState::List &removed);
-
-  std::shared_ptr<Window> find_window_for_task(const Task::Id &task);
-
- private:
-  std::mutex mutex_;
-  std::shared_ptr<platform::Policy> platform_policy_;
-  std::map<Task::Id, std::shared_ptr<Window>> windows_;
-};
+Policy::~Policy() {}
 }  // namespace wm
 }  // namespace anbox
-
-#endif

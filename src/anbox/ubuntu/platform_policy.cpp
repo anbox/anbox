@@ -22,6 +22,7 @@
 #include "anbox/logger.h"
 #include "anbox/ubuntu/keycode_converter.h"
 #include "anbox/ubuntu/window.h"
+#include "anbox/ubuntu/audio_sink.h"
 
 #include <boost/throw_exception.hpp>
 
@@ -36,7 +37,7 @@ PlatformPolicy::PlatformPolicy(
     : input_manager_(input_manager),
       android_api_(android_api),
       event_thread_running_(false) {
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0)
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize SDL"));
 
   auto display_frame = graphics::Rect::Invalid;
@@ -262,6 +263,15 @@ void PlatformPolicy::window_resized(const Window::Id &id,
 
 DisplayManager::DisplayInfo PlatformPolicy::display_info() const {
   return display_info_;
+}
+
+std::shared_ptr<audio::Sink> PlatformPolicy::create_audio_sink() {
+  return std::make_shared<AudioSink>();
+}
+
+std::shared_ptr<audio::Source> PlatformPolicy::create_audio_source() {
+  ERROR("Not implemented");
+  return nullptr;
 }
 }  // namespace wm
 }  // namespace anbox

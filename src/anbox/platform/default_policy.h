@@ -15,10 +15,23 @@
  *
  */
 
-#include "anbox/wm/platform_policy.h"
+#ifndef ANBOX_PLATFORM_DEFAULT_POLICY_H_
+#define ANBOX_PLATFORM_DEFAULT_POLICY_H_
+
+#include "anbox/platform/policy.h"
 
 namespace anbox {
-namespace wm {
-PlatformPolicy::~PlatformPolicy() {}
+namespace platform {
+class DefaultPolicy : public Policy {
+ public:
+  DefaultPolicy();
+  std::shared_ptr<wm::Window> create_window(
+      const anbox::wm::Task::Id &task,
+      const anbox::graphics::Rect &frame) override;
+  std::shared_ptr<audio::Sink> create_audio_sink() override;
+  std::shared_ptr<audio::Source> create_audio_source() override;
+};
 }  // namespace wm
 }  // namespace anbox
+
+#endif

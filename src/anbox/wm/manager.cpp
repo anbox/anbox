@@ -16,15 +16,15 @@
  */
 
 #include "anbox/wm/manager.h"
+#include "anbox/platform/policy.h"
 #include "anbox/logger.h"
-#include "anbox/wm/platform_policy.h"
 
 #include <algorithm>
 
 namespace anbox {
 namespace wm {
-Manager::Manager(const std::shared_ptr<PlatformPolicy> &platform)
-    : platform_(platform) {}
+Manager::Manager(const std::shared_ptr<platform::Policy> &policy)
+    : platform_policy_(policy) {}
 
 Manager::~Manager() {}
 
@@ -61,7 +61,7 @@ void Manager::apply_window_state_update(const WindowState::List &updated,
     }
 
     auto platform_window =
-        platform_->create_window(window.task(), window.frame());
+        platform_policy_->create_window(window.task(), window.frame());
     platform_window->attach();
     windows_.insert({window.task(), platform_window});
   }

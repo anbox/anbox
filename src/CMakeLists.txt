@@ -136,14 +136,20 @@ set(SOURCES
     anbox/graphics/emugl/TimeUtils.cpp
     anbox/graphics/emugl/WindowSurface.cpp
 
+    anbox/audio/server.cpp
+    anbox/audio/client_info.h
+    anbox/audio/source.h
+    anbox/audio/sink.h
+
     anbox/wm/display.cpp
     anbox/wm/task.cpp
     anbox/wm/stack.cpp
     anbox/wm/manager.cpp
     anbox/wm/window_state.cpp
     anbox/wm/window.cpp
-    anbox/wm/platform_policy.cpp
-    anbox/wm/default_platform_policy.cpp
+
+    anbox/platform/policy.cpp
+    anbox/platform/default_policy.cpp
 
     anbox/input/manager.cpp
     anbox/input/device.cpp
@@ -168,6 +174,7 @@ set(SOURCES
     anbox/ubuntu/window.cpp
     anbox/ubuntu/keycode_converter.cpp
     anbox/ubuntu/platform_policy.cpp
+    anbox/ubuntu/audio_sink.cpp
 
     anbox/dbus/interface.h
     anbox/dbus/skeleton/service.cpp

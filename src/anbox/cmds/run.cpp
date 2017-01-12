@@ -20,6 +20,7 @@
 #include "core/posix/signal.h"
 
 #include "anbox/application/launcher_storage.h"
+#include "anbox/audio/server.h"
 #include "anbox/bridge/android_api_stub.h"
 #include "anbox/bridge/platform_api_skeleton.h"
 #include "anbox/bridge/platform_message_processor.h"
@@ -122,6 +123,8 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
 
     policy->set_renderer(gl_server->renderer());
 
+    auto audio_server = std::make_shared<audio::Server>(rt, policy);
+
     // The qemu pipe is used as a very fast communication channel between guest
     // and host for things like the GLES emulation/translation, the RIL or ADB.
     auto qemu_pipe_connector =
@@ -154,6 +157,7 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
     container_configuration.bind_mounts = {
         {qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"},
         {bridge_connector->socket_file(), "/dev/anbox_bridge"},
+        {audio_server->socket_file(), "/dev/anbox_audio"},
         {config::host_input_device_path(), "/dev/input"},
         {"/dev/binder", "/dev/binder"},
         {"/dev/ashmem", "/dev/ashmem"},

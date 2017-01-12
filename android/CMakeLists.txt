@@ -29,6 +29,10 @@ set(HWCOMPOSER_SOURCES
 
 add_library(hwcomposer.anbox SHARED ${HWCOMPOSER_SOURCES})
 
+set(AUDIO_SOURCES
+    audio/audio_hw.cpp)
+add_library(audio.goldfish SHARED ${AUDIO_SOURCES})
+
 # As we're adding Android specific bits in this project we can't
 # build this safely within default build anymore. We keep this
 # for easy integration into used IDEs.
@@ -36,5 +40,8 @@ set_target_properties(anboxd
     PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
 
 set_target_properties(hwcomposer.anbox
+    PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+
+set_target_properties(audio.goldfish
     PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
 

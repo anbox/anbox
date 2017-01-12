@@ -20,7 +20,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "anbox/wm/default_platform_policy.h"
+#include "anbox/platform/default_policy.h"
 #include "anbox/wm/manager.h"
 #include "anbox/wm/window_state.h"
 
@@ -43,7 +43,7 @@ TEST(LayerComposer, FindsNoSuitableWindowForLayer) {
 
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform_policy = std::make_shared<wm::DefaultPlatformPolicy>();
+  auto platform_policy = std::make_shared<platform::DefaultPolicy>();
   auto wm = std::make_shared<wm::Manager>(platform_policy);
 
   auto single_window = wm::WindowState{
@@ -76,7 +76,7 @@ TEST(LayerComposer, MapsLayersToWindows) {
 
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform_policy = std::make_shared<wm::DefaultPlatformPolicy>();
+  auto platform_policy = std::make_shared<platform::DefaultPolicy>();
   auto wm = std::make_shared<wm::Manager>(platform_policy);
 
   auto first_window = wm::WindowState{
@@ -135,7 +135,7 @@ TEST(LayerComposer, WindowPartiallyOffscreen) {
 
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform_policy = std::make_shared<wm::DefaultPlatformPolicy>();
+  auto platform_policy = std::make_shared<platform::DefaultPolicy>();
   auto wm = std::make_shared<wm::Manager>(platform_policy);
 
   auto window = wm::WindowState{
@@ -179,7 +179,7 @@ TEST(LayerComposer, PopupShouldNotCauseWindowLayerOffset) {
 
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform_policy = std::make_shared<wm::DefaultPlatformPolicy>();
+  auto platform_policy = std::make_shared<platform::DefaultPolicy>();
   auto wm = std::make_shared<wm::Manager>(platform_policy);
 
   auto window = wm::WindowState{

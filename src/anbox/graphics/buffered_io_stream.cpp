@@ -115,7 +115,7 @@ void BufferedIOStream::thread_main() {
     std::unique_lock<std::mutex> l(out_lock_);
 
     Buffer buffer;
-    auto result = out_queue_.pop_locked(&buffer, l);
+    const auto result = out_queue_.pop_locked(&buffer, l);
     if (result != 0 && result != -EAGAIN) break;
 
     auto bytes_left = buffer.size();

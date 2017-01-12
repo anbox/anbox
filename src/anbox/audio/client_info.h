@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
+ * Copyright (C) 2017 Simon Fels <morphis@gravedo.de>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -15,21 +15,22 @@
  *
  */
 
-#ifndef ANBOX_WM_DEFAULT_PLATFORM_POLICY_H_
-#define ANBOX_WM_DEFAULT_PLATFORM_POLICY_H_
+#ifndef ANBOX_AUDIO_CLIENT_INFO_H_
+#define ANBOX_AUDIO_CLIENT_INFO_H_
 
-#include "anbox/wm/platform_policy.h"
+#include <cstdint>
 
 namespace anbox {
-namespace wm {
-class DefaultPlatformPolicy : public PlatformPolicy {
- public:
-  DefaultPlatformPolicy();
-  std::shared_ptr<Window> create_window(
-      const anbox::wm::Task::Id &task,
-      const anbox::graphics::Rect &frame) override;
+namespace audio {
+struct ClientInfo {
+  enum class Type : std::uint8_t {
+    Playback = 0,
+    Recording = 1,
+    Max = 2,
+  };
+  Type type;
 };
-}  // namespace wm
-}  // namespace anbox
+} // namespace audio
+} // namespace anbox
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
+ * Copyright (C) 2017 Simon Fels <morphis@gravedo.de>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -15,25 +15,21 @@
  *
  */
 
-#ifndef ANBOX_WM_PLATFORM_POLICY_H_
-#define ANBOX_WM_PLATFORM_POLICY_H_
+#ifndef ANBOX_AUDIO_SINK_H_
+#define ANBOX_AUDIO_SINK_H_
 
-#include "anbox/graphics/rect.h"
-#include "anbox/wm/window_state.h"
+#include <cstdint>
 
-#include <memory>
+#include <vector>
 
 namespace anbox {
-namespace wm {
-class Window;
-class PlatformPolicy {
+namespace audio {
+class Sink {
  public:
-  virtual ~PlatformPolicy();
-
-  virtual std::shared_ptr<Window> create_window(
-      const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) = 0;
+  virtual ~Sink() {}
+  virtual void write_data(const std::vector<std::uint8_t> &data) = 0;
 };
-}  // namespace wm
-}  // namespace anbox
+} // namespace audio
+} // namespace anbox
 
 #endif
