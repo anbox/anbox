@@ -64,7 +64,13 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
       auto result = make_protobuf_object<protobuf::rpc::Result>();
       result->ParseFromArray(buffer_.data() + header_size, message_size);
 
-      if (result->has_id()) pending_calls_->complete_response(*result);
+      if (result->has_id()) {
+        pending_calls_->populate_message_for_result(*result,
+                                                    [&](google::protobuf::MessageLite *result_message) {
+                                                      result_message->ParseFromString(result->response());
+                                                    });
+        pending_calls_->complete_response(*result);
+      }
 
       for (int n = 0; n < result->events_size(); n++)
         process_event_sequence(result->events(n));
