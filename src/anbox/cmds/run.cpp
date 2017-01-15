@@ -146,7 +146,7 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
               android_api_stub->set_rpc_channel(rpc_channel);
 
               auto server = std::make_shared<bridge::PlatformApiSkeleton>(
-                  pending_calls, window_manager, launcher_storage);
+                  pending_calls, policy, window_manager, launcher_storage);
               server->register_boot_finished_handler(
                   [&]() { DEBUG("Android successfully booted"); });
               return std::make_shared<bridge::PlatformMessageProcessor>(

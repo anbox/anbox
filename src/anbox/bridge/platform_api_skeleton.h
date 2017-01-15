@@ -32,11 +32,15 @@ namespace rpc {
 class Void;
 }  // namespace rpc
 namespace bridge {
+class ClipboardData;
 class BootFinishedEvent;
 class WindowStateUpdateEvent;
 class ApplicationListUpdateEvent;
 }  // namespace bridge
 }  // namespace protobuf
+namespace platform {
+class Policy;
+} // namespace platform
 namespace rpc {
 class PendingCallCache;
 }  // namespace rpc
@@ -51,9 +55,17 @@ class PlatformApiSkeleton {
  public:
   PlatformApiSkeleton(
       const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
+      const std::shared_ptr<platform::Policy> &platform_policy,
       const std::shared_ptr<wm::Manager> &window_manager,
       const std::shared_ptr<application::LauncherStorage> &launcher_storage);
   virtual ~PlatformApiSkeleton();
+
+  void set_clipboard_data(anbox::protobuf::bridge::ClipboardData const *request,
+                          anbox::protobuf::rpc::Void *response,
+                          google::protobuf::Closure *done);
+  void get_clipboard_data(anbox::protobuf::rpc::Void const *request,
+                          anbox::protobuf::bridge::ClipboardData *response,
+                          google::protobuf::Closure *done);
 
   void handle_boot_finished_event(
       const anbox::protobuf::bridge::BootFinishedEvent &event);
@@ -66,6 +78,7 @@ class PlatformApiSkeleton {
 
  private:
   std::shared_ptr<rpc::PendingCallCache> pending_calls_;
+  std::shared_ptr<platform::Policy> platform_policy_;
   std::shared_ptr<wm::Manager> window_manager_;
   std::shared_ptr<application::LauncherStorage> launcher_storage_;
   std::function<void()> boot_finished_handler_;

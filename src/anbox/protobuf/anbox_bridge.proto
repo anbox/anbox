@@ -50,6 +50,13 @@ message ResizeTask {
     required Rect rect = 3;
 }
 
+message ClipboardData {
+    optional string text = 1;
+
+    optional string error = 127;
+    optional StructuredError structured_error = 128;
+}
+
 message BootFinishedEvent {
 }
 

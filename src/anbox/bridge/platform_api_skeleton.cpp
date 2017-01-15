@@ -17,9 +17,10 @@
 
 #include "anbox/bridge/platform_api_skeleton.h"
 #include "anbox/application/launcher_storage.h"
-#include "anbox/logger.h"
+#include "anbox/platform/policy.h"
 #include "anbox/wm/manager.h"
 #include "anbox/wm/window_state.h"
+#include "anbox/logger.h"
 
 #include "anbox_bridge.pb.h"
 
@@ -27,13 +28,39 @@ namespace anbox {
 namespace bridge {
 PlatformApiSkeleton::PlatformApiSkeleton(
     const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
+    const std::shared_ptr<platform::Policy> &platform_policy,
     const std::shared_ptr<wm::Manager> &window_manager,
     const std::shared_ptr<application::LauncherStorage> &launcher_storage)
     : pending_calls_(pending_calls),
+      platform_policy_(platform_policy),
       window_manager_(window_manager),
       launcher_storage_(launcher_storage) {}
 
 PlatformApiSkeleton::~PlatformApiSkeleton() {}
+
+
+void PlatformApiSkeleton::set_clipboard_data(anbox::protobuf::bridge::ClipboardData const *request,
+                                             anbox::protobuf::rpc::Void *response,
+                                             google::protobuf::Closure *done) {
+  (void)response;
+
+  if (request->has_text())
+    platform_policy_->set_clipboard_data(platform::Policy::ClipboardData{request->text()});
+
+  done->Run();
+}
+
+void PlatformApiSkeleton::get_clipboard_data(anbox::protobuf::rpc::Void const *request,
+                                             anbox::protobuf::bridge::ClipboardData *response,
+                                             google::protobuf::Closure *done) {
+  (void)request;
+
+  auto data = platform_policy_->get_clipboard_data();
+  if (!data.text.empty())
+    response->set_text(data.text);
+
+  done->Run();
+}
 
 void PlatformApiSkeleton::handle_boot_finished_event(
     const anbox::protobuf::bridge::BootFinishedEvent &event) {

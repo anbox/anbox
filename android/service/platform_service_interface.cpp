@@ -40,6 +40,18 @@ status_t BpPlatformService::update_application_list(const Parcel&) {
     return remote()->transact(IPlatformService::UPDATE_APPLICATION_LIST, data, &reply);
 }
 
+status_t BpPlatformService::set_clipboard_data(const Parcel&) {
+    Parcel data, reply;
+    data.writeInterfaceToken(IPlatformService::getInterfaceDescriptor());
+    return remote()->transact(IPlatformService::SET_CLIPBOARD_DATA, data, &reply);
+}
+
+status_t BpPlatformService::get_clipboard_data(const Parcel&, Parcel*) {
+    Parcel data, reply;
+    data.writeInterfaceToken(IPlatformService::getInterfaceDescriptor());
+    return remote()->transact(IPlatformService::GET_CLIPBOARD_DATA, data, &reply);
+}
+
 IMPLEMENT_META_INTERFACE(PlatformService, "org.anbox.IPlatformService");
 
 status_t BnPlatformService::onTransact(uint32_t code, const Parcel &data,
@@ -54,6 +66,12 @@ status_t BnPlatformService::onTransact(uint32_t code, const Parcel &data,
     case UPDATE_APPLICATION_LIST:
         CHECK_INTERFACE(IPlatformService, data, reply);
         return update_application_list(data);
+    case SET_CLIPBOARD_DATA:
+        CHECK_INTERFACE(IPlatformService, data, reply);
+        return set_clipboard_data(data);
+    case GET_CLIPBOARD_DATA:
+        CHECK_INTERFACE(IPlatformService, data, reply);
+        return get_clipboard_data(data, reply);
     default:
         break;
     }

@@ -32,7 +32,12 @@ PlatformMessageProcessor::PlatformMessageProcessor(
 
 PlatformMessageProcessor::~PlatformMessageProcessor() {}
 
-void PlatformMessageProcessor::dispatch(rpc::Invocation const &invocation) {}
+void PlatformMessageProcessor::dispatch(rpc::Invocation const &invocation) {
+  if (invocation.method_name() == "set_clipboard_data")
+    invoke(this, server_.get(), &PlatformApiSkeleton::set_clipboard_data, invocation);
+  else if (invocation.method_name() == "get_clipboard_data")
+    invoke(this, server_.get(), &PlatformApiSkeleton::get_clipboard_data, invocation);
+}
 
 void PlatformMessageProcessor::process_event_sequence(
     const std::string &raw_events) {

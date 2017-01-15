@@ -28,6 +28,8 @@ class DefaultPolicy : public Policy {
   std::shared_ptr<wm::Window> create_window(
       const anbox::wm::Task::Id &task,
       const anbox::graphics::Rect &frame) override;
+  void set_clipboard_data(const ClipboardData &data) override;
+  ClipboardData get_clipboard_data() override;
   std::shared_ptr<audio::Sink> create_audio_sink() override;
   std::shared_ptr<audio::Source> create_audio_source() override;
 };

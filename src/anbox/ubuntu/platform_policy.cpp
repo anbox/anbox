@@ -265,6 +265,25 @@ DisplayManager::DisplayInfo PlatformPolicy::display_info() const {
   return display_info_;
 }
 
+void PlatformPolicy::set_clipboard_data(const ClipboardData &data) {
+  if (data.text.empty())
+    return;
+  SDL_SetClipboardText(data.text.c_str());
+}
+
+PlatformPolicy::ClipboardData PlatformPolicy::get_clipboard_data() {
+  if (!SDL_HasClipboardText())
+    return ClipboardData{};
+
+  auto text = SDL_GetClipboardText();
+  if (!text)
+    return ClipboardData{};
+
+  auto data = ClipboardData{text};
+  SDL_free(text);
+  return data;
+}
+
 std::shared_ptr<audio::Sink> PlatformPolicy::create_audio_sink() {
   return std::make_shared<AudioSink>();
 }

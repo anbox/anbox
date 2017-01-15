@@ -29,6 +29,9 @@ namespace protobuf {
 namespace rpc {
 class Void;
 } // namespace rpc
+namespace bridge {
+class ClipboardData;
+} // namespace bridge
 } // namespace protobuf
 namespace rpc {
 class Channel;
@@ -80,17 +83,29 @@ public:
 
     void update_application_list(const ApplicationListUpdate &update);
 
+    struct ClipboardData {
+        std::string text;
+    };
+
+    void set_clipboard_data(const ClipboardData &data);
+    ClipboardData get_clipboard_data();
+
 private:
     template<typename Response>
     struct Request {
         Request() : response(std::make_shared<Response>()), success(true) { }
         std::shared_ptr<Response> response;
         bool success;
+        common::WaitHandle wh;
     };
 
-    mutable std::mutex mutex_;
+    void on_clipboard_data_set(Request<protobuf::rpc::Void> *request);
+    void on_clipboard_data_get(Request<protobuf::bridge::ClipboardData> *request);
 
+    mutable std::mutex mutex_;
     std::shared_ptr<rpc::Channel> rpc_channel_;
+
+    ClipboardData received_clipboard_data_;
 };
 } // namespace anbox
 

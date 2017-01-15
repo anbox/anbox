@@ -63,6 +63,9 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
 
   void set_renderer(const std::shared_ptr<Renderer> &renderer);
 
+  void set_clipboard_data(const ClipboardData &data) override;
+  ClipboardData get_clipboard_data() override;
+
   std::shared_ptr<audio::Sink> create_audio_sink() override;
   std::shared_ptr<audio::Source> create_audio_source() override;
 

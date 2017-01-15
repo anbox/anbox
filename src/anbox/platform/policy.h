@@ -39,6 +39,13 @@ class Policy {
   virtual std::shared_ptr<wm::Window> create_window(
       const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) = 0;
 
+  struct ClipboardData {
+    std::string text;
+  };
+
+  virtual void set_clipboard_data(const ClipboardData &data) = 0;
+  virtual ClipboardData get_clipboard_data() = 0;
+
   virtual std::shared_ptr<audio::Sink> create_audio_sink() = 0;
   virtual std::shared_ptr<audio::Source> create_audio_source() = 0;
 };

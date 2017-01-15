@@ -21,6 +21,9 @@
 #include "anbox_rpc.pb.h"
 #include "anbox_bridge.pb.h"
 
+#define LOG_TAG "Anboxd"
+#include <cutils/log.h>
+
 namespace anbox {
 PlatformApiStub::PlatformApiStub(const std::shared_ptr<rpc::Channel> &rpc_channel) :
     rpc_channel_(rpc_channel) {
@@ -86,5 +89,56 @@ void PlatformApiStub::update_application_list(const ApplicationListUpdate &updat
     }
 
     rpc_channel_->send_event(seq);
+}
+
+void PlatformApiStub::on_clipboard_data_set(Request<protobuf::rpc::Void> *request) {
+    request->wh.result_received();
+}
+
+void PlatformApiStub::set_clipboard_data(const ClipboardData &data) {
+    auto c = std::make_shared<Request<protobuf::rpc::Void>>();
+
+    protobuf::bridge::ClipboardData message;
+    message.set_text(data.text);
+
+    {
+      std::lock_guard<decltype(mutex_)> lock(mutex_);
+      c->wh.expect_result();
+    }
+
+    rpc_channel_->call_method("set_clipboard_data", &message, c->response.get(),
+                              google::protobuf::NewCallback(
+                                  this, &PlatformApiStub::on_clipboard_data_set, c.get()));
+
+    c->wh.wait_for_all();
+
+    if (c->response->has_error()) throw std::runtime_error(c->response->error());
+}
+
+void PlatformApiStub::on_clipboard_data_get(Request<protobuf::bridge::ClipboardData> *request) {
+    request->wh.result_received();
+}
+
+PlatformApiStub::ClipboardData PlatformApiStub::get_clipboard_data() {
+    auto c = std::make_shared<Request<protobuf::bridge::ClipboardData>>();
+
+    protobuf::rpc::Void message;
+
+    received_clipboard_data_ = ClipboardData{};
+
+    {
+      std::lock_guard<decltype(mutex_)> lock(mutex_);
+      c->wh.expect_result();
+    }
+
+    rpc_channel_->call_method("get_clipboard_data", &message, c->response.get(),
+                              google::protobuf::NewCallback(
+                                  this, &PlatformApiStub::on_clipboard_data_get, c.get()));
+
+    c->wh.wait_for_all();
+
+    if (c->response->has_error()) throw std::runtime_error(c->response->error());
+
+    return ClipboardData{c->response->text()};
 }
 } // namespace anbox

@@ -37,11 +37,15 @@ public:
         BOOT_FINISHED = IBinder::FIRST_CALL_TRANSACTION,
         UPDATE_WINDOW_STATE = IBinder::FIRST_CALL_TRANSACTION + 1,
         UPDATE_APPLICATION_LIST = IBinder::FIRST_CALL_TRANSACTION + 2,
+        SET_CLIPBOARD_DATA = IBinder::FIRST_CALL_TRANSACTION + 3,
+        GET_CLIPBOARD_DATA = IBinder::FIRST_CALL_TRANSACTION + 4,
     };
 
     virtual status_t boot_finished() = 0;
     virtual status_t update_window_state(const Parcel &data) = 0;
     virtual status_t update_application_list(const Parcel &data) = 0;
+    virtual status_t set_clipboard_data(const Parcel &data) = 0;
+    virtual status_t get_clipboard_data(const Parcel &data, Parcel *reply) = 0;
 };
 
 class BpPlatformService : public BpInterface<IPlatformService> {
@@ -51,6 +55,8 @@ public:
     status_t boot_finished() override;
     status_t update_window_state(const Parcel &data) override;
     status_t update_application_list(const Parcel &data) override;
+    status_t set_clipboard_data(const Parcel &data) override;
+    status_t get_clipboard_data(const Parcel &data, Parcel *reply) override;
 };
 
 class BnPlatformService : public BnInterface<IPlatformService> {

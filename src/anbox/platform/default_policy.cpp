@@ -37,6 +37,16 @@ std::shared_ptr<wm::Window> DefaultPolicy::create_window(
   return std::make_shared<::NullWindow>(task, frame);
 }
 
+void DefaultPolicy::set_clipboard_data(const ClipboardData &data) {
+  (void)data;
+  ERROR("Not implemented");
+}
+
+DefaultPolicy::ClipboardData DefaultPolicy::get_clipboard_data() {
+  ERROR("Not implemented");
+  return ClipboardData{};
+}
+
 std::shared_ptr<audio::Sink> DefaultPolicy::create_audio_sink() {
   ERROR("Not implemented");
   return nullptr;

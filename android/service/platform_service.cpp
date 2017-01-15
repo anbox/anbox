@@ -124,4 +124,25 @@ status_t PlatformService::update_application_list(const Parcel &data) {
 
     return OK;
 }
+
+status_t PlatformService::set_clipboard_data(const Parcel &data) {
+    if (data.readInt32() == 0)
+      return OK;
+    String8 text(data.readString16());
+    const auto clip_data = anbox::PlatformApiStub::ClipboardData{text.string()};
+    platform_api_stub_->set_clipboard_data(clip_data);
+    return OK;
+}
+
+status_t PlatformService::get_clipboard_data(const Parcel &data, Parcel *reply) {
+    (void) data;
+    const auto clip_data = platform_api_stub_->get_clipboard_data();
+    if (clip_data.text.empty()) {
+      reply->writeInt32(0);
+      return OK;
+    }
+    reply->writeInt32(1);
+    reply->writeString16(String16(clip_data.text.c_str(), clip_data.text.length()));
+    return OK;
+}
 } // namespace android
