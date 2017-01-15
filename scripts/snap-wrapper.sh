@@ -29,13 +29,4 @@ export LIBGL_DRIVERS_PATH=$SNAP/usr/lib/$ARCH/dri
 # ensure the snappy gl libs win
 export LD_LIBRARY_PATH="$SNAP_LIBRARY_PATH:$LD_LIBRARY_PATH"
 
-cd $SNAP
-
-if [ "$(id -u)" == "0" ] ; then
-	# Make sure our setup path for the container rootfs
-	# is present as lxc is statically configured for
-	# this path.
-	mkdir -p $SNAP_COMMON/lxc
-fi
-
 exec $SNAP/usr/bin/anbox $@
