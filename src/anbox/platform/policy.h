@@ -36,8 +36,7 @@ class Policy {
  public:
   virtual ~Policy();
 
-  virtual std::shared_ptr<wm::Window> create_window(
-      const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) = 0;
+  virtual std::shared_ptr<wm::Window> create_window(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame, const std::string &title) = 0;
 
   struct ClipboardData {
     std::string text;

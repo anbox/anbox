@@ -50,7 +50,8 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
   Window(const std::shared_ptr<Renderer> &renderer,
          const Id &id, const wm::Task::Id &task,
          const std::shared_ptr<Observer> &observer,
-         const graphics::Rect &frame);
+         const graphics::Rect &frame,
+         const std::string &title);
   ~Window();
 
   void process_event(const SDL_Event &event);

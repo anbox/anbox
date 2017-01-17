@@ -23,10 +23,6 @@
 
 #include <SDL_syswm.h>
 
-namespace {
-constexpr const char *default_window_name{"anbox"};
-}
-
 namespace anbox {
 namespace ubuntu {
 Window::Id Window::Invalid{-1};
@@ -36,15 +32,16 @@ Window::Observer::~Observer() {}
 Window::Window(const std::shared_ptr<Renderer> &renderer,
                const Id &id, const wm::Task::Id &task,
                const std::shared_ptr<Observer> &observer,
-               const graphics::Rect &frame)
-    : wm::Window(renderer, task, frame),
+               const graphics::Rect &frame,
+               const std::string &title)
+    : wm::Window(renderer, task, frame, title),
       id_(id),
       observer_(observer),
       native_display_(0),
       native_window_(0) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
 
-  window_ = SDL_CreateWindow(default_window_name, frame.left(), frame.top(),
+  window_ = SDL_CreateWindow(title.c_str(), frame.left(), frame.top(),
                              frame.width(), frame.height(),
                              SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
   if (!window_) {

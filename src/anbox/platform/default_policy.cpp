@@ -23,8 +23,9 @@ namespace {
 class NullWindow : public anbox::wm::Window {
  public:
   NullWindow(const anbox::wm::Task::Id &task,
-             const anbox::graphics::Rect &frame)
-      : anbox::wm::Window(nullptr, task, frame) {}
+             const anbox::graphics::Rect &frame,
+             const std::string &title)
+      : anbox::wm::Window(nullptr, task, frame, title) {}
 };
 }
 
@@ -33,8 +34,8 @@ namespace platform {
 DefaultPolicy::DefaultPolicy() {}
 
 std::shared_ptr<wm::Window> DefaultPolicy::create_window(
-    const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) {
-  return std::make_shared<::NullWindow>(task, frame);
+    const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame, const std::string &title) {
+  return std::make_shared<::NullWindow>(task, frame, title);
 }
 
 void DefaultPolicy::set_clipboard_data(const ClipboardData &data) {

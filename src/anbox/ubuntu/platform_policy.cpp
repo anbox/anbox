@@ -200,14 +200,14 @@ Window::Id PlatformPolicy::next_window_id() {
 }
 
 std::shared_ptr<wm::Window> PlatformPolicy::create_window(
-    const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame) {
+    const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame, const std::string &title) {
   if (!renderer_) {
     ERROR("Can't create window without a renderer set");
     return nullptr;
   }
 
   auto id = next_window_id();
-  auto w = std::make_shared<Window>(renderer_, id, task, shared_from_this(), frame);
+  auto w = std::make_shared<Window>(renderer_, id, task, shared_from_this(), frame, title);
   windows_.insert({id, w});
   return w;
 }

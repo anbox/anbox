@@ -60,8 +60,7 @@ void Manager::apply_window_state_update(const WindowState::List &updated,
       continue;
     }
 
-    auto platform_window =
-        platform_policy_->create_window(window.task(), window.frame());
+    auto platform_window = platform_policy_->create_window(window.task(), window.frame(), window.package_name());
     platform_window->attach();
     windows_.insert({window.task(), platform_window});
   }

@@ -50,7 +50,8 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
 
   std::shared_ptr<wm::Window> create_window(
       const anbox::wm::Task::Id &task,
-      const anbox::graphics::Rect &frame) override;
+      const anbox::graphics::Rect &frame,
+      const std::string &title) override;
 
   void window_deleted(const Window::Id &id) override;
   void window_wants_focus(const Window::Id &id) override;

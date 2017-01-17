@@ -21,8 +21,8 @@
 
 namespace anbox {
 namespace wm {
-Window::Window(const std::shared_ptr<Renderer> &renderer, const Task::Id &task, const graphics::Rect &frame)
-    : renderer_(renderer), task_(task), frame_(frame) {}
+Window::Window(const std::shared_ptr<Renderer> &renderer, const Task::Id &task, const graphics::Rect &frame, const std::string &title)
+    : renderer_(renderer), task_(task), frame_(frame), title_(title) {}
 
 Window::~Window() {}
 
@@ -41,6 +41,8 @@ Task::Id Window::task() const { return task_; }
 graphics::Rect Window::frame() const { return frame_; }
 
 EGLNativeWindowType Window::native_handle() const { return 0; }
+
+std::string Window::title() const { return title_; }
 
 bool Window::attach() {
   if (!renderer_)

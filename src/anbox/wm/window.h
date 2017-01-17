@@ -45,7 +45,7 @@ class Window {
  public:
   typedef std::vector<Window> List;
 
-  Window(const std::shared_ptr<Renderer> &renderer, const Task::Id &task, const graphics::Rect &frame);
+  Window(const std::shared_ptr<Renderer> &renderer, const Task::Id &task, const graphics::Rect &frame, const std::string &title);
   virtual ~Window();
 
   bool attach();
@@ -57,11 +57,13 @@ class Window {
   virtual EGLNativeWindowType native_handle() const;
   graphics::Rect frame() const;
   Task::Id task() const;
+  std::string title() const;
 
  private:
   std::shared_ptr<Renderer> renderer_;
   Task::Id task_;
   graphics::Rect frame_;
+  std::string title_;
 };
 }  // namespace wm
 }  // namespace anbox
