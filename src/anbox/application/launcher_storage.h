@@ -40,6 +40,7 @@ class LauncherStorage {
     std::vector<char> icon;
   };
 
+  void reset();
   void add(const Item &item);
 
  private:

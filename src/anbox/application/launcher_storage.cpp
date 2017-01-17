@@ -33,6 +33,14 @@ LauncherStorage::LauncherStorage(const fs::path &path,
 
 LauncherStorage::~LauncherStorage() {}
 
+void LauncherStorage::reset() {
+  if (fs::exists(path_))
+    fs::remove_all(path_);
+
+  if (fs::exists(icon_path_))
+    fs::remove_all(icon_path_);
+}
+
 void LauncherStorage::add(const Item &item) {
   if (!fs::exists(path_)) fs::create_directories(path_);
   if (!fs::exists(icon_path_)) fs::create_directories(icon_path_);

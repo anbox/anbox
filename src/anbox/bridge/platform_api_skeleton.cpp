@@ -99,6 +99,11 @@ void PlatformApiSkeleton::handle_window_state_update_event(
 
 void PlatformApiSkeleton::handle_application_list_update_event(
     const anbox::protobuf::bridge::ApplicationListUpdateEvent &event) {
+  // Remove all existing items to start from scratch for all
+  // applications. We may need to improve this in the future
+  // to guarantee correct integration into desktop environments
+  launcher_storage_->reset();
+
   for (int n = 0; n < event.applications_size(); n++) {
     application::LauncherStorage::Item item;
 
