@@ -61,7 +61,9 @@ void LayerComposer::submit_layers(const RenderableList &renderables) {
 
     for (auto &r : renderables) {
       const auto layer_area = r.screen_position().width() * r.screen_position().height();
-      if (layer_area < max_layer_area)
+      // We always prioritize layers which are lower in the list we got
+      // from SurfaceFlinger as they are already ordered.
+      if (layer_area <= max_layer_area)
         continue;
 
       max_layer_area = layer_area;
