@@ -21,7 +21,7 @@
 
 ReadBuffer::ReadBuffer(size_t bufsize) {
   m_size = bufsize;
-  m_buf = (unsigned char*)malloc(m_size * sizeof(unsigned char));
+  m_buf = static_cast<unsigned char*>(malloc(m_size * sizeof(unsigned char)));
   m_validData = 0;
   m_readPtr = m_buf;
 }
@@ -43,7 +43,7 @@ int ReadBuffer::getData(IOStream* stream) {
       new_size = INT_MAX;
     }
 
-    new_buf = (unsigned char*)realloc(m_buf, new_size);
+    new_buf = static_cast<unsigned char*>(realloc(m_buf, new_size));
     if (!new_buf) {
       ERR("Failed to alloc %zu bytes for ReadBuffer\n", new_size);
       return -1;

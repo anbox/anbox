@@ -24,9 +24,9 @@
 #define TRACE_CHECKSUMHELPER 0
 
 #if TRACE_CHECKSUMHELPER
-#define LOG_CHECKSUMHELPER(x...) fprintf(stderr, x)
+#define LOG_CHECKSUMHELPER(...) fprintf(stderr, __VA_ARGS__)
 #else
-#define LOG_CHECKSUMHELPER(x...)
+#define LOG_CHECKSUMHELPER(...)
 #endif
 
 // ChecksumCalculator adds checksum as an array of bytes to GL pipe communication, which

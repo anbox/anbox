@@ -44,7 +44,7 @@ public:
 
         if (!m_buf || len > m_bufsize) {
             int allocLen = m_bufsize < len ? len : m_bufsize;
-            m_buf = (unsigned char *)allocBuffer(allocLen);
+            m_buf = static_cast<unsigned char *>(allocBuffer(allocLen));
             if (!m_buf)
                 return NULL;
             m_bufsize = m_free = allocLen;

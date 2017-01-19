@@ -32,7 +32,7 @@ namespace {
 // implemented as unsigned integers. These convenience template functions
 // help casting between them safely without generating compiler warnings.
 inline void* SafePointerFromUInt(unsigned int handle) {
-  return (void*)(uintptr_t)(handle);
+  return reinterpret_cast<void*>(static_cast<uintptr_t>(handle));
 }
 
 inline unsigned int SafeUIntFromPointer(const void* ptr) {
@@ -40,7 +40,7 @@ inline unsigned int SafeUIntFromPointer(const void* ptr) {
   // Ignore the assert below to avoid crashing when running older
   // system images, which might have buggy encoder libraries. Print
   // an error message though.
-  if ((uintptr_t)(ptr) != (unsigned int)(uintptr_t)(ptr)) {
+  if (reinterpret_cast<uintptr_t>(ptr) != static_cast<unsigned int>(reinterpret_cast<uintptr_t>(ptr))) {
     fprintf(stderr, "EmuGL:WARNING: bad generic pointer %p\n", ptr);
   }
 #else
@@ -48,7 +48,7 @@ inline unsigned int SafeUIntFromPointer(const void* ptr) {
   // in an unsigned integer!
   assert((uintptr_t)(ptr) == (unsigned int)(uintptr_t)(ptr));
 #endif
-  return (unsigned int)(uintptr_t)(ptr);
+  return static_cast<unsigned int>(reinterpret_cast<uintptr_t>(ptr));
 }
 
 // Lazily create and bind a framebuffer object to the current host context.
@@ -181,11 +181,11 @@ ColorBuffer* ColorBuffer::create(EGLDisplay p_display, int p_width,
   if (has_eglimage_texture_2d) {
     cb->m_eglImage = s_egl.eglCreateImageKHR(
         p_display, s_egl.eglGetCurrentContext(), EGL_GL_TEXTURE_2D_KHR,
-        (EGLClientBuffer)SafePointerFromUInt(cb->m_tex), NULL);
+        reinterpret_cast<EGLClientBuffer>(SafePointerFromUInt(cb->m_tex)), NULL);
 
     cb->m_blitEGLImage = s_egl.eglCreateImageKHR(
         p_display, s_egl.eglGetCurrentContext(), EGL_GL_TEXTURE_2D_KHR,
-        (EGLClientBuffer)SafePointerFromUInt(cb->m_blitTex), NULL);
+        reinterpret_cast<EGLClientBuffer>(SafePointerFromUInt(cb->m_blitTex)), NULL);
   }
 
   cb->m_resizer = new TextureResize(p_width, p_height);

@@ -14,6 +14,9 @@
 * limitations under the License.
 */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wredundant-decls"
+
 typedef void (*logger_t)(const char* fmt, ...);
 extern logger_t emugl_logger;
 extern logger_t emugl_cxt_logger;
@@ -35,3 +38,5 @@ void set_emugl_cxt_logger(logger_t f);
 #else
 #define GL_LOG(...) 0
 #endif
+
+#pragma GCC diagnostic pop

@@ -26,7 +26,7 @@ anbox::cmds::ContainerManager::ContainerManager()
     : CommandWithFlagsAndAction{
           cli::Name{"container-manager"}, cli::Usage{"container-manager"},
           cli::Description{"Start the container manager service"}} {
-  action([](const cli::Command::Context& ctxt) {
+  action([](const cli::Command::Context&) {
     auto trap = core::posix::trap_signals_for_process(
         {core::posix::Signal::sig_term, core::posix::Signal::sig_int});
     trap->signal_raised().connect([trap](const core::posix::Signal& signal) {

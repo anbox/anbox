@@ -54,7 +54,7 @@ class RendererConfig {
 
   // Get the EGL_CONFIG_ID value. This is the same as the one of the
   // underlying host EGLConfig handle.
-  GLint getConfigId() const { return (GLint)getAttribValue(4); }
+  GLint getConfigId() const { return static_cast<GLint>(getAttribValue(4)); }
 
  private:
   RendererConfig();

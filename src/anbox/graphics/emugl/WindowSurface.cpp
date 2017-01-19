@@ -152,7 +152,7 @@ bool WindowSurface::resize(unsigned int p_width, unsigned int p_height) {
   // Create pbuffer surface.
   //
   const EGLint pbufAttribs[5] = {
-      EGL_WIDTH, (EGLint)p_width, EGL_HEIGHT, (EGLint)p_height, EGL_NONE,
+      EGL_WIDTH, static_cast<EGLint>(p_width), EGL_HEIGHT, static_cast<EGLint>(p_height), EGL_NONE,
   };
 
   mSurface = s_egl.eglCreatePbufferSurface(mDisplay, mConfig, pbufAttribs);

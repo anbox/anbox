@@ -57,6 +57,8 @@ std::string client_type_to_string(
       return "boot-animation";
     case anbox::qemu::PipeConnectionCreator::client_type::invalid:
       break;
+    default:
+      break;
   }
   return "unknown";
 }

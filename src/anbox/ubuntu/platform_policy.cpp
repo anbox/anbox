@@ -15,6 +15,8 @@
  *
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
 #include "anbox/ubuntu/platform_policy.h"
 #include "anbox/bridge/android_api_stub.h"
 #include "anbox/input/device.h"
@@ -28,6 +30,7 @@
 
 #include <signal.h>
 #include <sys/types.h>
+#pragma GCC diagnostic pop
 
 namespace anbox {
 namespace ubuntu {
@@ -122,6 +125,8 @@ void PlatformPolicy::process_events() {
         case SDL_KEYDOWN:
         case SDL_KEYUP:
           process_input_event(event);
+          break;
+        default:
           break;
       }
     }

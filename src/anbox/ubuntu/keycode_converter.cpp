@@ -14,8 +14,10 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
 #include "anbox/ubuntu/keycode_converter.h"
+#pragma GCC diagnostic pop
 
 #include <linux/input.h>
 

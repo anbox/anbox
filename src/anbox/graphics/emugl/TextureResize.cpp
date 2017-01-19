@@ -189,13 +189,7 @@ static void attachShaders(TextureResize::Framebuffer* fb,
 TextureResize::TextureResize(GLuint width, GLuint height)
     : mWidth(width),
       mHeight(height),
-      mFactor(1),
-      mFBWidth({
-          0,
-      }),
-      mFBHeight({
-          0,
-      }) {
+      mFactor(1) {
   s_gles2.glGenTextures(1, &mFBWidth.texture);
   s_gles2.glBindTexture(GL_TEXTURE_2D, mFBWidth.texture);
   s_gles2.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

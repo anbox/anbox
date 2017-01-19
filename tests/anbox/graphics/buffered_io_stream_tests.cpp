@@ -130,10 +130,11 @@ TEST(BufferedIOStream, ReadWithNoDataAvailable) {
     }
   });
 
-  size_t size{10};
+  constexpr size_t size{10};
   std::uint8_t read_data[size] = {0x0};
-  EXPECT_NE(nullptr, stream.read(read_data, &size));
-  EXPECT_EQ(2, size);
+  size_t read = 10;
+  EXPECT_NE(nullptr, stream.read(read_data, &read));
+  EXPECT_EQ(2, read);
   EXPECT_EQ(0x12, read_data[0]);
   EXPECT_EQ(0x34, read_data[1]);
 

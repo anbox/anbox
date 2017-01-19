@@ -37,5 +37,5 @@ void   glUtilsPackPointerData(unsigned char *dst, unsigned char *str,
 int glUtilsPixelBitSize(GLenum format, GLenum type);
 
 #ifdef __cplusplus
-};
+}
 #endif

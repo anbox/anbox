@@ -15,6 +15,8 @@
  *
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
 #include <boost/filesystem.hpp>
 
 #include "core/posix/signal.h"
@@ -46,6 +48,7 @@
 
 #include <core/dbus/asio/executor.h>
 #include <core/dbus/bus.h>
+#pragma GCC diagnostic pop
 
 namespace fs = boost::filesystem;
 
@@ -82,7 +85,7 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
                       cli::Description{"Icon of the application to run"},
                       icon_));
 
-  action([this](const cli::Command::Context &ctx) {
+  action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
         {core::posix::Signal::sig_term, core::posix::Signal::sig_int});
     trap->signal_raised().connect([trap](const core::posix::Signal &signal) {
