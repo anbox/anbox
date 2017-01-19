@@ -208,7 +208,7 @@ int cli::CommandWithFlagsAndAction::run(const Context& ctxt) {
 
     return action_(cli::Command::Context{
         ctxt.cin, ctxt.cout,
-        po::collect_unrecognized(parsed.options, po::exclude_positional)});
+        po::collect_unrecognized(parsed.options, po::include_positional)});
   } catch (const po::error& e) {
     ctxt.cout << e.what() << std::endl;
     help(ctxt.cout);
