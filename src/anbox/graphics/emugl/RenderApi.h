@@ -17,6 +17,10 @@
 #ifndef RENDER_API_H
 #define RENDER_API_H
 
+#include <string>
+
+#include <boost/filesystem/path.hpp>
+
 typedef void (*emugl_logger_func_t)(const char* fmt, ...);
 typedef void (*emugl_crash_func_t)(const char* format, ...);
 
@@ -28,7 +32,15 @@ typedef struct {
 namespace anbox {
 namespace graphics {
 namespace emugl {
-bool initialize(emugl_logger_struct log_funcs, emugl_crash_func_t crash_func);
+struct GLLibrary {
+  enum class Type { EGL, GLESv1, GLESv2 };
+  Type type;
+  boost::filesystem::path path;
+};
+
+std::vector<GLLibrary> default_gl_libraries();
+
+bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct log_funcs, emugl_crash_func_t crash_func);
 }  // namespace emugl
 }  // namespace graphics
 }  // namespace anbox

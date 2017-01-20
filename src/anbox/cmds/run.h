@@ -26,6 +26,8 @@
 
 #include <core/dbus/bus.h>
 
+#include "anbox/graphics/gl_renderer_server.h"
+
 namespace anbox {
 namespace cmds {
 class Run : public cli::CommandWithFlagsAndAction {
@@ -39,6 +41,7 @@ class Run : public cli::CommandWithFlagsAndAction {
  private:
   BusFactory bus_factory_;
   std::string desktop_file_hint_;
+  graphics::GLRendererServer::Config::Driver gles_driver_;
 };
 }  // namespace cmds
 }  // namespace anbox

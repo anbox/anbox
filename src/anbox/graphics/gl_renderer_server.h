@@ -34,7 +34,12 @@ namespace graphics {
 class LayerComposer;
 class GLRendererServer {
  public:
-  GLRendererServer(const std::shared_ptr<wm::Manager> &wm);
+  struct Config {
+    enum class Driver { Translator, Host };
+    Driver driver;
+  };
+
+  GLRendererServer(const Config &config, const std::shared_ptr<wm::Manager> &wm);
   ~GLRendererServer();
 
   std::shared_ptr<Renderer> renderer() const { return renderer_; }

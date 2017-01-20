@@ -25,7 +25,9 @@ extern EGLDispatch s_egl;
 
 static emugl::SharedLibrary *s_gles2_lib = NULL;
 
-#define DEFAULT_GLES_V2_LIB EMUGL_LIBNAME("GLES_V2_translator")
+namespace {
+constexpr const char *glesv2_lib_env_var{"ANDROID_GLESv2_LIB"};
+}
 
 // An unimplemented function which prints out an error message.
 // To make it consistent with the guest, all GLES2 functions not supported by
@@ -39,12 +41,13 @@ static void gles2_unimplemented() {
 // This function is called only once during initialiation before
 // any thread has been created - hence it should NOT be thread safe.
 //
-bool gles2_dispatch_init(GLESv2Dispatch* dispatch_table)
+bool gles2_dispatch_init(const char *path, GLESv2Dispatch *dispatch_table)
 {
-    const char *libName = getenv("ANDROID_GLESv2_LIB");
-    if (!libName) {
-        libName = DEFAULT_GLES_V2_LIB;
-    }
+    const char *libName = getenv(glesv2_lib_env_var);
+    if (!libName)
+      libName = path;
+    if (!libName)
+      return false;
 
     char error[256];
     s_gles2_lib = emugl::SharedLibrary::open(libName, error, sizeof(error));
@@ -66,6 +69,8 @@ bool gles2_dispatch_init(GLESv2Dispatch* dispatch_table)
             s_egl.eglGetProcAddress(#function_name));
 
     LIST_GLES2_FUNCTIONS(LOOKUP_SYMBOL,LOOKUP_EXT_SYMBOL)
+
+    dispatch_table->initialized = true;
 
     return true;
 }

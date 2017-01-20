@@ -63,6 +63,17 @@ class NullConnectionCreator : public anbox::network::ConnectionCreator<
     socket->close();
   }
 };
+
+std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Config::Driver& driver) {
+  std::string str(std::istreambuf_iterator<char>(in), {});
+  if (str.empty() || str == "translator")
+    driver = anbox::graphics::GLRendererServer::Config::Driver::Translator;
+  else if (str == "host")
+    driver = anbox::graphics::GLRendererServer::Config::Driver::Host;
+  else
+   BOOST_THROW_EXCEPTION(std::runtime_error("Invalid GLES driver value provided"));
+  return in;
+}
 }
 
 anbox::cmds::Run::BusFactory anbox::cmds::Run::session_bus_factory() {
@@ -81,6 +92,9 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
   flag(cli::make_flag(cli::Name{"desktop_file_hint"},
                       cli::Description{"Desktop file hint for QtMir/Unity8"},
                       desktop_file_hint_));
+  flag(cli::make_flag(cli::Name{"gles-driver"},
+                      cli::Description{"Which GLES driver to use. Possible values are 'host' or'translator'"},
+                      gles_driver_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -119,8 +133,8 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
         xdg::data().home() / "applications" / "anbox",
         xdg::data().home() / "anbox" / "icons");
 
-    auto gl_server =
-        std::make_shared<graphics::GLRendererServer>(window_manager);
+    auto gl_server = std::make_shared<graphics::GLRendererServer>(
+          graphics::GLRendererServer::Config{gles_driver_}, window_manager);
 
     policy->set_renderer(gl_server->renderer());
 

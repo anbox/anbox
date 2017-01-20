@@ -38,13 +38,16 @@ static void gles1_unimplemented() {
 // any thread has been created - hence it should NOT be thread safe.
 //
 
-#define DEFAULT_GLES_CM_LIB EMUGL_LIBNAME("GLES_CM_translator")
+namespace {
+constexpr const char *glesv1_lib_env_var{"ANBOX_GLESv1_LIB"};
+}
 
-bool gles1_dispatch_init(GLESv1Dispatch* dispatch_table) {
-    const char* libName = getenv("ANDROID_GLESv1_LIB");
-    if (!libName) {
-        libName = DEFAULT_GLES_CM_LIB;
-    }
+bool gles1_dispatch_init(const char *path, GLESv1Dispatch* dispatch_table) {
+    const char* libName = getenv(glesv1_lib_env_var);
+    if (!libName)
+      libName = path;
+    if (!libName)
+        return false;
 
     char error[256];
     s_gles1_lib = emugl::SharedLibrary::open(libName, error, sizeof(error));
@@ -66,6 +69,8 @@ bool gles1_dispatch_init(GLESv1Dispatch* dispatch_table) {
             s_egl.eglGetProcAddress(#function_name));
 
     LIST_GLES1_FUNCTIONS(LOOKUP_SYMBOL,LOOKUP_EXT_SYMBOL)
+
+    dispatch_table->initialized = true;
 
     return true;
 }
