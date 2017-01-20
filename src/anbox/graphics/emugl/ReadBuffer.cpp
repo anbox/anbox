@@ -17,7 +17,8 @@
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
-#include "ErrorLog.h"
+
+#include "anbox/logger.h"
 
 ReadBuffer::ReadBuffer(size_t bufsize) {
   m_size = bufsize;
@@ -45,7 +46,7 @@ int ReadBuffer::getData(IOStream* stream) {
 
     new_buf = static_cast<unsigned char*>(realloc(m_buf, new_size));
     if (!new_buf) {
-      ERR("Failed to alloc %zu bytes for ReadBuffer\n", new_size);
+      ERROR("Failed to alloc %zu bytes for ReadBuffer", new_size);
       return -1;
     }
     m_size = new_size;

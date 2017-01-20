@@ -21,7 +21,8 @@
 #include <vector>
 
 #include <stdio.h>
-#define ERR(...) fprintf(stderr, __VA_ARGS__)
+
+#include "anbox/logger.h"
 
 // M_PI isn't defined in C++ (when strict ISO compliance is enabled)
 #ifndef M_PI
@@ -120,7 +121,7 @@ TextureDraw::TextureDraw(EGLDisplay display)
   if (success == GL_FALSE) {
     GLchar messages[256];
     s_gles2.glGetProgramInfoLog(mProgram, sizeof(messages), 0, &messages[0]);
-    ERR("%s: Could not create/link program: %s\n", __FUNCTION__, messages);
+    ERROR("Could not create/link program: %s", messages);
     s_gles2.glDeleteProgram(mProgram);
     mProgram = 0;
     return;
@@ -151,7 +152,7 @@ TextureDraw::TextureDraw(EGLDisplay display)
 
 bool TextureDraw::draw(GLuint texture) {
   if (!mProgram) {
-    ERR("%s: no program\n", __FUNCTION__);
+    ERROR(" No program");
     return false;
   }
 
@@ -162,14 +163,14 @@ bool TextureDraw::draw(GLuint texture) {
   s_gles2.glUseProgram(mProgram);
   err = s_gles2.glGetError();
   if (err != GL_NO_ERROR) {
-    ERR("%s: Could not use program error=0x%x\n", __FUNCTION__, err);
+    ERROR("Could not use program error 0x%x", err);
   }
 
   // Setup the |position| attribute values.
   s_gles2.glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer);
   err = s_gles2.glGetError();
   if (err != GL_NO_ERROR) {
-    ERR("%s: Could not bind GL_ARRAY_BUFFER error=0x%x\n", __FUNCTION__, err);
+    ERROR("Could not bind GL_ARRAY_BUFFER error=0x%x", err);
   }
 
   s_gles2.glEnableVertexAttribArray(mPositionSlot);
@@ -177,8 +178,7 @@ bool TextureDraw::draw(GLuint texture) {
                                 sizeof(Vertex), 0);
   err = s_gles2.glGetError();
   if (err != GL_NO_ERROR) {
-    ERR("%s: Could glVertexAttribPointer with mPositionSlot error=0x%x\n",
-        __FUNCTION__, err);
+    ERROR("Could glVertexAttribPointer with mPositionSlot error 0x%x", err);
   }
 
   // Setup the |inCoord| attribute values.
@@ -199,7 +199,7 @@ bool TextureDraw::draw(GLuint texture) {
   if (validState == GL_FALSE) {
     GLchar messages[256];
     s_gles2.glGetProgramInfoLog(mProgram, sizeof(messages), 0, &messages[0]);
-    ERR("%s: Could not run program: %s\n", __FUNCTION__, messages);
+    ERROR("Could not run program: %s", messages);
     return false;
   }
 
@@ -207,14 +207,13 @@ bool TextureDraw::draw(GLuint texture) {
   s_gles2.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);
   err = s_gles2.glGetError();
   if (err != GL_NO_ERROR) {
-    ERR("%s: Could not glBindBuffer(GL_ELEMENT_ARRAY_BUFFER) error=0x%x\n",
-        __FUNCTION__, err);
+    ERROR("Could not glBindBuffer(GL_ELEMENT_ARRAY_BUFFER) error 0x%x", err);
   }
 
   s_gles2.glDrawElements(GL_TRIANGLES, kIndicesLen, GL_UNSIGNED_BYTE, 0);
   err = s_gles2.glGetError();
   if (err != GL_NO_ERROR) {
-    ERR("%s: Could not glDrawElements() error=0x%x\n", __FUNCTION__, err);
+    ERROR("Could not glDrawElements() error 0x%x", err);
   }
 
   // TODO(digit): Restore previous program state.

@@ -22,7 +22,8 @@
 #include <string>
 #include <utility>
 
-#define ERR(...) fprintf(stderr, __VA_ARGS__)
+#include "anbox/logger.h"
+
 #define MAX_FACTOR_POWER 4
 
 static const char kCommonShaderSource[] =
@@ -150,8 +151,7 @@ static GLuint createShader(GLenum type,
       s_gles2.glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLength);
       std::string infoLog(infoLength + 1, '\0');
       s_gles2.glGetShaderInfoLog(shader, infoLength, nullptr, &infoLog[0]);
-      ERR("%s shader compile failed:\n%s\n",
-          (type == GL_VERTEX_SHADER) ? "Vertex" : "Fragment", infoLog.c_str());
+      ERROR("%s shader compile failed: %s", (type == GL_VERTEX_SHADER) ? "Vertex" : "Fragment", infoLog.c_str());
       s_gles2.glDeleteShader(shader);
       shader = 0;
     }
@@ -264,7 +264,7 @@ GLuint TextureResize::update(GLuint texture) {
   // If there was an error while resizing, just use the unscaled texture.
   GLenum error = s_gles2.glGetError();
   if (error != GL_NO_ERROR) {
-    ERR("GL error while resizing: 0x%x (ignored)\n", error);
+    ERROR("GL error while resizing: 0x%x (ignored)", error);
     return texture;
   }
 
