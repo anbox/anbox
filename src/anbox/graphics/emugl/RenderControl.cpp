@@ -49,8 +49,8 @@ static EGLint rcGetEGLVersion(EGLint *major, EGLint *minor) {
   if (!renderer)
     return EGL_FALSE;
 
-  *major = (EGLint)renderer->getCaps().eglMajor;
-  *minor = (EGLint)renderer->getCaps().eglMinor;
+  *major = static_cast<EGLint>(renderer->getCaps().eglMajor);
+  *minor = static_cast<EGLint>(renderer->getCaps().eglMinor);
 
   return EGL_TRUE;
 }
@@ -69,7 +69,7 @@ static EGLint rcQueryEGLString(EGLenum name, void *buffer, EGLint bufferSize) {
     return -len;
   }
 
-  strcpy((char *)buffer, str);
+  strcpy(static_cast<char *>(buffer), str);
   return len;
 }
 
@@ -131,7 +131,7 @@ static EGLint rcGetNumConfigs(uint32_t *p_numAttribs) {
 }
 
 static EGLint rcGetConfigs(uint32_t bufSize, GLuint *buffer) {
-  GLuint bufferSize = (GLuint)bufSize;
+  GLuint bufferSize = static_cast<GLuint>(bufSize);
   return renderer->getConfigs()->packConfigs(bufferSize, buffer);
 }
 
@@ -140,8 +140,8 @@ static EGLint rcChooseConfig(EGLint *attribs, uint32_t attribs_size,
   if (!renderer || attribs_size == 0)
     return 0;
 
-  return renderer->getConfigs()->chooseConfig(attribs, (EGLint *)configs,
-                                              (EGLint)configs_size);
+  return renderer->getConfigs()->chooseConfig(attribs, reinterpret_cast<EGLint *>(configs),
+                                              static_cast<EGLint>(configs_size));
 }
 
 static EGLint rcGetFBParam(EGLint param) {
@@ -269,9 +269,9 @@ static EGLint rcMakeCurrent(uint32_t context, uint32_t drawSurf,
   return (ret ? EGL_TRUE : EGL_FALSE);
 }
 
-static void rcFBPost(uint32_t colorBuffer) { WARNING("Not implemented"); }
+static void rcFBPost(uint32_t) { WARNING("Not implemented"); }
 
-static void rcFBSetSwapInterval(EGLint interval) {
+static void rcFBSetSwapInterval(EGLint) {
   // XXX: TBD - should be implemented
 }
 
@@ -289,8 +289,8 @@ static void rcBindRenderbuffer(uint32_t colorBuffer) {
   renderer->bindColorBufferToRenderbuffer(colorBuffer);
 }
 
-static EGLint rcColorBufferCacheFlush(uint32_t colorBuffer, EGLint postCount,
-                                      int forRead) {
+static EGLint rcColorBufferCacheFlush(uint32_t, EGLint, 
+                                      int) {
   // XXX: TBD - should be implemented
   return 0;
 }
@@ -329,7 +329,7 @@ static int rcDestroyClientImage(uint32_t image) {
   return renderer->destroyClientImage(image);
 }
 
-static void rcSelectChecksumCalculator(uint32_t protocol, uint32_t reserved) {
+static void rcSelectChecksumCalculator(uint32_t protocol, uint32_t) {
   ChecksumCalculatorThreadInfo::setVersion(protocol);
 }
 

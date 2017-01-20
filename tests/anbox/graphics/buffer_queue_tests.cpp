@@ -124,7 +124,7 @@ class TestThread final {
   // Call end_pop() to get the command's result, as well as the popped
   // buffer if it is 0.
   bool start_pop() {
-    input_.send(Request{Cmd::Pop});
+    input_.send(Request{Cmd::Pop, Buffer{}});
     return true;
   }
 
@@ -140,12 +140,12 @@ class TestThread final {
 
   // Tell the test thread to close the queue from its side.
   void do_close() {
-    input_.send(Request{Cmd::Close});
+    input_.send(Request{Cmd::Close, Buffer{}});
   }
 
   // Tell the test thread to stop after completing its current command.
   void stop() {
-    input_.send(Request{Cmd::Stop});
+    input_.send(Request{Cmd::Stop, Buffer{}});
     thread_.join();
   }
 

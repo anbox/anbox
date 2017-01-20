@@ -58,8 +58,8 @@ class MessageProcessor : public network::MessageProcessor {
   void send_response(::google::protobuf::uint32 id,
                      google::protobuf::MessageLite* response);
 
-  virtual void dispatch(Invocation const& invocation) {}
-  virtual void process_event_sequence(const std::string& event) {}
+  virtual void dispatch(Invocation const&) {}
+  virtual void process_event_sequence(const std::string&) {}
 
  private:
   std::shared_ptr<network::MessageSender> sender_;

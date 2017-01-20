@@ -1,6 +1,8 @@
 #ifndef __gl_h_
 #define __gl_h_
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 /* $Revision: 10601 $ on $Date:: 2010-03-04 22:15:27 -0800 #$ */
 
 #include <GLES/glplatform.h>
@@ -765,6 +767,8 @@ GL_API void GL_APIENTRY glPointSizePointerOES (GLenum type, GLsizei stride, cons
 #ifdef __cplusplus
 }
 #endif
+
+#pragma GCC diagnostic pop
 
 #endif /* __gl_h_ */
 

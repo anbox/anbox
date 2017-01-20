@@ -101,7 +101,7 @@ static char *getGLES1ExtensionString(EGLDisplay p_dpy) {
     return NULL;
   }
 
-  DBG("%s: Found config %p\n", __FUNCTION__, (void *)config);
+  DBG("%s: Found config %p\n", __FUNCTION__, reinterpret_cast<void *>(config));
 
   static const EGLint pbufAttribs[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
 
@@ -130,7 +130,7 @@ static char *getGLES1ExtensionString(EGLDisplay p_dpy) {
   }
 
   // the string pointer may become invalid when the context is destroyed
-  const char *s = (const char *)s_gles1.glGetString(GL_EXTENSIONS);
+  const char *s = reinterpret_cast<const char *>(s_gles1.glGetString(GL_EXTENSIONS));
   char *extString = strdup(s ? s : "");
 
   s_egl.eglMakeCurrent(p_dpy, NULL, NULL, NULL);
@@ -273,7 +273,7 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   if (has_gl_oes_image) {
     has_gl_oes_image &= strstr(gles1Extensions, "GL_OES_EGL_image") != NULL;
   }
-  free((void *)gles1Extensions);
+  free(gles1Extensions);
   gles1Extensions = NULL;
 
   const char *eglExtensions =
@@ -351,9 +351,9 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   // Cache the GL strings so we don't have to think about threading or
   // current-context when asked for them.
   //
-  m_glVendor = (const char *)s_gles2.glGetString(GL_VENDOR);
-  m_glRenderer = (const char *)s_gles2.glGetString(GL_RENDERER);
-  m_glVersion = (const char *)s_gles2.glGetString(GL_VERSION);
+  m_glVendor = reinterpret_cast<const char *>(s_gles2.glGetString(GL_VENDOR));
+  m_glRenderer = reinterpret_cast<const char *>(s_gles2.glGetString(GL_RENDERER));
+  m_glVersion = reinterpret_cast<const char *>(s_gles2.glGetString(GL_VERSION));
 
   m_textureDraw = new TextureDraw(m_eglDisplay);
   if (!m_textureDraw) {
@@ -831,7 +831,7 @@ HandleType Renderer::createClientImage(HandleType context, EGLenum target,
       s_egl.eglCreateImageKHR(m_eglDisplay, eglContext, target,
                               reinterpret_cast<EGLClientBuffer>(buffer), NULL);
 
-  return (HandleType) reinterpret_cast<uintptr_t>(image);
+  return static_cast<HandleType>(reinterpret_cast<uintptr_t>(image));
 }
 
 EGLBoolean Renderer::destroyClientImage(HandleType image) {
@@ -1022,7 +1022,9 @@ void Renderer::draw(RendererWindow *window, const Renderable &renderable,
   s_gles2.glEnableVertexAttribArray(prog.texcoord_attr);
 
   m_primitives.clear();
-  tessellate(m_primitives, {cb->getWidth(), cb->getHeight()}, renderable);
+  tessellate(m_primitives, {
+             static_cast<int32_t>(cb->getWidth()),
+             static_cast<int32_t>(cb->getHeight())}, renderable);
 
   for (auto const &p : m_primitives) {
     cb->bind();

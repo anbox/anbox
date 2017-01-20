@@ -25,7 +25,7 @@ namespace common {
 struct FreeDelete {
   template <class T>
   void operator()(T ptr) const {
-    free((void*)ptr);
+    free(ptr);
   }
 };
 

@@ -15,6 +15,8 @@
  *
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
 #include "anbox/ubuntu/window.h"
 #include "anbox/logger.h"
 #include "anbox/wm/window_state.h"
@@ -22,6 +24,7 @@
 #include <boost/throw_exception.hpp>
 
 #include <SDL_syswm.h>
+#pragma GCC diagnostic pop
 
 namespace anbox {
 namespace ubuntu {
@@ -92,6 +95,8 @@ void Window::process_event(const SDL_Event &event) {
       break;
     case SDL_WINDOWEVENT_CLOSE:
       if (observer_) observer_->window_deleted(id_);
+      break;
+    default:
       break;
   }
 }

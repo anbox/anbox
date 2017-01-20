@@ -72,7 +72,7 @@ void AudioSink::disconnect_audio() {
 void AudioSink::read_data(std::uint8_t *buffer, int size) {
   std::unique_lock<std::mutex> l(lock_);
   const auto wanted = size;
-  size_t count = 0;
+  int count = 0;
   auto dst = buffer;
 
   while (count < wanted) {

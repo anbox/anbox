@@ -90,7 +90,7 @@ RendererConfigList::RendererConfigList(EGLDisplay display)
     : mCount(0), mConfigs(NULL), mDisplay(display) {
   if (display == EGL_NO_DISPLAY) {
     E("%s: Invalid display value %p (EGL_NO_DISPLAY)\n", __FUNCTION__,
-      (void*)display);
+      reinterpret_cast<void*>(display));
     return;
   }
 
@@ -199,7 +199,7 @@ int RendererConfigList::chooseConfig(const EGLint* attribs, EGLint* configs,
       if (guestConfigId == hostConfigId) {
         // There is a match. Write it to |configs| if it is not NULL.
         if (configs && result < configsSize) {
-          configs[result] = (uint32_t)k;
+          configs[result] = static_cast<uint32_t>(k);
         }
         result++;
         break;

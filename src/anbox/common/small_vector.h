@@ -207,7 +207,7 @@ class SmallVector {
   void set_capacity(size_type newCap) {
     // Here we can only be switching to the dynamic vector, as static one
     // always has its capacity on the maximum.
-    const auto newBegin = (T*)malloc(sizeof(T) * newCap);
+    const auto newBegin = static_cast<T*>(malloc(sizeof(T) * newCap));
     if (!newBegin) {
       abort();  // what else can we do here?
     }
@@ -235,7 +235,7 @@ class SmallVector {
   // This function returns that address, and SmallFixedVector<> has a static
   // assert to make sure it remains correct.
   constexpr const void* smallBufferStart() const {
-    return (const void*)(&mCapacity + 1);
+    return static_cast<const void*>(&mCapacity + 1);
   }
 
   // Standard set of members for a vector - begin, end and capacity.
@@ -267,14 +267,6 @@ class SmallFixedVector : public SmallVector<T> {
   // Default constructor - set up an empty vector with capacity at full
   // internal array size.
   SmallFixedVector() {
-    // Make sure that the small array starts exactly where base class
-    // expects it: right after the |mCapacity|.
-    static_assert(offsetof(base, mCapacity) + sizeof(base::mCapacity) ==
-                          offsetof(SmallFixedVector, mData) &&
-                      offsetof(Data, array) == 0,
-                  "SmallFixedVector<> class layout is wrong, "
-                  "|mData| needs to follow |mCapacity|");
-
     init_inplace();
   }
 
