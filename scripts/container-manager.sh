@@ -81,12 +81,18 @@ start() {
 	# possible. See snapcraft.yaml for further details.
 	$SNAP/bin/anbox-bridge.sh start
 
-	kversion=`uname -r`
-	if [ ! -e $SNAP_COMMON/kernel-$kversion ]; then
-		build_kernel_modules $kversion
+	# Building and loading the necessary kernel modules is only possible
+	# on Ubuntu 16.04 (xenial)
+	if [ -e /var/lib/snapd/hostfs/etc/os-release ]; then
+		. /var/lib/snapd/hostfs/etc/os-release
+		if [ $UBUNTU_CODENAME = xenial ]; then
+			kversion=`uname -r`
+			if [ ! -e $SNAP_COMMON/kernel-$kversion ]; then
+				build_kernel_modules $kversion
+			fi
+			load_kernel_modules
+		fi
 	fi
-
-	load_kernel_modules
 
 	# Ensure FUSE support for user namespaces is enabled
 	echo Y > /sys/module/fuse/parameters/userns_mounts
