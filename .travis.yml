@@ -1,0 +1,9 @@
+language: cpp
+os: linux
+sudo: required
+
+services:
+  - docker
+
+script:
+  - scripts/build-with-docker.sh
