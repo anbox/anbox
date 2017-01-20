@@ -14,8 +14,6 @@
 * limitations under the License.
 */
 #include "WindowSurface.h"
-
-#include "ErrorLog.h"
 #include "RendererConfig.h"
 
 #include "OpenGLESDispatch/EGLDispatch.h"
@@ -24,6 +22,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "anbox/logger.h"
 
 WindowSurface::WindowSurface(EGLDisplay display, EGLConfig config)
     : mSurface(NULL),
@@ -94,12 +94,12 @@ bool WindowSurface::flushColorBuffer() {
   if (mAttachedColorBuffer->getWidth() != mWidth ||
       mAttachedColorBuffer->getHeight() != mHeight) {
     // XXX: should never happen - how this needs to be handled?
-    fprintf(stderr, "Dimensions do not match\n");
+    ERROR("Dimensions do not match");
     return false;
   }
 
   if (!mDrawContext.Ptr()) {
-    fprintf(stderr, "Draw context is NULL\n");
+    ERROR("Draw context is NULL");
     return false;
   }
 
@@ -110,7 +110,7 @@ bool WindowSurface::flushColorBuffer() {
 
   if (!s_egl.eglMakeCurrent(mDisplay, mSurface, mSurface,
                             mDrawContext->getEGLContext())) {
-    fprintf(stderr, "Error making draw context current\n");
+    ERROR("Failed to make draw context current");
     return false;
   }
 
@@ -140,24 +140,20 @@ bool WindowSurface::resize(unsigned int p_width, unsigned int p_height) {
                          EGL_NO_CONTEXT);
   }
 
-  //
-  // Destroy previous surface
-  //
   if (mSurface) {
     s_egl.eglDestroySurface(mDisplay, mSurface);
     mSurface = NULL;
   }
 
-  //
-  // Create pbuffer surface.
-  //
   const EGLint pbufAttribs[5] = {
-      EGL_WIDTH, static_cast<EGLint>(p_width), EGL_HEIGHT, static_cast<EGLint>(p_height), EGL_NONE,
+      EGL_WIDTH, static_cast<EGLint>(p_width),
+      EGL_HEIGHT, static_cast<EGLint>(p_height),
+      EGL_NONE,
   };
 
   mSurface = s_egl.eglCreatePbufferSurface(mDisplay, mConfig, pbufAttribs);
   if (mSurface == EGL_NO_SURFACE) {
-    fprintf(stderr, "Renderer error: failed to create/resize pbuffer!!\n");
+    ERROR("Failed to create/resize pbuffer");
     return false;
   }
 

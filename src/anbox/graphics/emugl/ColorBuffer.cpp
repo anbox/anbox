@@ -22,7 +22,7 @@
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
-#include "ErrorLog.h"
+#include "anbox/logger.h"
 
 #include <stdio.h>
 
@@ -41,7 +41,7 @@ inline unsigned int SafeUIntFromPointer(const void* ptr) {
   // system images, which might have buggy encoder libraries. Print
   // an error message though.
   if (reinterpret_cast<uintptr_t>(ptr) != static_cast<unsigned int>(reinterpret_cast<uintptr_t>(ptr))) {
-    fprintf(stderr, "EmuGL:WARNING: bad generic pointer %p\n", ptr);
+    WARNING("Bad generic pointer %p", ptr);
   }
 #else
   // Assertion error if the pointer contains a value that does not fit
@@ -69,7 +69,7 @@ bool bindFbo(GLuint* fbo, GLuint tex) {
                                  GL_TEXTURE_2D, tex, 0);
   GLenum status = s_gles2.glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE_OES) {
-    ERR("ColorBuffer::bindFbo: FBO not complete: %#x\n", status);
+    ERROR("FBO not complete: %#x", status);
     s_gles2.glBindFramebuffer(GL_FRAMEBUFFER, 0);
     s_gles2.glDeleteFramebuffers(1, fbo);
     *fbo = 0;

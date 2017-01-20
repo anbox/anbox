@@ -19,10 +19,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "anbox/logger.h"
+
 namespace {
-
-#define E(...) fprintf(stderr, __VA_ARGS__)
-
 const GLuint kConfigAttributes[] = {
     EGL_DEPTH_SIZE,       // must be first - see getDepthSize()
     EGL_STENCIL_SIZE,     // must be second - see getStencilSize()
@@ -65,7 +64,6 @@ bool isCompatibleHostConfig(EGLConfig config, EGLDisplay display) {
 
   return true;
 }
-
 }  // namespace
 
 RendererConfig::~RendererConfig() { delete[] mAttribValues; }
@@ -89,14 +87,13 @@ RendererConfig::RendererConfig(EGLConfig hostConfig, EGLDisplay hostDisplay)
 RendererConfigList::RendererConfigList(EGLDisplay display)
     : mCount(0), mConfigs(NULL), mDisplay(display) {
   if (display == EGL_NO_DISPLAY) {
-    E("%s: Invalid display value %p (EGL_NO_DISPLAY)\n", __FUNCTION__,
-      reinterpret_cast<void*>(display));
+    ERROR("Invalid display value %p (EGL_NO_DISPLAY)", reinterpret_cast<void*>(display));
     return;
   }
 
   EGLint numHostConfigs = 0;
   if (!s_egl.eglGetConfigs(display, NULL, 0, &numHostConfigs)) {
-    E("%s: Could not get number of host EGL configs\n", __FUNCTION__);
+    ERROR("Could not get number of host EGL config");
     return;
   }
   EGLConfig* hostConfigs = new EGLConfig[numHostConfigs];
@@ -126,7 +123,7 @@ int RendererConfigList::chooseConfig(const EGLint* attribs, EGLint* configs,
                                      EGLint configsSize) const {
   EGLint numHostConfigs = 0;
   if (!s_egl.eglGetConfigs(mDisplay, NULL, 0, &numHostConfigs)) {
-    E("%s: Could not get number of host EGL configs\n", __FUNCTION__);
+    ERROR("Could not get number of host EGL configs");
     return 0;
   }
 

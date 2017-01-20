@@ -23,11 +23,7 @@
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
-#include "emugl/common/logging.h"
-
 #include "anbox/logger.h"
-
-#include "ErrorLog.h"
 
 #include <stdio.h>
 
@@ -97,17 +93,15 @@ static char *getGLES1ExtensionString(EGLDisplay p_dpy) {
 
   int n;
   if (!s_egl.eglChooseConfig(p_dpy, configAttribs, &config, 1, &n) || n == 0) {
-    ERR("%s: Could not find GLES 1.x config!\n", __FUNCTION__);
+    ERROR("%s: Could not find GLES 1.x config!", __FUNCTION__);
     return NULL;
   }
-
-  DBG("%s: Found config %p\n", __FUNCTION__, reinterpret_cast<void *>(config));
 
   static const EGLint pbufAttribs[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
 
   surface = s_egl.eglCreatePbufferSurface(p_dpy, config, pbufAttribs);
   if (surface == EGL_NO_SURFACE) {
-    ERR("%s: Could not create GLES 1.x Pbuffer!\n", __FUNCTION__);
+    ERROR("%s: Could not create GLES 1.x Pbuffer!", __FUNCTION__);
     return NULL;
   }
 
@@ -117,13 +111,13 @@ static char *getGLES1ExtensionString(EGLDisplay p_dpy) {
   EGLContext ctx = s_egl.eglCreateContext(p_dpy, config, EGL_NO_CONTEXT,
                                           gles1ContextAttribs);
   if (ctx == EGL_NO_CONTEXT) {
-    ERR("%s: Could not create GLES 1.x Context!\n", __FUNCTION__);
+    ERROR("%s: Could not create GLES 1.x Context!", __FUNCTION__);
     s_egl.eglDestroySurface(p_dpy, surface);
     return NULL;
   }
 
   if (!s_egl.eglMakeCurrent(p_dpy, surface, surface, ctx)) {
-    ERR("%s: Could not make GLES 1.x context current!\n", __FUNCTION__);
+    ERROR("%s: Could not make GLES 1.x context current!", __FUNCTION__);
     s_egl.eglDestroySurface(p_dpy, surface);
     s_egl.eglDestroyContext(p_dpy, ctx);
     return NULL;
@@ -151,61 +145,41 @@ void Renderer::finalize() {
 }
 
 bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
-  GL_LOG("Renderer::initialize");
-
-  //
-  // Initialize backend EGL display
-  //
   m_eglDisplay = s_egl.eglGetDisplay(nativeDisplay);
   if (m_eglDisplay == EGL_NO_DISPLAY) {
-    ERR("Failed to Initialize backend EGL display\n");
+    ERROR("Failed to Initialize backend EGL display");
     return false;
   }
 
-  GL_LOG("call eglInitialize");
-  if (!s_egl.eglInitialize(m_eglDisplay, &m_caps.eglMajor,
-                           &m_caps.eglMinor)) {
-    ERR("Failed to eglInitialize\n");
-    GL_LOG("Failed to eglInitialize");
+  if (!s_egl.eglInitialize(m_eglDisplay, &m_caps.eglMajor, &m_caps.eglMinor)) {
+    ERROR("Failed to initialize EGL");
     return false;
   }
 
-  DBG("egl: %d %d\n", m_caps.eglMajor, m_caps.eglMinor);
-  GL_LOG("egl: %d %d", m_caps.eglMajor, m_caps.eglMinor);
   s_egl.eglBindAPI(EGL_OPENGL_ES_API);
 
-  //
-  // if GLES2 plugin has loaded - try to make GLES2 context and
+  // If GLES2 plugin was loaded - try to make GLES2 context and
   // get GLES2 extension string
-  //
   char *gles1Extensions = NULL;
   gles1Extensions = getGLES1ExtensionString(m_eglDisplay);
   if (!gles1Extensions) {
-    // Could not create GLES2 context - drop GL2 capability
-    ERR("Failed to obtain GLES 2.x extensions string!\n");
+    ERROR("Failed to obtain GLES 2.x extensions string!");
     return false;
   }
 
-  //
   // Create EGL context for framebuffer post rendering.
-  //
   GLint surfaceType = EGL_WINDOW_BIT | EGL_PBUFFER_BIT;
-  const GLint configAttribs[] = {EGL_RED_SIZE,
-                                 1,
-                                 EGL_GREEN_SIZE,
-                                 1,
-                                 EGL_BLUE_SIZE,
-                                 1,
-                                 EGL_SURFACE_TYPE,
-                                 surfaceType,
-                                 EGL_RENDERABLE_TYPE,
-                                 EGL_OPENGL_ES2_BIT,
+  const GLint configAttribs[] = {EGL_RED_SIZE, 1,
+                                 EGL_GREEN_SIZE, 1,
+                                 EGL_BLUE_SIZE, 1,
+                                 EGL_SURFACE_TYPE, surfaceType,
+                                 EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
                                  EGL_NONE};
 
   int n;
   if (!s_egl.eglChooseConfig(m_eglDisplay, configAttribs, &m_eglConfig,
                              1, &n)) {
-    ERR("Failed on eglChooseConfig\n");
+    ERROR("Failed to select EGL configuration");
     free(gles1Extensions);
     return false;
   }
@@ -213,66 +187,50 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   static const GLint glContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2,
                                            EGL_NONE};
 
-  GL_LOG("attempting to create egl context");
   m_eglContext = s_egl.eglCreateContext(m_eglDisplay, m_eglConfig,
                                         EGL_NO_CONTEXT, glContextAttribs);
   if (m_eglContext == EGL_NO_CONTEXT) {
-    ERR("Failed to create context 0x%x\n", s_egl.eglGetError());
+    ERROR("Failed to create context: error=0x%x", s_egl.eglGetError());
     free(gles1Extensions);
     return false;
   }
 
-  GL_LOG("attempting to create egl pbuffer context");
-  //
   // Create another context which shares with the eglContext to be used
   // when we bind the pbuffer. That prevent switching drawable binding
   // back and forth on framebuffer context.
   // The main purpose of it is to solve a "blanking" behaviour we see on
   // on Mac platform when switching binded drawable for a context however
   // it is more efficient on other platforms as well.
-  //
   m_pbufContext = s_egl.eglCreateContext(
       m_eglDisplay, m_eglConfig, m_eglContext, glContextAttribs);
   if (m_pbufContext == EGL_NO_CONTEXT) {
-    ERR("Failed to create Pbuffer Context 0x%x\n", s_egl.eglGetError());
+    ERROR("Failed to create pbuffer context: error=0x%x", s_egl.eglGetError());
     free(gles1Extensions);
     return false;
   }
 
-  GL_LOG("context creation successful");
-  //
-  // create a 1x1 pbuffer surface which will be used for binding
-  // the FB context.
-  // The FB output will go to a subwindow, if one exist.
-  //
+  // Create a 1x1 pbuffer surface which will be used for binding
+  // the FB context. The FB output will go to a subwindow, if one exist.
   static const EGLint pbufAttribs[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
 
   m_pbufSurface = s_egl.eglCreatePbufferSurface(
       m_eglDisplay, m_eglConfig, pbufAttribs);
   if (m_pbufSurface == EGL_NO_SURFACE) {
-    ERR("Failed to create pbuf surface for FB 0x%x\n", s_egl.eglGetError());
+    ERROR("Failed to create pbuffer surface: error=0x%x", s_egl.eglGetError());
     free(gles1Extensions);
     return false;
   }
 
-  GL_LOG("attempting to make context current");
   // Make the context current
   ScopedBind bind(this);
   if (!bind.isValid()) {
-    ERR("Failed to make current\n");
+    ERROR("Failed to make current");
     free(gles1Extensions);
     return false;
   }
-  GL_LOG("context-current successful");
 
   // Initilize framebuffer capabilities
-  bool has_gl_oes_image = false;
-
-  has_gl_oes_image = true;
-
-  if (has_gl_oes_image) {
-    has_gl_oes_image &= strstr(gles1Extensions, "GL_OES_EGL_image") != NULL;
-  }
+  auto has_gl_oes_image = strstr(gles1Extensions, "GL_OES_EGL_image") != NULL;
   free(gles1Extensions);
   gles1Extensions = NULL;
 
@@ -289,32 +247,25 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
     m_caps.has_eglimage_renderbuffer = false;
   }
 
-  //
   // Fail initialization if not all of the following extensions
   // exist:
   //     EGL_KHR_gl_texture_2d_image
   //     GL_OES_EGL_IMAGE (by both GLES implementations [1 and 2])
-  //
   if (!m_caps.has_eglimage_texture_2d) {
-    ERR("Failed: Missing egl_image related extension(s)\n");
+    ERROR("Failed: Missing egl_image related extension(s)");
     bind.release();
     return false;
   }
 
-  GL_LOG("host system has enough extensions");
-  //
   // Initialize set of configs
-  //
   m_configs = new RendererConfigList(m_eglDisplay);
   if (m_configs->empty()) {
-    ERR("Failed: Initialize set of configs\n");
+    ERROR("Failed: Initialize set of configs");
     bind.release();
     return false;
   }
 
-  //
   // Check that we have config for each GLES and GLES2
-  //
   size_t nConfigs = m_configs->size();
   int nGLConfigs = 0;
   int nGL2Configs = 0;
@@ -328,36 +279,28 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
     }
   }
 
-  //
   // Fail initialization if no GLES configs exist
-  //
   if (nGLConfigs == 0) {
     bind.release();
     return false;
   }
 
-  //
   // If no GLES2 configs exist - not GLES2 capability
-  //
   if (nGL2Configs == 0) {
-    ERR("Failed: No GLES 2.x configs found!\n");
+    ERROR("Failed: No GLES 2.x configs found!");
     bind.release();
     return false;
   }
 
-  GL_LOG("There are sufficient EGLconfigs available");
-
-  //
   // Cache the GL strings so we don't have to think about threading or
   // current-context when asked for them.
-  //
   m_glVendor = reinterpret_cast<const char *>(s_gles2.glGetString(GL_VENDOR));
   m_glRenderer = reinterpret_cast<const char *>(s_gles2.glGetString(GL_RENDERER));
   m_glVersion = reinterpret_cast<const char *>(s_gles2.glGetString(GL_VERSION));
 
   m_textureDraw = new TextureDraw(m_eglDisplay);
   if (!m_textureDraw) {
-    ERR("Failed: creation of TextureDraw instance\n");
+    ERROR("Failed: creation of TextureDraw instance");
     bind.release();
     return false;
   }
@@ -365,10 +308,9 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   m_defaultProgram = m_family.add_program(vshader, defaultFShader);
   m_alphaProgram = m_family.add_program(vshader, alphaFShader);
 
-  // release the FB context
   bind.release();
 
-  GL_LOG("basic EGL initialization successful");
+  DEBUG("Successfully initialized EGL");
 
   return true;
 }
@@ -610,7 +552,7 @@ int Renderer::openColorBuffer(HandleType p_colorbuffer) {
   ColorBufferMap::iterator c(m_colorbuffers.find(p_colorbuffer));
   if (c == m_colorbuffers.end()) {
     // bad colorbuffer handle
-    ERR("FB: openColorBuffer cb handle %#x not found\n", p_colorbuffer);
+    ERROR("FB: openColorBuffer cb handle %#x not found", p_colorbuffer);
     return -1;
   }
   (*c).second.refcount++;
@@ -637,7 +579,7 @@ bool Renderer::flushWindowSurfaceColorBuffer(HandleType p_surface) {
 
   WindowSurfaceMap::iterator w(m_windows.find(p_surface));
   if (w == m_windows.end()) {
-    ERR("FB::flushWindowSurfaceColorBuffer: window handle %#x not found\n",
+    ERROR("FB::flushWindowSurfaceColorBuffer: window handle %#x not found",
         p_surface);
     // bad surface handle
     return false;
@@ -656,13 +598,13 @@ bool Renderer::setWindowSurfaceColorBuffer(HandleType p_surface,
   WindowSurfaceMap::iterator w(m_windows.find(p_surface));
   if (w == m_windows.end()) {
     // bad surface handle
-    ERR("%s: bad window surface handle %#x\n", __FUNCTION__, p_surface);
+    ERROR("%s: bad window surface handle %#x", __FUNCTION__, p_surface);
     return false;
   }
 
   ColorBufferMap::iterator c(m_colorbuffers.find(p_colorbuffer));
   if (c == m_colorbuffers.end()) {
-    DBG("%s: bad color buffer handle %#x\n", __FUNCTION__, p_colorbuffer);
+    DEBUG("%s: bad color buffer handle %#x", __FUNCTION__, p_colorbuffer);
     // bad colorbuffer handle
     return false;
   }
@@ -767,7 +709,7 @@ bool Renderer::bindContext(HandleType p_context, HandleType p_drawSurface,
                             draw ? draw->getEGLSurface() : EGL_NO_SURFACE,
                             read ? read->getEGLSurface() : EGL_NO_SURFACE,
                             ctx ? ctx->getEGLContext() : EGL_NO_CONTEXT)) {
-    ERR("eglMakeCurrent failed\n");
+    ERROR("eglMakeCurrent failed");
     return false;
   }
 
@@ -849,7 +791,7 @@ bool Renderer::bind_locked() {
 
   if (!s_egl.eglMakeCurrent(m_eglDisplay, m_pbufSurface, m_pbufSurface,
                             m_pbufContext)) {
-    ERR("eglMakeCurrent failed\n");
+    ERROR("eglMakeCurrent failed");
     return false;
   }
 
@@ -866,7 +808,7 @@ bool Renderer::bindWindow_locked(RendererWindow *window) {
 
   if (!s_egl.eglMakeCurrent(m_eglDisplay, window->surface, window->surface,
                             m_eglContext)) {
-    ERR("eglMakeCurrent failed\n");
+    ERROR("eglMakeCurrent failed");
     return false;
   }
 
@@ -889,38 +831,38 @@ bool Renderer::unbind_locked() {
 }
 
 const GLchar *const Renderer::vshader = {
-    "attribute vec3 position;\n"
-    "attribute vec2 texcoord;\n"
-    "uniform mat4 screen_to_gl_coords;\n"
-    "uniform mat4 display_transform;\n"
-    "uniform mat4 transform;\n"
-    "uniform vec2 center;\n"
-    "varying vec2 v_texcoord;\n"
-    "void main() {\n"
-    "   vec4 mid = vec4(center, 0.0, 0.0);\n"
-    "   vec4 transformed = (transform * (vec4(position, 1.0) - mid)) + mid;\n"
-    "   gl_Position = display_transform * screen_to_gl_coords * transformed;\n"
-    "   v_texcoord = texcoord;\n"
-    "}\n"};
+    "attribute vec3 position;"
+    "attribute vec2 texcoord;"
+    "uniform mat4 screen_to_gl_coords;"
+    "uniform mat4 display_transform;"
+    "uniform mat4 transform;"
+    "uniform vec2 center;"
+    "varying vec2 v_texcoord;"
+    "void main() {"
+    "   vec4 mid = vec4(center, 0.0, 0.0);"
+    "   vec4 transformed = (transform * (vec4(position, 1.0) - mid)) + mid;"
+    "   gl_Position = display_transform * screen_to_gl_coords * transformed;"
+    "   v_texcoord = texcoord;"
+    "}"};
 
 const GLchar *const Renderer::alphaFShader = {
-    "precision mediump float;\n"
-    "uniform sampler2D tex;\n"
-    "uniform float alpha;\n"
-    "varying vec2 v_texcoord;\n"
-    "void main() {\n"
-    "   vec4 frag = texture2D(tex, v_texcoord);\n"
-    "   gl_FragColor = alpha*frag;\n"
-    "}\n"};
+    "precision mediump float;"
+    "uniform sampler2D tex;"
+    "uniform float alpha;"
+    "varying vec2 v_texcoord;"
+    "void main() {"
+    "   vec4 frag = texture2D(tex, v_texcoord);"
+    "   gl_FragColor = alpha*frag;"
+    "}"};
 
 const GLchar *const Renderer::defaultFShader =
     {  // This is the fastest fragment shader. Use it when you can.
-        "precision mediump float;\n"
-        "uniform sampler2D tex;\n"
-        "varying vec2 v_texcoord;\n"
-        "void main() {\n"
-        "   gl_FragColor = texture2D(tex, v_texcoord);\n"
-        "}\n"};
+        "precision mediump float;"
+        "uniform sampler2D tex;"
+        "varying vec2 v_texcoord;"
+        "void main() {"
+        "   gl_FragColor = texture2D(tex, v_texcoord);"
+        "}"};
 
 void Renderer::setupViewport(RendererWindow *window,
                              const anbox::graphics::Rect &rect) {
