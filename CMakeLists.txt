@@ -100,3 +100,8 @@ add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(android)
+
+if (NOT "${HOST_CMAKE_C_COMPILER}" STREQUAL "")
+  message(STATUS "Host C compiler: ${HOST_CMAKE_C_COMPILER}")
+  message(STATUS "Host C compiler: ${HOST_CMAKE_CXX_COMPILER}")
+endif()
