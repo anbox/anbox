@@ -196,8 +196,11 @@ add_library(anbox-core ${SOURCES})
 target_link_libraries(anbox-core
   ${Boost_LDFLAGS}
   ${Boost_LIBRARIES}
+  ${DBUS_CPP_LDFLAGS}
   ${DBUS_CPP_LIBRARIES}
+  ${SDL2_LDFLAGS}
   ${SDL2_LIBRARIES}
+  ${LXC_LDFLAGS}
   ${LXC_LIBRARIES}
   pthread
   process-cpp
