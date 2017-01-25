@@ -114,12 +114,24 @@ arch=${arch}
 directory=${directory}
 unpack=false
 noauth=true
-bootstrap=Ubuntu ${sources}
+bootstrap=Ubuntu UbuntuUpdates UbuntuSecurity ${sources}
 
 [Ubuntu]
 packages=${builddeps}
 source=${source_url}
 suite=${dist}
+components=main universe
+
+[UbuntuUpdates]
+packages=${builddeps}
+source=${source_url}
+suite=${dist}-updates
+components=main universe
+
+[UbuntuSecurity]
+packages=${builddeps}
+source=${source_url}
+suite=${dist}-security
 components=main universe
 " > mstrap.conf
 
