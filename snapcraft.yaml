@@ -101,6 +101,7 @@ parts:
       - libboost-iostreams-dev
       - libboost-program-options-dev
       - libboost-system-dev
+      - libboost-test-dev
       - libboost-thread-dev
       - libcap-dev
       - libdbus-1-dev
