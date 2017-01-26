@@ -71,18 +71,18 @@ void LauncherStorage::add(const Item &item) {
     exec +=
         utils::string_format("--component=%s ", item.launch_intent.component);
 
-  std::ofstream f(item_path.string());
-  f << "[Desktop Entry]" << std::endl
-    << "Name=" << item.package << std::endl
-    << "Exec=" << exec << std::endl
-    << "Terminal=false" << std::endl
-    << "Type=Application" << std::endl
-    << "Icon=" << item_icon_path.string() << std::endl;
-  f.close();
+  std::ofstream desktop_item(item_path.string());
+  desktop_item << "[Desktop Entry]" << std::endl
+               << "Name=" << item.package << std::endl
+               << "Exec=" << exec << std::endl
+               << "Terminal=false" << std::endl
+               << "Type=Application" << std::endl
+               << "Icon=" << item_icon_path.string() << std::endl;
+  desktop_item.close();
 
-  f = std::ofstream(item_icon_path.string());
-  f.write(item.icon.data(), item.icon.size());
-  f.close();
+  std::ofstream icon(item_icon_path.string());
+  icon.write(item.icon.data(), item.icon.size());
+  icon.close();
 }
 }  // namespace application
 }  // namespace anbox
