@@ -49,6 +49,9 @@ class Logger : public DoNotCopyOrMove {
 
   virtual void Init(const Severity& severity = Severity::kWarning) = 0;
 
+  void SetSeverity(const std::string &severity);
+  virtual void SetSeverity(const Severity& severity) = 0;
+
   virtual void Log(Severity severity, const std::string& message,
                    const boost::optional<Location>& location) = 0;
 

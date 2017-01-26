@@ -30,8 +30,7 @@
 
 namespace {
 namespace attrs {
-BOOST_LOG_ATTRIBUTE_KEYWORD(Severity, "anbox::Severity",
-                            anbox::Logger::Severity)
+BOOST_LOG_ATTRIBUTE_KEYWORD(Severity, "anbox::Severity", anbox::Logger::Severity)
 BOOST_LOG_ATTRIBUTE_KEYWORD(Location, "Location", anbox::Logger::Location)
 BOOST_LOG_ATTRIBUTE_KEYWORD(Timestamp, "Timestamp", boost::posix_time::ptime)
 }
@@ -39,8 +38,7 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(Timestamp, "Timestamp", boost::posix_time::ptime)
 struct BoostLogLogger : public anbox::Logger {
   BoostLogLogger() : initialized_(false) {}
 
-  void Init(const anbox::Logger::Severity& severity =
-                anbox::Logger::Severity::kWarning) override {
+  void Init(const anbox::Logger::Severity& severity = anbox::Logger::Severity::kWarning) override {
     if (initialized_) return;
 
     boost::log::formatter formatter =
@@ -58,25 +56,24 @@ struct BoostLogLogger : public anbox::Logger {
     auto logger = boost::log::add_console_log(std::cout);
     logger->set_formatter(formatter);
 
-    // FIXME need to enable this once we found how we wrap this
-    // properly into our service architecture. For now left as
-    // it is.
-    boost::ignore_unused_variable_warning(severity);
-    // logger->set_filter(attrs::Severity < severity);
-
+    severity_ = severity;
     initialized_ = true;
   }
 
-  void Log(Severity severity, const std::string& message,
-           const boost::optional<Location>& loc) {
+  void Log(Severity severity, const std::string& message, const boost::optional<Location>& loc) override {
     if (!initialized_) Init();
+
+    // FIXME somehow set_filter doesn't work with the trivial logger. If
+    // we set a filter based on the severity attribute open_record will
+    // not return a new record. Because of that we do a poor man filtering
+    // here until we have a proper way to do this via boost.
+    if (severity < severity_)
+      return;
 
     if (auto rec = boost::log::trivial::logger::get().open_record()) {
       boost::log::record_ostream out{rec};
       out << boost::log::add_value(attrs::Severity, severity)
-          << boost::log::add_value(
-                 attrs::Timestamp,
-                 boost::posix_time::microsec_clock::universal_time())
+          << boost::log::add_value(attrs::Timestamp, boost::posix_time::microsec_clock::universal_time())
           << message;
 
       if (loc) {
@@ -91,6 +88,7 @@ struct BoostLogLogger : public anbox::Logger {
   }
 
  private:
+  Severity severity_;
   bool initialized_;
 };
 
