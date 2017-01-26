@@ -45,6 +45,9 @@ anbox::cmds::ContainerManager::ContainerManager()
   flag(cli::make_flag(cli::Name{"data-path"},
                       cli::Description{"Path where the container and its data is stored"},
                       data_path_));
+  flag(cli::make_flag(cli::Name{"privileged"},
+                      cli::Description{"Run Android container in privileged mode"},
+                      privileged_));
 
   action([&](const cli::Command::Context&) {
     try {
@@ -62,7 +65,7 @@ anbox::cmds::ContainerManager::ContainerManager()
         return EXIT_FAILURE;
 
       auto rt = Runtime::create();
-      auto service = container::Service::create(rt);
+      auto service = container::Service::create(rt, privileged_);
 
       rt->start();
       trap->run();

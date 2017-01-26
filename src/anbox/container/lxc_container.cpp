@@ -35,8 +35,8 @@ namespace fs = boost::filesystem;
 
 namespace anbox {
 namespace container {
-LxcContainer::LxcContainer(const network::Credentials &creds)
-    : state_(State::inactive), container_(nullptr), creds_(creds) {
+LxcContainer::LxcContainer(bool privileged, const network::Credentials &creds)
+    : state_(State::inactive), container_(nullptr),  privileged_(privileged), creds_(creds) {
   utils::ensure_paths({
       SystemConfiguration::instance().container_config_dir(),
       SystemConfiguration::instance().log_dir(),
@@ -44,16 +44,15 @@ LxcContainer::LxcContainer(const network::Credentials &creds)
 }
 
 LxcContainer::~LxcContainer() {
-  DEBUG("");
-
   stop();
-
   if (container_) lxc_container_put(container_);
 }
 
 void LxcContainer::setup_id_maps() {
+  // FIXME make these id sets configurable
   const auto base_id = 100000;
   const auto max_id = 65536;
+
   set_config_item("lxc.id_map",
                   utils::string_format("u 0 %d %d", base_id, creds_.uid() - 1));
   set_config_item("lxc.id_map",
@@ -150,7 +149,8 @@ void LxcContainer::start(const Configuration &configuration) {
   set_config_item("lxc.aa_profile", "unconfined");
 #endif
 
-  setup_id_maps();
+  if (!privileged_)
+    setup_id_maps();
 
   auto bind_mounts = configuration.bind_mounts;
 

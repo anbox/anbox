@@ -30,8 +30,8 @@
 
 namespace anbox {
 namespace container {
-std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt) {
-  auto sp = std::make_shared<Service>(rt);
+std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt, bool privileged) {
+  auto sp = std::shared_ptr<Service>(new Service(rt, privileged));
 
   auto delegate_connector = std::make_shared<
       network::DelegateConnectionCreator<boost::asio::local::stream_protocol>>(
@@ -49,34 +49,32 @@ std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt) {
   return sp;
 }
 
-Service::Service(const std::shared_ptr<Runtime> &rt)
+Service::Service(const std::shared_ptr<Runtime> &rt, bool privileged)
     : dispatcher_(anbox::common::create_dispatcher_for_runtime(rt)),
       next_connection_id_(0),
-      connections_(
-          std::make_shared<network::Connections<network::SocketConnection>>()) {
+      connections_(std::make_shared<network::Connections<network::SocketConnection>>()),
+      privileged_(privileged) {
 }
 
 Service::~Service() {}
 
 int Service::next_id() { return next_connection_id_++; }
 
-void Service::new_client(
-    std::shared_ptr<boost::asio::local::stream_protocol::socket> const
+void Service::new_client(std::shared_ptr<boost::asio::local::stream_protocol::socket> const
         &socket) {
   if (connections_->size() >= 1) {
     socket->close();
     return;
   }
 
-  auto const messenger =
-      std::make_shared<network::LocalSocketMessenger>(socket);
+  auto const messenger = std::make_shared<network::LocalSocketMessenger>(socket);
 
   DEBUG("Got connection from pid %d", messenger->creds().pid());
 
   auto pending_calls = std::make_shared<rpc::PendingCallCache>();
   auto rpc_channel = std::make_shared<rpc::Channel>(pending_calls, messenger);
   auto server = std::make_shared<container::ManagementApiSkeleton>(
-      pending_calls, std::make_shared<LxcContainer>(messenger->creds()));
+      pending_calls, std::make_shared<LxcContainer>(privileged_, messenger->creds()));
   auto processor = std::make_shared<container::ManagementApiMessageProcessor>(
       messenger, pending_calls, server);
 
