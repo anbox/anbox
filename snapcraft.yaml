@@ -88,9 +88,6 @@ parts:
       # FIXME: Anbox currently has some paths with hard coded prefixes. Once
       # that is fixed we can avoid using a prefix here.
       - -DCMAKE_INSTALL_PREFIX:PATH=/usr
-      # FIXME: When building in release mode we get a lot of error which cause
-      # the build to fail.
-      - -DCMAKE_BUILD_TYPE=debug
     build-packages:
       - build-essential
       - cmake
