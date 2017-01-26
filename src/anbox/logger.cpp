@@ -60,6 +60,10 @@ struct BoostLogLogger : public anbox::Logger {
     initialized_ = true;
   }
 
+  void SetSeverity(const Severity& severity) override {
+    severity_ = severity;
+  }
+
   void Log(Severity severity, const std::string& message, const boost::optional<Location>& loc) override {
     if (!initialized_) Init();
 
@@ -102,6 +106,21 @@ void SetInstance(const std::shared_ptr<anbox::Logger>& logger) {
 }
 }
 namespace anbox {
+
+void Logger::SetSeverity(const std::string& severity) {
+  if (severity == "trace")
+    SetSeverity(Severity::kTrace);
+  else if (severity == "debug")
+    SetSeverity(Severity::kDebug);
+  else if (severity == "info")
+    SetSeverity(Severity::kInfo);
+  else if (severity == "warning")
+    SetSeverity(Severity::kWarning);
+  else if (severity == "error")
+    SetSeverity(Severity::kError);
+  else if (severity == "fatal")
+    SetSeverity(Severity::kFatal);
+}
 
 void Logger::Trace(const std::string& message,
                    const boost::optional<Location>& location) {
