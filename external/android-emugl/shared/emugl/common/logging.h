@@ -14,10 +14,24 @@
 * limitations under the License.
 */
 
+#ifndef EMUGL_COMMON_LOGGING_H_
+#define EMUGL_COMMON_LOGGING_H_
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wredundant-decls"
 
-typedef void (*logger_t)(const char* fmt, ...);
+namespace emugl {
+enum class LogLevel {
+  TRACE,
+  DEBUG,
+  INFO,
+  WARNING,
+  ERROR,
+  FATAL,
+};
+} // namespace emugl
+
+typedef void (*logger_t)(const emugl::LogLevel &level, const char* fmt, ...);
 extern logger_t emugl_logger;
 extern logger_t emugl_cxt_logger;
 void set_emugl_logger(logger_t f);
@@ -40,3 +54,5 @@ void set_emugl_cxt_logger(logger_t f);
 #endif
 
 #pragma GCC diagnostic pop
+
+#endif

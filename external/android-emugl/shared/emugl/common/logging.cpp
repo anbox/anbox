@@ -16,7 +16,7 @@
 
 #include "emugl/common/logging.h"
 
-void default_logger(const char* fmt, ...) { }
+void default_logger(const emugl::LogLevel &level, const char* fmt, ...) { }
 
 logger_t emugl_logger = default_logger;
 logger_t emugl_cxt_logger = default_logger;
