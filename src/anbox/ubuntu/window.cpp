@@ -23,6 +23,10 @@
 
 #include <boost/throw_exception.hpp>
 
+#if defined(MIR_SUPPORT)
+#include <mir_toolkit/mir_client_library.h>
+#endif
+
 #include <SDL_syswm.h>
 #pragma GCC diagnostic pop
 
@@ -58,10 +62,17 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
   SDL_GetWindowWMInfo(window_, &info);
   switch (info.subsystem) {
     case SDL_SYSWM_X11:
-      native_display_ =
-          static_cast<EGLNativeDisplayType>(info.info.x11.display);
+      native_display_ = static_cast<EGLNativeDisplayType>(info.info.x11.display);
       native_window_ = static_cast<EGLNativeWindowType>(info.info.x11.window);
       break;
+#if defined(MIR_SUPPORT)
+    case SDL_SYSWM_MIR: {
+      native_display_ = static_cast<EGLNativeDisplayType>(mir_connection_get_egl_native_display(info.info.mir.connection));
+      auto buffer_stream = mir_surface_get_buffer_stream(info.info.mir.surface);
+      native_window_ = reinterpret_cast<EGLNativeWindowType>(mir_buffer_stream_get_egl_native_window(buffer_stream));
+      break;
+    }
+#endif
     default:
       ERROR("Unknown subsystem (%d)", info.subsystem);
       BOOST_THROW_EXCEPTION(std::runtime_error("SDL subsystem not suported"));

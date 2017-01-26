@@ -8,9 +8,11 @@ include_directories(
   ${DBUS_INCLUDE_DIRS}
   ${SDL2_INCLUDE_DIRS}
   ${LXC_INCLUDE_DIRS}
+  ${MIRCLIENT_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
+  ${CMAKE_SOURCE_DIR}/external
   ${CMAKE_SOURCE_DIR}/external/process-cpp-minimal/include
   ${CMAKE_SOURCE_DIR}/external/android-emugl/shared
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include
@@ -205,6 +207,8 @@ target_link_libraries(anbox-core
   ${SDL2_LIBRARIES}
   ${LXC_LDFLAGS}
   ${LXC_LIBRARIES}
+  ${MIRCLIENT_LDFLAGS}
+  ${MIRCLIENT_LIBRARIES}
   pthread
   process-cpp
   emugl_common

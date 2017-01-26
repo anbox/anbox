@@ -67,6 +67,10 @@ pkg_check_modules(SDL2 sdl2 REQUIRED)
 pkg_check_modules(DBUS_CPP dbus-cpp REQUIRED)
 pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
+pkg_check_modules(MIRCLIENT mirclient)
+if (MIRCLIENT_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
+endif()
 
 #####################################################################
 # Enable code coverage calculation with gcov/gcovr/lcov
