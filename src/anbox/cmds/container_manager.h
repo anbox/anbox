@@ -29,6 +29,9 @@ namespace cmds {
 class ContainerManager : public cli::CommandWithFlagsAndAction {
  public:
   ContainerManager();
+
+ private:
+  std::string data_path_;
 };
 }  // namespace cmds
 }  // namespace anbox

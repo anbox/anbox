@@ -6,7 +6,7 @@ set -x
 # Other than that nothing should ever modify the content of the
 # rootfs.
 
-DATA_PATH=$SNAP_COMMON/var/lib/anbox
+DATA_PATH=$SNAP_COMMON/
 ROOTFS_PATH=$DATA_PATH/rootfs
 ANDROID_IMG=$SNAP/android.img
 CONTAINER_BASE_UID=100000
@@ -62,7 +62,7 @@ start() {
 	# Ensure FUSE support for user namespaces is enabled
 	echo Y | sudo tee /sys/module/fuse/parameters/userns_mounts || echo "WARNING: kernel doesn't support fuse in user namespaces"
 
-	exec $SNAP/usr/sbin/aa-exec -p unconfined -- $SNAP/bin/anbox-wrapper.sh container-manager
+	exec $SNAP/usr/sbin/aa-exec -p unconfined -- $SNAP/bin/anbox-wrapper.sh container-manager --data-path=$DATA_PATH
 }
 
 stop() {
