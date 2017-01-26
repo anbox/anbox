@@ -49,7 +49,7 @@ namespace anbox {
 namespace audio {
 Server::Server(const std::shared_ptr<Runtime>& rt, const std::shared_ptr<platform::Policy> &platform_policy) :
   platform_policy_(platform_policy),
-  socket_file_(utils::string_format("%s/anbox_audio", config::socket_path())),
+  socket_file_(utils::string_format("%s/anbox_audio", SystemConfiguration::instance().socket_dir())),
   connector_(std::make_shared<network::PublishedSocketConnector>(
              socket_file_, rt,
              std::make_shared<network::DelegateConnectionCreator<boost::asio::local::stream_protocol>>(std::bind(&Server::create_connection_for, this, _1)))),

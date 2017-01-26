@@ -15,93 +15,58 @@
  *
  */
 
-#include <cstring>
 
 #include "anbox/config.h"
 #include "anbox/utils.h"
 
-#include <boost/filesystem.hpp>
+
+#include <cstring>
 
 namespace fs = boost::filesystem;
 
-namespace anbox {
-namespace config {
-std::string in_snap_dir(const std::string &path) {
-  return utils::prefix_dir_from_env(path, "SNAP");
-}
-
-std::string in_snap_data_dir(const std::string &path) {
-  return utils::prefix_dir_from_env(path, "SNAP_COMMON");
-}
-
-std::string in_snap_user_data_dir(const std::string &path) {
-  return utils::prefix_dir_from_env(path, "SNAP_USER_COMMON");
-}
-
-std::string home_dir() {
+namespace {
+static std::string runtime_dir() {
   static std::string path;
   if (path.empty()) {
-    path = utils::get_env_value("HOME", "");
+    path = anbox::utils::get_env_value("XDG_RUNTIME_DIR", "");
     if (path.empty())
-      BOOST_THROW_EXCEPTION(std::runtime_error("No home directory specified"));
+      BOOST_THROW_EXCEPTION(std::runtime_error("No runtime directory specified"));
   }
   return path;
 }
-
-std::string runtime_dir() {
-  static std::string path;
-  if (path.empty()) {
-    path = utils::get_env_value("XDG_RUNTIME_DIR", "");
-    if (path.empty())
-      BOOST_THROW_EXCEPTION(
-          std::runtime_error("No runtime directory specified"));
-  }
-  return path;
 }
 
-std::string state_dir() {
-  static std::string path = "/var/lib";
-  return path;
+void anbox::SystemConfiguration::set_data_path(const std::string &path) {
+  data_path = path;
 }
 
-std::string log_path() {
-  static std::string path =
-      in_snap_data_dir(utils::string_format("%s/anbox/", state_dir()));
-  return path;
+std::string anbox::SystemConfiguration::rootfs_dir() const {
+  return (data_path / "rootfs").string();
 }
 
-std::string socket_path() {
-  static std::string path =
-      utils::string_format("%s/anbox/sockets", runtime_dir());
-  return path;
+std::string anbox::SystemConfiguration::log_dir() const {
+  return (data_path / "logs").string();
 }
 
-std::string data_path() {
-  static std::string path = utils::string_format("%s/.anbox/data", home_dir());
-  return path;
+std::string anbox::SystemConfiguration::container_config_dir() const {
+  return (data_path / "containers").string();
 }
 
-std::string rootfs_path() {
-  static std::string path =
-      in_snap_data_dir(utils::string_format("%s/anbox/rootfs", state_dir()));
-  return path;
+std::string anbox::SystemConfiguration::container_socket_path() const {
+  return "/run/anbox-container.socket";
 }
 
-std::string container_config_path() {
-  static std::string path = in_snap_data_dir(
-      utils::string_format("%s/anbox/containers", state_dir()));
-  return path;
+std::string anbox::SystemConfiguration::socket_dir() const {
+  static std::string dir = anbox::utils::string_format("%s/anbox/sockets", runtime_dir());
+  return dir;
 }
 
-std::string container_socket_path() {
-  std::string path = "/run/anbox-container.socket";
-  return path;
+std::string anbox::SystemConfiguration::input_device_dir() const {
+  static std::string dir = anbox::utils::string_format("%s/anbox/input", runtime_dir());
+  return dir;
 }
 
-std::string host_input_device_path() {
-  static std::string path =
-      utils::string_format("%s/anbox/input-devices", runtime_dir());
-  return path;
+anbox::SystemConfiguration& anbox::SystemConfiguration::instance() {
+  static SystemConfiguration config;
+  return config;
 }
-}  // namespace config
-}  // namespace anbox

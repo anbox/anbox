@@ -26,7 +26,7 @@
 namespace anbox {
 namespace input {
 Manager::Manager(const std::shared_ptr<Runtime> &runtime) : runtime_(runtime) {
-  utils::ensure_paths({config::host_input_device_path()});
+  utils::ensure_paths({SystemConfiguration::instance().input_device_dir()});
 }
 
 Manager::~Manager() {}
@@ -45,8 +45,7 @@ std::uint32_t Manager::next_id() {
 }
 
 std::string Manager::build_device_path(const std::uint32_t &id) {
-  return (boost::format("%1%/event%2%") % config::host_input_device_path() % id)
-      .str();
+  return (boost::format("%1%/event%2%") % SystemConfiguration::instance().input_device_dir() % id).str();
 }
 
 }  // namespace input

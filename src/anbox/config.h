@@ -19,20 +19,32 @@
 #define ANBOX_CONFIG_H_
 
 #include <string>
+#include <memory>
+
+#include <boost/filesystem.hpp>
 
 namespace anbox {
-namespace config {
-std::string in_snap_dir(const std::string &path);
-std::string in_snap_data_dir(const std::string &path);
-std::string in_snap_user_data_dir(const std::string &path);
-std::string data_path();
-std::string rootfs_path();
-std::string log_path();
-std::string socket_path();
-std::string container_config_path();
-std::string container_socket_path();
-std::string host_input_device_path();
-}  // namespace config
+class SystemConfiguration {
+ public:
+  static SystemConfiguration& instance();
+
+  virtual ~SystemConfiguration() = default;
+
+  void set_data_path(const std::string &path);
+
+  std::string rootfs_dir() const;
+  std::string log_dir() const;
+  std::string socket_dir() const;
+  std::string container_config_dir() const;
+  std::string container_socket_path() const;
+  std::string input_device_dir() const;
+
+ protected:
+  SystemConfiguration() = default;
+
+  boost::filesystem::path data_path = "/var/lib/anbox";
+
+};
 }  // namespace anbox
 
 #endif

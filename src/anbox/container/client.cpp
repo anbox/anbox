@@ -31,7 +31,7 @@ namespace anbox {
 namespace container {
 Client::Client(const std::shared_ptr<Runtime> &rt)
     : messenger_(std::make_shared<network::LocalSocketMessenger>(
-          config::container_socket_path(), rt)),
+          SystemConfiguration::instance().container_socket_path(), rt)),
       pending_calls_(std::make_shared<rpc::PendingCallCache>()),
       rpc_channel_(std::make_shared<rpc::Channel>(pending_calls_, messenger_)),
       management_api_(std::make_shared<ManagementApiStub>(rpc_channel_)),
