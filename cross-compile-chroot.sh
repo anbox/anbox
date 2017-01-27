@@ -150,7 +150,7 @@ echo "Target machine: ${target_machine}"
 
 if [ ${_do_update_chroot} -eq 1 ] ; then
     pushd scripts > /dev/null
-        ./setup-partial-armhf-chroot.sh -d ${dist} -a ${target_arch} ${additional_repositories} ${AC_NDK_PATH}
+        ./setup-partial-chroot.sh -d ${dist} -a ${target_arch} ${additional_repositories} ${AC_NDK_PATH}
     popd > /dev/null
     # force a clean build after an update, since CMake cache maybe out of date
     clean_build_dir ${BUILD_DIR}
