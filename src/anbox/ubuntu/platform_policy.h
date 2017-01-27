@@ -35,9 +35,9 @@ namespace input {
 class Device;
 class Manager;
 }  // namespace input
-namespace bridge {
-class AndroidApiStub;
-}  // namespace bridge
+namespace wm {
+class Manager;
+} // namespace wm
 namespace ubuntu {
 class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
                        public platform::Policy,
@@ -45,7 +45,8 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
                        public DisplayManager {
  public:
   PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager,
-                 const std::shared_ptr<bridge::AndroidApiStub> &android_api);
+                 const graphics::Rect &static_display_frame = graphics::Rect::Invalid,
+                 bool single_window = false);
   ~PlatformPolicy();
 
   std::shared_ptr<wm::Window> create_window(
@@ -63,6 +64,7 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
   DisplayInfo display_info() const override;
 
   void set_renderer(const std::shared_ptr<Renderer> &renderer);
+  void set_window_manager(const std::shared_ptr<wm::Manager> &window_manager);
 
   void set_clipboard_data(const ClipboardData &data) override;
   ClipboardData get_clipboard_data() override;
@@ -78,7 +80,7 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
 
   std::shared_ptr<Renderer> renderer_;
   std::shared_ptr<input::Manager> input_manager_;
-  std::shared_ptr<bridge::AndroidApiStub> android_api_;
+  std::shared_ptr<wm::Manager> window_manager_;
   // We don't own the windows anymore after the got created by us so we
   // need to be careful once we try to use them again.
   std::map<Window::Id, std::weak_ptr<Window>> windows_;
@@ -88,6 +90,8 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
   std::shared_ptr<input::Device> pointer_;
   std::shared_ptr<input::Device> keyboard_;
   DisplayManager::DisplayInfo display_info_;
+  bool window_size_immutable_ = false;
+  bool single_window_ = false;
 };
 }  // namespace wm
 }  // namespace anbox

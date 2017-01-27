@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
+ * Copyright (C) 2017 Simon Fels <morphis@gravedo.de>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -15,42 +15,25 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
-#define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
+#ifndef ANBOX_GRAPHICS_SINGLE_WINDOW_COMPOSER_STRATEGY_H_
+#define ANBOX_GRAPHICS_SINGLE_WINDOW_COMPOSER_STRATEGY_H_
+
+#include "anbox/graphics/layer_composer.h"
 
 #include <memory>
-#include <string>
-
-class Renderer;
 
 namespace anbox {
-namespace input {
-class Manager;
-}  // namespace input
-namespace wm {
-class Manager;
-}  // namespace wm
 namespace graphics {
-class LayerComposer;
-class GLRendererServer {
+class SingleWindowComposerStrategy : public LayerComposer::Strategy {
  public:
-  struct Config {
-    enum class Driver { Translator, Host };
-    Driver driver;
-    bool single_window;
-  };
+  SingleWindowComposerStrategy(const std::shared_ptr<wm::Manager> &wm);
+  ~SingleWindowComposerStrategy() = default;
 
-  GLRendererServer(const Config &config, const std::shared_ptr<wm::Manager> &wm);
-  ~GLRendererServer();
+  WindowRenderableList process_layers(const RenderableList &renderables) override;
 
-  std::shared_ptr<Renderer> renderer() const { return renderer_; }
-
- private:
-  std::shared_ptr<Renderer> renderer_;
+private:
   std::shared_ptr<wm::Manager> wm_;
-  std::shared_ptr<LayerComposer> composer_;
 };
-
 }  // namespace graphics
 }  // namespace anbox
 

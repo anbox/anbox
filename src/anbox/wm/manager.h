@@ -26,29 +26,22 @@
 #include <mutex>
 
 namespace anbox {
-namespace application {
-class Database;
-} // namespace application
-namespace platform {
-class Policy;
-} // namespace platform
 namespace wm {
 class Manager {
  public:
-  Manager(const std::shared_ptr<platform::Policy> &policy,
-          const std::shared_ptr<application::Database> &app_db);
-  ~Manager();
+  virtual ~Manager();
 
-  void apply_window_state_update(const WindowState::List &updated,
-                                 const WindowState::List &removed);
+  virtual void setup() {}
 
-  std::shared_ptr<Window> find_window_for_task(const Task::Id &task);
+  virtual void apply_window_state_update(const WindowState::List &updated, const WindowState::List &removed) = 0;
 
- private:
-  std::mutex mutex_;
-  std::shared_ptr<platform::Policy> platform_policy_;
-  std::shared_ptr<application::Database> app_db_;
-  std::map<Task::Id, std::shared_ptr<Window>> windows_;
+  virtual void resize_task(const Task::Id &task, const anbox::graphics::Rect &rect,
+                           const std::int32_t &resize_mode) = 0;
+  virtual void set_focused_task(const Task::Id &task) = 0;
+  virtual void remove_task(const Task::Id &task) = 0;
+
+  // FIXME only applies for the multi-window case
+  virtual std::shared_ptr<Window> find_window_for_task(const Task::Id &task) = 0;
 };
 }  // namespace wm
 }  // namespace anbox

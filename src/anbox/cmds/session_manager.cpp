@@ -41,7 +41,8 @@
 #include "anbox/rpc/connection_creator.h"
 #include "anbox/runtime.h"
 #include "anbox/ubuntu/platform_policy.h"
-#include "anbox/wm/manager.h"
+#include "anbox/wm/multi_window_manager.h"
+#include "anbox/wm/single_window_manager.h"
 
 #include "external/xdg/xdg.h"
 
@@ -96,6 +97,9 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
   flag(cli::make_flag(cli::Name{"gles-driver"},
                       cli::Description{"Which GLES driver to use. Possible values are 'host' or'translator'"},
                       gles_driver_));
+  flag(cli::make_flag(cli::Name{"single-window"},
+                      cli::Description{"Start in single window mode."},
+                      single_window_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -135,18 +139,29 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
 
     auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
-    auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager,
-                                                           android_api_stub);
+    auto display_frame = graphics::Rect::Invalid;
+    if (single_window_)
+      display_frame = {0, 0, 1024, 768};
+
+    auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager, display_frame, single_window_);
     // FIXME this needs to be removed and solved differently behind the scenes
     registerDisplayManager(policy);
 
     auto app_db = std::make_shared<application::Database>();
-    auto window_manager = std::make_shared<wm::Manager>(policy, app_db);
+
+    std::shared_ptr<wm::Manager> window_manager;
+    if (single_window_)
+      window_manager = std::make_shared<wm::SingleWindowManager>(policy, app_mgr);
+    else
+      window_manager = std::make_shared<wm::MultiWindowManager>(policy, android_api_stub, app_mgr);
 
     auto gl_server = std::make_shared<graphics::GLRendererServer>(
-          graphics::GLRendererServer::Config{gles_driver_}, window_manager);
+          graphics::GLRendererServer::Config{gles_driver_, single_window_}, window_manager);
 
+    policy->set_window_manager(window_manager);
     policy->set_renderer(gl_server->renderer());
+
+    window_manager->setup();
 
     auto audio_server = std::make_shared<audio::Server>(rt, policy);
 

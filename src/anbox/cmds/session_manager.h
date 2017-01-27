@@ -42,6 +42,7 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
   BusFactory bus_factory_;
   std::string desktop_file_hint_;
   graphics::GLRendererServer::Config::Driver gles_driver_;
+  bool single_window_ = false;
 };
 }  // namespace cmds
 }  // namespace anbox

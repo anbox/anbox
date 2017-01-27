@@ -64,6 +64,7 @@ class Window {
   Task::Id task_;
   graphics::Rect frame_;
   std::string title_;
+  bool attached_ = false;
 };
 }  // namespace wm
 }  // namespace anbox
