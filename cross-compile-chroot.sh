@@ -1,6 +1,21 @@
 #!/bin/bash
-# build script to compile anbox for armhf devices
 #
+# Copyright © 2016 Canonical Ltd.
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Taken from the Mir Project (https://launchpad.net/mir)
+
 set -e
 
 usage() {
@@ -135,7 +150,7 @@ echo "Target machine: ${target_machine}"
 
 if [ ${_do_update_chroot} -eq 1 ] ; then
     pushd scripts > /dev/null
-        ./setup-partial-armhf-chroot.sh -d ${dist} -a ${target_arch} ${additional_repositories} ${AC_NDK_PATH}
+        ./setup-partial-chroot.sh -d ${dist} -a ${target_arch} ${additional_repositories} ${AC_NDK_PATH}
     popd > /dev/null
     # force a clean build after an update, since CMake cache maybe out of date
     clean_build_dir ${BUILD_DIR}

@@ -10,6 +10,9 @@ if (NOT DEFINED AC_GCC_VARIANT)
   set(AC_GCC_VARIANT $ENV{AC_GCC_VARIANT} CACHE STRING "gcc variant required")
 endif()
 
+set(HOST_CMAKE_C_COMPILER /usr/bin/cc)
+set(HOST_CMAKE_CXX_COMPILER /usr/bin/c++)
+
 set(CMAKE_C_COMPILER   /usr/bin/${AC_TARGET_MACHINE}-gcc${AC_GCC_VARIANT})
 set(CMAKE_CXX_COMPILER /usr/bin/${AC_TARGET_MACHINE}-g++${AC_GCC_VARIANT})
 

@@ -1,3 +1,7 @@
+if (NOT "${HOST_CMAKE_CXX_COMPILER}" STREQUAL "")
+    set (CMAKE_CXX_COMPILER "${HOST_CMAKE_CXX_COMPILER}")
+endif()
+
 set(SOURCES
     ApiGen.cpp
     EntryPoint.cpp
