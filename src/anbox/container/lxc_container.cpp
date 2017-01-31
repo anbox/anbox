@@ -38,7 +38,8 @@ namespace container {
 LxcContainer::LxcContainer(const network::Credentials &creds)
     : state_(State::inactive), container_(nullptr), creds_(creds) {
   utils::ensure_paths({
-      config::container_config_path(), config::log_path(),
+      SystemConfiguration::instance().container_config_dir(),
+      SystemConfiguration::instance().log_dir(),
   });
 }
 
@@ -78,28 +79,23 @@ void LxcContainer::setup_id_maps() {
 
 void LxcContainer::start(const Configuration &configuration) {
   if (getuid() != 0)
-    BOOST_THROW_EXCEPTION(
-        std::runtime_error("You have to start the container as root"));
+    BOOST_THROW_EXCEPTION(std::runtime_error("You have to start the container as root"));
 
   if (container_ && container_->is_running(container_)) {
-    BOOST_THROW_EXCEPTION(
-        std::runtime_error("Container already started, stopping it now"));
+    WARNING("Container already started, stopping it now");
     container_->stop(container_);
   }
 
   if (!container_) {
-    DEBUG("Containers are stored in %s", config::container_config_path());
+    const auto container_config_dir = SystemConfiguration::instance().container_config_dir();
+    DEBUG("Containers are stored in %s", container_config_dir);
 
     // Remove container config to be be able to rewrite it
-    ::unlink(utils::string_format("%s/default/config",
-                                  config::container_config_path())
-                 .c_str());
+    ::unlink(utils::string_format("%s/default/config", container_config_dir).c_str());
 
-    container_ =
-        lxc_container_new("default", config::container_config_path().c_str());
+    container_ = lxc_container_new("default", container_config_dir.c_str());
     if (!container_)
-      BOOST_THROW_EXCEPTION(
-          std::runtime_error("Failed to create LXC container instance"));
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create LXC container instance"));
 
     // If container is still running (for example after a crash) we stop it here
     // to ensure
@@ -128,13 +124,13 @@ void LxcContainer::start(const Configuration &configuration) {
   set_config_item("lxc.init_cmd", "/anbox-init.sh");
   set_config_item("lxc.rootfs.backend", "dir");
 
-  DEBUG("Using rootfs path %s", config::rootfs_path());
-  set_config_item("lxc.rootfs", config::rootfs_path());
+  const auto rootfs_path = SystemConfiguration::instance().rootfs_dir();
+  DEBUG("Using rootfs path %s", rootfs_path);
+  set_config_item("lxc.rootfs", rootfs_path);
 
   set_config_item("lxc.loglevel", "0");
-  set_config_item(
-      "lxc.logfile",
-      utils::string_format("%s/container.log", config::log_path()).c_str());
+  const auto log_path = SystemConfiguration::instance().log_dir();
+  set_config_item("lxc.logfile", utils::string_format("%s/container.log", log_path).c_str());
 
   if (fs::exists("/sys/class/net/anboxbr0")) {
     set_config_item("lxc.network.type", "veth");
@@ -178,7 +174,7 @@ void LxcContainer::start(const Configuration &configuration) {
     // when running in confined environments like snap's.
     if (!utils::string_starts_with(target_path, "/"))
       target_path = std::string("/") + target_path;
-    target_path = config::rootfs_path() + target_path;
+    target_path = rootfs_path + target_path;
 
     set_config_item(
         "lxc.mount.entry",
@@ -213,8 +209,7 @@ void LxcContainer::stop() {
 void LxcContainer::set_config_item(const std::string &key,
                                    const std::string &value) {
   if (!container_->set_config_item(container_, key.c_str(), value.c_str()))
-    BOOST_THROW_EXCEPTION(
-        std::runtime_error("Failed to configure LXC container"));
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to configure LXC container"));
 }
 
 Container::State LxcContainer::state() { return state_; }

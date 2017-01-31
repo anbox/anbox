@@ -38,12 +38,11 @@ std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt) {
       [sp](std::shared_ptr<boost::asio::local::stream_protocol::socket> const
                &socket) { sp->new_client(socket); });
 
-  sp->connector_ = std::make_shared<network::PublishedSocketConnector>(
-      config::container_socket_path(), rt, delegate_connector);
+  const auto container_socket_path = SystemConfiguration::instance().container_socket_path();
+  sp->connector_ = std::make_shared<network::PublishedSocketConnector>(container_socket_path, rt, delegate_connector);
 
   // Make sure others can connect to our socket
-  ::chmod(config::container_socket_path().c_str(),
-          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+  ::chmod(container_socket_path.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 
   DEBUG("Everything setup. Waiting for incoming connections.");
 

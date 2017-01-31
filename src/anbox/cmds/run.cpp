@@ -94,7 +94,8 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
     });
 
     utils::ensure_paths({
-        config::socket_path(), config::host_input_device_path(),
+        SystemConfiguration::instance().socket_dir(),
+        SystemConfiguration::instance().input_device_dir(),
     });
 
     auto rt = Runtime::create();
@@ -128,15 +129,17 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
 
     auto audio_server = std::make_shared<audio::Server>(rt, policy);
 
+    const auto socket_path = SystemConfiguration::instance().socket_dir();
+
     // The qemu pipe is used as a very fast communication channel between guest
     // and host for things like the GLES emulation/translation, the RIL or ADB.
     auto qemu_pipe_connector =
         std::make_shared<network::PublishedSocketConnector>(
-            utils::string_format("%s/qemu_pipe", config::socket_path()), rt,
+            utils::string_format("%s/qemu_pipe", socket_path), rt,
             std::make_shared<qemu::PipeConnectionCreator>(gl_server->renderer(), rt));
 
     auto bridge_connector = std::make_shared<network::PublishedSocketConnector>(
-        utils::string_format("%s/anbox_bridge", config::socket_path()), rt,
+        utils::string_format("%s/anbox_bridge", socket_path), rt,
         std::make_shared<rpc::ConnectionCreator>(
             rt, [&](const std::shared_ptr<network::MessageSender> &sender) {
               auto pending_calls = std::make_shared<rpc::PendingCallCache>();
@@ -161,20 +164,18 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
         {qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"},
         {bridge_connector->socket_file(), "/dev/anbox_bridge"},
         {audio_server->socket_file(), "/dev/anbox_audio"},
-        {config::host_input_device_path(), "/dev/input"},
+        {SystemConfiguration::instance().input_device_dir(), "/dev/input"},
         {"/dev/binder", "/dev/binder"},
         {"/dev/ashmem", "/dev/ashmem"},
         {"/dev/fuse", "/dev/fuse"},
     };
 
-    dispatcher->dispatch(
-        [&]() { container.start_container(container_configuration); });
+    dispatcher->dispatch([&]() { container.start_container(container_configuration); });
 
     auto bus = bus_factory_();
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
 
-    auto skeleton =
-        anbox::dbus::skeleton::Service::create_for_bus(bus, android_api_stub);
+    auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, android_api_stub);
 
     rt->start();
     trap->run();
