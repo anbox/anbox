@@ -23,6 +23,8 @@
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
+#include "anbox/graphics/gl_extensions.h"
+
 #include "anbox/logger.h"
 
 #include <stdio.h>
@@ -78,7 +80,6 @@ class ColorBufferHelper : public ColorBuffer::Helper {
  private:
   Renderer *mFb;
 };
-
 }  // namespace
 
 HandleType Renderer::s_nextHandle = 0;
@@ -105,11 +106,9 @@ static char *getGLES1ExtensionString(EGLDisplay p_dpy) {
     return NULL;
   }
 
-  static const GLint gles1ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 1,
-                                              EGL_NONE};
+  static const GLint gles1ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 1, EGL_NONE};
 
-  EGLContext ctx = s_egl.eglCreateContext(p_dpy, config, EGL_NO_CONTEXT,
-                                          gles1ContextAttribs);
+  EGLContext ctx = s_egl.eglCreateContext(p_dpy, config, EGL_NO_CONTEXT, gles1ContextAttribs);
   if (ctx == EGL_NO_CONTEXT) {
     ERROR("%s: Could not create GLES 1.x Context!", __FUNCTION__);
     s_egl.eglDestroySurface(p_dpy, surface);
@@ -156,6 +155,12 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
     return false;
   }
 
+  anbox::graphics::GLExtensions egl_extensions{s_egl.eglQueryString(m_eglDisplay, EGL_EXTENSIONS)};
+
+  const auto surfaceless_supported = egl_extensions.support("EGL_KHR_surfaceless_context");
+  if (!surfaceless_supported)
+    DEBUG("EGL doesn't support surfaceless context");
+
   s_egl.eglBindAPI(EGL_OPENGL_ES_API);
 
   // If GLES2 plugin was loaded - try to make GLES2 context and
@@ -201,24 +206,27 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   // The main purpose of it is to solve a "blanking" behaviour we see on
   // on Mac platform when switching binded drawable for a context however
   // it is more efficient on other platforms as well.
-  m_pbufContext = s_egl.eglCreateContext(
-      m_eglDisplay, m_eglConfig, m_eglContext, glContextAttribs);
+  m_pbufContext = s_egl.eglCreateContext(m_eglDisplay, m_eglConfig, m_eglContext, glContextAttribs);
   if (m_pbufContext == EGL_NO_CONTEXT) {
     ERROR("Failed to create pbuffer context: error=0x%x", s_egl.eglGetError());
     free(gles1Extensions);
     return false;
   }
 
-  // Create a 1x1 pbuffer surface which will be used for binding
-  // the FB context. The FB output will go to a subwindow, if one exist.
-  static const EGLint pbufAttribs[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
+  if (!surfaceless_supported) {
+    // Create a 1x1 pbuffer surface which will be used for binding
+    // the FB context. The FB output will go to a subwindow, if one exist.
+    static const EGLint pbufAttribs[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
 
-  m_pbufSurface = s_egl.eglCreatePbufferSurface(
-      m_eglDisplay, m_eglConfig, pbufAttribs);
-  if (m_pbufSurface == EGL_NO_SURFACE) {
-    ERROR("Failed to create pbuffer surface: error=0x%x", s_egl.eglGetError());
-    free(gles1Extensions);
-    return false;
+    m_pbufSurface = s_egl.eglCreatePbufferSurface(m_eglDisplay, m_eglConfig, pbufAttribs);
+    if (m_pbufSurface == EGL_NO_SURFACE) {
+      ERROR("Failed to create pbuffer surface: error=0x%x", s_egl.eglGetError());
+      free(gles1Extensions);
+      return false;
+    }
+  } else {
+    DEBUG("Using a surfaceless EGL context");
+    m_pbufSurface = EGL_NO_SURFACE;
   }
 
   // Make the context current

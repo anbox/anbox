@@ -125,6 +125,7 @@ set(SOURCES
     anbox/graphics/program_family.cpp
     anbox/graphics/primitives.h
     anbox/graphics/renderer.h
+    anbox/graphics/gl_extensions.h
 
     anbox/graphics/emugl/ColorBuffer.cpp
     anbox/graphics/emugl/DisplayManager.cpp
