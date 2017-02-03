@@ -39,7 +39,6 @@ class Run : public cli::CommandWithFlagsAndAction {
  private:
   BusFactory bus_factory_;
   std::string desktop_file_hint_;
-  std::string icon_;
 };
 }  // namespace cmds
 }  // namespace anbox

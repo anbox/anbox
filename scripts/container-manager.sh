@@ -95,7 +95,7 @@ start() {
 	fi
 
 	# Ensure FUSE support for user namespaces is enabled
-	echo Y > /sys/module/fuse/parameters/userns_mounts
+	echo Y | sudo tee /sys/module/fuse/parameters/userns_mounts || echo "WARNING: kernel doesn't support fuse in user namespaces"
 
 	exec $SNAP/usr/sbin/aa-exec -p unconfined -- $SNAP/bin/anbox-wrapper.sh container-manager
 }

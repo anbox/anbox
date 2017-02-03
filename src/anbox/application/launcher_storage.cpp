@@ -48,10 +48,8 @@ void LauncherStorage::add(const Item &item) {
   auto package_name = item.package;
   std::replace(package_name.begin(), package_name.end(), '.', '-');
 
-  const auto item_path =
-      path_ / utils::string_format("anbox-%s.desktop", package_name);
-  const auto item_icon_path =
-      icon_path_ / utils::string_format("anbox-%s.png", package_name);
+  const auto item_path = path_ / utils::string_format("anbox-%s.desktop", package_name);
+  const auto item_icon_path = icon_path_ / utils::string_format("anbox-%s.png", package_name);
 
   std::string exec = utils::string_format("%s launch ", utils::process_get_exe_path(getpid()));
 
@@ -68,21 +66,23 @@ void LauncherStorage::add(const Item &item) {
     exec += utils::string_format("--package=%s ", item.launch_intent.package);
 
   if (!item.launch_intent.component.empty())
-    exec +=
-        utils::string_format("--component=%s ", item.launch_intent.component);
+    exec += utils::string_format("--component=%s ", item.launch_intent.component);
 
-  std::ofstream f(item_path.string());
-  f << "[Desktop Entry]" << std::endl
-    << "Name=" << item.package << std::endl
-    << "Exec=" << exec << std::endl
-    << "Terminal=false" << std::endl
-    << "Type=Application" << std::endl
-    << "Icon=" << item_icon_path.string() << std::endl;
-  f.close();
+  if (auto desktop_item = std::ofstream(item_path.string())) {
+    desktop_item << "[Desktop Entry]" << std::endl
+                 << "Name=" << item.package << std::endl
+                 << "Exec=" << exec << std::endl
+                 << "Terminal=false" << std::endl
+                 << "Type=Application" << std::endl
+                 << "Icon=" << item_icon_path.string() << std::endl;
+  } else {
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create desktop item"));
+  }
 
-  f = std::ofstream(item_icon_path.string());
-  f.write(item.icon.data(), item.icon.size());
-  f.close();
+  if (auto icon = std::ofstream(item_icon_path.string()))
+    icon.write(item.icon.data(), item.icon.size());
+  else
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to write icon"));
 }
 }  // namespace application
 }  // namespace anbox

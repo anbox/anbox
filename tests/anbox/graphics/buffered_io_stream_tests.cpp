@@ -51,7 +51,7 @@ TEST(BufferedIOStream, CommitBufferWritesOutToMessenger) {
   auto messenger = std::make_shared<MockSocketMessenger>();
   BufferedIOStream stream(messenger);
 
-  const auto buffer_size{1000};
+  const size_t buffer_size{1000};
   // We will write out the data we get in two junks of half the size
   // the original buffer has.
   EXPECT_CALL(*messenger, send_raw(_, buffer_size))
@@ -75,8 +75,8 @@ TEST(BufferedIOStream, WriterContinuesWhenSocketIsBusy) {
   auto messenger = std::make_shared<MockSocketMessenger>();
   BufferedIOStream stream(messenger);
 
-  const auto buffer_size{1000};
-  const auto first_chunk_size{100};
+  const size_t buffer_size{1000};
+  const size_t first_chunk_size{100};
   // The writer will check the error code of the send function
   // and will retry writing the next chunk when it doesn't get
   // EAGAIN anymore from the sender.
