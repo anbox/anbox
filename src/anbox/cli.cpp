@@ -44,9 +44,10 @@ static constexpr const char* option = "    --%1% %2%";
 void add_to_desc_for_flags(po::options_description& desc,
                            const std::set<cli::Flag::Ptr>& flags) {
   for (auto flag : flags) {
-    auto v = po::value<std::string>()->notifier(
-        [flag](const std::string& s) { flag->notify(s); });
-    desc.add_options()(flag->name().as_string().c_str(), v,
+    po::value_semantic *spec = nullptr;
+    flag->specify_option(spec);
+    if (!spec) continue;
+    desc.add_options()(flag->name().as_string().c_str(), spec,
                        flag->description().as_string().c_str());
   }
 }
