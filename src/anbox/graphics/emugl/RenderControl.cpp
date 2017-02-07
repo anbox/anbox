@@ -59,17 +59,34 @@ static EGLint rcQueryEGLString(EGLenum name, void *buffer, EGLint bufferSize) {
   if (!renderer)
     return 0;
 
-  const char *str = s_egl.eglQueryString(renderer->getDisplay(), name);
-  if (!str) {
+  auto result = s_egl.eglQueryString(renderer->getDisplay(), name);
+  if (!result)
     return 0;
+
+  std::string approved_result = result;
+
+  // We need to drop a few extensions from the list reported by the driver
+  // as not all are well enough support by our EGL/GLES stack.
+  if (name == EGL_EXTENSIONS) {
+    std::vector<std::string> common_unsupported_extensions = {
+      // Leads to crashes on the Android side when SurfaceFlinger initializes
+      // EGL/GLES and it queries surfaces for available attributes.
+      "EGL_EXT_buffer_age"
+    };
+
+    for (const auto &extension : common_unsupported_extensions) {
+      size_t start_pos = approved_result.find(extension);
+      if (start_pos == std::string::npos) continue;
+      approved_result.replace(start_pos, extension.length(), "");
+    }
   }
 
-  int len = strlen(str) + 1;
+  int len = approved_result.length() + 1;
   if (!buffer || len > bufferSize) {
     return -len;
   }
 
-  strcpy(static_cast<char *>(buffer), str);
+  strcpy(static_cast<char *>(buffer), approved_result.c_str());
   return len;
 }
 
