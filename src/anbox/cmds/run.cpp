@@ -104,6 +104,11 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
       trap->stop();
     });
 
+    if (!fs::exists("/dev/binder") || !fs::exists("/dev/ashmem")) {
+      ERROR("Failed to start as either binder or ashmem kernel drivers are not loaded");
+      return EXIT_FAILURE;
+    }
+
     utils::ensure_paths({
         SystemConfiguration::instance().socket_dir(),
         SystemConfiguration::instance().input_device_dir(),
