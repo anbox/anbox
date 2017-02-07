@@ -42,12 +42,13 @@ LIST_RENDER_EGL_EXTENSIONS_FUNCTIONS(RENDER_EGL_DEFINE_TYPE)
 
 // Define EGLDispatch structure.
 struct EGLDispatch {
+    bool initialized = false;
     LIST_RENDER_EGL_FUNCTIONS(RENDER_EGL_DECLARE_MEMBER)
     LIST_RENDER_EGL_EXTENSIONS_FUNCTIONS(RENDER_EGL_DECLARE_MEMBER)
 };
 
 // Initialize EGLDispatch function. Return true on success, false on failure.
-bool init_egl_dispatch();
+bool init_egl_dispatch(const char *path);
 
 // Global EGLDispatch instance. Call init_egl_dispatch() before using it.
 extern EGLDispatch s_egl;

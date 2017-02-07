@@ -30,19 +30,50 @@
 GLESv2Dispatch s_gles2;
 GLESv1Dispatch s_gles1;
 
+namespace {
+constexpr const char *default_egl_lib{"libEGL.so.1"};
+constexpr const char *default_glesv1_lib{"libGLESv1_CM.so.1"};
+constexpr const char *default_glesv2_lib{"libGLESv2.so.2"};
+}
+
 namespace anbox {
 namespace graphics {
 namespace emugl {
-bool initialize(emugl_logger_struct log_funcs, emugl_crash_func_t crash_func) {
+std::vector<GLLibrary> default_gl_libraries() {
+  return std::vector<GLLibrary>{
+    {GLLibrary::Type::EGL, default_egl_lib},
+    {GLLibrary::Type::GLESv1, default_glesv1_lib},
+    {GLLibrary::Type::GLESv2, default_glesv2_lib},
+  };
+}
+
+bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct log_funcs, emugl_crash_func_t crash_func) {
   set_emugl_crash_reporter(crash_func);
   set_emugl_logger(log_funcs.coarse);
   set_emugl_cxt_logger(log_funcs.fine);
 
-  if (!init_egl_dispatch()) return false;
+  for (const auto &lib : libs) {
+    const auto path = lib.path.c_str();
+    switch (lib.type) {
+    case GLLibrary::Type::EGL:
+      if (!init_egl_dispatch(path))
+        return false;
+      break;
+    case GLLibrary::Type::GLESv1:
+      if (!gles1_dispatch_init(path, &s_gles1))
+        return false;
+      break;
+    case GLLibrary::Type::GLESv2:
+      if (!gles2_dispatch_init(path, &s_gles2))
+        return false;
+      break;
+    default:
+      break;
+    }
+  }
 
-  if (!gles1_dispatch_init(&s_gles1)) return false;
-
-  if (!gles2_dispatch_init(&s_gles2)) return false;
+  if (!s_egl.initialized || !s_gles1.initialized || !s_gles2.initialized)
+    return false;
 
   return true;
 }

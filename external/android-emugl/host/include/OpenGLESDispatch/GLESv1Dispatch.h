@@ -26,6 +26,7 @@
 LIST_GLES1_FUNCTIONS(GLES1_DISPATCH_DEFINE_TYPE,GLES1_DISPATCH_DEFINE_TYPE)
 
 struct GLESv1Dispatch {
+    bool initialized = false;
 #define GLES1_DISPATCH_DECLARE_POINTER(return_type,func_name,signature,callargs) \
         func_name ## _t func_name;
     LIST_GLES1_FUNCTIONS(GLES1_DISPATCH_DECLARE_POINTER,
@@ -35,7 +36,7 @@ struct GLESv1Dispatch {
 #undef GLES1_DISPATCH_DECLARE_POINTER
 #undef GLES1_DISPATCH_DEFINE_TYPE
 
-bool gles1_dispatch_init(GLESv1Dispatch* dispatch_table);
+bool gles1_dispatch_init(const char *path, GLESv1Dispatch* dispatch_table);
 
 // Used to initialize the decoder.
 void* gles1_dispatch_get_proc_func(const char* name, void* userData);

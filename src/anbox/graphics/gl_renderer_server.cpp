@@ -24,6 +24,7 @@
 #include "anbox/wm/manager.h"
 
 #include <boost/throw_exception.hpp>
+#include <boost/filesystem.hpp>
 #include <cstdarg>
 #include <stdexcept>
 
@@ -42,39 +43,27 @@ void logger_write(const char *format, ...) {
 
 namespace anbox {
 namespace graphics {
-GLRendererServer::GLRendererServer(const std::shared_ptr<wm::Manager> &wm)
+GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<wm::Manager> &wm)
     : renderer_(std::make_shared<::Renderer>()),
       wm_(wm),
       composer_(std::make_shared<LayerComposer>(renderer_, wm)) {
-  if (utils::is_env_set("USE_HOST_GLES")) {
-    // Force the host EGL/GLES libraries as translator implementation
-    ::setenv("ANDROID_EGL_LIB", "libEGL.so.1", 0);
-    ::setenv("ANDROID_GLESv1_LIB", "libGLESv2.so.2", 0);
-    ::setenv("ANDROID_GLESv2_LIB", "libGLESv2.so.2", 0);
-  } else {
-    auto translator_dir =
-        utils::prefix_dir_from_env(TRANSLATOR_INSTALL_DIR, "SNAP");
-    ::setenv(
-        "ANDROID_EGL_LIB",
-        utils::string_format("%s/libEGL_translator.so", translator_dir).c_str(),
-        0);
-    ::setenv("ANDROID_GLESv1_LIB",
-             utils::string_format("%s/libGLES_CM_translator.so", translator_dir)
-                 .c_str(),
-             0);
-    ::setenv("ANDROID_GLESv2_LIB",
-             utils::string_format("%s/libGLES_V2_translator.so", translator_dir)
-                 .c_str(),
-             0);
+
+  std::vector<emugl::GLLibrary> gl_libs = emugl::default_gl_libraries();
+
+  if (config.driver == Config::Driver::Translator) {
+    DEBUG("Using GLES-to-GL translator for rendering");
+    boost::filesystem::path translator_dir = utils::prefix_dir_from_env(TRANSLATOR_INSTALL_DIR, "SNAP");
+    gl_libs.push_back(emugl::GLLibrary{emugl::GLLibrary::Type::EGL, (translator_dir / "libEGL_translator.so")});
+    gl_libs.push_back(emugl::GLLibrary{emugl::GLLibrary::Type::GLESv1, (translator_dir / "libGLES_CM_translator.so")});
+    gl_libs.push_back(emugl::GLLibrary{emugl::GLLibrary::Type::GLESv2, (translator_dir / "libGLES_V2_translator.so")});
   }
 
   emugl_logger_struct log_funcs;
   log_funcs.coarse = logger_write;
   log_funcs.fine = logger_write;
 
-  if (!emugl::initialize(log_funcs, nullptr))
-    BOOST_THROW_EXCEPTION(
-        std::runtime_error("Failed to initialize OpenGL renderer"));
+  if (!emugl::initialize(gl_libs, log_funcs, nullptr))
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize OpenGL renderer"));
 
   renderer_->initialize(0);
 

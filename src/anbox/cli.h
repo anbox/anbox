@@ -71,7 +71,7 @@ std::ostream& operator<<(std::ostream& out,
 // We are imposing size constraints to ensure a consistent CLI layout.
 typedef SizeConstrainedString<20> Name;
 typedef SizeConstrainedString<60> Usage;
-typedef SizeConstrainedString<60> Description;
+typedef SizeConstrainedString<80> Description;
 
 /// @brief Flag models an input parameter to a command.
 class Flag : public DoNotCopyOrMove {
