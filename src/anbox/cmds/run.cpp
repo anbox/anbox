@@ -109,6 +109,13 @@ anbox::cmds::Run::Run(const BusFactory &bus_factory)
       return EXIT_FAILURE;
     }
 
+    // If we're running with the properietary nvidia driver we always
+    // use the host EGL driver as our translation doesn't work here.
+    if (fs::exists("/dev/nvidiactl")) {
+      INFO("Detected properietary nvidia driver; forcing use of the host EGL driver.");
+      gles_driver_ = graphics::GLRendererServer::Config::Driver::Host;
+    }
+
     utils::ensure_paths({
         SystemConfiguration::instance().socket_dir(),
         SystemConfiguration::instance().input_device_dir(),
