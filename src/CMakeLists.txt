@@ -184,9 +184,9 @@ set(SOURCES
     anbox/application/launcher_storage.cpp
 
     anbox/cmds/version.cpp
-    anbox/cmds/run.cpp
-    anbox/cmds/launch.cpp
+    anbox/cmds/session_manager.cpp
     anbox/cmds/container_manager.cpp
+    anbox/cmds/launch.cpp
 
     anbox/do_not_copy_or_move.h
     anbox/optional.h
