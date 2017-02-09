@@ -19,6 +19,7 @@
 #include "anbox/container/service.h"
 #include "anbox/logger.h"
 #include "anbox/runtime.h"
+#include "anbox/config.h"
 
 #include "core/posix/signal.h"
 
@@ -26,13 +27,21 @@ anbox::cmds::ContainerManager::ContainerManager()
     : CommandWithFlagsAndAction{
           cli::Name{"container-manager"}, cli::Usage{"container-manager"},
           cli::Description{"Start the container manager service"}} {
-  action([](const cli::Command::Context&) {
+
+  flag(cli::make_flag(cli::Name{"data-path"},
+                      cli::Description{"Path where the container and its data is stored"},
+                      data_path_));
+
+  action([&](const cli::Command::Context&) {
     auto trap = core::posix::trap_signals_for_process(
         {core::posix::Signal::sig_term, core::posix::Signal::sig_int});
     trap->signal_raised().connect([trap](const core::posix::Signal& signal) {
       INFO("Signal %i received. Good night.", static_cast<int>(signal));
       trap->stop();
     });
+
+    if (!data_path_.empty())
+      SystemConfiguration::instance().set_data_path(data_path_);
 
     auto rt = Runtime::create();
     auto service = container::Service::create(rt);

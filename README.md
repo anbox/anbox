@@ -26,6 +26,18 @@ For more details have a look at the following documentation pages:
 
 ## Installation
 
+As first step you need to install additional kernel drivers for the
+Android binder and ashmem subsystems. Those drivers are packaged as
+a DKMS package for Ubuntu 16.04 already. You can install them from
+a ppa with the following commands:
+
+```
+ $ sudo apt install software-properties-common
+ $ sudo add-apt-repository ppa:morphis/anbox-support
+ $ sudo apt update
+ $ sudo apt install anbox-modules-dkms
+```
+
 Anbox is available as a snap in the public Ubuntu Store. Currently it
 is only available in the edge channel and requires to be installed in
 devmode as we don't have proper confinement for it in place yet.

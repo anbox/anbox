@@ -6,7 +6,7 @@ set -x
 # Other than that nothing should ever modify the content of the
 # rootfs.
 
-DATA_PATH=$SNAP_COMMON/var/lib/anbox
+DATA_PATH=$SNAP_COMMON/
 ROOTFS_PATH=$DATA_PATH/rootfs
 ANDROID_IMG=$SNAP/android.img
 CONTAINER_BASE_UID=100000
@@ -16,45 +16,18 @@ if [ ! -e $ANDROID_IMG ]; then
 	exit 1
 fi
 
-build_kernel_modules() {
-	kversion=$1
-
-	rm -rf $SNAP_COMMON/kernel-*
-
-	$SNAP/bin/classic-create || true
-
-	rm -rf $SNAP_COMMON/classic/build
-	mkdir -p $SNAP_COMMON/classic/build
-	cp -rav $SNAP/ashmem $SNAP_COMMON/classic/build/
-	cp -rav $SNAP/binder $SNAP_COMMON/classic/build/
-
-	cat<<EOF > $SNAP_COMMON/classic/build/run.sh
-#!/bin/sh
-set -ex
-apt update
-apt install -y --force-yes linux-headers-$kversion build-essential
-cd /build/ashmem
-make
-cd /build/binder
-make
-EOF
-
-	chmod +x $SNAP_COMMON/classic/build/run.sh
-	$SNAP/bin/classic /build/run.sh
-
-	mkdir -p $SNAP_COMMON/kernel-$kversion
-	cp $SNAP_COMMON/classic/build/ashmem/ashmem_linux.ko \
-		$SNAP_COMMON/kernel-$kversion/
-	cp $SNAP_COMMON/classic/build/binder/binder_linux.ko \
-		$SNAP_COMMON/kernel-$kversion/
-}
-
 load_kernel_modules() {
 	kversion=`uname -r`
 	rmmod ashmem_linux binder_linux || true
 	echo "Loading kernel modules for version $kversion.."
-	insmod $SNAP_COMMON/kernel-$kversion/binder_linux.ko
-	insmod $SNAP_COMMON/kernel-$kversion/ashmem_linux.ko
+	if ! `modprobe binder_linux` ; then
+		echo "ERROR: Failed to load kernel binder driver"
+		return
+	fi
+	if ! `modprobe ashmem_linux` ; then
+		echo "ERROR: Failed to load kernel ashmem driver"
+		return
+	fi
 	sleep 0.5
 	chmod 666 /dev/binder
 	chmod 666 /dev/ashmem
@@ -81,23 +54,15 @@ start() {
 	# possible. See snapcraft.yaml for further details.
 	$SNAP/bin/anbox-bridge.sh start
 
-	# Building and loading the necessary kernel modules is only possible
-	# on Ubuntu 16.04 (xenial)
-	if [ -e /var/lib/snapd/hostfs/etc/os-release ]; then
-		. /var/lib/snapd/hostfs/etc/os-release
-		if [ $UBUNTU_CODENAME = xenial ]; then
-			kversion=`uname -r`
-			if [ ! -e $SNAP_COMMON/kernel-$kversion ]; then
-				build_kernel_modules $kversion
-			fi
-			load_kernel_modules
-		fi
-	fi
+	# This will try to load the kernel modules. If this fails we will
+	# continue as normal and anbox will fail later on and report a
+	# visible error message to the user.
+	load_kernel_modules
 
 	# Ensure FUSE support for user namespaces is enabled
 	echo Y | sudo tee /sys/module/fuse/parameters/userns_mounts || echo "WARNING: kernel doesn't support fuse in user namespaces"
 
-	exec $SNAP/usr/sbin/aa-exec -p unconfined -- $SNAP/bin/anbox-wrapper.sh container-manager
+	exec $SNAP/usr/sbin/aa-exec -p unconfined -- $SNAP/bin/anbox-wrapper.sh container-manager --data-path=$DATA_PATH
 }
 
 stop() {
