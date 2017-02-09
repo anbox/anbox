@@ -30,13 +30,13 @@
 
 namespace anbox {
 namespace cmds {
-class Run : public cli::CommandWithFlagsAndAction {
+class SessionManager : public cli::CommandWithFlagsAndAction {
  public:
   typedef std::function<core::dbus::Bus::Ptr()> BusFactory;
 
   static BusFactory session_bus_factory();
 
-  Run(const BusFactory& bus_factory = session_bus_factory());
+  SessionManager(const BusFactory& bus_factory = session_bus_factory());
 
  private:
   BusFactory bus_factory_;

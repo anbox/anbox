@@ -26,7 +26,7 @@
 #include "anbox/bridge/android_api_stub.h"
 #include "anbox/bridge/platform_api_skeleton.h"
 #include "anbox/bridge/platform_message_processor.h"
-#include "anbox/cmds/run.h"
+#include "anbox/cmds/session_manager.h"
 #include "anbox/common/dispatcher.h"
 #include "anbox/config.h"
 #include "anbox/container/client.h"
@@ -76,13 +76,13 @@ std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Co
 }
 }
 
-anbox::cmds::Run::BusFactory anbox::cmds::Run::session_bus_factory() {
+anbox::cmds::SessionManager::BusFactory anbox::cmds::SessionManager::session_bus_factory() {
   return []() {
     return std::make_shared<core::dbus::Bus>(core::dbus::WellKnownBus::session);
   };
 }
 
-anbox::cmds::Run::Run(const BusFactory &bus_factory)
+anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     : CommandWithFlagsAndAction{cli::Name{"run"}, cli::Usage{"run"},
                                 cli::Description{"Run the the anbox system"}},
       bus_factory_(bus_factory) {

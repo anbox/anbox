@@ -23,8 +23,8 @@
 #include "anbox/logger.h"
 
 #include "anbox/cmds/container_manager.h"
+#include "anbox/cmds/session_manager.h"
 #include "anbox/cmds/launch.h"
-#include "anbox/cmds/run.h"
 #include "anbox/cmds/version.h"
 
 #include <boost/filesystem.hpp>
@@ -36,7 +36,7 @@ Daemon::Daemon()
     : cmd{cli::Name{"anbox"}, cli::Usage{"anbox"},
           cli::Description{"The Android in a Box runtime"}} {
   cmd.command(std::make_shared<cmds::Version>())
-      .command(std::make_shared<cmds::Run>())
+      .command(std::make_shared<cmds::SessionManager>())
       .command(std::make_shared<cmds::Launch>())
       .command(std::make_shared<cmds::ContainerManager>());
 }
