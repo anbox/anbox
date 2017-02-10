@@ -32,6 +32,7 @@ class SystemConfiguration {
 
   void set_data_path(const std::string &path);
 
+  boost::filesystem::path data_dir() const;
   std::string rootfs_dir() const;
   std::string log_dir() const;
   std::string socket_dir() const;

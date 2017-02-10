@@ -40,6 +40,10 @@ void anbox::SystemConfiguration::set_data_path(const std::string &path) {
   data_path = path;
 }
 
+fs::path anbox::SystemConfiguration::data_dir() const {
+  return data_path;
+}
+
 std::string anbox::SystemConfiguration::rootfs_dir() const {
   return (data_path / "rootfs").string();
 }

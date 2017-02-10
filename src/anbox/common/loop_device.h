@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
+ * Copyright (C) 2017 Simon Fels <morphis@gravedo.de>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -15,34 +15,32 @@
  *
  */
 
-#ifndef ANBOX_CMDS_CONTAINER_MANAGER_H_
-#define ANBOX_CMDS_CONTAINER_MANAGER_H_
+#ifndef ANBOX_COMMON_LOOP_DEVICE_H_
+#define ANBOX_COMMON_LOOP_DEVICE_H_
 
-#include <functional>
-#include <iostream>
-#include <memory>
+#include "anbox/common/fd.h"
 
-#include "anbox/cli.h"
-
-#include "anbox/common/loop_device.h"
-#include "anbox/common/mount_entry.h"
+#include <boost/filesystem/path.hpp>
 
 namespace anbox {
-namespace cmds {
-class ContainerManager : public cli::CommandWithFlagsAndAction {
+namespace common {
+class LoopDevice {
  public:
-  ContainerManager();
-  ~ContainerManager();
+  static std::shared_ptr<LoopDevice> create(const boost::filesystem::path &path);
+
+  ~LoopDevice();
+
+  bool attach_file(const boost::filesystem::path &file_path);
+
+  boost::filesystem::path path() const { return path_; }
 
  private:
-  bool setup_mounts();
+  LoopDevice(Fd fd, const boost::filesystem::path &path);
 
-  std::string android_img_path_;
-  std::string data_path_;
-  std::shared_ptr<common::LoopDevice> android_img_loop_dev_;
-  std::vector<std::shared_ptr<common::MountEntry>> mounts_;
+  Fd fd_;
+  boost::filesystem::path path_;
 };
-}  // namespace cmds
-}  // namespace anbox
+} // namespace common
+} // namespace anbox
 
 #endif
