@@ -22,19 +22,22 @@
 namespace anbox {
 namespace dbus {
 namespace stub {
-std::shared_ptr<ApplicationManager> ApplicationManager::create_for_bus(
-    const core::dbus::Bus::Ptr &bus) {
-  auto service = core::dbus::Service::use_service(
-      bus, anbox::dbus::interface::Service::name());
-  auto object =
-      service->add_object_for_path(anbox::dbus::interface::Service::path());
+std::shared_ptr<ApplicationManager> ApplicationManager::create_for_bus(const core::dbus::Bus::Ptr &bus) {
+  auto service = core::dbus::Service::use_service_or_throw_if_not_available(bus, anbox::dbus::interface::Service::name());
+  auto object = service->add_object_for_path(anbox::dbus::interface::Service::path());
   return std::make_shared<ApplicationManager>(bus, service, object);
 }
 
 ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
                                        const core::dbus::Service::Ptr &service,
                                        const core::dbus::Object::Ptr &object)
-    : bus_(bus), service_(service), object_(object) {}
+    : bus_(bus), service_(service), object_(object),
+      properties_{ object_->get_property<anbox::dbus::interface::ApplicationManager::Properties::Ready>() } {
+
+  // Forward changes on the dbus property to our users
+  ready_.install([&]() { return properties_.ready->get(); });
+  properties_.ready->changed().connect([&](bool value) { ready_.set(value); });
+}
 
 ApplicationManager::~ApplicationManager() {}
 
@@ -47,6 +50,10 @@ void ApplicationManager::launch(const android::Intent &intent, const graphics::R
       launch_bounds.right(), launch_bounds.bottom());
 
   if (result.is_error()) throw std::runtime_error(result.error().print());
+}
+
+core::Property<bool>& ApplicationManager::ready() {
+  return ready_;
 }
 }  // namespace skeleton
 }  // namespace dbus

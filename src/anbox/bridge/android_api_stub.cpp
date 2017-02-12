@@ -92,6 +92,10 @@ void AndroidApiStub::launch(const android::Intent &intent,
   if (c->response->has_error()) throw std::runtime_error(c->response->error());
 }
 
+core::Property<bool>& AndroidApiStub::ready() {
+  return ready_;
+}
+
 void AndroidApiStub::application_launched(
     Request<protobuf::rpc::Void> *request) {
   (void)request;

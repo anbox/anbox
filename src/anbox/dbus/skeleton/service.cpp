@@ -39,8 +39,7 @@ Service::Service(
     : bus_(bus),
       service_(service),
       object_(object),
-      application_manager_(std::make_shared<ApplicationManager>(
-          bus_, object_, application_manager)) {}
+      application_manager_(std::make_shared<ApplicationManager>(bus_, object_, application_manager)) {}
 
 Service::~Service() {}
 }  // namespace skeleton

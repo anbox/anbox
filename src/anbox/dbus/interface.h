@@ -19,6 +19,7 @@
 #define ANBOX_DBUS_INTERFACE_H_
 
 #include <core/dbus/macros.h>
+#include <core/dbus/property.h>
 
 #include <chrono>
 #include <string>
@@ -41,6 +42,9 @@ struct ApplicationManager {
         return std::chrono::seconds{1};
       }
     };
+  };
+  struct Properties {
+    DBUS_CPP_READABLE_PROPERTY_DEF(Ready, ApplicationManager, bool)
   };
 };
 }  // namespace interface
