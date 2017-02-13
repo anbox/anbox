@@ -60,7 +60,7 @@ class AdbMessageProcessor : public network::MessageProcessor {
   std::shared_ptr<Runtime> runtime_;
   State state_ = waiting_for_guest_accept_command;
   std::string expected_command_;
-  std::shared_ptr<network::SocketMessenger> messenger_;
+  std::shared_ptr<network::SocketMessenger> const messenger_;
   std::vector<std::uint8_t> buffer_;
   std::shared_ptr<network::TcpSocketConnector> host_connector_;
   std::shared_ptr<network::TcpSocketMessenger> host_messenger_;

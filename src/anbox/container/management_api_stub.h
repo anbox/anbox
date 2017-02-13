@@ -40,6 +40,7 @@ class ManagementApiStub : public DoNotCopyOrMove {
   ~ManagementApiStub();
 
   void start_container(const Configuration &configuration);
+  void stop_container();
 
  private:
   template <typename Response>
@@ -47,13 +48,14 @@ class ManagementApiStub : public DoNotCopyOrMove {
     Request() : response(std::make_shared<Response>()), success(true) {}
     std::shared_ptr<Response> response;
     bool success;
+    common::WaitHandle wh;
   };
 
   void container_started(Request<protobuf::rpc::Void> *request);
+  void container_stopped(Request<protobuf::rpc::Void> *request);
 
   mutable std::mutex mutex_;
   std::shared_ptr<rpc::Channel> channel_;
-  common::WaitHandle start_wait_handle_;
 };
 }  // namespace container
 }  // namespace anbox

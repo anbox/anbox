@@ -33,10 +33,12 @@ namespace container {
 std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt, bool privileged) {
   auto sp = std::shared_ptr<Service>(new Service(rt, privileged));
 
-  auto delegate_connector = std::make_shared<
-      network::DelegateConnectionCreator<boost::asio::local::stream_protocol>>(
-      [sp](std::shared_ptr<boost::asio::local::stream_protocol::socket> const
-               &socket) { sp->new_client(socket); });
+  auto wp = std::weak_ptr<Service>(sp);
+  auto delegate_connector = std::make_shared<network::DelegateConnectionCreator<boost::asio::local::stream_protocol>>(
+      [wp](std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket) {
+        if (auto service = wp.lock())
+          service->new_client(socket);
+  });
 
   const auto container_socket_path = SystemConfiguration::instance().container_socket_path();
   sp->connector_ = std::make_shared<network::PublishedSocketConnector>(container_socket_path, rt, delegate_connector);
@@ -56,7 +58,9 @@ Service::Service(const std::shared_ptr<Runtime> &rt, bool privileged)
       privileged_(privileged) {
 }
 
-Service::~Service() {}
+Service::~Service() {
+  connections_->clear();
+}
 
 int Service::next_id() { return next_connection_id_++; }
 

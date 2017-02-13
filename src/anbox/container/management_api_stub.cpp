@@ -36,7 +36,7 @@ void ManagementApiStub::start_container(const Configuration &configuration) {
   protobuf::container::StartContainer message;
   auto message_configuration = new protobuf::container::Configuration;
 
-  for (const auto item : configuration.bind_mounts) {
+  for (const auto &item : configuration.bind_mounts) {
     auto bind_mount_message = message_configuration->add_bind_mounts();
     bind_mount_message->set_source(item.first);
     bind_mount_message->set_target(item.second);
@@ -46,24 +46,43 @@ void ManagementApiStub::start_container(const Configuration &configuration) {
 
   {
     std::lock_guard<decltype(mutex_)> lock(mutex_);
-    start_wait_handle_.expect_result();
+    c->wh.expect_result();
   }
 
-  channel_->call_method(
-      "start_container", &message, c->response.get(),
-      google::protobuf::NewCallback(this, &ManagementApiStub::container_started,
-                                    c.get()));
+  channel_->call_method("start_container", &message, c->response.get(),
+      google::protobuf::NewCallback(this, &ManagementApiStub::container_started, c.get()));
 
-  start_wait_handle_.wait_for_all();
+  c->wh.wait_for_all();
 
   if (c->response->has_error()) throw std::runtime_error(c->response->error());
 }
 
-void ManagementApiStub::container_started(
-    Request<protobuf::rpc::Void> *request) {
-  (void)request;
-  DEBUG("");
-  start_wait_handle_.result_received();
+void ManagementApiStub::container_started(Request<protobuf::rpc::Void> *request) {
+  request->wh.result_received();
 }
+
+void ManagementApiStub::stop_container() {
+  auto c = std::make_shared<Request<protobuf::rpc::Void>>();
+
+  protobuf::container::StopContainer message;
+  message.set_force(false);
+
+  {
+    std::lock_guard<decltype(mutex_)> lock(mutex_);
+    c->wh.expect_result();
+  }
+
+  channel_->call_method("stop_container", &message, c->response.get(),
+      google::protobuf::NewCallback(this, &ManagementApiStub::container_stopped, c.get()));
+
+  c->wh.wait_for_all();
+
+  if (c->response->has_error()) throw std::runtime_error(c->response->error());
+}
+
+void ManagementApiStub::container_stopped(Request<protobuf::rpc::Void> *request) {
+  request->wh.result_received();
+}
+
 }  // namespace container
 }  // namespace anbox

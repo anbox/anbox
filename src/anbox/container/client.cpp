@@ -42,7 +42,7 @@ Client::Client(const std::shared_ptr<Runtime> &rt)
 
 Client::~Client() {}
 
-void Client::start_container(const Configuration &configuration) {
+void Client::start(const Configuration &configuration) {
   try {
     management_api_->start_container(configuration);
   } catch (const std::exception &e) {
@@ -50,6 +50,10 @@ void Client::start_container(const Configuration &configuration) {
     if (terminate_callback_)
       terminate_callback_();
   }
+}
+
+void Client::stop() {
+  management_api_->stop_container();
 }
 
 void Client::register_terminate_handler(const TerminateCallback &callback) {

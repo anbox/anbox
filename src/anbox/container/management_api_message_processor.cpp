@@ -32,11 +32,11 @@ ManagementApiMessageProcessor::ManagementApiMessageProcessor(
 
 ManagementApiMessageProcessor::~ManagementApiMessageProcessor() {}
 
-void ManagementApiMessageProcessor::dispatch(
-    rpc::Invocation const &invocation) {
+void ManagementApiMessageProcessor::dispatch(rpc::Invocation const &invocation) {
   if (invocation.method_name() == "start_container")
-    invoke(this, server_.get(), &ManagementApiSkeleton::start_container,
-           invocation);
+    invoke(this, server_.get(), &ManagementApiSkeleton::start_container, invocation);
+  else if (invocation.method_name() == "stop_container")
+    invoke(this, server_.get(), &ManagementApiSkeleton::stop_container, invocation);
 }
 
 void ManagementApiMessageProcessor::process_event_sequence(

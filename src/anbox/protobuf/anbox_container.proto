@@ -13,3 +13,7 @@ message Configuration {
 message StartContainer {
     required Configuration configuration = 1;
 }
+
+message StopContainer {
+    optional bool force = 1;
+}

@@ -53,12 +53,10 @@ void TcpSocketConnector::on_new_connection(
     case boost::system::errc::success:
       connection_creator_->create_connection_for(socket);
       break;
-    case boost::system::errc::operation_canceled:
+    default:
       // Socket was closed so don't listen for any further incoming
       // connection attempts.
       return;
-    default:
-      break;
   }
 
   start_accept();

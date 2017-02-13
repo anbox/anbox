@@ -55,8 +55,28 @@ void ManagementApiSkeleton::start_container(
   try {
     container_->start(container_configuration);
   } catch (std::exception &err) {
-    response->set_error(
-        utils::string_format("Failed to start container: %s", err.what()));
+    response->set_error(utils::string_format("Failed to start container: %s", err.what()));
+  }
+
+  done->Run();
+}
+
+void ManagementApiSkeleton::stop_container(
+    anbox::protobuf::container::StopContainer const *request,
+    anbox::protobuf::rpc::Void *response, google::protobuf::Closure *done) {
+
+  (void)request;
+
+  if (container_->state() != Container::State::running) {
+    response->set_error("Container is not running");
+    done->Run();
+    return;
+  }
+
+  try {
+    container_->stop();
+  } catch (std::exception &err) {
+    response->set_error(utils::string_format("Failed to stop container: %s", err.what()));
   }
 
   done->Run();
