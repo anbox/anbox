@@ -83,8 +83,8 @@ anbox::cmds::SessionManager::BusFactory anbox::cmds::SessionManager::session_bus
 }
 
 anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
-    : CommandWithFlagsAndAction{cli::Name{"run"}, cli::Usage{"run"},
-                                cli::Description{"Run the the anbox system"}},
+    : CommandWithFlagsAndAction{cli::Name{"session-manager"}, cli::Usage{"session-manager"},
+                                cli::Description{"Run the the anbox session manager"}},
       bus_factory_(bus_factory) {
   // Just for the purpose to allow QtMir (or unity8) to find this on our
   // /proc/*/cmdline
