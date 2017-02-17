@@ -24,6 +24,7 @@
 #include <stdexcept>
 
 #include <fcntl.h>
+#include <mntent.h>
 
 #include "anbox/utils.h"
 
@@ -161,6 +162,21 @@ std::string prefix_dir_from_env(const std::string &path,
 std::string process_get_exe_path(const pid_t &pid) {
   auto exe_path = string_format("/proc/%d/exe", pid);
   return boost::filesystem::read_symlink(exe_path).string();
+}
+
+bool is_mounted(const std::string &path) {
+  FILE *mtab = nullptr;
+  struct mntent *part = nullptr;
+  bool is_mounted = false;
+  if ((mtab = setmntent("/etc/mtab", "r")) != nullptr) {
+    while ((part = getmntent(mtab)) != nullptr) {
+      if ((part->mnt_fsname != nullptr) && (strcmp(part->mnt_fsname, path.c_str())) == 0)
+        is_mounted = true;
+    }
+    endmntent(mtab);
+  }
+  return is_mounted;
+
 }
 
 }  // namespace utils

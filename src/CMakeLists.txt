@@ -71,6 +71,9 @@ set(SOURCES
     anbox/common/type_traits.h
     anbox/common/message_channel.cpp
     anbox/common/scope_ptr.h
+    anbox/common/loop_device.cpp
+    anbox/common/loop_device_allocator.cpp
+    anbox/common/mount_entry.cpp
 
     anbox/testing/gtest_utils.h
 

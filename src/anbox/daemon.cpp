@@ -36,9 +36,9 @@ Daemon::Daemon()
     : cmd{cli::Name{"anbox"}, cli::Usage{"anbox"},
           cli::Description{"The Android in a Box runtime"}} {
   cmd.command(std::make_shared<cmds::Version>())
-      .command(std::make_shared<cmds::SessionManager>())
-      .command(std::make_shared<cmds::Launch>())
-      .command(std::make_shared<cmds::ContainerManager>());
+     .command(std::make_shared<cmds::SessionManager>())
+     .command(std::make_shared<cmds::Launch>())
+     .command(std::make_shared<cmds::ContainerManager>());
 }
 
 int Daemon::Run(const std::vector<std::string> &arguments) try {
@@ -47,6 +47,7 @@ int Daemon::Run(const std::vector<std::string> &arguments) try {
   return cmd.run({std::cin, std::cout, argv});
 } catch (std::exception &err) {
   ERROR("%s", err.what());
+
   return EXIT_FAILURE;
 }
 }  // namespace anbox

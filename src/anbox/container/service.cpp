@@ -56,7 +56,7 @@ Service::Service(const std::shared_ptr<Runtime> &rt)
           std::make_shared<network::Connections<network::SocketConnection>>()) {
 }
 
-Service::~Service() { DEBUG(""); }
+Service::~Service() {}
 
 int Service::next_id() { return next_connection_id_++; }
 

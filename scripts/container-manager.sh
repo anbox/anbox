@@ -34,17 +34,6 @@ load_kernel_modules() {
 }
 
 start() {
-	# Setup the read-only rootfs
-	mkdir -p $ROOTFS_PATH
-	mount -o loop,ro $ANDROID_IMG $ROOTFS_PATH
-
-	# but certain top-level directories need to be in a writable space
-	for dir in cache data; do
-		mkdir -p $DATA_PATH/android-$dir
-		chown $CONTAINER_BASE_UID:$CONTAINER_BASE_UID $DATA_PATH/android-$dir
-		mount -o bind $DATA_PATH/android-$dir $ROOTFS_PATH/$dir
-	done
-
 	# Make sure our setup path for the container rootfs
 	# is present as lxc is statically configured for
 	# this path.
@@ -62,7 +51,10 @@ start() {
 	# Ensure FUSE support for user namespaces is enabled
 	echo Y | sudo tee /sys/module/fuse/parameters/userns_mounts || echo "WARNING: kernel doesn't support fuse in user namespaces"
 
-	exec $SNAP/usr/sbin/aa-exec -p unconfined -- $SNAP/bin/anbox-wrapper.sh container-manager --data-path=$DATA_PATH
+	exec $SNAP/usr/sbin/aa-exec -p unconfined -- \
+		$SNAP/bin/anbox-wrapper.sh container-manager \
+		--data-path=$DATA_PATH \
+		--android-image=$ANDROID_IMG
 }
 
 stop() {
