@@ -40,8 +40,10 @@ PlatformPolicy::PlatformPolicy(
     : input_manager_(input_manager),
       android_api_(android_api),
       event_thread_running_(false) {
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0)
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize SDL"));
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) {
+    const auto message = utils::string_format("Failed to initialize SDL: %s", SDL_GetError());
+    BOOST_THROW_EXCEPTION(std::runtime_error(message));
+  }
 
   auto display_frame = graphics::Rect::Invalid;
   for (auto n = 0; n < SDL_GetNumVideoDisplays(); n++) {
