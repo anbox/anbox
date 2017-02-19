@@ -39,10 +39,13 @@ constexpr const char *default_glesv2_lib{"libGLESv2.so.2"};
 namespace anbox {
 namespace graphics {
 namespace emugl {
-std::vector<GLLibrary> default_gl_libraries() {
+std::vector<GLLibrary> default_gl_libraries(bool no_glesv1) {
   return std::vector<GLLibrary>{
     {GLLibrary::Type::EGL, default_egl_lib},
-    {GLLibrary::Type::GLESv1, default_glesv1_lib},
+    // If environment doesn't provide a GLESv1 .so file we use the GLESv2
+    // implementation instead. If our stack allows it we can try to get
+    // rid of GLESv1 completely at a later point.
+    {GLLibrary::Type::GLESv1, no_glesv1 ? default_glesv2_lib : default_glesv1_lib},
     {GLLibrary::Type::GLESv2, default_glesv2_lib},
   };
 }

@@ -48,7 +48,7 @@ GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<w
       wm_(wm),
       composer_(std::make_shared<LayerComposer>(renderer_, wm)) {
 
-  std::vector<emugl::GLLibrary> gl_libs = emugl::default_gl_libraries();
+  std::vector<emugl::GLLibrary> gl_libs = emugl::default_gl_libraries(true);
 
   if (config.driver == Config::Driver::Translator) {
     DEBUG("Using GLES-to-GL translator for rendering");
