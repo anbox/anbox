@@ -38,7 +38,7 @@ struct GLLibrary {
   boost::filesystem::path path;
 };
 
-std::vector<GLLibrary> default_gl_libraries();
+std::vector<GLLibrary> default_gl_libraries(bool no_glesv1 = false);
 
 bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct log_funcs, emugl_crash_func_t crash_func);
 }  // namespace emugl
