@@ -109,7 +109,7 @@ bool anbox::cmds::ContainerManager::setup_mounts() {
     return false;
   }
 
-  auto m = common::MountEntry::create(loop_device, android_rootfs_dir, "squashfs", MS_MGC_VAL | MS_RDONLY);
+  auto m = common::MountEntry::create(loop_device, android_rootfs_dir, "squashfs", MS_MGC_VAL | MS_RDONLY | MS_PRIVATE);
   if (!m) {
     ERROR("Failed to mount Android rootfs");
     return false;
@@ -133,7 +133,7 @@ bool anbox::cmds::ContainerManager::setup_mounts() {
       }
     }
 
-    auto m = common::MountEntry::create(src_dir_path, target_dir_path, "", MS_MGC_VAL | MS_BIND);
+    auto m = common::MountEntry::create(src_dir_path, target_dir_path, "", MS_MGC_VAL | MS_BIND | MS_PRIVATE);
     if (!m) {
       ERROR("Failed to mount Android %s directory", dir_name);
       mounts_.clear();
