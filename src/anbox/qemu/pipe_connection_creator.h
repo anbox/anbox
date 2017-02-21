@@ -68,8 +68,7 @@ class PipeConnectionCreator
   std::shared_ptr<Renderer> renderer_;
   std::shared_ptr<Runtime> runtime_;
   std::atomic<int> next_connection_id_;
-  std::shared_ptr<network::Connections<network::SocketConnection>> const
-      connections_;
+  std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;
 };
 }  // namespace qemu
 }  // namespace anbox

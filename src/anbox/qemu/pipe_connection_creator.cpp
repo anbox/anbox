@@ -73,13 +73,14 @@ PipeConnectionCreator::PipeConnectionCreator(const std::shared_ptr<Renderer> &re
           std::make_shared<network::Connections<network::SocketConnection>>()) {
 }
 
-PipeConnectionCreator::~PipeConnectionCreator() {}
+PipeConnectionCreator::~PipeConnectionCreator() {
+  connections_->clear();
+}
 
 void PipeConnectionCreator::create_connection_for(
     std::shared_ptr<boost::asio::local::stream_protocol::socket> const
         &socket) {
-  auto const messenger =
-      std::make_shared<network::LocalSocketMessenger>(socket);
+  auto const messenger = std::make_shared<network::LocalSocketMessenger>(socket);
   const auto type = identify_client(messenger);
   auto const processor = create_processor(type, messenger);
   if (!processor)

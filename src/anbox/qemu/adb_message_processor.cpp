@@ -49,6 +49,7 @@ AdbMessageProcessor::AdbMessageProcessor(
       host_notify_timer_(rt->service()) {}
 
 AdbMessageProcessor::~AdbMessageProcessor() {
+  state_ = closed_by_host;
   host_connector_.reset();
   active_instance.unlock();
 }
@@ -61,6 +62,11 @@ void AdbMessageProcessor::advance_state() {
       // The container directly starts a second connection once the first
       // one is established but will not use it until the active one is closed.
       active_instance.lock();
+
+      if (state_ == closed_by_host) {
+        host_connector_.reset();
+        return;
+      }
 
       wait_for_host_connection();
       break;
@@ -122,9 +128,7 @@ void AdbMessageProcessor::wait_for_host_connection() {
   }
 }
 
-void AdbMessageProcessor::on_host_connection(
-    std::shared_ptr<
-        boost::asio::basic_stream_socket<boost::asio::ip::tcp>> const &socket) {
+void AdbMessageProcessor::on_host_connection(std::shared_ptr<boost::asio::basic_stream_socket<boost::asio::ip::tcp>> const &socket) {
   host_messenger_ = std::make_shared<network::TcpSocketMessenger>(socket);
 
   // set_no_delay() reduces the latency of sending data, at the cost
@@ -136,16 +140,14 @@ void AdbMessageProcessor::on_host_connection(
 
   // Let adb inside the container know that we have a connection to
   // the adb host instance
-  messenger_->send(reinterpret_cast<const char *>(ok_command.data()),
-                   ok_command.size());
+  messenger_->send(reinterpret_cast<const char *>(ok_command.data()), ok_command.size());
 
   state_ = waiting_for_guest_start_command;
   expected_command_ = start_command;
 }
 
 void AdbMessageProcessor::read_next_host_message() {
-  auto callback =
-      std::bind(&AdbMessageProcessor::on_host_read_size, this, _1, _2);
+  auto callback = std::bind(&AdbMessageProcessor::on_host_read_size, this, _1, _2);
   host_messenger_->async_receive_msg(callback,
                                      boost::asio::buffer(host_buffer_));
 }
@@ -153,15 +155,11 @@ void AdbMessageProcessor::read_next_host_message() {
 void AdbMessageProcessor::on_host_read_size(
     const boost::system::error_code &error, std::size_t bytes_read) {
   if (error) {
-    // If messenger is still alive then close the connection which will
-    // trigger the terminate of our processor instance too.
-    if (messenger_) messenger_->close();
-
-    return;
+    state_ = closed_by_host;
+    BOOST_THROW_EXCEPTION(std::runtime_error(error.message()));
   }
 
-  messenger_->send(reinterpret_cast<const char *>(host_buffer_.data()),
-                   bytes_read);
+  messenger_->send(reinterpret_cast<const char *>(host_buffer_.data()), bytes_read);
   read_next_host_message();
 }
 

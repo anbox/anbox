@@ -33,6 +33,7 @@ class Void;
 }  // namespace rpc
 namespace container {
 class StartContainer;
+class StopContainer;
 }  // namespace container
 }  // namespace protobuf
 namespace rpc {
@@ -49,6 +50,10 @@ class ManagementApiSkeleton {
 
   void start_container(
       anbox::protobuf::container::StartContainer const *request,
+      anbox::protobuf::rpc::Void *response, google::protobuf::Closure *done);
+
+  void stop_container(
+      anbox::protobuf::container::StopContainer const *request,
       anbox::protobuf::rpc::Void *response, google::protobuf::Closure *done);
 
  private:

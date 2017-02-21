@@ -24,10 +24,13 @@
 
 #include <string>
 
+#include <core/property.h>
+
 namespace anbox {
 class ApplicationManager : public DoNotCopyOrMove {
  public:
   virtual void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) = 0;
+  virtual core::Property<bool>& ready() = 0;
 };
 }  // namespace anbox
 

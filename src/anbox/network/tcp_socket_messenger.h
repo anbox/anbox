@@ -33,7 +33,7 @@ class TcpSocketMessenger : public BaseSocketMessenger<boost::asio::ip::tcp> {
       std::shared_ptr<boost::asio::ip::tcp::socket> const &socket);
   ~TcpSocketMessenger();
 
-  unsigned short local_port() const;
+  unsigned short local_port() const override;
 
  private:
   unsigned short local_port_;

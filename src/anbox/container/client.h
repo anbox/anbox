@@ -39,7 +39,8 @@ class Client {
   Client(const std::shared_ptr<Runtime> &rt);
   ~Client();
 
-  void start_container(const Configuration &configuration);
+  void start(const Configuration &configuration);
+  void stop();
 
   void register_terminate_handler(const TerminateCallback &callback);
 

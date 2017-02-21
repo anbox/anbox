@@ -33,7 +33,9 @@
 RenderThread::RenderThread(const std::shared_ptr<Renderer> &renderer, IOStream *stream, emugl::Mutex *lock)
     : emugl::Thread(), renderer_(renderer), m_lock(lock), m_stream(stream) {}
 
-RenderThread::~RenderThread() {}
+RenderThread::~RenderThread() {
+  forceStop();
+}
 
 RenderThread *RenderThread::create(const std::shared_ptr<Renderer> &renderer, IOStream *stream, emugl::Mutex *lock) {
   return new RenderThread(renderer, stream, lock);

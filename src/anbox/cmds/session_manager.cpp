@@ -176,8 +176,10 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
 
               auto server = std::make_shared<bridge::PlatformApiSkeleton>(
                   pending_calls, policy, window_manager, launcher_storage);
-              server->register_boot_finished_handler(
-                  [&]() { DEBUG("Android successfully booted"); });
+              server->register_boot_finished_handler([&]() {
+                DEBUG("Android successfully booted");
+                android_api_stub->ready().set(true);
+              });
               return std::make_shared<bridge::PlatformMessageProcessor>(
                   sender, server, pending_calls);
             }));
@@ -193,7 +195,7 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
         {"/dev/fuse", "/dev/fuse"},
     };
 
-    dispatcher->dispatch([&]() { container.start_container(container_configuration); });
+    dispatcher->dispatch([&]() { container.start(container_configuration); });
 
     auto bus = bus_factory_();
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
@@ -202,6 +204,11 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
 
     rt->start();
     trap->run();
+
+    // Stop the container which should close all open connections we have on
+    // our side and should terminate all services.
+    container.stop();
+
     rt->stop();
 
     return EXIT_SUCCESS;

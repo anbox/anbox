@@ -38,10 +38,9 @@ void exception_safe_run(boost::asio::io_service& service) {
       // a service::work instance).
       break;
     } catch (const std::exception& e) {
-      std::cerr << e.what() << std::endl;
+      ERROR("%s", e.what());
     } catch (...) {
-      std::cerr
-          << "Unknown exception caught while executing boost::asio::io_service";
+      ERROR("Unknown exception caught while executing boost::asio::io_service");
     }
   }
 }
@@ -74,7 +73,9 @@ void Runtime::start() {
 void Runtime::stop() {
   service_.stop();
 
-  for (auto& worker : workers_) pthread_kill(worker.native_handle(), SIGTERM);
+  for (auto& worker : workers_)
+    if (worker.joinable())
+      worker.join();
 }
 
 std::function<void(std::function<void()>)> Runtime::to_dispatcher_functional() {

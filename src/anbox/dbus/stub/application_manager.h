@@ -24,6 +24,8 @@
 #include <core/dbus/object.h>
 #include <core/dbus/service.h>
 
+#include "anbox/dbus/interface.h"
+
 namespace anbox {
 namespace dbus {
 namespace stub {
@@ -38,11 +40,16 @@ class ApplicationManager : public anbox::ApplicationManager {
   ~ApplicationManager();
 
   void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) override;
+  core::Property<bool>& ready() override;
 
  private:
   core::dbus::Bus::Ptr bus_;
   core::dbus::Service::Ptr service_;
   core::dbus::Object::Ptr object_;
+  core::Property<bool> ready_;
+  struct {
+    std::shared_ptr<core::dbus::Property<anbox::dbus::interface::ApplicationManager::Properties::Ready>> ready;
+  } properties_;
 };
 }  // namespace stub
 }  // namespace dbus

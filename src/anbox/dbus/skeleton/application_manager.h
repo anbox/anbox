@@ -23,6 +23,9 @@
 #include <core/dbus/bus.h>
 #include <core/dbus/object.h>
 #include <core/dbus/service.h>
+#include <core/dbus/property.h>
+
+#include "anbox/dbus/interface.h"
 
 namespace anbox {
 namespace dbus {
@@ -35,12 +38,23 @@ class ApplicationManager : public anbox::ApplicationManager {
   ~ApplicationManager();
 
   void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) override;
+  core::Property<bool>& ready() override;
 
  private:
+  template<typename Property>
+  void on_property_value_changed(const typename Property::ValueType& value);
+
   core::dbus::Bus::Ptr bus_;
   core::dbus::Service::Ptr service_;
   core::dbus::Object::Ptr object_;
   std::shared_ptr<anbox::ApplicationManager> impl_;
+  struct {
+    std::shared_ptr<core::dbus::Property<anbox::dbus::interface::ApplicationManager::Properties::Ready>> ready;
+  } properties_;
+  struct {
+    core::dbus::Signal<core::dbus::interfaces::Properties::Signals::PropertiesChanged,
+                       core::dbus::interfaces::Properties::Signals::PropertiesChanged::ArgumentType>::Ptr properties_changed;
+  } signals_;
 };
 }  // namespace skeleton
 }  // namespace dbus

@@ -43,12 +43,13 @@ class AndroidApiStub : public anbox::ApplicationManager {
   void set_rpc_channel(const std::shared_ptr<rpc::Channel> &channel);
   void reset_rpc_channel();
 
-  void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) override;
-
   void set_focused_task(const std::int32_t &id);
   void remove_task(const std::int32_t &id);
   void resize_task(const std::int32_t &id, const anbox::graphics::Rect &rect,
                    const std::int32_t &resize_mode);
+
+  void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) override;
+  core::Property<bool>& ready() override;
 
  private:
   void ensure_rpc_channel();
@@ -72,6 +73,7 @@ class AndroidApiStub : public anbox::ApplicationManager {
   common::WaitHandle remove_task_handle_;
   common::WaitHandle resize_task_handle_;
   graphics::Rect launch_bounds_ = graphics::Rect::Invalid;
+  core::Property<bool> ready_;
 };
 }  // namespace bridge
 }  // namespace anbox
