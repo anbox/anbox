@@ -1,3 +1,10 @@
+anbox-modules-dkms (3) zesty; urgency=medium
+
+  * Use correct package version in our Makefile to avoid failing module
+    builds on the target device.
+
+ -- Simon Fels <simon.fels@canonical.com>  Tue, 21 Feb 2017 07:36:45 +0100
+
 anbox-modules-dkms (1) xenial; urgency=low
 
   * Initial release.

@@ -1,5 +1,5 @@
 #/usr/bin/make
-VERSION = 1
+VERSION = $(shell dpkg-parsechangelog -SVersion)
 SRC = $(DESTDIR)/usr/src
 
 all:
