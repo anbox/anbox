@@ -28,6 +28,7 @@ apt-get install -qq -y \
   libglm-dev \
   libgtest-dev \
   liblxc1 \
+  libproperties-cpp-dev \
   libprotobuf-dev \
   libsdl2-dev \
   lxc-dev \
