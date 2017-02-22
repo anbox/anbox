@@ -63,6 +63,9 @@ void PlatformApiSkeleton::get_clipboard_data(anbox::protobuf::rpc::Void const *r
 }
 
 void PlatformApiSkeleton::handle_boot_finished_event(const anbox::protobuf::bridge::BootFinishedEvent &event) {
+  if (event.first_boot_done())
+    launcher_storage_->reset();
+
   if (boot_finished_handler_)
     boot_finished_handler_();
 }
