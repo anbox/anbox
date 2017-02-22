@@ -58,6 +58,7 @@ message ClipboardData {
 }
 
 message BootFinishedEvent {
+    optional bool first_boot_done = 1;
 }
 
 message WindowStateUpdateEvent {

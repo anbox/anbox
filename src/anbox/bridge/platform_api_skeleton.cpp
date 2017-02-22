@@ -63,9 +63,8 @@ void PlatformApiSkeleton::get_clipboard_data(anbox::protobuf::rpc::Void const *r
 }
 
 void PlatformApiSkeleton::handle_boot_finished_event(const anbox::protobuf::bridge::BootFinishedEvent &event) {
-  (void)event;
-
-  if (boot_finished_handler_) boot_finished_handler_();
+  if (boot_finished_handler_)
+    boot_finished_handler_();
 }
 
 void PlatformApiSkeleton::handle_window_state_update_event(const anbox::protobuf::bridge::WindowStateUpdateEvent &event) {
