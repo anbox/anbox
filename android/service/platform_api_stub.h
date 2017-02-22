@@ -79,6 +79,7 @@ public:
             std::vector<int8_t> icon;
         };
         std::vector<Application> applications;
+        std::vector<std::string> removed_applications;
     };
 
     void update_application_list(const ApplicationListUpdate &update);

@@ -41,9 +41,14 @@ class LauncherStorage {
   };
 
   void reset();
-  void add(const Item &item);
+  void add_or_update(const Item &item);
+  void remove(const Item &item);
 
  private:
+  std::string clean_package_name(const std::string &package_name);
+  boost::filesystem::path path_for_item(const std::string &package_name);
+  boost::filesystem::path path_for_item_icon(const std::string &package_name);
+
   boost::filesystem::path path_;
   boost::filesystem::path icon_path_;
 };

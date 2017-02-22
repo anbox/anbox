@@ -62,6 +62,31 @@ public final class PlatformService {
         Log.i(TAG, "Connected to platform service");
     }
 
+    public void notifyPackageRemoved(String packageName) {
+        connectService();
+
+        if (mService == null)
+            return;
+
+        Log.i(TAG, "Sending package removed notification to host service");
+
+        Parcel data = Parcel.obtain();
+        data.writeInterfaceToken(DESCRIPTOR);
+        // No added or updated applications to report
+        data.writeInt(0);
+        // .. but a single removed application
+        data.writeInt(1);
+        data.writeString(packageName);
+
+        Parcel reply = Parcel.obtain();
+        try {
+            mService.transact(TRANSACTION_updateApplicationList, data, reply, 0);
+        }
+        catch (RemoteException ex) {
+            Log.w(TAG, "Failed to send updatePackageList request to remote binder service: " + ex.getMessage());
+        }
+    }
+
     public void sendApplicationListUpdate() {
         connectService();
 
@@ -111,6 +136,9 @@ public final class PlatformService {
             iconBitmap.compress(Bitmap.CompressFormat.PNG, 90, outStream);
             data.writeByteArray(outStream.toByteArray());
         }
+
+        // We don't have any removed applications to include in the update
+        data.writeInt(0);
 
         Parcel reply = Parcel.obtain();
         try {

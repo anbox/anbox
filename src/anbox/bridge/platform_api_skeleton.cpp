@@ -62,15 +62,13 @@ void PlatformApiSkeleton::get_clipboard_data(anbox::protobuf::rpc::Void const *r
   done->Run();
 }
 
-void PlatformApiSkeleton::handle_boot_finished_event(
-    const anbox::protobuf::bridge::BootFinishedEvent &event) {
+void PlatformApiSkeleton::handle_boot_finished_event(const anbox::protobuf::bridge::BootFinishedEvent &event) {
   (void)event;
 
   if (boot_finished_handler_) boot_finished_handler_();
 }
 
-void PlatformApiSkeleton::handle_window_state_update_event(
-    const anbox::protobuf::bridge::WindowStateUpdateEvent &event) {
+void PlatformApiSkeleton::handle_window_state_update_event(const anbox::protobuf::bridge::WindowStateUpdateEvent &event) {
   auto convert_window_state = [](
       const ::anbox::protobuf::bridge::WindowStateUpdateEvent_WindowState
           &window) {
@@ -97,12 +95,18 @@ void PlatformApiSkeleton::handle_window_state_update_event(
   window_manager_->apply_window_state_update(updated, removed);
 }
 
-void PlatformApiSkeleton::handle_application_list_update_event(
-    const anbox::protobuf::bridge::ApplicationListUpdateEvent &event) {
-  // Remove all existing items to start from scratch for all
-  // applications. We may need to improve this in the future
-  // to guarantee correct integration into desktop environments
-  launcher_storage_->reset();
+void PlatformApiSkeleton::handle_application_list_update_event(const anbox::protobuf::bridge::ApplicationListUpdateEvent &event) {
+  for (int n = 0; n < event.removed_applications_size(); n++) {
+    application::LauncherStorage::Item item;
+
+    const auto app = event.removed_applications(n);
+    item.package = app.package();
+
+    if (item.package.empty())
+      continue;
+
+    launcher_storage_->remove(item);
+  }
 
   for (int n = 0; n < event.applications_size(); n++) {
     application::LauncherStorage::Item item;
@@ -126,13 +130,11 @@ void PlatformApiSkeleton::handle_application_list_update_event(
     if (item.package.empty())
       continue;
 
-    // If the item is already stored it will be updated
-    launcher_storage_->add(item);
+    launcher_storage_->add_or_update(item);
   }
 }
 
-void PlatformApiSkeleton::register_boot_finished_handler(
-    const std::function<void()> &action) {
+void PlatformApiSkeleton::register_boot_finished_handler(const std::function<void()> &action) {
   boot_finished_handler_ = action;
 }
 }  // namespace bridge

@@ -88,6 +88,12 @@ void PlatformApiStub::update_application_list(const ApplicationListUpdate &updat
         app->set_icon(a.icon.data(), a.icon.size());
     }
 
+    for (const auto &package : update.removed_applications) {
+      auto app = event->add_removed_applications();
+      app->set_name("unknown");
+      app->set_package(package);
+    }
+
     rpc_channel_->send_event(seq);
 }
 

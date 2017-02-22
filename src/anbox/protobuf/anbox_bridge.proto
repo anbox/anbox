@@ -84,6 +84,7 @@ message ApplicationListUpdateEvent {
         optional bytes icon = 4;
     }
     repeated Application applications = 1;
+    repeated Application removed_applications = 2;
 }
 
 message EventSequence {
