@@ -1,80 +1,139 @@
 # Anbox
 
 Anbox is container based approach to boot a full Android system on a
-regular Linux system like Ubuntu.
+regular GNU Linux system like Ubuntu.
 
 ## Overview
 
 Anbox uses Linux namespaces (user, pid, uts, net, mount, ipc) to run a
 full Android system in a container and provide Android applications on
-any platform.
+any GNU Linux based platform.
 
-Android inside the container has no direct access to any hardware. All
-hardware access is going through the anbox daemon. We're reusing what
-Android has implemented for the Qemu based emulator. The Android system
-inside the container uses different pipes to communicate with the host
-system and sends all hardware access commands through these. OpenGL
-rendering is provided through this.
+The Android inside the container has no direct access to any hardware.
+All hardware access is going through the anbox daemon on the host. We're
+reusing what Android implemented within the QEMU based emulator for Open
+GL ES accelerated rendering. The Android system inside the container uses
+different pipes to communicate with the host system and sends all hardware
+access commands through these.
 
 For more details have a look at the following documentation pages:
 
- * Android Hardware OpenGLES emulation design overview
+ * Android Hardware OpenGL ES emulation design overview
    (https://goo.gl/O2Yi6x)
- * Android Qemu fast pipes (https://goo.gl/jl4GeS)
+ * Android QEMU fast pipes (https://goo.gl/jl4GeS)
  * The Android "qemud" multiplexing daemon (https://goo.gl/DeYa5J)
- * Android Qemud services (https://goo.gl/W8Lx6t)
+ * Android qemud services (https://goo.gl/W8Lx6t)
+
+Anbox is currently suited for the desktop use case but can be used on
+mobile operating systems like Ubuntu Touch, Sailfish OS or Lune OS too.
+However as the mapping of Android applications is currently desktop specific
+this needs additional work to supported stacked window user interfaces too.
+
+The Android runtime environment ships with a minimal customized Android system
+image based on the [Android Open Source Project](https://source.android.com/).
+The used image is currently based on Android 7.1.1
 
 ## Installation
 
-As first step you need to install additional kernel drivers for the
-Android binder and ashmem subsystems. Those drivers are packaged as
-a DKMS package for Ubuntu 16.04 already. You can install them from
-a ppa with the following commands:
+The installation process currently consists of a few steps which will
+add additional components to your host system. These include
+
+ * Out-of-tree kernel modules for binder and ashmem as no distribution kernel
+   ships both enabled.
+ * A udev rule to set correct permissions for /dev/binder and /dev/ashmem
+ * A upstart job which starts the Anbox session manager as part of
+   a user session.
+
+To make this process as easy as possible we have bundled the necessary
+steps in a snap (see https://snapcraft.io) called "anbox-installer". The
+installer will perform all necessary steps. You can install it on a system
+providing support for snaps by running
 
 ```
- $ sudo apt install software-properties-common
- $ sudo add-apt-repository ppa:morphis/anbox-support
- $ sudo apt update
- $ sudo apt install anbox-modules-dkms
+$ snap install --classic anbox-installer
 ```
 
-Anbox is available as a snap in the public Ubuntu Store. Currently it
-is only available in the edge channel and requires to be installed in
-devmode as we don't have proper confinement for it in place yet.
-
-Anbox can be installed from the Ubuntu Store with
+Alternatively you can fetch the installer script via
 
 ```
-$ snap install --edge --devmode anbox
+$ wget https://raw.githubusercontent.com/anbox/anbox-installer/master/installer.sh -O anbox-installer
 ```
 
+Please note that we don't support any possible Linux distribution out there
+yet. Please have a look at the following chapter to see a list of supported
+distributions.
 
-Afterwards run it with
-
-```
-$ anbox
-```
-
-After the first installation the container management service needs
-a few minutes to setup the container the first time before it is
-available.
-
-Applications can be launched via the launch subcommand of the anbox
-binary. For example
+To proceed the installation process simply called
 
 ```
-$ anbox launch --package com.android.settings
+$ anbox-installer
 ```
 
-When installed as snap there will be also a desktop launcher available
-which will directly start the application viewer activity to give
-an overview of available Android applications and allows to start
-them.
+This will guide you through the installation process.
+
+**NOTE:** Anbox is currently in a **pre-alpha development state**. Don't expect a
+fully working system for a production system with all features you need. You will
+for sure see bugs and crashes. If you do so, please don't hestitate and report them!
+
+**NOTE:** The Anbox snap currently comes **completely unconfined** and is because of
+this only available from the edge channel. Proper confinement is a thing we want
+to achieve in the future but due to the nature and complexity of Anbox this isn't
+a simple task.
+
+## Supported Linux Distributions
+
+At the moment we officially support the following Linux distributions:
+
+ * Ubuntu 16.04 (xenial)
+
+Untested but likely to work:
+
+ * Ubuntu 14.04 (trusty)
+ * Ubuntu 16.10 (yakkety)
+ * Ubuntu 17.04 (zesty)
+
+## Install and Run Android Applications
 
 ## Build from source
 
-To build the Anbox runtime itself there is nothing special to know
-about. We're using cmake as build system.
+To build the Anbox runtime itself there is nothing special to know. We're using
+cmake as build system. A few build dependencies need to be present on your host
+system:
+
+ * libdbus
+ * google-mock
+ * google-test
+ * libboost
+ * libboost-filesystem
+ * libboost-log
+ * libboost-iostreams
+ * libboost-program-options
+ * libboost-system
+ * libboost-test
+ * libboost-thread
+ * libcap
+ * libdbus-cpp
+ * mesa (libegl1, libgles2)
+ * glib-2.0
+ * libsdl2
+ * libprotobuf
+ * protobuf-compiler
+ * lxc
+
+On an Ubuntu system you can install all build dependencies with the following
+command:
+
+```
+$ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
+    libboost-dev libboost-filesystem-dev libboost-log-dev libboost-iostreams-dev \
+    libboost-program-options-dev libboost-system-dev libboost-test-dev \
+    libboost-thread-dev libcap-dev libdbus-1-dev libdbus-cpp-dev libegl1-mesa-dev \
+    libgles2-mesa-dev libglib2.0-dev libglm-dev libgtest-dev liblxc1 \
+    libproperties-cpp-dev libprotobuf-dev libsdl2-dev lxc-dev pkg-config \
+    protobuf-compiler
+```
+
+Afterwards you can build Anbox with
 
 ```
 $ mkdir build
@@ -83,7 +142,7 @@ $ cmake ..
 $ make
 ```
 
-That will build the whole stack. A simple
+A simple
 
 ```
 $ make install
@@ -91,25 +150,51 @@ $ make install
 
 will install the necessary bits into your system.
 
+If you want to build the anbox snap instead you can do this with the following
+steps:
+
+```
+$ mkdir android-images
+$ cp /path/to/android.img android-images/android.img
+$ snapcraft
+```
+
+The result will be a .snap file you can install on a system supporting snaps
+
+```
+$ snap install --dangerous --devmode anbox_1_amd64.snap
+```
+
+## Run Anbox
+
+Running Anbox from a local build requires a few more things you need to know
+about. Please have a look at the ["Runtime Setup"](docs/runtime-setup.md)
+documentation.
+
+## documentation
+
+You will find additional documentation for Anbox in the *docs* subdirectory
+of the project source.
+
+Interesting things to have a look at
+
+ * [Runtime Setup](docs/runtime-setup.md)
+ * [Build Android image](docs/build-android.md)
+
+## Reporting bugs
+
+If you have found an issue with Anbox, please [file a bug](https://github.com/anbox/anbox/issues/new).
+
+## Get in Touch
+
+If you want to get in contact with the developers please feel free to join the
+*#anbox* IRC channel on [FreeNode](https://freenode.net/).
+
 ## Copyright and Licensing
 
-Anbox reuses code from other projects like the Android Qemu emulator.
-These projects are available in the external/ subdirectory with the
-licensing terms included.
+Anbox reuses code from other projects like the Android QEMU emulator. These
+projects are available in the external/ subdirectory with the licensing terms
+included.
 
-The anbox source itself (in src/) is licensed under the terms of
-the GPLv3 license:
-
-Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
-
-This program is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License version 3, as published
-by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranties of
-MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
-PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program.  If not, see <http://www.gnu.org/licenses/>.
+The anbox source itself, if not stated differently in the relevant source files,
+is licensed under the terms of the GPLv3 license.
