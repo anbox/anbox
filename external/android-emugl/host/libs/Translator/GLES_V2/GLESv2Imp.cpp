@@ -70,7 +70,6 @@ static GLESiface  s_glesIface = {
 extern "C" {
 
 static void initGLESx() {
-    DBG("No special initialization necessary for GLES_V2\n");
     return;
 }
 

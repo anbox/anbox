@@ -71,7 +71,6 @@ static GLESiface  s_glesIface = {
 extern "C" {
 
 static void initGLESx() {
-    DBG("No special initialization necessary for GLES_CM\n");
     return;
 }
 
