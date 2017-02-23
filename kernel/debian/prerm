@@ -1,7 +1,7 @@
 #!/bin/sh
 
 NAME=anbox-modules-dkms
-VERSION=1
+VERSION=`dpkg-query -W -f='${Version}' $DEB_NAME | awk -F "-" '{print $1}' | cut -d\: -f2`
 
 set -e
 
