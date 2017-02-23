@@ -1,9 +1,15 @@
+anbox-modules-dkms (4) zesty; urgency=medium
+
+  * Fetch dkms version from debian package in post-install step.
+
+ -- Simon Fels <morphis@gravedo.de>  Thu, 23 Feb 2017 19:12:15 +0100
+
 anbox-modules-dkms (3) zesty; urgency=medium
 
   * Use correct package version in our Makefile to avoid failing module
     builds on the target device.
 
- -- Simon Fels <simon.fels@canonical.com>  Tue, 21 Feb 2017 07:36:45 +0100
+ -- Simon Fels <morphis@gravedo.de>  Tue, 21 Feb 2017 07:36:45 +0100
 
 anbox-modules-dkms (1) xenial; urgency=low
 
