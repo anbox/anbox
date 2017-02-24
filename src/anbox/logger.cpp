@@ -107,7 +107,7 @@ void SetInstance(const std::shared_ptr<anbox::Logger>& logger) {
 }
 namespace anbox {
 
-void Logger::SetSeverity(const std::string& severity) {
+bool Logger::SetSeverityFromString(const std::string& severity) {
   if (severity == "trace")
     SetSeverity(Severity::kTrace);
   else if (severity == "debug")
@@ -120,6 +120,9 @@ void Logger::SetSeverity(const std::string& severity) {
     SetSeverity(Severity::kError);
   else if (severity == "fatal")
     SetSeverity(Severity::kFatal);
+  else
+    return false;
+  return true;
 }
 
 void Logger::Trace(const std::string& message,
