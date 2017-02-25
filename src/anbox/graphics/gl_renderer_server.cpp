@@ -29,7 +29,9 @@
 #include <stdexcept>
 
 namespace {
-void logger_write(const char *format, ...) {
+void logger_write(const emugl::LogLevel &level, const char *format, ...) {
+  (void)level;
+
   char message[2048];
   va_list args;
 
@@ -37,7 +39,25 @@ void logger_write(const char *format, ...) {
   vsnprintf(message, sizeof(message) - 1, format, args);
   va_end(args);
 
-  DEBUG("%s", message);
+  switch (level) {
+  case emugl::LogLevel::WARNING:
+    WARNING("%s", message);
+    break;
+  case emugl::LogLevel::ERROR:
+    ERROR("%s", message);
+    break;
+  case emugl::LogLevel::FATAL:
+    FATAL("%s", message);
+    break;
+  case emugl::LogLevel::DEBUG:
+    DEBUG("%s", message);
+    break;
+  case emugl::LogLevel::TRACE:
+    TRACE("%s", message);
+    break;
+  default:
+    break;
+  }
 }
 }
 

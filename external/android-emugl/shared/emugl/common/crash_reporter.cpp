@@ -18,13 +18,13 @@
 
 #include <cstdlib>
 
-void default_crash_reporter(const char* format, ...) {
+void default_crash_reporter(const emugl::LogLevel &level, const char* format, ...) {
     abort();
 }
 
-crash_reporter_t emugl_crash_reporter = default_crash_reporter;
+logger_t emugl_crash_reporter = default_crash_reporter;
 
-void set_emugl_crash_reporter(crash_reporter_t crash_reporter) {
+void set_emugl_crash_reporter(logger_t crash_reporter) {
     if (crash_reporter) {
         emugl_crash_reporter = crash_reporter;
     } else {

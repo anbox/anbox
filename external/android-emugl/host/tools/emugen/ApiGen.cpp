@@ -823,12 +823,7 @@ int ApiGen::genDecoderImpl(const std::string &filename)
     fprintf(fp, "typedef unsigned int tsize_t; // Target \"size_t\", which is 32-bit for now. It may or may not be the same as host's size_t when emugen is compiled.\n\n");
 
     // helper macros
-    fprintf(fp,
-            "#ifdef OPENGL_DEBUG_PRINTOUT\n"
-            "#  define DEBUG(...) do { if (emugl_cxt_logger) { emugl_cxt_logger(__VA_ARGS__); } } while(0)\n"
-            "#else\n"
-            "#  define DEBUG(...)  ((void)0)\n"
-            "#endif\n\n");
+    fprintf(fp, "#  define DEBUG(...) do { if (emugl_cxt_logger) { emugl_cxt_logger(LogLevel::TRACE, __VA_ARGS__); } } while(0)\n\n");
 
     fprintf(fp,
             "#ifdef CHECK_GLERROR\n"
@@ -913,7 +908,7 @@ int ApiGen::genDecoderImpl(const std::string &filename)
                 }
             } else if (pass == PASS_DebugPrint) {
                 fprintf(fp,
-                        "\t\t\tDEBUG(\"%s(%%p): %s(%s)\\n\", stream",
+                        "\t\t\tDEBUG(\"%s(%%p): %s(%s)\", stream",
                         m_basename.c_str(),
                         e->name().c_str(),
                         printString.c_str());

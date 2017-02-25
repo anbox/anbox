@@ -98,6 +98,6 @@ void ChecksumCalculatorThreadInfo::validOrDie(void* buf,
     // We should actually call crashhandler_die(message), but I don't think we
     // can link to that library from here
     if (!validate(buf, bufLen, checksum, checksumLen)) {
-        emugl_crash_reporter(message);
+        emugl_crash_reporter(emugl::LogLevel::FATAL, message);
     }
 }

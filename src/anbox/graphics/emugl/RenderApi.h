@@ -21,12 +21,11 @@
 
 #include <boost/filesystem/path.hpp>
 
-typedef void (*emugl_logger_func_t)(const char* fmt, ...);
-typedef void (*emugl_crash_func_t)(const char* format, ...);
+#include "emugl/common/logging.h"
 
 typedef struct {
-  emugl_logger_func_t coarse;
-  emugl_logger_func_t fine;
+  logger_t coarse;
+  logger_t fine;
 } emugl_logger_struct;
 
 namespace anbox {
@@ -40,7 +39,7 @@ struct GLLibrary {
 
 std::vector<GLLibrary> default_gl_libraries(bool no_glesv1 = false);
 
-bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct log_funcs, emugl_crash_func_t crash_func);
+bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct log_funcs, logger_t crash_func);
 }  // namespace emugl
 }  // namespace graphics
 }  // namespace anbox
