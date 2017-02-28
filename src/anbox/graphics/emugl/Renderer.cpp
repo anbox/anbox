@@ -84,55 +84,6 @@ class ColorBufferHelper : public ColorBuffer::Helper {
 
 HandleType Renderer::s_nextHandle = 0;
 
-static char *getGLES1ExtensionString(EGLDisplay p_dpy) {
-  EGLConfig config;
-  EGLSurface surface;
-
-  static const GLint configAttribs[] = {EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
-                                        EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
-                                        EGL_NONE};
-
-  int n;
-  if (!s_egl.eglChooseConfig(p_dpy, configAttribs, &config, 1, &n) || n == 0) {
-    ERROR("%s: Could not find GLES 1.x config!", __FUNCTION__);
-    return NULL;
-  }
-
-  static const EGLint pbufAttribs[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
-
-  surface = s_egl.eglCreatePbufferSurface(p_dpy, config, pbufAttribs);
-  if (surface == EGL_NO_SURFACE) {
-    ERROR("%s: Could not create GLES 1.x Pbuffer!", __FUNCTION__);
-    return NULL;
-  }
-
-  static const GLint gles1ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 1, EGL_NONE};
-
-  EGLContext ctx = s_egl.eglCreateContext(p_dpy, config, EGL_NO_CONTEXT, gles1ContextAttribs);
-  if (ctx == EGL_NO_CONTEXT) {
-    ERROR("%s: Could not create GLES 1.x Context!", __FUNCTION__);
-    s_egl.eglDestroySurface(p_dpy, surface);
-    return NULL;
-  }
-
-  if (!s_egl.eglMakeCurrent(p_dpy, surface, surface, ctx)) {
-    ERROR("%s: Could not make GLES 1.x context current!", __FUNCTION__);
-    s_egl.eglDestroySurface(p_dpy, surface);
-    s_egl.eglDestroyContext(p_dpy, ctx);
-    return NULL;
-  }
-
-  // the string pointer may become invalid when the context is destroyed
-  const char *s = reinterpret_cast<const char *>(s_gles1.glGetString(GL_EXTENSIONS));
-  char *extString = strdup(s ? s : "");
-
-  s_egl.eglMakeCurrent(p_dpy, NULL, NULL, NULL);
-  s_egl.eglDestroyContext(p_dpy, ctx);
-  s_egl.eglDestroySurface(p_dpy, surface);
-
-  return extString;
-}
-
 void Renderer::finalize() {
   m_colorbuffers.clear();
   m_windows.clear();
@@ -163,15 +114,6 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
 
   s_egl.eglBindAPI(EGL_OPENGL_ES_API);
 
-  // If GLES2 plugin was loaded - try to make GLES2 context and
-  // get GLES2 extension string
-  char *gles1Extensions = NULL;
-  gles1Extensions = getGLES1ExtensionString(m_eglDisplay);
-  if (!gles1Extensions) {
-    ERROR("Failed to obtain GLES 2.x extensions string!");
-    return false;
-  }
-
   // Create EGL context for framebuffer post rendering.
   GLint surfaceType = EGL_WINDOW_BIT | EGL_PBUFFER_BIT;
   const GLint configAttribs[] = {EGL_RED_SIZE, 1,
@@ -185,7 +127,6 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   if (!s_egl.eglChooseConfig(m_eglDisplay, configAttribs, &m_eglConfig,
                              1, &n)) {
     ERROR("Failed to select EGL configuration");
-    free(gles1Extensions);
     return false;
   }
 
@@ -196,7 +137,6 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
                                         EGL_NO_CONTEXT, glContextAttribs);
   if (m_eglContext == EGL_NO_CONTEXT) {
     ERROR("Failed to create context: error=0x%x", s_egl.eglGetError());
-    free(gles1Extensions);
     return false;
   }
 
@@ -209,7 +149,6 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   m_pbufContext = s_egl.eglCreateContext(m_eglDisplay, m_eglConfig, m_eglContext, glContextAttribs);
   if (m_pbufContext == EGL_NO_CONTEXT) {
     ERROR("Failed to create pbuffer context: error=0x%x", s_egl.eglGetError());
-    free(gles1Extensions);
     return false;
   }
 
@@ -221,7 +160,6 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
     m_pbufSurface = s_egl.eglCreatePbufferSurface(m_eglDisplay, m_eglConfig, pbufAttribs);
     if (m_pbufSurface == EGL_NO_SURFACE) {
       ERROR("Failed to create pbuffer surface: error=0x%x", s_egl.eglGetError());
-      free(gles1Extensions);
       return false;
     }
   } else {
@@ -233,23 +171,13 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   ScopedBind bind(this);
   if (!bind.isValid()) {
     ERROR("Failed to make current");
-    free(gles1Extensions);
     return false;
   }
 
-  // Initilize framebuffer capabilities
-  auto has_gl_oes_image = strstr(gles1Extensions, "GL_OES_EGL_image") != NULL;
-  free(gles1Extensions);
-  gles1Extensions = NULL;
-
-  const char *eglExtensions =
-      s_egl.eglQueryString(m_eglDisplay, EGL_EXTENSIONS);
-
-  if (eglExtensions && has_gl_oes_image) {
-    m_caps.has_eglimage_texture_2d =
-        strstr(eglExtensions, "EGL_KHR_gl_texture_2D_image") != NULL;
-    m_caps.has_eglimage_renderbuffer =
-        strstr(eglExtensions, "EGL_KHR_gl_renderbuffer_image") != NULL;
+  anbox::graphics::GLExtensions gl_extensions{reinterpret_cast<const char *>(s_gles2.glGetString(GL_EXTENSIONS))};
+  if (gl_extensions.support("GL_OES_EGL_image")) {
+    m_caps.has_eglimage_texture_2d = egl_extensions.support("EGL_KHR_gl_texture_2D_image");
+    m_caps.has_eglimage_renderbuffer = egl_extensions.support("EGL_KHR_gl_renderbuffer_image");
   } else {
     m_caps.has_eglimage_texture_2d = false;
     m_caps.has_eglimage_renderbuffer = false;
@@ -258,7 +186,7 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
   // Fail initialization if not all of the following extensions
   // exist:
   //     EGL_KHR_gl_texture_2d_image
-  //     GL_OES_EGL_IMAGE (by both GLES implementations [1 and 2])
+  //     GL_OES_EGL_IMAGE
   if (!m_caps.has_eglimage_texture_2d) {
     ERROR("Failed: Missing egl_image related extension(s)");
     bind.release();
