@@ -29,4 +29,10 @@ export LIBGL_DRIVERS_PATH=$SNAP/usr/lib/$ARCH/dri
 # ensure the snappy gl libs win
 export LD_LIBRARY_PATH="$SNAP_LIBRARY_PATH:$LD_LIBRARY_PATH"
 
+# We set XDG_DATA_HOME to SNAP_COMMON here as this will be the location we will
+# create all our application launchers in. The system application launcher will
+# be configured by our installer to look into this directory for available
+# launchers.
+export XDG_DATA_HOME="$SNAP_COMMON"
+
 exec $SNAP/usr/bin/anbox $@
