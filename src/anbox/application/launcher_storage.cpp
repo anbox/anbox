@@ -41,15 +41,26 @@ void LauncherStorage::reset() {
     fs::remove_all(icon_path_);
 }
 
-void LauncherStorage::add(const Item &item) {
+std::string LauncherStorage::clean_package_name(const std::string &package_name) {
+  auto cleaned_package_name = package_name;
+  std::replace(cleaned_package_name.begin(), cleaned_package_name.end(), '.', '-');
+  return cleaned_package_name;
+}
+
+fs::path LauncherStorage::path_for_item(const std::string &package_name) {
+  return path_ / utils::string_format("anbox-%s.desktop", package_name);
+}
+
+fs::path LauncherStorage::path_for_item_icon(const std::string &package_name) {
+  return icon_path_ / utils::string_format("anbox-%s.png", package_name);
+}
+
+void LauncherStorage::add_or_update(const Item &item) {
   if (!fs::exists(path_)) fs::create_directories(path_);
   if (!fs::exists(icon_path_)) fs::create_directories(icon_path_);
 
   auto package_name = item.package;
   std::replace(package_name.begin(), package_name.end(), '.', '-');
-
-  const auto item_path = path_ / utils::string_format("anbox-%s.desktop", package_name);
-  const auto item_icon_path = icon_path_ / utils::string_format("anbox-%s.png", package_name);
 
   std::string exec = utils::string_format("%s launch ", utils::process_get_exe_path(getpid()));
 
@@ -68,7 +79,8 @@ void LauncherStorage::add(const Item &item) {
   if (!item.launch_intent.component.empty())
     exec += utils::string_format("--component=%s ", item.launch_intent.component);
 
-  if (auto desktop_item = std::ofstream(item_path.string())) {
+  const auto item_icon_path = path_for_item_icon(package_name);
+  if (auto desktop_item = std::ofstream(path_for_item(package_name).string())) {
     desktop_item << "[Desktop Entry]" << std::endl
                  << "Name=" << item.package << std::endl
                  << "Exec=" << exec << std::endl
@@ -84,5 +96,18 @@ void LauncherStorage::add(const Item &item) {
   else
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to write icon"));
 }
+
+void LauncherStorage::remove(const Item &item) {
+  auto package_name = clean_package_name(item.package);
+
+  const auto item_path = path_for_item(package_name);
+  if (fs::exists(item_path))
+    fs::remove(item_path);
+
+  const auto item_icon_path = path_for_item_icon(package_name);
+  if (fs::exists(item_icon_path))
+    fs::remove(item_icon_path);
+}
+
 }  // namespace application
 }  // namespace anbox

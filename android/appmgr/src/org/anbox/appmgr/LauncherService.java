@@ -20,12 +20,14 @@ package org.anbox.appmgr;
 import android.app.Service;
 import android.util.Log;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 
 public final class LauncherService extends Service {
     public static final String TAG = "AnboxAppMgr";
 
     private PlatformService mPlatformService;
+    private PackageEventReceiver mPkgEventReceiver;
 
     public LauncherService() {
         super();
@@ -35,8 +37,19 @@ public final class LauncherService extends Service {
     @Override
     public void onCreate() {
         mPlatformService = new PlatformService(getBaseContext());
-        // Send all necessary initial updates
+
+        // Send the current list of applications over to the host so
+        // it can rebuild its list of available applications.
         mPlatformService.sendApplicationListUpdate();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+
+        mPkgEventReceiver = new PackageEventReceiver();
+        registerReceiver(mPkgEventReceiver, filter);
 
         Log.i(TAG, "Service started");
     }

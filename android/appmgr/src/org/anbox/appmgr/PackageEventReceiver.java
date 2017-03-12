@@ -20,13 +20,35 @@ package org.anbox.appmgr;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 
 public class PackageEventReceiver extends BroadcastReceiver {
     private static final String TAG = "AnboxAppMgr";
 
+    private PlatformService mPlatformService;
+
+    private String getPackageName(Intent intent) {
+        Uri uri = intent.getData();
+        String package_name = (uri != null ? uri.getSchemeSpecificPart() : null);
+        return package_name;
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(TAG, "Received intent " + intent.toString());
+        if (mPlatformService == null)
+            mPlatformService = new PlatformService(context);
+
+        if (intent.getAction() == Intent.ACTION_PACKAGE_ADDED ||
+            intent.getAction() == Intent.ACTION_PACKAGE_CHANGED) {
+            // Send updated list of applications to the host so that it
+            // can update the list of applications available for the user.
+            mPlatformService.sendApplicationListUpdate();
+        } else if (intent.getAction() == Intent.ACTION_PACKAGE_REMOVED) {
+            // Only send notification when package got removed and not replaced
+            if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                mPlatformService.notifyPackageRemoved(getPackageName(intent));
+            }
+        }
     }
 }

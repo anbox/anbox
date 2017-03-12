@@ -21,8 +21,16 @@
 #include "anbox_rpc.pb.h"
 #include "anbox_bridge.pb.h"
 
+#include <fstream>
+
+#include <sys/stat.h>
+
 #define LOG_TAG "Anboxd"
 #include <cutils/log.h>
+
+namespace {
+constexpr const char *first_boot_marker_path{"/data/.anbox_initialized"};
+}
 
 namespace anbox {
 PlatformApiStub::PlatformApiStub(const std::shared_ptr<rpc::Channel> &rpc_channel) :
@@ -32,7 +40,13 @@ PlatformApiStub::PlatformApiStub(const std::shared_ptr<rpc::Channel> &rpc_channe
 void PlatformApiStub::boot_finished() {
     protobuf::bridge::EventSequence seq;
     auto event = seq.mutable_boot_finished();
-    (void) event;
+
+    struct stat st;
+    if (stat(first_boot_marker_path, &st) != 0) {
+      event->set_first_boot_done(true);
+      std::ofstream marker(first_boot_marker_path);
+    }
+
     rpc_channel_->send_event(seq);
 }
 
@@ -86,6 +100,12 @@ void PlatformApiStub::update_application_list(const ApplicationListUpdate &updat
         }
 
         app->set_icon(a.icon.data(), a.icon.size());
+    }
+
+    for (const auto &package : update.removed_applications) {
+      auto app = event->add_removed_applications();
+      app->set_name("unknown");
+      app->set_package(package);
     }
 
     rpc_channel_->send_event(seq);

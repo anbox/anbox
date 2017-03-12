@@ -120,6 +120,12 @@ status_t PlatformService::update_application_list(const Parcel &data) {
         update.applications.push_back(p);
     }
 
+    const auto num_removed_packages = data.readInt32();
+    for (auto n = 0; n < num_removed_packages; n++) {
+      String8 package_name(data.readString16());
+      update.removed_applications.push_back(package_name.string());
+    }
+
     platform_api_stub_->update_application_list(update);
 
     return OK;

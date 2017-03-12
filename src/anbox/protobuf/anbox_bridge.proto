@@ -58,6 +58,7 @@ message ClipboardData {
 }
 
 message BootFinishedEvent {
+    optional bool first_boot_done = 1;
 }
 
 message WindowStateUpdateEvent {
@@ -84,6 +85,7 @@ message ApplicationListUpdateEvent {
         optional bytes icon = 4;
     }
     repeated Application applications = 1;
+    repeated Application removed_applications = 2;
 }
 
 message EventSequence {
