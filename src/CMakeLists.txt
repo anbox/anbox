@@ -192,6 +192,9 @@ set(SOURCES
     anbox/cmds/session_manager.cpp
     anbox/cmds/container_manager.cpp
     anbox/cmds/launch.cpp
+    anbox/cmds/system_info.cpp
+
+    anbox/utils/environment_file.cpp
 
     anbox/do_not_copy_or_move.h
     anbox/optional.h

@@ -1,0 +1,203 @@
+/*
+ * Copyright (C) 2017 Simon Fels <morphis@gravedo.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#include "anbox/cmds/system_info.h"
+#include "anbox/graphics/emugl/RenderApi.h"
+#include "anbox/graphics/emugl/DispatchTables.h"
+#include "anbox/utils/environment_file.h"
+#include "anbox/version.h"
+#include "anbox/logger.h"
+#include "anbox/version.h"
+
+#include <sstream>
+#include <fstream>
+
+#include <boost/filesystem.hpp>
+
+#include "OpenGLESDispatch/EGLDispatch.h"
+
+namespace fs = boost::filesystem;
+
+namespace {
+constexpr const char *os_release_path{"/etc/os-release"};
+constexpr const char *proc_version_path{"/proc/version"};
+constexpr const char *binder_path{"/dev/binder"};
+constexpr const char *ashmem_path{"/dev/ashmem"};
+
+class SystemInformation {
+ public:
+  SystemInformation() {
+    collect_os_info();
+    collect_kernel_info();
+    collect_graphics_info();
+  }
+
+  std::string to_text() const {
+    std::stringstream s;
+
+    s << "version: "
+      << anbox::utils::string_format("%d.%d.%d",
+          anbox::build::version_major,
+          anbox::build::version_minor,
+          anbox::build::version_patch)
+      << std::endl;
+
+    s << "os:" << std::endl
+      << "  name: " << os_info_.name << std::endl
+      << "  version: " << os_info_.version << std::endl
+      << "  snap-based: " << std::boolalpha << os_info_.snap_based << std::endl;
+
+    s << "kernel:" << std::endl
+      << "  version: " << kernel_info_.version << std::endl
+      << "  binder: " << std::boolalpha << kernel_info_.binder << std::endl
+      << "  ashmem: " << std::boolalpha << kernel_info_.ashmem << std::endl;
+
+    auto print_extensions = [](const std::vector<std::string> &extensions) {
+      std::stringstream s;
+      if (extensions.size() > 0) {
+        s << std::endl;
+        for (const auto &ext : extensions) {
+          if (ext.length() == 0)
+            continue;
+          s << "      - " << ext << std::endl;
+        }
+      } else {
+        s << " []" << std::endl;
+      }
+      return s.str();
+    };
+
+    s << "graphics:" << std::endl
+      << "  egl:" << std::endl
+      << "    vendor: " << graphics_info_.egl_vendor << std::endl
+      << "    version: " << graphics_info_.egl_version << std::endl
+      << "    extensions:" << print_extensions(graphics_info_.egl_extensions)
+      << "  gles2:" << std::endl
+      << "    vendor: " << graphics_info_.gles2_vendor << std::endl
+      << "    vendor: " << graphics_info_.gles2_version << std::endl
+      << "    extensions:" << print_extensions(graphics_info_.gles2_extensions);
+
+    return s.str();
+  }
+
+ private:
+  void collect_os_info() {
+    os_info_.snap_based = (getenv("SNAP") != nullptr);
+    if (fs::exists(os_release_path)) {
+      anbox::utils::EnvironmentFile os_release(os_release_path);
+      os_info_.name = os_release.value("NAME");
+      os_info_.version = os_release.value("VERSION");
+    } else if (os_info_.snap_based) {
+      // As we can't read /etc/os-release and we're snap-based this is the best we can guess
+      os_info_.name = "Ubuntu";
+      os_info_.version = "16";
+    }
+  }
+
+  void collect_kernel_info() {
+    if (fs::exists(proc_version_path)) {
+      std::ifstream in(proc_version_path);
+      std::getline(in, kernel_info_.version);
+    }
+
+    kernel_info_.binder = fs::exists(binder_path);
+    kernel_info_.ashmem = fs::exists(ashmem_path);
+  }
+
+  void collect_graphics_info() {
+    auto gl_libs = anbox::graphics::emugl::default_gl_libraries(true);
+    if (!anbox::graphics::emugl::initialize(gl_libs, nullptr, nullptr)) {
+      return;
+    }
+
+    auto display = s_egl.eglGetDisplay(0);
+    if (display != EGL_NO_DISPLAY) {
+      s_egl.eglInitialize(display, nullptr, nullptr);
+      graphics_info_.egl_vendor = s_egl.eglQueryString(display, EGL_VENDOR);
+      graphics_info_.egl_version = s_egl.eglQueryString(display, EGL_VERSION);
+      graphics_info_.egl_extensions = anbox::utils::string_split(s_egl.eglQueryString(display, EGL_EXTENSIONS), ' ');
+
+      GLint config_attribs[] = {EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
+                                EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
+                                EGL_NONE};
+
+      EGLConfig config;
+      int n;
+      if (s_egl.eglChooseConfig(display, config_attribs, &config, 1, &n) && n > 0) {
+        GLint attribs[] = { EGL_CONTEXT_CLIENT_VERSION, 1, EGL_NONE};
+        auto context = s_egl.eglCreateContext(display, config, nullptr, attribs);
+        if (context != EGL_NO_CONTEXT) {
+          // We require surfaceless-context support here for now. If eglMakeCurrent fails
+          // glGetString will return null below which we handle correctly.
+          s_egl.eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, context);
+
+          auto safe_get_string = [](GLint item) {
+            auto str = s_gles2.glGetString(item);
+            if (!str)
+              return std::string("n/a");
+            return std::string(reinterpret_cast<const char*>(str));
+          };
+
+          graphics_info_.gles2_vendor = safe_get_string(GL_VENDOR);
+          graphics_info_.gles2_version = safe_get_string(GL_VERSION);
+          graphics_info_.gles2_extensions = anbox::utils::string_split(safe_get_string(GL_EXTENSIONS), ' ');
+
+          s_egl.eglMakeCurrent(display, nullptr, nullptr, nullptr);
+          s_egl.eglDestroyContext(display, context);
+        }
+      }
+    }
+  }
+
+  struct {
+    bool snap_based = false;
+    std::string name = "n/a";
+    std::string version = "n/a";
+  } os_info_;
+
+  struct {
+    std::string version = "n/a";
+    bool binder = false;
+    bool ashmem = false;
+  } kernel_info_;
+
+  struct {
+    std::string egl_vendor = "n/a";
+    std::string egl_version = "n/a";
+    std::vector<std::string> egl_extensions;
+    std::string gles2_vendor = "n/a";
+    std::string gles2_version = "n/a";
+    std::vector<std::string> gles2_extensions;
+  } graphics_info_;
+};
+
+std::ostream &operator<<(std::ostream &out, const SystemInformation &info) {
+  out << info.to_text();
+  return out;
+}
+}
+
+anbox::cmds::SystemInfo::SystemInfo()
+    : CommandWithFlagsAndAction{
+          cli::Name{"system-info"}, cli::Usage{"system-info"},
+          cli::Description{"Print various information about the system we're running on"}} {
+  action([](const cli::Command::Context& ctxt) {
+    SystemInformation si;
+    std::cout << si;
+    return EXIT_SUCCESS;
+  });
+}

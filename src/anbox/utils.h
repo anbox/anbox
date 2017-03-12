@@ -37,6 +37,10 @@ int write_file_at(int dirfd, const char *path, const char *content);
 
 bool string_starts_with(const std::string &text, const std::string &prefix);
 
+std::vector<std::string> string_split(const std::string &text, char sep);
+
+std::string strip_surrounding_quotes(const std::string &text);
+
 std::string hex_dump(const uint8_t *data, uint32_t size);
 
 std::string get_env_value(const std::string &name,
