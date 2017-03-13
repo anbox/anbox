@@ -17,6 +17,8 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/throw_exception.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -93,6 +95,18 @@ int write_file_at(int dirfd, const char *path, const char *content) {
 
 bool string_starts_with(const std::string &text, const std::string &prefix) {
   return text.compare(0, prefix.size(), prefix) == 0;
+}
+
+std::vector<std::string> string_split(const std::string &text, char sep) {
+  std::vector<std::string> tokens;
+  return boost::algorithm::split(tokens, text, boost::is_from_range(sep, sep), boost::algorithm::token_compress_on);
+}
+
+std::string strip_surrounding_quotes(const std::string &text) {
+  auto result = text;
+  if (text[0] == '\"' && text[text.length() - 1] == '\"')
+    result = text.substr(1, text.length() - 2);
+  return result;
 }
 
 std::string hex_dump(const uint8_t *data, uint32_t size) {

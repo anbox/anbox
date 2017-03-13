@@ -24,6 +24,7 @@
 
 #include "anbox/cmds/container_manager.h"
 #include "anbox/cmds/session_manager.h"
+#include "anbox/cmds/system_info.h"
 #include "anbox/cmds/launch.h"
 #include "anbox/cmds/version.h"
 
@@ -38,12 +39,14 @@ Daemon::Daemon()
   cmd.command(std::make_shared<cmds::Version>())
      .command(std::make_shared<cmds::SessionManager>())
      .command(std::make_shared<cmds::Launch>())
-     .command(std::make_shared<cmds::ContainerManager>());
+     .command(std::make_shared<cmds::ContainerManager>())
+     .command(std::make_shared<cmds::SystemInfo>());
+
 
   Log().Init(anbox::Logger::Severity::kWarning);
 
   const auto log_level = utils::get_env_value("ANBOX_LOG_LEVEL", "");
-  if (!log_level.empty() || !Log().SetSeverityFromString(log_level))
+  if (!log_level.empty() && !Log().SetSeverityFromString(log_level))
     WARNING("Failed to set logging severity to '%s'", log_level);
 }
 

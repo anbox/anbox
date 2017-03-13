@@ -49,10 +49,12 @@ std::vector<GLLibrary> default_gl_libraries(bool no_glesv1) {
   };
 }
 
-bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct log_funcs, logger_t crash_func) {
+bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct *log_funcs, logger_t crash_func) {
   set_emugl_crash_reporter(crash_func);
-  set_emugl_logger(log_funcs.coarse);
-  set_emugl_cxt_logger(log_funcs.fine);
+  if (log_funcs) {
+    set_emugl_logger(log_funcs->coarse);
+    set_emugl_cxt_logger(log_funcs->fine);
+  }
 
   for (const auto &lib : libs) {
     const auto path = lib.path.c_str();

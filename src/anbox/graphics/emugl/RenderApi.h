@@ -39,7 +39,7 @@ struct GLLibrary {
 
 std::vector<GLLibrary> default_gl_libraries(bool no_glesv1 = false);
 
-bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct log_funcs, logger_t crash_func);
+bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct *log_funcs, logger_t crash_func);
 }  // namespace emugl
 }  // namespace graphics
 }  // namespace anbox

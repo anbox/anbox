@@ -68,7 +68,7 @@ GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<w
       wm_(wm),
       composer_(std::make_shared<LayerComposer>(renderer_, wm)) {
 
-  std::vector<emugl::GLLibrary> gl_libs = emugl::default_gl_libraries(true);
+  auto gl_libs = emugl::default_gl_libraries(true);
 
   if (config.driver == Config::Driver::Translator) {
     DEBUG("Using GLES-to-GL translator for rendering");
@@ -82,7 +82,7 @@ GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<w
   log_funcs.coarse = logger_write;
   log_funcs.fine = logger_write;
 
-  if (!emugl::initialize(gl_libs, log_funcs, nullptr))
+  if (!emugl::initialize(gl_libs, &log_funcs, nullptr))
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize OpenGL renderer"));
 
   renderer_->initialize(0);
