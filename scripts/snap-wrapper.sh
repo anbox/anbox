@@ -33,6 +33,6 @@ export LD_LIBRARY_PATH="$SNAP_LIBRARY_PATH:$LD_LIBRARY_PATH"
 # create all our application launchers in. The system application launcher will
 # be configured by our installer to look into this directory for available
 # launchers.
-export XDG_DATA_HOME="$SNAP_USER_COMMON"
+export XDG_DATA_HOME="$SNAP_USER_COMMON/app-data"
 
 exec $SNAP/usr/bin/anbox $@
