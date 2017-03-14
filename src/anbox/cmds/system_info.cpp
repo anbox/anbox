@@ -195,7 +195,7 @@ anbox::cmds::SystemInfo::SystemInfo()
     : CommandWithFlagsAndAction{
           cli::Name{"system-info"}, cli::Usage{"system-info"},
           cli::Description{"Print various information about the system we're running on"}} {
-  action([](const cli::Command::Context& ctxt) {
+  action([](const cli::Command::Context&) {
     SystemInformation si;
     std::cout << si;
     return EXIT_SUCCESS;
