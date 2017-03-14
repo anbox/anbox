@@ -25,6 +25,12 @@
 
 namespace fs = boost::filesystem;
 
+namespace {
+// This will always point us to the right executable when we're running within
+// a snap environment.
+constexpr const char *snap_exe_path{"/snap/bin/anbox"};
+}
+
 namespace anbox {
 namespace application {
 LauncherStorage::LauncherStorage(const fs::path &path,
@@ -62,7 +68,11 @@ void LauncherStorage::add_or_update(const Item &item) {
   auto package_name = item.package;
   std::replace(package_name.begin(), package_name.end(), '.', '-');
 
-  std::string exec = utils::string_format("%s launch ", utils::process_get_exe_path(getpid()));
+  auto exe_path = utils::process_get_exe_path(getpid());
+  if (utils::get_env_value("SNAP").length() > 0)
+    exe_path = snap_exe_path;
+
+  std::string exec = utils::string_format("%s launch ", exe_path);
 
   if (!item.launch_intent.action.empty())
     exec += utils::string_format("--action=%s ", item.launch_intent.action);
