@@ -27,13 +27,14 @@
 namespace anbox {
 namespace wm {
 SingleWindowManager::SingleWindowManager(const std::shared_ptr<platform::Policy> &policy,
+                                         const graphics::Rect &window_size
                                          const std::shared_ptr<application::Database> &app_db)
-    : platform_policy_(policy), app_db_(app_db) {}
+    : platform_policy_(policy), window_size_(window_size), app_db_(app_db) {}
 
 SingleWindowManager::~SingleWindowManager() {}
 
 void SingleWindowManager::setup() {
-  window_ = platform_policy_->create_window(0, {0, 0, 1024, 768}, "Android");
+  window_ = platform_policy_->create_window(0, window_size_, "Anbox - Android in a Box");
   if (!window_->attach())
     WARNING("Failed to attach window to renderer");
 }

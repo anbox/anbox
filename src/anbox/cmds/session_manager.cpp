@@ -151,7 +151,7 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
 
     std::shared_ptr<wm::Manager> window_manager;
     if (single_window_)
-      window_manager = std::make_shared<wm::SingleWindowManager>(policy, app_mgr);
+      window_manager = std::make_shared<wm::SingleWindowManager>(policy, display_frame, app_mgr);
     else
       window_manager = std::make_shared<wm::MultiWindowManager>(policy, android_api_stub, app_mgr);
 
