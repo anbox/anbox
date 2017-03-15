@@ -89,7 +89,8 @@ anbox::cmds::SessionManager::BusFactory anbox::cmds::SessionManager::session_bus
 anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     : CommandWithFlagsAndAction{cli::Name{"session-manager"}, cli::Usage{"session-manager"},
                                 cli::Description{"Run the the anbox session manager"}},
-      bus_factory_(bus_factory) {
+      bus_factory_(bus_factory),
+      window_size_(default_single_window_size) {
   // Just for the purpose to allow QtMir (or unity8) to find this on our
   // /proc/*/cmdline
   // for proper confinement etc.
@@ -102,6 +103,9 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
   flag(cli::make_flag(cli::Name{"single-window"},
                       cli::Description{"Start in single window mode."},
                       single_window_));
+  flag(cli::make_flag(cli::Name{"window-size"},
+                      cli::Description{"Size of the window in single window mode, e.g. --window-size=1024,768"},
+                      window_size_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -143,7 +147,7 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
 
     auto display_frame = graphics::Rect::Invalid;
     if (single_window_)
-      display_frame = default_single_window_size;
+      display_frame = window_size_;
 
     auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager, display_frame, single_window_);
     // FIXME this needs to be removed and solved differently behind the scenes

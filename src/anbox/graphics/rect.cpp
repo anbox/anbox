@@ -16,9 +16,12 @@
  */
 
 #include "anbox/graphics/rect.h"
+#include "anbox/utils.h"
 
 #include <algorithm>
 #include <string>
+
+#include <boost/lexical_cast.hpp>
 
 namespace anbox {
 namespace graphics {
@@ -50,6 +53,35 @@ std::ostream &operator<<(std::ostream &out, const Rect &rect) {
   return out << "{" << rect.left() << "," << rect.top() << "," << rect.right()
              << "," << rect.bottom() << "} {" << rect.width() << ","
              << rect.height() << "}";
+}
+
+std::istream& operator>>(std::istream& in, anbox::graphics::Rect &rect)
+try {
+  std::string str;
+  in >> str;
+  auto tokens = anbox::utils::string_split(str, ',');
+
+  switch (tokens.size()) {
+  case 2: {
+    rect = anbox::graphics::Rect(0, 0,
+             boost::lexical_cast<std::int32_t>(tokens[0]),
+             boost::lexical_cast<std::int32_t>(tokens[1]));
+    break;
+  }
+  case 4:
+    rect = anbox::graphics::Rect(
+             boost::lexical_cast<std::int32_t>(tokens[0]),
+             boost::lexical_cast<std::int32_t>(tokens[1]),
+             boost::lexical_cast<std::int32_t>(tokens[2]),
+             boost::lexical_cast<std::int32_t>(tokens[3]));
+    break;
+  default:
+    break;
+  }
+
+  return in;
+} catch (...) {
+  return in;
 }
 }  // namespace graphics
 }  // namespace anbox

@@ -75,6 +75,7 @@ class Rect {
 };
 
 std::ostream &operator<<(std::ostream &out, const Rect &rect);
+std::istream& operator>>(std::istream& in, anbox::graphics::Rect &rect);
 }  // namespace graphics
 }  // namespace anbox
 
