@@ -145,6 +145,15 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
 
     auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
+    auto app_manager = std::static_pointer_cast<application::Manager>(android_api_stub);
+    if (!single_window_) {
+      // When we're not running single window mode we need to restrict ourself to
+      // only launch applications in freeform mode as otherwise the window tracking
+      // doesn't work.
+      app_manager = std::make_shared<application::RestrictedManager>(
+            android_api_stub, wm::Stack::Id::Freeform);
+    }
+
     auto display_frame = graphics::Rect::Invalid;
     if (single_window_)
       display_frame = window_size_;
@@ -219,7 +228,7 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     auto bus = bus_factory_();
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
 
-    auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, android_api_stub);
+    auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, app_manager);
 
     rt->start();
     trap->run();

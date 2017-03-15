@@ -55,7 +55,7 @@ TEST(LayerComposer, FindsNoSuitableWindowForLayer) {
       graphics::Rect{0, 0, 1024, 768},
       "org.anbox.test.1",
       wm::Task::Id{1},
-      wm::Stack::Freeform,
+      wm::Stack::Id::Freeform,
   };
 
   wm->apply_window_state_update({single_window}, {});
@@ -89,7 +89,7 @@ TEST(LayerComposer, MapsLayersToWindows) {
       graphics::Rect{0, 0, 1024, 768},
       "org.anbox.foo",
       wm::Task::Id{1},
-      wm::Stack::Freeform,
+      wm::Stack::Id::Freeform,
   };
 
   auto second_window = wm::WindowState{
@@ -98,7 +98,7 @@ TEST(LayerComposer, MapsLayersToWindows) {
       graphics::Rect{300, 400, 1324, 1168},
       "org.anbox.bar",
       wm::Task::Id{2},
-      wm::Stack::Freeform,
+      wm::Stack::Id::Freeform,
   };
 
   wm->apply_window_state_update({first_window, second_window}, {});
@@ -149,7 +149,7 @@ TEST(LayerComposer, WindowPartiallyOffscreen) {
       graphics::Rect{-100, -100, 924, 668},
       "org.anbox.foo",
       wm::Task::Id{1},
-      wm::Stack::Freeform,
+      wm::Stack::Id::Freeform,
   };
 
   wm->apply_window_state_update({window}, {});
@@ -194,7 +194,7 @@ TEST(LayerComposer, PopupShouldNotCauseWindowLayerOffset) {
       graphics::Rect{1120, 270, 2144, 1038},
       "org.anbox.foo",
       wm::Task::Id{3},
-      wm::Stack::Freeform,
+      wm::Stack::Id::Freeform,
   };
 
   wm->apply_window_state_update({window}, {});

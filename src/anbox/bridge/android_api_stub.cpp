@@ -20,6 +20,7 @@
 #include "anbox/logger.h"
 #include "anbox/rpc/channel.h"
 #include "anbox/utils.h"
+#include "anbox/wm/stack.h"
 
 #include "anbox_bridge.pb.h"
 #include "anbox_rpc.pb.h"
@@ -46,7 +47,8 @@ void AndroidApiStub::ensure_rpc_channel() {
 }
 
 void AndroidApiStub::launch(const android::Intent &intent,
-                            const graphics::Rect &launch_bounds) {
+                            const graphics::Rect &launch_bounds,
+                            const wm::Stack::Id &stack) {
   ensure_rpc_channel();
 
   auto c = std::make_shared<Request<protobuf::rpc::Void>>();
@@ -55,6 +57,20 @@ void AndroidApiStub::launch(const android::Intent &intent,
   {
     std::lock_guard<decltype(mutex_)> lock(mutex_);
     launch_wait_handle_.expect_result();
+  }
+
+  switch (stack) {
+  case wm::Stack::Id::Default:
+    message.set_stack(::anbox::protobuf::bridge::LaunchApplication_Stack_DEFAULT);
+    break;
+  case wm::Stack::Id::Fullscreen:
+    message.set_stack(::anbox::protobuf::bridge::LaunchApplication_Stack_FULLSCREEN);
+    break;
+  case wm::Stack::Id::Freeform:
+    message.set_stack(::anbox::protobuf::bridge::LaunchApplication_Stack_FREEFORM);
+    break;
+  default:
+    break;
   }
 
   if (launch_bounds != graphics::Rect::Invalid) {

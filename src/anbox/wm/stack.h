@@ -18,23 +18,28 @@
 #ifndef ANBOX_WM_STACK_H_
 #define ANBOX_WM_STACK_H_
 
-#include <cstdint>
+#include <ostream>
 
 namespace anbox {
 namespace wm {
 class Stack {
  public:
-  typedef std::int32_t Id;
-
-  static Id Invalid;
-  static Id Default;
-  static Id Fullscreen;
-  static Id Freeform;
+  enum class Id {
+    Invalid = -1,
+    Default = 0,
+    Fullscreen = 1,
+    Freeform = 2,
+  };
 
   Stack() = delete;
   Stack(const Stack&) = delete;
 };
+
+std::ostream& operator<<(std::ostream &out, Stack::Id const &stack);
+std::istream& operator>>(std::istream &in, Stack::Id &stack);
 }  // namespace wm
 }  // namespace anbox
+
+
 
 #endif

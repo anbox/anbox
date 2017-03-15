@@ -185,12 +185,14 @@ set(SOURCES
     anbox/ubuntu/audio_sink.cpp
 
     anbox/dbus/interface.h
+    anbox/dbus/codecs.h
     anbox/dbus/skeleton/service.cpp
     anbox/dbus/skeleton/application_manager.cpp
     anbox/dbus/stub/application_manager.cpp
 
     anbox/application/launcher_storage.cpp
     anbox/application/database.cpp
+    anbox/application/manager.h
 
     anbox/cmds/version.cpp
     anbox/cmds/session_manager.cpp

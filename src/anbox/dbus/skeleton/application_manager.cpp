@@ -18,6 +18,7 @@
 #include "anbox/dbus/skeleton/application_manager.h"
 #include "anbox/android/intent.h"
 #include "anbox/dbus/interface.h"
+#include "anbox/dbus/codecs.h"
 #include "anbox/logger.h"
 
 #include <core/property.h>
@@ -27,7 +28,7 @@ namespace dbus {
 namespace skeleton {
 ApplicationManager::ApplicationManager(
     const core::dbus::Bus::Ptr &bus, const core::dbus::Object::Ptr &object,
-    const std::shared_ptr<anbox::ApplicationManager> &impl)
+    const std::shared_ptr<anbox::application::Manager> &impl)
     : bus_(bus), object_(object), impl_(impl),
       properties_{ object_->get_property<anbox::dbus::interface::ApplicationManager::Properties::Ready>() },
       signals_{ object_->get_signal<core::dbus::interfaces::Properties::Signals::PropertiesChanged>() } {
@@ -51,10 +52,13 @@ ApplicationManager::ApplicationManager(
         reader >> bottom;
         graphics::Rect launch_bounds{left, top, right, bottom};
 
+        wm::Stack::Id stack = wm::Stack::Id::Default;
+        reader >> stack;
+
         core::dbus::Message::Ptr reply;
 
         try {
-          launch(intent, launch_bounds);
+          launch(intent, launch_bounds, stack);
           reply = core::dbus::Message::make_method_return(msg);
         } catch (std::exception const &err) {
           reply = core::dbus::Message::make_error(msg, "org.anbox.Error.Failed",
@@ -88,8 +92,10 @@ void ApplicationManager::on_property_value_changed(const typename Property::Valu
                         dict, the_empty_list_of_invalidated_properties));
 }
 
-void ApplicationManager::launch(const android::Intent &intent, const graphics::Rect &launch_bounds) {
-  impl_->launch(intent, launch_bounds);
+void ApplicationManager::launch(const android::Intent &intent,
+                                const graphics::Rect &launch_bounds,
+                                const wm::Stack::Id &stack) {
+  impl_->launch(intent, launch_bounds, stack);
 }
 
 core::Property<bool>& ApplicationManager::ready() {

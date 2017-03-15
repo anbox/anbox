@@ -18,7 +18,7 @@
 #ifndef ANBOX_DBUS_SKELETON_APPLICATION_MANAGER_H_
 #define ANBOX_DBUS_SKELETON_APPLICATION_MANAGER_H_
 
-#include "anbox/application_manager.h"
+#include "anbox/application/manager.h"
 
 #include <core/dbus/bus.h>
 #include <core/dbus/object.h>
@@ -29,7 +29,7 @@
 namespace anbox {
 namespace dbus {
 namespace stub {
-class ApplicationManager : public anbox::ApplicationManager {
+class ApplicationManager : public anbox::application::Manager {
  public:
   static std::shared_ptr<ApplicationManager> create_for_bus(
       const core::dbus::Bus::Ptr &bus);
@@ -39,7 +39,10 @@ class ApplicationManager : public anbox::ApplicationManager {
                      const core::dbus::Object::Ptr &object);
   ~ApplicationManager();
 
-  void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) override;
+  void launch(const android::Intent &intent,
+              const graphics::Rect &launch_bounds = graphics::Rect::Invalid,
+              const wm::Stack::Id &stack = wm::Stack::Id::Default) override;
+
   core::Property<bool>& ready() override;
 
  private:

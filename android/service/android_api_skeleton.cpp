@@ -73,9 +73,12 @@ void AndroidApiSkeleton::launch_application(anbox::protobuf::bridge::LaunchAppli
     std::vector<std::string> argv = {
         "/system/bin/am",
         "start",
-        // Launch any application always in the freeform stack
-        "--stack", "2",
     };
+
+    if (request->has_stack()) {
+      argv.push_back("--stack");
+      argv.push_back(std::to_string(request->stack()));
+    }
 
     if (request->has_launch_bounds()) {
         argv.push_back("--launch-bounds");

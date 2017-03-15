@@ -34,6 +34,12 @@ message Notification {
 message LaunchApplication {
     required Intent intent = 1;
     optional Rect launch_bounds = 2;
+    enum Stack {
+      DEFAULT = 0;
+      FULLSCREEN = 1;
+      FREEFORM = 2;
+    }
+    optional Stack stack = 3 [default = DEFAULT];
 }
 
 message SetFocusedTask {

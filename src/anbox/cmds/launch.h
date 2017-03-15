@@ -23,6 +23,7 @@
 #include <memory>
 
 #include "anbox/android/intent.h"
+#include "anbox/wm/stack.h"
 #include "anbox/cli.h"
 
 namespace anbox {
@@ -33,6 +34,7 @@ class Launch : public cli::CommandWithFlagsAndAction {
 
  private:
   android::Intent intent_;
+  wm::Stack::Id stack_;
 };
 }  // namespace cmds
 }  // namespace anbox
