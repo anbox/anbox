@@ -55,6 +55,8 @@
 namespace fs = boost::filesystem;
 
 namespace {
+const anbox::graphics::Rect default_single_window_size{0, 0, 1024, 768};
+
 class NullConnectionCreator : public anbox::network::ConnectionCreator<
                                   boost::asio::local::stream_protocol> {
  public:
@@ -141,7 +143,7 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
 
     auto display_frame = graphics::Rect::Invalid;
     if (single_window_)
-      display_frame = {0, 0, 1024, 768};
+      display_frame = default_single_window_size;
 
     auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager, display_frame, single_window_);
     // FIXME this needs to be removed and solved differently behind the scenes
