@@ -26,13 +26,17 @@
 #include <mutex>
 
 namespace anbox {
+namespace application {
+class Database;
+} // namespace application
 namespace platform {
 class Policy;
 } // namespace platform
 namespace wm {
 class Manager {
  public:
-  Manager(const std::shared_ptr<platform::Policy> &policy);
+  Manager(const std::shared_ptr<platform::Policy> &policy,
+          const std::shared_ptr<application::Database> &app_db);
   ~Manager();
 
   void apply_window_state_update(const WindowState::List &updated,
@@ -43,6 +47,7 @@ class Manager {
  private:
   std::mutex mutex_;
   std::shared_ptr<platform::Policy> platform_policy_;
+  std::shared_ptr<application::Database> app_db_;
   std::map<Task::Id, std::shared_ptr<Window>> windows_;
 };
 }  // namespace wm

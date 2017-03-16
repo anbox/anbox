@@ -19,6 +19,7 @@
 #include "anbox/config.h"
 #include "anbox/utils.h"
 
+#include "external/xdg/xdg.h"
 
 #include <cstring>
 
@@ -68,6 +69,11 @@ std::string anbox::SystemConfiguration::socket_dir() const {
 std::string anbox::SystemConfiguration::input_device_dir() const {
   static std::string dir = anbox::utils::string_format("%s/anbox/input", runtime_dir());
   return dir;
+}
+
+std::string anbox::SystemConfiguration::application_item_dir() const {
+  static auto dir = xdg::data().home() / "applications" / "anbox";
+  return dir.string();
 }
 
 anbox::SystemConfiguration& anbox::SystemConfiguration::instance() {

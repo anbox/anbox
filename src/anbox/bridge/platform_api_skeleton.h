@@ -48,7 +48,7 @@ namespace wm {
 class Manager;
 }  // namespace wm
 namespace application {
-class LauncherStorage;
+class Database;
 }  // namespace application
 namespace bridge {
 class PlatformApiSkeleton {
@@ -57,7 +57,7 @@ class PlatformApiSkeleton {
       const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
       const std::shared_ptr<platform::Policy> &platform_policy,
       const std::shared_ptr<wm::Manager> &window_manager,
-      const std::shared_ptr<application::LauncherStorage> &launcher_storage);
+      const std::shared_ptr<application::Database> &app_db);
   virtual ~PlatformApiSkeleton();
 
   void set_clipboard_data(anbox::protobuf::bridge::ClipboardData const *request,
@@ -80,7 +80,7 @@ class PlatformApiSkeleton {
   std::shared_ptr<rpc::PendingCallCache> pending_calls_;
   std::shared_ptr<platform::Policy> platform_policy_;
   std::shared_ptr<wm::Manager> window_manager_;
-  std::shared_ptr<application::LauncherStorage> launcher_storage_;
+  std::shared_ptr<application::Database> app_db_;
   std::function<void()> boot_finished_handler_;
 };
 }  // namespace bridge

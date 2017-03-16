@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
+ * Copyright (C) 2017 Simon Fels <morphis@gravedo.de>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -15,34 +15,42 @@
  *
  */
 
-#ifndef ANBOX_APPLICATION_LAUNCHER_STORAGE_H_
-#define ANBOX_APPLICATION_LAUNCHER_STORAGE_H_
+#ifndef ANBOX_APPLICATION_DATABASE_H_
+#define ANBOX_APPLICATION_DATABASE_H_
 
-#include "anbox/application/database.h"
 #include "anbox/android/intent.h"
 
 #include <string>
-#include <vector>
-
-#include <boost/filesystem.hpp>
+#include <map>
+#include <memory>
 
 namespace anbox {
 namespace application {
-class LauncherStorage {
+class LauncherStorage;
+class Database {
  public:
-  LauncherStorage(const boost::filesystem::path &path);
-  ~LauncherStorage();
+  struct Item {
+    std::string name;
+    std::string package;
+    android::Intent launch_intent;
+    std::vector<char> icon;
 
-  void reset();
-  void add_or_update(const Database::Item &item);
-  void remove(const Database::Item &item);
+    bool valid() const { return package.length() > 0; }
+  };
+
+  static const Item Unknown;
+
+  Database();
+  ~Database();
+
+  void store_or_update(const Item &item);
+  void remove(const Item &item);
+
+  const Item& find_by_package(const std::string &package) const;
 
  private:
-  std::string clean_package_name(const std::string &package_name);
-  boost::filesystem::path path_for_item(const std::string &package_name);
-  boost::filesystem::path path_for_item_icon(const std::string &package_name);
-
-  boost::filesystem::path path_;
+  std::shared_ptr<LauncherStorage> storage_;
+  std::map<std::string,Item> items_;
 };
 }  // namespace application
 }  // namespace anbox
