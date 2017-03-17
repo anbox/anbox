@@ -18,13 +18,13 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #include "anbox/ubuntu/platform_policy.h"
-#include "anbox/bridge/android_api_stub.h"
 #include "anbox/input/device.h"
 #include "anbox/input/manager.h"
 #include "anbox/logger.h"
 #include "anbox/ubuntu/keycode_converter.h"
 #include "anbox/ubuntu/window.h"
 #include "anbox/ubuntu/audio_sink.h"
+#include "anbox/wm/manager.h"
 
 #include <boost/throw_exception.hpp>
 
@@ -36,31 +36,37 @@ namespace anbox {
 namespace ubuntu {
 PlatformPolicy::PlatformPolicy(
     const std::shared_ptr<input::Manager> &input_manager,
-    const std::shared_ptr<bridge::AndroidApiStub> &android_api)
+    const graphics::Rect &static_display_frame,
+    bool single_window)
     : input_manager_(input_manager),
-      android_api_(android_api),
-      event_thread_running_(false) {
+      event_thread_running_(false),
+      single_window_(single_window) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) {
     const auto message = utils::string_format("Failed to initialize SDL: %s", SDL_GetError());
     BOOST_THROW_EXCEPTION(std::runtime_error(message));
   }
 
   auto display_frame = graphics::Rect::Invalid;
-  for (auto n = 0; n < SDL_GetNumVideoDisplays(); n++) {
-    SDL_Rect r;
-    if (SDL_GetDisplayBounds(n, &r) != 0) continue;
+  if (static_display_frame == graphics::Rect::Invalid) {
+    for (auto n = 0; n < SDL_GetNumVideoDisplays(); n++) {
+      SDL_Rect r;
+      if (SDL_GetDisplayBounds(n, &r) != 0) continue;
 
-    graphics::Rect frame{r.x, r.y, r.x + r.w, r.y + r.h};
+      graphics::Rect frame{r.x, r.y, r.x + r.w, r.y + r.h};
+
+      if (display_frame == graphics::Rect::Invalid)
+        display_frame = frame;
+      else
+        display_frame.merge(frame);
+    }
 
     if (display_frame == graphics::Rect::Invalid)
-      display_frame = frame;
-    else
-      display_frame.merge(frame);
+      BOOST_THROW_EXCEPTION(
+          std::runtime_error("No valid display configuration found"));
+  } else {
+    display_frame = static_display_frame;
+    window_size_immutable_ = true;
   }
-
-  if (display_frame == graphics::Rect::Invalid)
-    BOOST_THROW_EXCEPTION(
-        std::runtime_error("No valid display configuration found"));
 
   display_info_.horizontal_resolution = display_frame.width();
   display_info_.vertical_resolution = display_frame.height();
@@ -99,6 +105,10 @@ PlatformPolicy::~PlatformPolicy() {
 
 void PlatformPolicy::set_renderer(const std::shared_ptr<Renderer> &renderer) {
   renderer_ = renderer;
+}
+
+void PlatformPolicy::set_window_manager(const std::shared_ptr<wm::Manager> &window_manager) {
+  window_manager_ = window_manager;
 }
 
 void PlatformPolicy::process_events() {
@@ -153,25 +163,31 @@ void PlatformPolicy::process_input_event(const SDL_Event &event) {
       mouse_events.push_back({EV_SYN, SYN_REPORT, 0});
       break;
     case SDL_MOUSEMOTION:
-      // As we get only absolute coordindates relative to our window we have to
-      // calculate the correct position based on the current focused window
-      window = SDL_GetWindowFromID(event.window.windowID);
-      if (!window) break;
+      if (!single_window_) {
+        // As we get only absolute coordindates relative to our window we have to
+        // calculate the correct position based on the current focused window
+        window = SDL_GetWindowFromID(event.window.windowID);
+        if (!window) break;
 
-      SDL_GetWindowPosition(window, &x, &y);
-      x += event.motion.x;
-      y += event.motion.y;
+        SDL_GetWindowPosition(window, &x, &y);
+        x += event.motion.x;
+        y += event.motion.y;
+      } else {
+        // When running the whole Android system in a single window we don't
+        // need to reacalculate and the pointer position as they are already
+        // relative to our window.
+        x = event.motion.x;
+        y = event.motion.y;
+      }
 
       // NOTE: Sending relative move events doesn't really work and we have
-      // changes
-      // in libinputflinger to take ABS_X/ABS_Y instead for absolute position
-      // events.
+      // changes in libinputflinger to take ABS_X/ABS_Y instead for absolute
+      // position events.
       mouse_events.push_back({EV_ABS, ABS_X, x});
       mouse_events.push_back({EV_ABS, ABS_Y, y});
       // We're sending relative position updates here too but they will be only
-      // used
-      // by the Android side EventHub/InputReader to determine if the cursor was
-      // moved. They are not used to find out the exact position.
+      // used by the Android side EventHub/InputReader to determine if the cursor
+      // was moved. They are not used to find out the exact position.
       mouse_events.push_back({EV_REL, REL_X, event.motion.xrel});
       mouse_events.push_back({EV_REL, REL_Y, event.motion.yrel});
       mouse_events.push_back({EV_SYN, SYN_REPORT, 0});
@@ -214,7 +230,7 @@ std::shared_ptr<wm::Window> PlatformPolicy::create_window(
   }
 
   auto id = next_window_id();
-  auto w = std::make_shared<Window>(renderer_, id, task, shared_from_this(), frame, title);
+  auto w = std::make_shared<Window>(renderer_, id, task, shared_from_this(), frame, title, !window_size_immutable_);
   windows_.insert({id, w});
   return w;
 }
@@ -225,7 +241,8 @@ void PlatformPolicy::window_deleted(const Window::Id &id) {
     WARNING("Got window removed event for unknown window (id %d)", id);
     return;
   }
-  if (auto window = w->second.lock()) android_api_->remove_task(window->task());
+  if (auto window = w->second.lock())
+    window_manager_->remove_task(window->task());
   windows_.erase(w);
 }
 
@@ -234,7 +251,7 @@ void PlatformPolicy::window_wants_focus(const Window::Id &id) {
   if (w == windows_.end()) return;
 
   if (auto window = w->second.lock())
-    android_api_->set_focused_task(window->task());
+    window_manager_->set_focused_task(window->task());
 }
 
 void PlatformPolicy::window_moved(const Window::Id &id, const std::int32_t &x,
@@ -246,7 +263,7 @@ void PlatformPolicy::window_moved(const Window::Id &id, const std::int32_t &x,
     auto new_frame = window->frame();
     new_frame.translate(x, y);
     window->update_frame(new_frame);
-    android_api_->resize_task(window->task(), new_frame, 3);
+    window_manager_->resize_task(window->task(), new_frame, 3);
   }
 }
 
@@ -264,7 +281,7 @@ void PlatformPolicy::window_resized(const Window::Id &id,
     // representing this window and then we're back to the original size of
     // the task.
     window->update_frame(new_frame);
-    android_api_->resize_task(window->task(), new_frame, 3);
+    window_manager_->resize_task(window->task(), new_frame, 3);
   }
 }
 

@@ -51,7 +51,8 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
          const Id &id, const wm::Task::Id &task,
          const std::shared_ptr<Observer> &observer,
          const graphics::Rect &frame,
-         const std::string &title);
+         const std::string &title,
+         bool resizable);
   ~Window();
 
   void process_event(const SDL_Event &event);

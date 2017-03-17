@@ -40,7 +40,8 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
                const Id &id, const wm::Task::Id &task,
                const std::shared_ptr<Observer> &observer,
                const graphics::Rect &frame,
-               const std::string &title)
+               const std::string &title,
+               bool resizable)
     : wm::Window(renderer, task, frame, title),
       id_(id),
       observer_(observer),
@@ -48,12 +49,21 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
       native_window_(0) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
 
-  window_ = SDL_CreateWindow(title.c_str(), frame.left(), frame.top(),
+  // NOTE: We don't furce GL initialization of the window as this will
+  // be take care of by the Renderer when we attach to it. On EGL
+  // initializing GL here will cause a surface to be created and the
+  // renderer will attempt to create one too which will not work as
+  // only a single surface per EGLNativeWindowType is supported.
+  std::uint32_t flags = 0;
+  if (resizable)
+    flags |= SDL_WINDOW_RESIZABLE;
+
+  window_ = SDL_CreateWindow(title.c_str(),
+                             frame.left(), frame.top(),
                              frame.width(), frame.height(),
-                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+                             flags);
   if (!window_) {
-    const auto message =
-        utils::string_format("Failed to create window: %s", SDL_GetError());
+    const auto message = utils::string_format("Failed to create window: %s", SDL_GetError());
     BOOST_THROW_EXCEPTION(std::runtime_error(message));
   }
 
@@ -77,6 +87,8 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
       ERROR("Unknown subsystem (%d)", info.subsystem);
       BOOST_THROW_EXCEPTION(std::runtime_error("SDL subsystem not suported"));
   }
+
+  SDL_ShowWindow(window_);
 }
 
 Window::~Window() {

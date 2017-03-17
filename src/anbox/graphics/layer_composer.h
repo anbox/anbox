@@ -21,23 +21,33 @@
 #include "anbox/graphics/renderer.h"
 
 #include <memory>
+#include <map>
 
 namespace anbox {
 namespace wm {
 class Manager;
+class Window;
 }  // namespace wm
 namespace graphics {
 class LayerComposer {
  public:
+  class Strategy {
+   public:
+    typedef std::map<std::shared_ptr<wm::Window>, RenderableList> WindowRenderableList;
+
+    virtual ~Strategy() {}
+    virtual WindowRenderableList process_layers(const RenderableList &renderables) = 0;
+  };
+
   LayerComposer(const std::shared_ptr<Renderer> renderer,
-                const std::shared_ptr<wm::Manager> &wm);
+                const std::shared_ptr<Strategy> &strategy);
   ~LayerComposer();
 
   void submit_layers(const RenderableList &renderables);
 
  private:
   std::shared_ptr<Renderer> renderer_;
-  std::shared_ptr<wm::Manager> wm_;
+  std::shared_ptr<Strategy> strategy_;
 };
 }  // namespace graphics
 }  // namespace anbox

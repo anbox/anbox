@@ -25,7 +25,7 @@ WindowState::WindowState()
       frame_(graphics::Rect::Invalid),
       package_name_(""),
       task_(Task::Invalid),
-      stack_(Stack::Invalid) {}
+      stack_(Stack::Id::Invalid) {}
 
 WindowState::WindowState(const Display::Id &display, bool has_surface,
                          const graphics::Rect &frame,

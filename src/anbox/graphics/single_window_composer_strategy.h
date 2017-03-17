@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
+ * Copyright (C) 2017 Simon Fels <morphis@gravedo.de>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -15,23 +15,26 @@
  *
  */
 
-#ifndef ANBOX_APPLICATION_MANAGER_H_
-#define ANBOX_APPLICATION_MANAGER_H_
+#ifndef ANBOX_GRAPHICS_SINGLE_WINDOW_COMPOSER_STRATEGY_H_
+#define ANBOX_GRAPHICS_SINGLE_WINDOW_COMPOSER_STRATEGY_H_
 
-#include "anbox/android/intent.h"
-#include "anbox/do_not_copy_or_move.h"
-#include "anbox/graphics/rect.h"
+#include "anbox/graphics/layer_composer.h"
 
-#include <string>
-
-#include <core/property.h>
+#include <memory>
 
 namespace anbox {
-class ApplicationManager : public DoNotCopyOrMove {
+namespace graphics {
+class SingleWindowComposerStrategy : public LayerComposer::Strategy {
  public:
-  virtual void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) = 0;
-  virtual core::Property<bool>& ready() = 0;
+  SingleWindowComposerStrategy(const std::shared_ptr<wm::Manager> &wm);
+  ~SingleWindowComposerStrategy() = default;
+
+  WindowRenderableList process_layers(const RenderableList &renderables) override;
+
+private:
+  std::shared_ptr<wm::Manager> wm_;
 };
+}  // namespace graphics
 }  // namespace anbox
 
 #endif

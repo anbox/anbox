@@ -24,7 +24,9 @@ namespace wm {
 Window::Window(const std::shared_ptr<Renderer> &renderer, const Task::Id &task, const graphics::Rect &frame, const std::string &title)
     : renderer_(renderer), task_(task), frame_(frame), title_(title) {}
 
-Window::~Window() {}
+Window::~Window() {
+  release();
+}
 
 void Window::update_state(const WindowState::List &states) {
   (void)states;
@@ -47,11 +49,12 @@ std::string Window::title() const { return title_; }
 bool Window::attach() {
   if (!renderer_)
     return false;
-  return renderer_->createNativeWindow(native_handle());
+  attached_ = renderer_->createNativeWindow(native_handle());
+  return attached_;
 }
 
 void Window::release() {
-  if (!renderer_)
+  if (!renderer_ || !attached_)
     return;
   renderer_->destroyNativeWindow(native_handle());
 }

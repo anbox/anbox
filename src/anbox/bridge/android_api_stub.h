@@ -18,7 +18,7 @@
 #ifndef ANBOX_BRIDGE_ANDROID_API_STUB_H_
 #define ANBOX_BRIDGE_ANDROID_API_STUB_H_
 
-#include "anbox/application_manager.h"
+#include "anbox/application/manager.h"
 #include "anbox/common/wait_handle.h"
 #include "anbox/graphics/rect.h"
 
@@ -35,7 +35,7 @@ namespace rpc {
 class Channel;
 }  // namespace rpc
 namespace bridge {
-class AndroidApiStub : public anbox::ApplicationManager {
+class AndroidApiStub : public anbox::application::Manager {
  public:
   AndroidApiStub();
   ~AndroidApiStub();
@@ -48,7 +48,10 @@ class AndroidApiStub : public anbox::ApplicationManager {
   void resize_task(const std::int32_t &id, const anbox::graphics::Rect &rect,
                    const std::int32_t &resize_mode);
 
-  void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) override;
+  void launch(const android::Intent &intent,
+              const graphics::Rect &launch_bounds = graphics::Rect::Invalid,
+              const wm::Stack::Id &stack = wm::Stack::Id::Default) override;
+
   core::Property<bool>& ready() override;
 
  private:

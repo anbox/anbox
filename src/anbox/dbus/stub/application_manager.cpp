@@ -17,6 +17,7 @@
 
 #include "anbox/dbus/stub/application_manager.h"
 #include "anbox/dbus/interface.h"
+#include "anbox/dbus/codecs.h"
 #include "anbox/logger.h"
 
 namespace anbox {
@@ -41,13 +42,15 @@ ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
 
 ApplicationManager::~ApplicationManager() {}
 
-void ApplicationManager::launch(const android::Intent &intent, const graphics::Rect &launch_bounds) {
+void ApplicationManager::launch(const android::Intent &intent,
+                                const graphics::Rect &launch_bounds,
+                                const wm::Stack::Id &stack) {
   auto result = object_->invoke_method_synchronously<
       anbox::dbus::interface::ApplicationManager::Methods::Launch,
       anbox::dbus::interface::ApplicationManager::Methods::Launch::ResultType>(
       intent.action, intent.uri, intent.type, intent.flags, intent.package,
       intent.component, launch_bounds.left(), launch_bounds.top(),
-      launch_bounds.right(), launch_bounds.bottom());
+      launch_bounds.right(), launch_bounds.bottom(), stack);
 
   if (result.is_error()) throw std::runtime_error(result.error().print());
 }

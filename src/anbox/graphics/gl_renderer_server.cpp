@@ -20,6 +20,8 @@
 #include "anbox/graphics/emugl/RenderControl.h"
 #include "anbox/graphics/emugl/Renderer.h"
 #include "anbox/graphics/layer_composer.h"
+#include "anbox/graphics/multi_window_composer_strategy.h"
+#include "anbox/graphics/single_window_composer_strategy.h"
 #include "anbox/logger.h"
 #include "anbox/wm/manager.h"
 
@@ -64,9 +66,15 @@ void logger_write(const emugl::LogLevel &level, const char *format, ...) {
 namespace anbox {
 namespace graphics {
 GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<wm::Manager> &wm)
-    : renderer_(std::make_shared<::Renderer>()),
-      wm_(wm),
-      composer_(std::make_shared<LayerComposer>(renderer_, wm)) {
+    : renderer_(std::make_shared<::Renderer>()) {
+
+  std::shared_ptr<LayerComposer::Strategy> composer_strategy;
+  if (config.single_window)
+    composer_strategy = std::make_shared<SingleWindowComposerStrategy>(wm);
+  else
+    composer_strategy = std::make_shared<MultiWindowComposerStrategy>(wm);
+
+  composer_ = std::make_shared<LayerComposer>(renderer_, composer_strategy);
 
   auto gl_libs = emugl::default_gl_libraries(true);
 

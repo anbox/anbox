@@ -19,9 +19,33 @@
 
 namespace anbox {
 namespace wm {
-Stack::Id Stack::Invalid = -1;
-Stack::Id Stack::Default = 0;
-Stack::Id Stack::Fullscreen = 1;
-Stack::Id Stack::Freeform = 2;
+std::ostream &operator<<(std::ostream &out, const Stack::Id &stack) {
+  switch (stack) {
+  case anbox::wm::Stack::Id::Default:
+    out << "default";
+    break;
+  case anbox::wm::Stack::Id::Fullscreen:
+    out << "fullscreen";
+    break;
+  case anbox::wm::Stack::Id::Freeform:
+    out << "freeform";
+    break;
+  default:
+    break;
+  }
+  return out;
+}
+
+std::istream& operator>>(std::istream& in, Stack::Id &stack) {
+  std::string s;
+  in >> s;
+  if (s == "default")
+    stack = anbox::wm::Stack::Id::Default;
+  else if (s == "fullscreen")
+    stack = anbox::wm::Stack::Id::Fullscreen;
+  else if (s == "freeform")
+    stack = anbox::wm::Stack::Id::Freeform;
+  return in;
+}
 }  // namespace wm
 }  // namespace anbox

@@ -50,10 +50,12 @@ anbox::cmds::Launch::Launch()
   flag(cli::make_flag(cli::Name{"package"},
                       cli::Description{"Package the intent should go to"},
                       intent_.package));
-  flag(cli::make_flag(
-      cli::Name{"component"},
-      cli::Description{"Component of a package the intent should go"},
-      intent_.component));
+  flag(cli::make_flag(cli::Name{"component"},
+                      cli::Description{"Component of a package the intent should go"},
+                      intent_.component));
+  flag(cli::make_flag(cli::Name{"stack"},
+                      cli::Description{"Which window stack the activity should be started on. Possible: default, fullscreen, freeform"},
+                      stack_));
 
   action([this](const cli::Command::Context&) {
     auto trap = core::posix::trap_signals_for_process({core::posix::Signal::sig_term, core::posix::Signal::sig_int});
@@ -82,7 +84,7 @@ anbox::cmds::Launch::Launch()
     dispatcher->dispatch([&]() {
       if (stub->ready()) {
         try {
-          stub->launch(intent_);
+          stub->launch(intent_, graphics::Rect::Invalid, stack_);
           success = true;
         } catch (std::exception &err) {
           ERROR("err %s", err.what());
@@ -97,7 +99,7 @@ anbox::cmds::Launch::Launch()
         if (!ready)
           return;
         try {
-          stub->launch(intent_);
+          stub->launch(intent_, graphics::Rect::Invalid, stack_);
           success = true;
         } catch (std::exception &err) {
           ERROR("Failed to launch activity: %s", err.what());

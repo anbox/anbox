@@ -120,6 +120,8 @@ set(SOURCES
     anbox/graphics/density.h
     anbox/graphics/rect.cpp
     anbox/graphics/layer_composer.cpp
+    anbox/graphics/multi_window_composer_strategy.cpp
+    anbox/graphics/single_window_composer_strategy.cpp
     anbox/graphics/program_family.cpp
     anbox/graphics/primitives.h
     anbox/graphics/renderer.h
@@ -149,6 +151,8 @@ set(SOURCES
     anbox/wm/task.cpp
     anbox/wm/stack.cpp
     anbox/wm/manager.cpp
+    anbox/wm/single_window_manager.cpp
+    anbox/wm/multi_window_manager.cpp
     anbox/wm/window_state.cpp
     anbox/wm/window.cpp
 
@@ -181,12 +185,14 @@ set(SOURCES
     anbox/ubuntu/audio_sink.cpp
 
     anbox/dbus/interface.h
+    anbox/dbus/codecs.h
     anbox/dbus/skeleton/service.cpp
     anbox/dbus/skeleton/application_manager.cpp
     anbox/dbus/stub/application_manager.cpp
 
     anbox/application/launcher_storage.cpp
     anbox/application/database.cpp
+    anbox/application/manager.h
 
     anbox/cmds/version.cpp
     anbox/cmds/session_manager.cpp

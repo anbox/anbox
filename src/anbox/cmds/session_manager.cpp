@@ -41,7 +41,8 @@
 #include "anbox/rpc/connection_creator.h"
 #include "anbox/runtime.h"
 #include "anbox/ubuntu/platform_policy.h"
-#include "anbox/wm/manager.h"
+#include "anbox/wm/multi_window_manager.h"
+#include "anbox/wm/single_window_manager.h"
 
 #include "external/xdg/xdg.h"
 
@@ -54,6 +55,8 @@
 namespace fs = boost::filesystem;
 
 namespace {
+const anbox::graphics::Rect default_single_window_size{0, 0, 1024, 768};
+
 class NullConnectionCreator : public anbox::network::ConnectionCreator<
                                   boost::asio::local::stream_protocol> {
  public:
@@ -86,7 +89,8 @@ anbox::cmds::SessionManager::BusFactory anbox::cmds::SessionManager::session_bus
 anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     : CommandWithFlagsAndAction{cli::Name{"session-manager"}, cli::Usage{"session-manager"},
                                 cli::Description{"Run the the anbox session manager"}},
-      bus_factory_(bus_factory) {
+      bus_factory_(bus_factory),
+      window_size_(default_single_window_size) {
   // Just for the purpose to allow QtMir (or unity8) to find this on our
   // /proc/*/cmdline
   // for proper confinement etc.
@@ -96,6 +100,12 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
   flag(cli::make_flag(cli::Name{"gles-driver"},
                       cli::Description{"Which GLES driver to use. Possible values are 'host' or'translator'"},
                       gles_driver_));
+  flag(cli::make_flag(cli::Name{"single-window"},
+                      cli::Description{"Start in single window mode."},
+                      single_window_));
+  flag(cli::make_flag(cli::Name{"window-size"},
+                      cli::Description{"Size of the window in single window mode, e.g. --window-size=1024,768"},
+                      window_size_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -135,18 +145,38 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
 
     auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
-    auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager,
-                                                           android_api_stub);
+    auto app_manager = std::static_pointer_cast<application::Manager>(android_api_stub);
+    if (!single_window_) {
+      // When we're not running single window mode we need to restrict ourself to
+      // only launch applications in freeform mode as otherwise the window tracking
+      // doesn't work.
+      app_manager = std::make_shared<application::RestrictedManager>(
+            android_api_stub, wm::Stack::Id::Freeform);
+    }
+
+    auto display_frame = graphics::Rect::Invalid;
+    if (single_window_)
+      display_frame = window_size_;
+
+    auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager, display_frame, single_window_);
     // FIXME this needs to be removed and solved differently behind the scenes
     registerDisplayManager(policy);
 
     auto app_db = std::make_shared<application::Database>();
-    auto window_manager = std::make_shared<wm::Manager>(policy, app_db);
+
+    std::shared_ptr<wm::Manager> window_manager;
+    if (single_window_)
+      window_manager = std::make_shared<wm::SingleWindowManager>(policy, display_frame, app_db);
+    else
+      window_manager = std::make_shared<wm::MultiWindowManager>(policy, android_api_stub, app_db);
 
     auto gl_server = std::make_shared<graphics::GLRendererServer>(
-          graphics::GLRendererServer::Config{gles_driver_}, window_manager);
+          graphics::GLRendererServer::Config{gles_driver_, single_window_}, window_manager);
 
+    policy->set_window_manager(window_manager);
     policy->set_renderer(gl_server->renderer());
+
+    window_manager->setup();
 
     auto audio_server = std::make_shared<audio::Server>(rt, policy);
 
@@ -198,7 +228,7 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     auto bus = bus_factory_();
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
 
-    auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, android_api_stub);
+    auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, app_manager);
 
     rt->start();
     trap->run();

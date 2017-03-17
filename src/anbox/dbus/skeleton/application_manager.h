@@ -18,7 +18,7 @@
 #ifndef ANBOX_DBUS_SKELETON_APPLICATION_MANAGER_H_
 #define ANBOX_DBUS_SKELETON_APPLICATION_MANAGER_H_
 
-#include "anbox/application_manager.h"
+#include "anbox/application/manager.h"
 
 #include <core/dbus/bus.h>
 #include <core/dbus/object.h>
@@ -30,14 +30,17 @@
 namespace anbox {
 namespace dbus {
 namespace skeleton {
-class ApplicationManager : public anbox::ApplicationManager {
+class ApplicationManager : public anbox::application::Manager {
  public:
   ApplicationManager(const core::dbus::Bus::Ptr &bus,
                      const core::dbus::Object::Ptr &object,
-                     const std::shared_ptr<anbox::ApplicationManager> &impl);
+                     const std::shared_ptr<anbox::application::Manager> &impl);
   ~ApplicationManager();
 
-  void launch(const android::Intent &intent, const graphics::Rect &launch_bounds = graphics::Rect::Invalid) override;
+  void launch(const android::Intent &intent,
+              const graphics::Rect &launch_bounds = graphics::Rect::Invalid,
+              const wm::Stack::Id &stack = wm::Stack::Id::Default) override;
+
   core::Property<bool>& ready() override;
 
  private:
@@ -47,7 +50,7 @@ class ApplicationManager : public anbox::ApplicationManager {
   core::dbus::Bus::Ptr bus_;
   core::dbus::Service::Ptr service_;
   core::dbus::Object::Ptr object_;
-  std::shared_ptr<anbox::ApplicationManager> impl_;
+  std::shared_ptr<anbox::application::Manager> impl_;
   struct {
     std::shared_ptr<core::dbus::Property<anbox::dbus::interface::ApplicationManager::Properties::Ready>> ready;
   } properties_;
