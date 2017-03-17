@@ -116,7 +116,12 @@ public final class PlatformService {
             if (icon == null)
                 continue;
 
-            data.writeString(appInfo.name);
+            String name = appInfo.name;
+            CharSequence label = appInfo.loadLabel(mPm);
+            if (label != null)
+                name = label.toString();
+
+            data.writeString(name);
             data.writeString(appInfo.packageName);
 
             data.writeString(launchIntent.getAction());

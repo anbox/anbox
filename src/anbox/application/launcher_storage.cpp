@@ -33,18 +33,14 @@ constexpr const char *snap_exe_path{"/snap/bin/anbox"};
 
 namespace anbox {
 namespace application {
-LauncherStorage::LauncherStorage(const fs::path &path,
-                                 const boost::filesystem::path &icon_path) : path_(path), icon_path_(icon_path) {
-}
+LauncherStorage::LauncherStorage(const fs::path &path) :
+  path_(path) {}
 
 LauncherStorage::~LauncherStorage() {}
 
 void LauncherStorage::reset() {
   if (fs::exists(path_))
     fs::remove_all(path_);
-
-  if (fs::exists(icon_path_))
-    fs::remove_all(icon_path_);
 }
 
 std::string LauncherStorage::clean_package_name(const std::string &package_name) {
@@ -58,12 +54,11 @@ fs::path LauncherStorage::path_for_item(const std::string &package_name) {
 }
 
 fs::path LauncherStorage::path_for_item_icon(const std::string &package_name) {
-  return icon_path_ / utils::string_format("anbox-%s.png", package_name);
+  return path_ / utils::string_format("anbox-%s.png", package_name);
 }
 
-void LauncherStorage::add_or_update(const Item &item) {
+void LauncherStorage::add_or_update(const Database::Item &item) {
   if (!fs::exists(path_)) fs::create_directories(path_);
-  if (!fs::exists(icon_path_)) fs::create_directories(icon_path_);
 
   auto package_name = item.package;
   std::replace(package_name.begin(), package_name.end(), '.', '-');
@@ -92,7 +87,7 @@ void LauncherStorage::add_or_update(const Item &item) {
   const auto item_icon_path = path_for_item_icon(package_name);
   if (auto desktop_item = std::ofstream(path_for_item(package_name).string())) {
     desktop_item << "[Desktop Entry]" << std::endl
-                 << "Name=" << item.package << std::endl
+                 << "Name=" << item.name << std::endl
                  << "Exec=" << exec << std::endl
                  << "Terminal=false" << std::endl
                  << "Type=Application" << std::endl
@@ -107,7 +102,7 @@ void LauncherStorage::add_or_update(const Item &item) {
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to write icon"));
 }
 
-void LauncherStorage::remove(const Item &item) {
+void LauncherStorage::remove(const Database::Item &item) {
   auto package_name = clean_package_name(item.package);
 
   const auto item_path = path_for_item(package_name);

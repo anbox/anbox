@@ -16,7 +16,7 @@
  */
 
 #include "anbox/bridge/platform_api_skeleton.h"
-#include "anbox/application/launcher_storage.h"
+#include "anbox/application/database.h"
 #include "anbox/platform/policy.h"
 #include "anbox/wm/manager.h"
 #include "anbox/wm/window_state.h"
@@ -30,11 +30,11 @@ PlatformApiSkeleton::PlatformApiSkeleton(
     const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
     const std::shared_ptr<platform::Policy> &platform_policy,
     const std::shared_ptr<wm::Manager> &window_manager,
-    const std::shared_ptr<application::LauncherStorage> &launcher_storage)
+    const std::shared_ptr<application::Database> &app_db)
     : pending_calls_(pending_calls),
       platform_policy_(platform_policy),
       window_manager_(window_manager),
-      launcher_storage_(launcher_storage) {}
+      app_db_(app_db) {}
 
 PlatformApiSkeleton::~PlatformApiSkeleton() {}
 
@@ -62,10 +62,7 @@ void PlatformApiSkeleton::get_clipboard_data(anbox::protobuf::rpc::Void const *r
   done->Run();
 }
 
-void PlatformApiSkeleton::handle_boot_finished_event(const anbox::protobuf::bridge::BootFinishedEvent &event) {
-  if (event.first_boot_done())
-    launcher_storage_->reset();
-
+void PlatformApiSkeleton::handle_boot_finished_event(const anbox::protobuf::bridge::BootFinishedEvent&) {
   if (boot_finished_handler_)
     boot_finished_handler_();
 }
@@ -99,7 +96,7 @@ void PlatformApiSkeleton::handle_window_state_update_event(const anbox::protobuf
 
 void PlatformApiSkeleton::handle_application_list_update_event(const anbox::protobuf::bridge::ApplicationListUpdateEvent &event) {
   for (int n = 0; n < event.removed_applications_size(); n++) {
-    application::LauncherStorage::Item item;
+    application::Database::Item item;
 
     const auto app = event.removed_applications(n);
     item.package = app.package();
@@ -107,11 +104,11 @@ void PlatformApiSkeleton::handle_application_list_update_event(const anbox::prot
     if (item.package.empty())
       continue;
 
-    launcher_storage_->remove(item);
+    app_db_->remove(item);
   }
 
   for (int n = 0; n < event.applications_size(); n++) {
-    application::LauncherStorage::Item item;
+    application::Database::Item item;
 
     const auto app = event.applications(n);
     item.name = app.name();
@@ -132,7 +129,7 @@ void PlatformApiSkeleton::handle_application_list_update_event(const anbox::prot
     if (item.package.empty())
       continue;
 
-    launcher_storage_->add_or_update(item);
+    app_db_->store_or_update(item);
   }
 }
 

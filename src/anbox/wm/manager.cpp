@@ -16,6 +16,7 @@
  */
 
 #include "anbox/wm/manager.h"
+#include "anbox/application/database.h"
 #include "anbox/platform/policy.h"
 #include "anbox/logger.h"
 
@@ -23,8 +24,9 @@
 
 namespace anbox {
 namespace wm {
-Manager::Manager(const std::shared_ptr<platform::Policy> &policy)
-    : platform_policy_(policy) {}
+Manager::Manager(const std::shared_ptr<platform::Policy> &policy,
+                 const std::shared_ptr<application::Database> &app_db)
+    : platform_policy_(policy), app_db_(app_db) {}
 
 Manager::~Manager() {}
 
@@ -60,7 +62,12 @@ void Manager::apply_window_state_update(const WindowState::List &updated,
       continue;
     }
 
-    auto platform_window = platform_policy_->create_window(window.task(), window.frame(), window.package_name());
+    auto title = window.package_name();
+    auto app = app_db_->find_by_package(window.package_name());
+    if (app.valid())
+      title = app.name;
+
+    auto platform_window = platform_policy_->create_window(window.task(), window.frame(), title);
     platform_window->attach();
     windows_.insert({window.task(), platform_window});
   }

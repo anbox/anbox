@@ -39,6 +39,7 @@ class SystemConfiguration {
   std::string container_config_dir() const;
   std::string container_socket_path() const;
   std::string input_device_dir() const;
+  std::string application_item_dir() const;
 
  protected:
   SystemConfiguration() = default;

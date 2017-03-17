@@ -22,6 +22,7 @@
 #include "core/posix/signal.h"
 
 #include "anbox/application/launcher_storage.h"
+#include "anbox/application/database.h"
 #include "anbox/audio/server.h"
 #include "anbox/bridge/android_api_stub.h"
 #include "anbox/bridge/platform_api_skeleton.h"
@@ -139,11 +140,8 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     // FIXME this needs to be removed and solved differently behind the scenes
     registerDisplayManager(policy);
 
-    auto window_manager = std::make_shared<wm::Manager>(policy);
-
-    auto launcher_storage = std::make_shared<application::LauncherStorage>(
-        xdg::data().home() / "applications" / "anbox",
-        xdg::data().home() / "anbox" / "icons");
+    auto app_db = std::make_shared<application::Database>();
+    auto window_manager = std::make_shared<wm::Manager>(policy, app_db);
 
     auto gl_server = std::make_shared<graphics::GLRendererServer>(
           graphics::GLRendererServer::Config{gles_driver_}, window_manager);
@@ -175,7 +173,7 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
               android_api_stub->set_rpc_channel(rpc_channel);
 
               auto server = std::make_shared<bridge::PlatformApiSkeleton>(
-                  pending_calls, policy, window_manager, launcher_storage);
+                  pending_calls, policy, window_manager, app_db);
               server->register_boot_finished_handler([&]() {
                 DEBUG("Android successfully booted");
                 android_api_stub->ready().set(true);

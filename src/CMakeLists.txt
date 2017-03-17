@@ -60,7 +60,6 @@ set(SOURCES
     anbox/daemon.cpp
     anbox/config.cpp
     anbox/not_reachable.cpp
-    anbox/application_manager.h
 
     anbox/android/intent.cpp
 
@@ -187,6 +186,7 @@ set(SOURCES
     anbox/dbus/stub/application_manager.cpp
 
     anbox/application/launcher_storage.cpp
+    anbox/application/database.cpp
 
     anbox/cmds/version.cpp
     anbox/cmds/session_manager.cpp
