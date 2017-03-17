@@ -36,7 +36,7 @@ class Window;
 class SingleWindowManager : public Manager {
  public:
   SingleWindowManager(const std::shared_ptr<platform::Policy> &policy,
-                      const graphics::Rect &window_size
+                      const graphics::Rect &window_size,
                       const std::shared_ptr<application::Database> &app_db);
   ~SingleWindowManager();
 

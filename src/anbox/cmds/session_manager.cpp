@@ -166,9 +166,9 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
 
     std::shared_ptr<wm::Manager> window_manager;
     if (single_window_)
-      window_manager = std::make_shared<wm::SingleWindowManager>(policy, display_frame, app_mgr);
+      window_manager = std::make_shared<wm::SingleWindowManager>(policy, display_frame, app_db);
     else
-      window_manager = std::make_shared<wm::MultiWindowManager>(policy, android_api_stub, app_mgr);
+      window_manager = std::make_shared<wm::MultiWindowManager>(policy, android_api_stub, app_db);
 
     auto gl_server = std::make_shared<graphics::GLRendererServer>(
           graphics::GLRendererServer::Config{gles_driver_, single_window_}, window_manager);

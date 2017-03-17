@@ -15,6 +15,7 @@
  *
  */
 
+#include "anbox/application/database.h"
 #include "anbox/wm/multi_window_manager.h"
 #include "anbox/platform/policy.h"
 #include "anbox/bridge/android_api_stub.h"

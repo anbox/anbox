@@ -27,7 +27,7 @@
 namespace anbox {
 namespace wm {
 SingleWindowManager::SingleWindowManager(const std::shared_ptr<platform::Policy> &policy,
-                                         const graphics::Rect &window_size
+                                         const graphics::Rect &window_size,
                                          const std::shared_ptr<application::Database> &app_db)
     : platform_policy_(policy), window_size_(window_size), app_db_(app_db) {}
 
