@@ -18,18 +18,16 @@ apps:
 
 parts:
   android-images:
-    plugin: copy
+    plugin: dump
     source: android-images
-    files:
-      android.img: android.img
   anbox-common:
-    plugin: copy
-    source: .
-    files:
-      scripts/snap-wrapper.sh: bin/anbox-wrapper.sh
-      scripts/container-manager.sh: bin/container-manager.sh
-      scripts/anbox-bridge.sh: bin/anbox-bridge.sh
-    snap:
+    plugin: dump
+    source: scripts
+    organize:
+      snap-wrapper.sh: bin/anbox-wrapper.sh
+      container-manager.sh: bin/container-manager.sh
+      anbox-bridge.sh: bin/anbox-bridge.sh
+    prime:
       - bin/anbox-bridge.sh
       - bin/anbox-wrapper.sh
       - bin/container-manager.sh
@@ -62,7 +60,7 @@ parts:
       - --disable-seccomp
       - --enable-capabilities
       - --with-rootfs-path=/var/snap/anbox/common/lxc/
-    snap:
+    prime:
       - bin/lxc-attach
       - bin/lxc-ls
       - bin/lxc-start
@@ -113,6 +111,6 @@ parts:
       - libgl1-mesa-glx
       - libsdl2-2.0-0
       - libsdl2-gfx-1.0-0
-    snap:
+    prime:
       - usr/bin/anbox
       - usr/lib/*-linux-*/
