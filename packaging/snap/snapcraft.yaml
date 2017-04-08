@@ -19,10 +19,10 @@ apps:
 parts:
   android-images:
     plugin: dump
-    source: android-images
+    source: ../../android-images
   anbox-common:
     plugin: dump
-    source: scripts
+    source: ../../scripts
     organize:
       snap-wrapper.sh: bin/anbox-wrapper.sh
       container-manager.sh: bin/container-manager.sh
@@ -71,7 +71,7 @@ parts:
     plugin: cmake
     after:
       - lxc
-    source: .
+    source: ../../
     configflags:
       # FIXME: Anbox currently has some paths with hard coded prefixes. Once
       # that is fixed we can avoid using a prefix here.
