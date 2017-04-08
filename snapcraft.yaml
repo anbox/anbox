@@ -36,8 +36,9 @@ parts:
     stage-packages:
       - apparmor
   lxc:
-    source: git://github.com/morphis/lxc
-    source-branch: snappy-support
+    source: https://github.com/lxc/lxc
+    source-type: git
+    source-tag: lxc-2.0.7
     build-packages:
       - libapparmor-dev
       - libcap-dev
@@ -55,16 +56,14 @@ parts:
       - --disable-api-docs
       - --disable-bash
       - --disable-cgmanager
-      # FIXME: Enable again once stacked AppArmor support has landed
       - --disable-apparmor
       - --disable-seccomp
       - --enable-capabilities
       - --with-rootfs-path=/var/snap/anbox/common/lxc/
+      - --libexecdir=/snap/anbox/current/libexec/
+    organize:
+      snap/anbox/current/libexec: libexec
     prime:
-      - bin/lxc-attach
-      - bin/lxc-ls
-      - bin/lxc-start
-      - bin/lxc-stop
       - lib/liblxc.so.1
       - lib/liblxc.so.1.2.0
       - libexec/lxc/lxc-monitord
