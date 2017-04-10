@@ -19,7 +19,11 @@ apps:
 parts:
   android-images:
     plugin: dump
-    source: ../../android-images
+    install: |
+      # FIXME: downloading with a source: field doesn't work as snapcraft
+      # expects the downloaded file to be an archive it can extract.
+      wget https://s3.eu-central-1.amazonaws.com/anbox/images/anbox-android-1.img
+      mv anbox-android-1.img $SNAPCRAFT_PART_INSTALL/android.img
   anbox-common:
     plugin: dump
     source: ../../scripts
