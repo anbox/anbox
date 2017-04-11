@@ -18,11 +18,10 @@ access commands through these.
 
 For more details have a look at the following documentation pages:
 
- * Android Hardware OpenGL ES emulation design overview
-   (https://goo.gl/O2Yi6x)
- * Android QEMU fast pipes (https://goo.gl/jl4GeS)
- * The Android "qemud" multiplexing daemon (https://goo.gl/DeYa5J)
- * Android qemud services (https://goo.gl/W8Lx6t)
+ * [Android Hardware OpenGL ES emulation design overview](https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android/android-emugl/DESIGN)
+ * [Android QEMU fast pipes](https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android/docs/ANDROID-QEMU-PIPE.TXT)
+ * [The Android "qemud" multiplexing daemon](https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android/docs/ANDROID-QEMUD.TXT)
+ * [Android qemud services](https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android/docs/ANDROID-QEMUD-SERVICES.TXT)
 
 Anbox is currently suited for the desktop use case but can be used on
 mobile operating systems like Ubuntu Touch, Sailfish OS or Lune OS too.
