@@ -22,6 +22,13 @@
 #include "anbox/wm/window_state.h"
 #include "anbox/logger.h"
 
+#ifdef Status
+// /usr/include/X11/Xlib.h, included via egl, defines Status as int, which is also used as class name in
+// protobuf/stubs/common.h as class name
+#undef Status
+#endif
+
+
 #include "anbox_bridge.pb.h"
 
 namespace anbox {
