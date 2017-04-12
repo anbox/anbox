@@ -19,14 +19,18 @@ apps:
 parts:
   android-images:
     plugin: dump
+    build-packages:
+      - wget
     install: |
       # FIXME: downloading with a source: field doesn't work as snapcraft
       # expects the downloaded file to be an archive it can extract.
       wget http://build.anbox.io/android-images/2017/04/12/android_1_amd64.img
-      mv anbox-android-1.img $SNAPCRAFT_PART_INSTALL/android.img
+      mv android_1_amd64.img $SNAPCRAFT_PART_INSTALL/android.img
+    prime:
+      - android.img
   anbox-common:
     plugin: dump
-    source: ../../scripts
+    source: scripts
     organize:
       snap-wrapper.sh: bin/anbox-wrapper.sh
       container-manager.sh: bin/container-manager.sh
@@ -75,7 +79,7 @@ parts:
     plugin: cmake
     after:
       - lxc
-    source: ../../
+    source: .
     configflags:
       # FIXME: Anbox currently has some paths with hard coded prefixes. Once
       # that is fixed we can avoid using a prefix here.
@@ -115,6 +119,8 @@ parts:
       - libgl1-mesa-glx
       - libsdl2-2.0-0
       - libsdl2-gfx-1.0-0
+    install: |
+      make test
     prime:
       - usr/bin/anbox
       - usr/lib/*-linux-*/
