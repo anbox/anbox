@@ -22,6 +22,8 @@
 #include "anbox/wm/window_state.h"
 #include "anbox/logger.h"
 
+#undef Status
+
 #include "anbox_bridge.pb.h"
 
 namespace anbox {
