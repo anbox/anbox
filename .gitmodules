@@ -1,0 +1,6 @@
+[submodule "external/dbus-cpp"]
+	path = external/dbus-cpp
+	url = https://github.com/oleid/dbus-cpp.git
+[submodule "external/properties-cpp"]
+	path = external/properties-cpp
+	url = https://github.com/oleid/properties-cpp.git
