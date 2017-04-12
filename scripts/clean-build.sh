@@ -7,6 +7,7 @@ apt-get install -qq -y \
   build-essential \
   cmake \
   cmake-data \
+  cmake-extras \
   debhelper \
   dbus \
   git \
