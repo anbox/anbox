@@ -84,6 +84,7 @@ parts:
       - build-essential
       - cmake
       - cmake-data
+      - cmake-extras
       - debhelper
       - dbus
       - google-mock
