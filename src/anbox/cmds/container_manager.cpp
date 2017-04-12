@@ -37,7 +37,7 @@ constexpr unsigned int unprivileged_user_id{100000};
 anbox::cmds::ContainerManager::ContainerManager()
     : CommandWithFlagsAndAction{
           cli::Name{"container-manager"}, cli::Usage{"container-manager"},
-          cli::Description{"Start the container manager service"}} {
+          cli::Description{"Start the container manager service"}, true} {
 
   flag(cli::make_flag(cli::Name{"android-image"},
                       cli::Description{"Path to the Android rootfs image file if not stored in the data path"},
@@ -51,6 +51,13 @@ anbox::cmds::ContainerManager::ContainerManager()
 
   action([&](const cli::Command::Context&) {
     try {
+      if (getuid() != 0) {
+        ERROR("You're not running the container-manager as root. Generally you don't");
+        ERROR("want to run the container-manager manually unless you're a developer");
+        ERROR("as it is started by the init system of your operating system.");
+        return EXIT_FAILURE;
+      }
+
       auto trap = core::posix::trap_signals_for_process(
           {core::posix::Signal::sig_term, core::posix::Signal::sig_int});
       trap->signal_raised().connect([trap](const core::posix::Signal& signal) {

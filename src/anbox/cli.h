@@ -243,6 +243,9 @@ class Command : public DoNotCopyOrMove {
   /// @brief description returns a longer string explaining the command.
   virtual Description description() const;
 
+  /// @brief hidden returns if the command is hidden from the user or not.
+  virtual bool hidden() const;
+
   /// @brief run puts the command to execution.
   virtual int run(const Context& context) = 0;
 
@@ -252,7 +255,7 @@ class Command : public DoNotCopyOrMove {
  protected:
   /// @brief Command initializes a new instance with the given name, usage and
   /// description.
-  Command(const Name& name, const Usage& usage, const Description& description);
+  Command(const Name& name, const Usage& usage, const Description& description, bool hidden = false);
 
   /// @brief name adjusts the name of the command to n.
   // virtual void name(const Name& n);
@@ -265,6 +268,7 @@ class Command : public DoNotCopyOrMove {
   Name name_;
   Usage usage_;
   Description description_;
+  bool hidden_;
 };
 
 /// @brief CommandWithSubcommands implements Command, selecting one of a set of
@@ -275,7 +279,7 @@ class CommandWithSubcommands : public Command {
   typedef std::function<int(const Context&)> Action;
 
   /// @brief CommandWithSubcommands initializes a new instance with the given
-  /// name, usage and description
+  /// name, usage and description.
   CommandWithSubcommands(const Name& name, const Usage& usage,
                          const Description& description);
 
@@ -302,9 +306,9 @@ class CommandWithFlagsAndAction : public Command {
   typedef std::function<int(const Context&)> Action;
 
   /// @brief CommandWithFlagsAndAction initializes a new instance with the given
-  /// name, usage and description
+  /// name, usage and description. Optionally the command can be marked as hidden.
   CommandWithFlagsAndAction(const Name& name, const Usage& usage,
-                            const Description& description);
+                            const Description& description, bool hidden = false);
 
   /// @brief flag adds the given flag to the set of known flags.
   CommandWithFlagsAndAction& flag(const Flag::Ptr& flag);

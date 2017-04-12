@@ -78,9 +78,11 @@ cli::Usage cli::Command::usage() const { return usage_; }
 
 cli::Description cli::Command::description() const { return description_; }
 
+bool cli::Command::hidden() const { return hidden_; }
+
 cli::Command::Command(const cli::Name& name, const cli::Usage& usage,
-                      const cli::Description& description)
-    : name_(name), usage_(usage), description_(description) {}
+                      const cli::Description& description, bool hidden)
+    : name_(name), usage_(usage), description_(description), hidden_(hidden) {}
 
 cli::CommandWithSubcommands::CommandWithSubcommands(
     const Name& name, const Usage& usage, const Description& description)
@@ -117,7 +119,7 @@ void cli::CommandWithSubcommands::help(std::ostream& out) {
     out << std::endl
         << pattern::commands << std::endl;
     for (const auto& cmd : commands_) {
-      if (cmd.second)
+      if (cmd.second && !cmd.second->hidden())
         out << boost::format(pattern::command) % cmd.second->name() %
                    cmd.second->description()
             << std::endl;
@@ -168,8 +170,8 @@ int cli::CommandWithSubcommands::run(const cli::Command::Context& ctxt) {
 }
 
 cli::CommandWithFlagsAndAction::CommandWithFlagsAndAction(
-    const Name& name, const Usage& usage, const Description& description)
-    : Command{name, usage, description} {}
+    const Name& name, const Usage& usage, const Description& description, bool hidden)
+    : Command{name, usage, description, hidden} {}
 
 cli::CommandWithFlagsAndAction& cli::CommandWithFlagsAndAction::flag(
     const Flag::Ptr& flag) {
