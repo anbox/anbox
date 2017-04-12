@@ -28,8 +28,14 @@ start() {
 	# Ensure FUSE support for user namespaces is enabled
 	echo Y | sudo tee /sys/module/fuse/parameters/userns_mounts || echo "WARNING: kernel doesn't support fuse in user namespaces"
 
-	exec $SNAP/usr/sbin/aa-exec -p unconfined -- \
-		$SNAP/bin/anbox-wrapper.sh container-manager \
+	# Only try to use AppArmor when the kernel has support for it
+	AA_EXEC="$SNAP/usr/sbin/aa-exec -p unconfined --"
+	if [ ! -d /sys/kernel/security/apparmor ]; then
+		echo "WARNING: AppArmor support is not available!"
+		AA_EXEC=""
+	fi
+
+	exec $AA_EXEC $SNAP/bin/anbox-wrapper.sh container-manager \
 		--data-path=$DATA_PATH \
 		--android-image=$ANDROID_IMG
 }
