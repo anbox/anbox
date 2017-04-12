@@ -49,7 +49,7 @@ installer will perform all necessary steps. You can install it on a system
 providing support for snaps by running
 
 ```
-$ snap install --classic anbox-installer
+$ snap install anbox-installer --classic
 ```
 
 Alternatively you can fetch the installer script via
