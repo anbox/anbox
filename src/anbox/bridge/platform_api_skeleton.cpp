@@ -28,7 +28,6 @@
 #undef Status
 #endif
 
-
 #include "anbox_bridge.pb.h"
 
 namespace anbox {
