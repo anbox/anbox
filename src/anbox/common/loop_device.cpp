@@ -18,7 +18,10 @@
 #include "anbox/common/loop_device.h"
 #include "anbox/defer_action.h"
 
+#include <system_error>
+
 #include <linux/loop.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
@@ -27,7 +30,7 @@ namespace common {
 std::shared_ptr<LoopDevice> LoopDevice::create(const boost::filesystem::path &path) {
   const auto fd = ::open(path.c_str(), O_RDWR);
   if (fd < 0)
-    return nullptr;
+    throw std::system_error{errno, std::system_category()};
 
   return std::shared_ptr<LoopDevice>(new LoopDevice(Fd{fd}, path));
 }
