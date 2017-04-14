@@ -1,0 +1,21 @@
+Source: anbox
+Section: utils
+Priority: optional
+Maintainer: Shengjing Zhu <i@zhsj.me>
+Build-Depends: debhelper (>= 9),
+               libegl1-mesa-dev, libgles2-mesa-dev,
+               libprotobuf-dev, protobuf-compiler,
+               lxc-dev, libcap-dev, libsdl2-dev, libglm-dev,
+               libboost-test-dev, libboost-log-dev, libboost-filesystem-dev,
+               libboost-iostreams-dev, libboost-system-dev,
+               libdbus-cpp-dev, libprocess-cpp-dev
+Standards-Version: 3.9.8
+Homepage: https://anbox.io
+Vcs-Git: https://github.com/zhsj/anbox.git
+Vcs-Browser: https://github.com/zhsj/anbox
+
+Package: anbox
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Android in a box
+ Run Android applications on any GNU/Linux operating system.

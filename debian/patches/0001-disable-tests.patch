@@ -1,0 +1,21 @@
+From: root <root@044512373c35>
+Date: Fri, 14 Apr 2017 20:24:01 +0000
+Subject: disable tests
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 957664b..26887f2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -96,7 +96,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTRANSLATOR_INSTALL_DIR=\\\"${CMAKE_INS
+ 
+ add_subdirectory(external)
+ add_subdirectory(src)
+-add_subdirectory(tests)
++#add_subdirectory(tests)
+ add_subdirectory(android)
+ 
+ if (NOT "${HOST_CMAKE_C_COMPILER}" STREQUAL "")
