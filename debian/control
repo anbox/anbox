@@ -2,7 +2,7 @@ Source: anbox
 Section: utils
 Priority: optional
 Maintainer: Shengjing Zhu <i@zhsj.me>
-Build-Depends: debhelper (>= 9),
+Build-Depends: debhelper (>= 9), dkms,
                libegl1-mesa-dev, libgles2-mesa-dev,
                libprotobuf-dev, protobuf-compiler,
                lxc-dev, libcap-dev, libsdl2-dev, libglm-dev,
@@ -16,6 +16,14 @@ Vcs-Browser: https://github.com/zhsj/anbox
 
 Package: anbox
 Architecture: amd64
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, anbox-modules
 Description: Android in a box
  Run Android applications on any GNU/Linux operating system.
+
+Package: anbox-dkms
+Architecture: linux-any
+Depends: dkms, ${shlibs:Depends}, ${misc:Depends}
+Provides: anbox-modules
+Description: Kernel module for Anbox
+ This package contains a out-of-tree version of the core Android
+ kernel functionalities binder and ashmem.

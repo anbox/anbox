@@ -1,0 +1,2 @@
+kernel/ashmem usr/src/anbox-1
+kernel/binder usr/src/anbox-1

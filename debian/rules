@@ -15,7 +15,7 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 
 %:
-	dh $@
+	dh $@ --with dkms
 
 
 # dh_make generated override targets
