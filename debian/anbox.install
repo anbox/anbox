@@ -3,5 +3,7 @@ usr/bin
 usr/lib
 debian/anbox-session-manager.service usr/lib/systemd/user/
 debian/anbox-container-manager.service lib/systemd/system/
+debian/anbox-container-bridge.service lib/systemd/system/
 snap/gui/icon.png => usr/share/pixmaps/anbox.png
 debian/anbox.desktop usr/share/applications
+scripts/anbox-bridge.sh => usr/bin/anbox-bridge.sh

@@ -17,6 +17,7 @@ Vcs-Browser: https://github.com/zhsj/anbox
 Package: anbox
 Architecture: amd64
 Depends: ${shlibs:Depends}, ${misc:Depends}, anbox-modules, lxc
+Recommends: iptables, dnsmasq
 Description: Android in a box
  Run Android applications on any GNU/Linux operating system.
 

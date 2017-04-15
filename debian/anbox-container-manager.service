@@ -1,5 +1,7 @@
 [Unit]
 Description=Anbox Container Manager
+Wants=anbox-container-bridge.service
+After=anbox-container-bridge.service
 
 [Service]
 ExecStartPre=/sbin/modprobe ashmem_linux
