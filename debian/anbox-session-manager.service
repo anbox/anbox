@@ -1,0 +1,10 @@
+[Unit]
+Description=Anbox Session Manager
+After=anbox-container-manager.service
+
+[Service]
+Environment=DISPLAY=:0
+ExecStart=/usr/bin/anbox session-manager
+
+[Install]
+WantedBy=default.target

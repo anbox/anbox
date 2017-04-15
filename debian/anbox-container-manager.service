@@ -1,0 +1,10 @@
+[Unit]
+Description=Anbox Container Manager
+
+[Service]
+ExecStartPre=/sbin/modprobe ashmem_linux
+ExecStartPre=/sbin/modprobe binder_linux
+ExecStart=/usr/bin/anbox container-manager --privileged
+
+[Install]
+WantedBy=multi-user.target

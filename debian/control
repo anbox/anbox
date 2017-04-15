@@ -2,7 +2,7 @@ Source: anbox
 Section: utils
 Priority: optional
 Maintainer: Shengjing Zhu <i@zhsj.me>
-Build-Depends: debhelper (>= 9), dkms,
+Build-Depends: debhelper (>= 10), dkms, dh-exec,
                libegl1-mesa-dev, libgles2-mesa-dev,
                libprotobuf-dev, protobuf-compiler,
                lxc-dev, libcap-dev, libsdl2-dev, libglm-dev,
@@ -16,7 +16,7 @@ Vcs-Browser: https://github.com/zhsj/anbox
 
 Package: anbox
 Architecture: amd64
-Depends: ${shlibs:Depends}, ${misc:Depends}, anbox-modules
+Depends: ${shlibs:Depends}, ${misc:Depends}, anbox-modules, lxc
 Description: Android in a box
  Run Android applications on any GNU/Linux operating system.
 
