@@ -1,6 +1,10 @@
 anbox for Debian
 ---------------
 
-<possible notes regarding this package - if none, delete this file>
+You should first download the Android image to /var/lib/anbox/android.img
+Then start the anbox-container-manager.service and the anbox-session-manager.service
+Android application should be started from desktop environment.
+.
+anbox-session-manager.service should be run as a systemd user service.
 
  -- Shengjing Zhu <i@zhsj.me>  Fri, 14 Apr 2017 20:05:09 +0000
