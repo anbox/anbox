@@ -1,2 +1,2 @@
-KERNEL=="binder", NAME="%k", MODE="0666"
-KERNEL=="ashmem", NAME="%k", MODE="0666"
+KERNEL=="binder", MODE="0666"
+KERNEL=="ashmem", MODE="0666"
