@@ -1,6 +1,5 @@
 [Unit]
 Description=Anbox Session Manager
-After=anbox-container-manager.service
 
 [Service]
 Environment=DISPLAY=:0

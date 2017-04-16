@@ -6,6 +6,3 @@ Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/bin/anbox-bridge.sh start
 ExecStop=/usr/bin/anbox-bridge.sh stop
-
-[Install]
-WantedBy=multi-user.target
