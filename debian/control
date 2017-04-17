@@ -2,12 +2,11 @@ Source: anbox
 Section: utils
 Priority: optional
 Maintainer: Shengjing Zhu <i@zhsj.me>
-Build-Depends: debhelper (>= 10), dkms, dh-exec,
-               libegl1-mesa-dev, libgles2-mesa-dev,
-               libprotobuf-dev, protobuf-compiler,
-               lxc-dev, libcap-dev, libsdl2-dev, libglm-dev,
-               libboost-test-dev, libboost-log-dev, libboost-filesystem-dev,
-               libboost-iostreams-dev, libboost-system-dev,
+Build-Depends: debhelper (>= 10), dkms, dh-exec, cmake,
+               libegl1-mesa-dev, libgles2-mesa-dev, libsdl2-dev, libglm-dev,
+               libprotobuf-dev, protobuf-compiler, lxc-dev, libcap-dev,
+               libboost-filesystem-dev, libboost-iostreams-dev, libboost-log-dev,
+               libboost-program-options-dev, libboost-system-dev, libboost-test-dev,
                libdbus-cpp-dev, libprocess-cpp-dev
 Standards-Version: 3.9.8
 Homepage: https://anbox.io
