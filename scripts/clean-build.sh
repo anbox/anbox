@@ -36,6 +36,8 @@ apt-get install -qq -y \
   pkg-config \
   protobuf-compiler
 
+apt-get clean
+
 cd /anbox
 
 # In cases where anbox comes directly from a checked out Android
