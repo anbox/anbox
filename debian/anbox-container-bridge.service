@@ -4,5 +4,5 @@ Description=Anbox Container Bridge
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/bin/anbox-bridge.sh start
-ExecStop=/usr/bin/anbox-bridge.sh stop
+ExecStart=/usr/bin/anbox-bridge start
+ExecStop=/usr/bin/anbox-bridge stop

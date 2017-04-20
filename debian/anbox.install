@@ -6,4 +6,4 @@ debian/anbox-container-manager.service lib/systemd/system/
 debian/anbox-container-bridge.service lib/systemd/system/
 snap/gui/icon.png => usr/share/pixmaps/anbox.png
 debian/anbox.desktop usr/share/applications
-scripts/anbox-bridge.sh => usr/bin/anbox-bridge.sh
+scripts/anbox-bridge.sh => usr/bin/anbox-bridge

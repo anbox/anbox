@@ -22,7 +22,7 @@ Description: Android in a box
 
 Package: anbox-dkms
 Architecture: linux-any
-Depends: dkms, ${shlibs:Depends}, ${misc:Depends}
+Depends: ${misc:Depends}
 Provides: anbox-modules
 Description: Kernel module for Anbox
  This package contains a out-of-tree version of the core Android
