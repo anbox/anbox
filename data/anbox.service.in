@@ -1,0 +1,8 @@
+[Unit]
+Description=Anbox session manager
+
+[Service]
+ExecStart=@SNAP_MOUNT_DIR@/anbox session-manager
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,40 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+VERSION=$(shell dpkg-parsechangelog -SVersion)
+
+# include /usr/share/dpkg/default.mk
+
+%:
+	dh $@ --parallel --fail-missing --with systemd
+
+override_dh_auto_build:
+	cat data/anbox.service.in | sed s:@SNAP_MOUNT_DIR@:/snap/bin:g > data/anbox.service
+	cat data/anbox.conf.in | sed s:@SNAP_MOUNT_DIR@:/snap/bin:g > data/anbox.conf
+
+override_dh_install:
+	VERSION=$(shell dpkg-parsechangelog -SVersion)
+	install -d $(CURDIR)/debian/tmp/usr/src
+	for d in ashmem binder ; do \
+		cp -a $(CURDIR)/kernel/$$d $(CURDIR)/debian/tmp/usr/src/anbox-modules-$$d-$(VERSION) ; \
+	done
+
+	install -d $(CURDIR)/debian/tmp/lib/udev/rules.d
+	install -m 0644 kernel/99-anbox.rules $(CURDIR)/debian/tmp/lib/udev/rules.d
+
+	install -d $(CURDIR)/debian/tmp/etc/modules-load.d
+	install -m 0644 kernel/anbox.conf $(CURDIR)/debian/tmp/etc/modules-load.d
+
+	install -d $(CURDIR)/debian/tmp/usr/lib/systemd/user/
+	install -m 0644 data/anbox.service $(CURDIR)/debian/tmp/usr/lib/systemd/user/
+
+	install -d $(CURDIR)/debian/tmp/usr/share/upstart/sessions/
+	install -m 0644 data/anbox.conf $(CURDIR)/debian/tmp/usr/share/upstart/sessions/
+
+	install -d $(CURDIR)/debian/tmp/etc/X11/Xsession.d
+	install -m 0644 data/xsession.conf $(CURDIR)/debian/tmp/etc/X11/Xsession.d/68anbox
+
+	dh_install

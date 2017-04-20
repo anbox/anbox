@@ -13,3 +13,9 @@ CMakeLists.txt.user
 *.mod.o
 modules.order
 .tmp_versions
+
+debian/anbox-modules-dkms.debhelper.log
+debian/anbox-modules-dkms.substvars
+debian/anbox-modules-dkms/
+debian/debhelper-build-stamp
+debian/files
