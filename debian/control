@@ -2,7 +2,7 @@ Source: anbox
 Section: utils
 Priority: optional
 Maintainer: Shengjing Zhu <i@zhsj.me>
-Build-Depends: debhelper (>= 10), dkms, dh-exec, cmake,
+Build-Depends: debhelper (>= 10), dkms, dh-exec, cmake, googletest,
                libegl1-mesa-dev, libgles2-mesa-dev, libsdl2-dev, libglm-dev,
                libprotobuf-dev, protobuf-compiler, lxc-dev, libcap-dev,
                libboost-filesystem-dev, libboost-iostreams-dev, libboost-log-dev,

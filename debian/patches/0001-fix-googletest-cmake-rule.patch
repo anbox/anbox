@@ -1,0 +1,31 @@
+From 22c87732f6255dc11d6a39162617b06483e7a46a Mon Sep 17 00:00:00 2001
+From: Shengjing Zhu <zsj950618@gmail.com>
+Date: Thu, 20 Apr 2017 17:57:08 +0800
+Subject: [PATCH] fix googletest cmake rule
+
+---
+ CMakeLists.txt | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 957664b..ca994f5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -87,7 +87,13 @@ IF(CMAKE_BUILD_TYPE MATCHES [cC][oO][vV][eE][rR][aA][gG][eE])
+   SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -ftest-coverage -fprofile-arcs" )
+ ENDIF(CMAKE_BUILD_TYPE MATCHES [cC][oO][vV][eE][rR][aA][gG][eE])
+ 
+-find_package(GMock)
++set (GMOCK_SOURCE_DIR "/usr/src/googletest/googlemock/" CACHE PATH "gmock source directory")
++set (GMOCK_LIBRARIES gmock)
++set (GTEST_BOTH_LIBRARIES gtest gtest_main)
++set (CMAKE_CXX_FLAGS_OLD "${CMAKE_CXX_FLAGS}")
++set (CMAKE_CXX_FLAGS "")
++add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
++set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_OLD}")
+ 
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
+ 
+-- 
+2.11.0
+

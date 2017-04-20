@@ -1,3 +1,9 @@
+anbox (0.0~git20170412-2) unstable; urgency=medium
+
+  * debian: enable tests when building
+
+ -- Shengjing Zhu <i@zhsj.me>  Fri, 14 Apr 2017 20:05:09 +0000
+
 anbox (0.0~git20170412-1) unstable; urgency=medium
 
   * Initial release.
