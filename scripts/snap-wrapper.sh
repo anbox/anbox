@@ -29,6 +29,12 @@ export LIBGL_DRIVERS_PATH=$SNAP/usr/lib/$ARCH/dri
 # ensure the snappy gl libs win
 export LD_LIBRARY_PATH="$SNAP_LIBRARY_PATH:$LD_LIBRARY_PATH"
 
+# Workaround in snapd for proprietary nVidia drivers mounts the drivers in
+# /var/lib/snapd/lib/gl that needs to be in LD_LIBRARY_PATH
+# Without that OpenGL using apps do not work with the nVidia drivers.
+# Ref.: https://bugs.launchpad.net/snappy/+bug/1588192
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/var/lib/snapd/lib/gl
+
 # We set XDG_DATA_HOME to SNAP_USER_COMMON here as this will be the location we will
 # create all our application launchers in. The system application launcher will
 # be configured by our installer to look into this directory for available
