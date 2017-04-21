@@ -1,17 +1,24 @@
-anbox-modules-dkms (4) zesty; urgency=medium
+anbox (5) zesty; urgency=medium
+
+  * Rework packaging to also ship things we installed through the snap
+    based installer before.
+
+ -- Simon Fels <morphis@gravedo.de>  Thu, 20 Apr 2017 19:58:22 +0200
+
+anbox (4) zesty; urgency=medium
 
   * Fetch dkms version from debian package in post-install step.
 
  -- Simon Fels <morphis@gravedo.de>  Thu, 23 Feb 2017 19:12:15 +0100
 
-anbox-modules-dkms (3) zesty; urgency=medium
+anbox (3) zesty; urgency=medium
 
   * Use correct package version in our Makefile to avoid failing module
     builds on the target device.
 
  -- Simon Fels <morphis@gravedo.de>  Tue, 21 Feb 2017 07:36:45 +0100
 
-anbox-modules-dkms (1) xenial; urgency=low
+anbox (1) xenial; urgency=low
 
   * Initial release.
 
