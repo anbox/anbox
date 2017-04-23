@@ -1,7 +1,7 @@
 # Anbox
 
-Anbox is container based approach to boot a full Android system on a
-regular GNU Linux system like Ubuntu.
+Anbox is container based approach to boot a full Android system on a regular GNU Linux system like Ubuntu.
+In newbie terms: Anbox will let you run Android on your Linux without the slowness of virtualization.
 
 ## Overview
 
