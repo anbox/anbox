@@ -2,7 +2,11 @@
 Description=Anbox session manager
 
 [Service]
+Type=simple
 ExecStart=@SNAP_MOUNT_DIR@/anbox session-manager
+Restart=always
+StartLimitIntervalSec=3
+StartLimitBurst=1
 
 [Install]
 WantedBy=default.target
