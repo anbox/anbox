@@ -28,8 +28,9 @@ override_dh_install:
 	install -d $(CURDIR)/debian/tmp/etc/modules-load.d
 	install -m 0644 kernel/anbox.conf $(CURDIR)/debian/tmp/etc/modules-load.d
 
-	install -d $(CURDIR)/debian/tmp/usr/lib/systemd/user/
+	install -d $(CURDIR)/debian/tmp/usr/lib/systemd/user/default.target.wants
 	install -m 0644 data/anbox.service $(CURDIR)/debian/tmp/usr/lib/systemd/user/
+	ln -sf /usr/lib/systemd/user/anbox.service $(CURDIR)/debian/tmp/usr/lib/systemd/user/default.target.wants/anbox.service
 
 	install -d $(CURDIR)/debian/tmp/usr/share/upstart/sessions/
 	install -m 0644 data/anbox.conf $(CURDIR)/debian/tmp/usr/share/upstart/sessions/
