@@ -135,6 +135,8 @@ $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
 Afterwards you can build Anbox with
 
 ```
+$ git clone https://github.com/anbox/anbox.git
+$ cd anbox
 $ mkdir build
 $ cd build
 $ cmake ..
