@@ -58,6 +58,6 @@ make test
 
 cleanup
 
-apt-get install -y build-essential curl devscripts gdebi-core
+apt-get install -y build-essential curl devscripts gdebi-core dkms dh-systemd
 apt-get install -y $(gdebi --quiet --apt-line ./debian/control)
 debuild -us -uc
