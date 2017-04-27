@@ -44,8 +44,10 @@ cleanup() {
   # In cases where anbox comes directly from a checked out Android
   # build environment we miss some symlinks which are present on
   # the host and don't have a valid git repository in that case.
-  git clean -fdx . || true
-  git reset --hard || true
+  if [ -d .git ] ; then
+    git clean -fdx .
+    git reset --hard
+  fi
 }
 
 cleanup
