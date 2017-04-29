@@ -1,3 +1,10 @@
+anbox (6) artful; urgency=medium
+
+  * Add anbox-common package which ships any additional files needed for
+    anbox but can't be installed with a snap as of today.
+
+ -- Simon Fels <morphis@gravedo.de>  Sat, 29 Apr 2017 12:06:56 +0200
+
 anbox (5) zesty; urgency=medium
 
   * Rework packaging to also ship things we installed through the snap
