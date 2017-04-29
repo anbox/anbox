@@ -40,14 +40,26 @@ apt-get clean
 
 cd /anbox
 
-# In cases where anbox comes directly from a checked out Android
-# build environment we miss some symlinks which are present on
-# the host and don't have a valid git repository in that case.
-git clean -fdx . || true
-git reset --hard || true
+cleanup() {
+  # In cases where anbox comes directly from a checked out Android
+  # build environment we miss some symlinks which are present on
+  # the host and don't have a valid git repository in that case.
+  if [ -d .git ] ; then
+    git clean -fdx .
+    git reset --hard
+  fi
+}
+
+cleanup
 
 mkdir build || rm -rf build/*
 cd build
 cmake ..
 make -j10
 make test
+
+cleanup
+
+apt-get install -y build-essential curl devscripts gdebi-core dkms dh-systemd
+apt-get install -y $(gdebi --quiet --apt-line ./debian/control)
+debuild -us -uc
