@@ -1,5 +1,5 @@
 name: anbox
-version: 1-dev
+version: 2
 summary: Android in a Box
 description: |
   Runtime for Android applications which runs a full Android system
