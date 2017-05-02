@@ -203,6 +203,8 @@ set(SOURCES
 
     anbox/utils/environment_file.cpp
 
+    anbox/ui/splash_screen.cpp
+
     anbox/do_not_copy_or_move.h
     anbox/optional.h
     anbox/defer_action.h)
