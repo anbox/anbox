@@ -25,10 +25,8 @@ namespace skeleton {
 std::shared_ptr<Service> Service::create_for_bus(
     const core::dbus::Bus::Ptr &bus,
     const std::shared_ptr<anbox::application::Manager> &application_manager) {
-  auto service = core::dbus::Service::add_service(
-      bus, anbox::dbus::interface::Service::name());
-  auto object =
-      service->add_object_for_path(anbox::dbus::interface::Service::path());
+  auto service = core::dbus::Service::add_service(bus, anbox::dbus::interface::Service::name());
+  auto object = service->add_object_for_path(anbox::dbus::interface::Service::path());
   return std::make_shared<Service>(bus, service, object, application_manager);
 }
 
