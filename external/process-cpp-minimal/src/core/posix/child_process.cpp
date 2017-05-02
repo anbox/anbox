@@ -303,7 +303,7 @@ struct ChildProcess::Private
     ~Private()
     {
         // Check if we are in the original parent process.
-        if (original_parent_pid == getpid())
+        if (original_parent_pid == getpid() && !dont_kill_on_cleanup)
         {
             // If so, check if we are considering a valid pid here.
             // If so, we kill the original child.
@@ -333,6 +333,8 @@ struct ChildProcess::Private
     // is called from the child process.
     pid_t original_parent_pid;
     pid_t original_child_pid;
+
+    bool dont_kill_on_cleanup = false;
 };
 
 ChildProcess ChildProcess::invalid()
@@ -393,6 +395,11 @@ wait::Result ChildProcess::wait_for(const wait::Flags& flags)
 #endif
 
     return result;
+}
+
+void ChildProcess::dont_kill_on_cleanup()
+{
+  d->dont_kill_on_cleanup = true;
 }
 
 #ifndef ANDROID
