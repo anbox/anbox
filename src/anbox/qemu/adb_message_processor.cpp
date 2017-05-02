@@ -156,7 +156,8 @@ void AdbMessageProcessor::on_host_read_size(
     const boost::system::error_code &error, std::size_t bytes_read) {
   if (error) {
     state_ = closed_by_host;
-    BOOST_THROW_EXCEPTION(std::runtime_error(error.message()));
+    messenger_->close();
+    return;
   }
 
   messenger_->send(reinterpret_cast<const char *>(host_buffer_.data()), bytes_read);
