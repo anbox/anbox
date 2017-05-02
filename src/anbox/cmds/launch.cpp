@@ -26,12 +26,16 @@
 
 #include <boost/filesystem.hpp>
 
+#include "core/posix/exec.h"
+#include "core/posix/fork.h"
 #include "core/posix/signal.h"
 
 namespace fs = boost::filesystem;
 
 namespace {
 const boost::posix_time::seconds max_wait_timeout{30};
+const unsigned int max_restart_attempts{3};
+const std::chrono::seconds restart_interval{1};
 }
 
 anbox::cmds::Launch::Launch()
@@ -69,11 +73,47 @@ anbox::cmds::Launch::Launch()
     auto bus = std::make_shared<core::dbus::Bus>(core::dbus::WellKnownBus::session);
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
 
+    // Instead of relying on the user session init system to start our
+    // session manager process we also attempt to start it on 0our own
+    // if not already running. This will help to mitigate problems with
+    // a crashing or a not yet started session manager instance.
     std::shared_ptr<dbus::stub::ApplicationManager> stub;
-    try {
-      stub = dbus::stub::ApplicationManager::create_for_bus(bus);
-    } catch (...) {
-      ERROR("Anbox session manager service isn't running!");
+    for (auto n = 0; n < max_restart_attempts; n++) {
+      try {
+        stub = dbus::stub::ApplicationManager::create_for_bus(bus);
+      } catch (std::exception &err) {
+        WARNING("Anbox session manager service isn't running, trying to start it.");
+
+        std::vector<std::string> args = {"session-manager"};
+
+        std::map<std::string,std::string> env;
+        core::posix::this_process::env::for_each([&](const std::string &name, const std::string &value) {
+          env.insert({name, value});
+        });
+
+        const auto exe_path = utils::process_get_exe_path(::getpid());
+
+        try {
+          const auto flags = core::posix::StandardStream::stdout | core::posix::StandardStream::stderr;
+          auto child = core::posix::fork([&]() {
+            auto grandchild = core::posix::exec(exe_path, args, env, flags);
+            grandchild.dont_kill_on_cleanup();
+            return core::posix::exit::Status::success;
+          }, flags);
+          child.wait_for(core::posix::wait::Flags::untraced);
+
+          DEBUG("Started session manager, will now try to connect ..");
+        }
+        catch (...) {
+          ERROR("Failed to start session manager instance");
+        }
+      }
+
+      std::this_thread::sleep_for(restart_interval);
+    }
+
+    if (!stub) {
+      ERROR("Couldn't get a connection with the session manager");
       return EXIT_FAILURE;
     }
 
