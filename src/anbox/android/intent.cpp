@@ -22,16 +22,25 @@
 namespace anbox {
 namespace android {
 std::ostream &operator<<(std::ostream &out, const Intent &intent) {
-  out << "["
-      << "action=" << intent.action << " "
-      << "uri=" << intent.uri << " "
-      << "type=" << intent.type << " "
-      << "flags=" << intent.flags << " "
-      << "package=" << intent.package << " "
-      << "component=" << intent.component << " "
-      << "categories=[ ";
-  for (const auto &category : intent.categories) out << category << " ";
-  out << "]]";
+  out << "[";
+  if (intent.action.length() > 0)
+    out << " " << "action=" << intent.action << " ";
+  if (intent.uri.length() > 0)
+    out << " " << "uri=" << intent.uri << " ";
+  if (intent.type.length() > 0)
+    out << " " << "type=" << intent.type  << " ";
+  if (intent.flags > 0)
+    out << " " << "flags=" << intent.flags  << " ";
+  if (intent.package.length() > 0)
+    out << " " << "package=" << intent.package << " ";
+  if (intent.component.length() > 0)
+    out << "component=" << intent.component << " ";
+  if (intent.categories.size() > 0) {
+    out << "categories=[ ";
+    for (const auto &category : intent.categories) out << category << " ";
+    out << "] ";
+  }
+  out << "]";
   return out;
 }
 }  // namespace android
