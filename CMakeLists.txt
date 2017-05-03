@@ -64,6 +64,7 @@ find_package(GLESv2 REQUIRED)
 find_package(Protobuf REQUIRED)
 
 pkg_check_modules(SDL2 sdl2 REQUIRED)
+pkg_check_modules(SDL2_IMAGE SDL2_image REQUIRED)
 pkg_check_modules(DBUS_CPP dbus-cpp REQUIRED)
 pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
