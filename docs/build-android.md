@@ -33,8 +33,15 @@ This will take quite some time depending on the speed of your internet connectio
 
 ## Build Android
 
-When all sources are successfully downloaded you can start building Android
-itself. Initialize the build by
+When all sources are successfully downloaded you can start building Android itself.
+
+Firstly initialize the environment with the ```envsetup.sh``` script.
+
+```
+$ . build/envsetup.sh
+```
+
+Then initialize the build using ```lunch```.
 
 ```
 $ lunch anbox_desktop_x86_64-userdebug
