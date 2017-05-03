@@ -20,6 +20,7 @@
 #include "anbox/dbus/stub/application_manager.h"
 #include "anbox/common/dispatcher.h"
 #include "anbox/ui/splash_screen.h"
+#include "anbox/config.h"
 #include "anbox/runtime.h"
 #include "anbox/logger.h"
 
@@ -84,6 +85,12 @@ anbox::cmds::Launch::Launch()
 
     auto bus = std::make_shared<core::dbus::Bus>(core::dbus::WellKnownBus::session);
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
+
+    const auto snap_path = utils::get_env_value("SNAP");
+    if (!snap_path.empty()) {
+      const auto resource_path = utils::string_format("%s/share/anbox", snap_path);
+      SystemConfiguration::instance().set_resource_path(resource_path)
+    }
 
     std::shared_ptr<ui::SplashScreen> ss;
 
