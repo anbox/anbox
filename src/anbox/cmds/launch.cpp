@@ -19,6 +19,7 @@
 #include "anbox/common/wait_handle.h"
 #include "anbox/dbus/stub/application_manager.h"
 #include "anbox/common/dispatcher.h"
+#include "anbox/ui/splash_screen.h"
 #include "anbox/runtime.h"
 #include "anbox/logger.h"
 
@@ -73,6 +74,8 @@ anbox::cmds::Launch::Launch()
     auto bus = std::make_shared<core::dbus::Bus>(core::dbus::WellKnownBus::session);
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
 
+    std::shared_ptr<ui::SplashScreen> ss;
+
     // Instead of relying on the user session init system to start our
     // session manager process we also attempt to start it on 0our own
     // if not already running. This will help to mitigate problems with
@@ -83,6 +86,12 @@ anbox::cmds::Launch::Launch()
         stub = dbus::stub::ApplicationManager::create_for_bus(bus);
       } catch (std::exception &err) {
         WARNING("Anbox session manager service isn't running, trying to start it.");
+
+        // Give us a splash screen as long as we're trying to connect
+        // with the session manager so the user knows something is
+        // happening after he started Anbox.
+        if (!ss)
+          ss = std::make_shared<ui::SplashScreen>();
 
         std::vector<std::string> args = {"session-manager"};
 
@@ -129,6 +138,7 @@ anbox::cmds::Launch::Launch()
         } catch (std::exception &err) {
           ERROR("err %s", err.what());
         }
+        ss.reset();
         trap->stop();
         return;
       }
@@ -145,6 +155,7 @@ anbox::cmds::Launch::Launch()
           ERROR("Failed to launch activity: %s", err.what());
           success = false;
         }
+        ss.reset();
         trap->stop();
       });
     });
