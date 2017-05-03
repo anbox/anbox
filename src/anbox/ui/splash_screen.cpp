@@ -57,7 +57,7 @@ SplashScreen::SplashScreen() {
 
   SDL_RenderClear(renderer);
 
-  SDL_Rect r{0, 0, 1024, 768};
+  SDL_Rect r{0, 0, width, height};
   SDL_RenderCopy(renderer, img, nullptr, &r);
   SDL_RenderPresent(renderer);
 
