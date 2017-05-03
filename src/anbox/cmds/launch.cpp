@@ -34,9 +34,20 @@
 namespace fs = boost::filesystem;
 
 namespace {
-const boost::posix_time::seconds max_wait_timeout{30};
-const unsigned int max_restart_attempts{3};
-const std::chrono::seconds restart_interval{1};
+const boost::posix_time::seconds max_wait_timeout{240};
+const int max_restart_attempts{3};
+const std::chrono::seconds restart_interval{5};
+}
+
+bool anbox::cmds::Launch::try_launch_activity(const std::shared_ptr<dbus::stub::ApplicationManager> &stub) {
+  try {
+    DEBUG("Sending launch intent %s to Android ..", intent_);
+    stub->launch(intent_, graphics::Rect::Invalid, stack_);
+  } catch (std::exception &err) {
+    ERROR("Failed to launch activity: %s", err.what());
+    return false;
+  }
+  return true;
 }
 
 anbox::cmds::Launch::Launch()
@@ -77,13 +88,14 @@ anbox::cmds::Launch::Launch()
     std::shared_ptr<ui::SplashScreen> ss;
 
     // Instead of relying on the user session init system to start our
-    // session manager process we also attempt to start it on 0our own
+    // session manager process we also attempt to start it on our own
     // if not already running. This will help to mitigate problems with
     // a crashing or a not yet started session manager instance.
     std::shared_ptr<dbus::stub::ApplicationManager> stub;
     for (auto n = 0; n < max_restart_attempts; n++) {
       try {
         stub = dbus::stub::ApplicationManager::create_for_bus(bus);
+        break;
       } catch (std::exception &err) {
         WARNING("Anbox session manager service isn't running, trying to start it.");
 
@@ -101,9 +113,13 @@ anbox::cmds::Launch::Launch()
         });
 
         const auto exe_path = utils::process_get_exe_path(::getpid());
+        if (!fs::exists(exe_path)) {
+          ERROR("Can't find correct anbox executable to run. Found %s but does not exist", exe_path);
+          return EXIT_FAILURE;
+        }
 
         try {
-          const auto flags = core::posix::StandardStream::stdout | core::posix::StandardStream::stderr;
+          const auto flags = core::posix::StandardStream::empty; // core::posix::StandardStream::stdout | core::posix::StandardStream::stderr;
           auto child = core::posix::fork([&]() {
             auto grandchild = core::posix::exec(exe_path, args, env, flags);
             grandchild.dont_kill_on_cleanup();
@@ -116,9 +132,9 @@ anbox::cmds::Launch::Launch()
         catch (...) {
           ERROR("Failed to start session manager instance");
         }
-      }
 
-      std::this_thread::sleep_for(restart_interval);
+        std::this_thread::sleep_for(restart_interval);
+      }
     }
 
     if (!stub) {
@@ -126,36 +142,23 @@ anbox::cmds::Launch::Launch()
       return EXIT_FAILURE;
     }
 
-    auto dispatcher = anbox::common::create_dispatcher_for_runtime(rt);
-
     bool success = false;
-
+    auto dispatcher = anbox::common::create_dispatcher_for_runtime(rt);
     dispatcher->dispatch([&]() {
       if (stub->ready()) {
-        try {
-          stub->launch(intent_, graphics::Rect::Invalid, stack_);
-          success = true;
-        } catch (std::exception &err) {
-          ERROR("err %s", err.what());
-        }
         ss.reset();
+        success = try_launch_activity(stub);
         trap->stop();
         return;
       }
 
-      DEBUG("Android hasn't fully booted yet. Waiting a bit..");
+      DEBUG("Android hasn't fully booted yet. Waiting a bit ..");
 
       stub->ready().changed().connect([&](bool ready) {
         if (!ready)
           return;
-        try {
-          stub->launch(intent_, graphics::Rect::Invalid, stack_);
-          success = true;
-        } catch (std::exception &err) {
-          ERROR("Failed to launch activity: %s", err.what());
-          success = false;
-        }
         ss.reset();
+        success = try_launch_activity(stub);
         trap->stop();
       });
     });
@@ -163,8 +166,8 @@ anbox::cmds::Launch::Launch()
     boost::asio::deadline_timer timer(rt->service());
     timer.expires_from_now(max_wait_timeout);
     timer.async_wait([&](const boost::system::error_code&) {
-      WARNING("Stop waiting as we're already waiting for too long. Something is wrong");
-      WARNING("with your setup and the container may have failed to boot.");
+      WARNING("Stopped waiting as we're already waited for too long. Something");
+      WARNING("is wrong with your setup or the container has failed to boot.");
       trap->stop();
     });
 
