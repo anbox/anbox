@@ -48,18 +48,16 @@ SplashScreen::SplashScreen() {
   if (!renderer)
     BOOST_THROW_EXCEPTION(std::runtime_error("Could not create renderer"));
 
-  const auto icon_path = utils::string_format("%s/ui/icon.png", SystemConfiguration::instance().resource_dir());
+  const auto icon_path = utils::string_format("%s/ui/loading-screen.png", SystemConfiguration::instance().resource_dir());
   auto img = IMG_LoadTexture(renderer, icon_path.c_str());
   if (!img) {
     const auto msg = utils::string_format("Failed to create texture from %s", icon_path);
     BOOST_THROW_EXCEPTION(std::runtime_error(msg));
   }
 
-  const auto tex_width = 128, tex_height = 128;
-  SDL_Rect r{(width - tex_width) / 2, (height - tex_height) / 2, 128, 128};
-
-  SDL_SetRenderDrawColor(renderer, 0xee, 0xee, 0xee, 0xff);
   SDL_RenderClear(renderer);
+
+  SDL_Rect r{0, 0, 1024, 768};
   SDL_RenderCopy(renderer, img, nullptr, &r);
   SDL_RenderPresent(renderer);
 

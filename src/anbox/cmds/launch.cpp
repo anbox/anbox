@@ -88,8 +88,8 @@ anbox::cmds::Launch::Launch()
 
     const auto snap_path = utils::get_env_value("SNAP");
     if (!snap_path.empty()) {
-      const auto resource_path = utils::string_format("%s/share/anbox", snap_path);
-      SystemConfiguration::instance().set_resource_path(resource_path)
+      const auto resource_path = utils::string_format("%s/usr/share/anbox", snap_path);
+      SystemConfiguration::instance().set_resource_path(resource_path);
     }
 
     std::shared_ptr<ui::SplashScreen> ss;

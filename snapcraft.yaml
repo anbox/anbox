@@ -124,4 +124,5 @@ parts:
       make test
     prime:
       - usr/bin/anbox
+      - usr/share/anbox
       - usr/lib/*-linux-*/

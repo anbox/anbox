@@ -105,5 +105,5 @@ if (NOT "${HOST_CMAKE_C_COMPILER}" STREQUAL "")
   message(STATUS "Host C compiler: ${HOST_CMAKE_CXX_COMPILER}")
 endif()
 
-install(FILES snap/gui/icon.png DESTINATION share/anbox/ui)
+install(FILES data/ui/loading-screen.png DESTINATION share/anbox/ui)
 
