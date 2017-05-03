@@ -16,6 +16,7 @@
  */
 
 #include "anbox/ui/splash_screen.h"
+#include "anbox/config.h"
 #include "anbox/utils.h"
 
 #include <SDL2/SDL_image.h>
@@ -37,11 +38,22 @@ SplashScreen::SplashScreen() {
   }
 
   auto surface = SDL_GetWindowSurface(window_);
+  if (!surface)
+    BOOST_THROW_EXCEPTION(std::runtime_error("Could not retrieve surface for our window"));
+
   SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, 0xee, 0xee, 0xee));
   SDL_UpdateWindowSurface(window_);
 
   auto renderer = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
-  auto img = IMG_LoadTexture(renderer, "/snap/anbox/current/snap/gui/icon.png");
+  if (!renderer)
+    BOOST_THROW_EXCEPTION(std::runtime_error("Could not create renderer"));
+
+  const auto icon_path = utils::string_format("%s/ui/icon.png", SystemConfiguration::instance().resource_dir());
+  auto img = IMG_LoadTexture(renderer, icon_path.c_str());
+  if (!img) {
+    const auto msg = utils::string_format("Failed to create texture from %s", icon_path);
+    BOOST_THROW_EXCEPTION(std::runtime_error(msg));
+  }
 
   const auto tex_width = 128, tex_height = 128;
   SDL_Rect r{(width - tex_width) / 2, (height - tex_height) / 2, 128, 128};

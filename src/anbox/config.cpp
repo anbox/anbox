@@ -41,6 +41,10 @@ void anbox::SystemConfiguration::set_data_path(const std::string &path) {
   data_path = path;
 }
 
+void anbox::SystemConfiguration::set_resource_path(const std::string &path) {
+  resource_path = path;
+}
+
 fs::path anbox::SystemConfiguration::data_dir() const {
   return data_path;
 }
@@ -74,6 +78,10 @@ std::string anbox::SystemConfiguration::input_device_dir() const {
 std::string anbox::SystemConfiguration::application_item_dir() const {
   static auto dir = xdg::data().home() / "applications" / "anbox";
   return dir.string();
+}
+
+std::string anbox::SystemConfiguration::resource_dir() const {
+  return resource_path.string();
 }
 
 anbox::SystemConfiguration& anbox::SystemConfiguration::instance() {
