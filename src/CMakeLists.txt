@@ -41,6 +41,7 @@ protobuf_generate_cpp(
 
 
 add_library(anbox-protobuf
+    STATIC
     ${GENERATED_PROTOBUF_BRIDGE_SRCS}
     ${GENERATED_PROTOBUF_BRIDGE_HDRS}
     ${GENERATED_PROTOBUF_RPC_SRCS}
@@ -207,7 +208,7 @@ set(SOURCES
     anbox/optional.h
     anbox/defer_action.h)
 
-add_library(anbox-core ${SOURCES})
+add_library(anbox-core STATIC ${SOURCES})
 target_link_libraries(anbox-core
   ${Boost_LDFLAGS}
   ${Boost_LIBRARIES}
