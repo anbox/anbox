@@ -12,4 +12,4 @@ set(SOURCES
     Makefile
     ProtocolUtils.h)
 
-add_library(OpenglCodecCommon ${SOURCES})
+add_library(OpenglCodecCommon STATIC ${SOURCES})

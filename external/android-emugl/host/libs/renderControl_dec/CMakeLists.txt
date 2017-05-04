@@ -16,5 +16,5 @@ if ("${cmake_build_type_lower}" STREQUAL "trace")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPENGL_DEBUG}")
 endif()
 
-add_library(renderControl_dec ${GENERATED_SOURCES})
+add_library(renderControl_dec STATIC ${GENERATED_SOURCES})
 target_link_libraries(renderControl_dec OpenglCodecCommon)
