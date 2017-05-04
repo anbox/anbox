@@ -43,8 +43,7 @@ void ConnectionCreator::create_connection_for(
     socket->close();
     WARNING(
         "A second client tried to connect. Denied request as we already have "
-        "one"
-        "and only allow a single client");
+        "one and only allow a single client");
     return;
   }
 
