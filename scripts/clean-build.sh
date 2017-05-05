@@ -32,6 +32,7 @@ apt-get install -qq -y \
   libproperties-cpp-dev \
   libprotobuf-dev \
   libsdl2-dev \
+  libsdl2-image-dev \
   lxc-dev \
   pkg-config \
   protobuf-compiler
