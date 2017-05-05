@@ -26,12 +26,12 @@
 namespace anbox {
 namespace build {
 /// @brief version_major marks the major version
-static constexpr const std::uint32_t version_major{@VERSION@};
+static constexpr const std::uint32_t version_major{@ANBOX_VERSION@};
 /// @brief version_suffix is an additional suffix which can be amended to
 /// the major version number to indicate a dev build for example.
-static const std::string version_suffix{"@VERSION_SUFFIX@"};
+static constexpr const char *version_suffix{"@ANBOX_VERSION_SUFFIX@"};
 /// @brief version queries the version of Anbox
-std::string version();
+std::string print_version();
 }  // namespace build
 }  // namespace anbox
 

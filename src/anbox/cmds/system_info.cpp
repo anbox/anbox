@@ -50,7 +50,7 @@ class SystemInformation {
     std::stringstream s;
 
     s << "version: "
-      << anbox::build::version()
+      << anbox::build::print_version()
       << std::endl;
 
     s << "os:" << std::endl
