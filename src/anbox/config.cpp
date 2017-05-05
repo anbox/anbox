@@ -41,7 +41,7 @@ void anbox::SystemConfiguration::set_data_path(const std::string &path) {
   data_path = path;
 }
 
-void anbox::SystemConfiguration::set_resource_path(const std::string &path) {
+void anbox::SystemConfiguration::set_resource_path(const fs::path &path) {
   resource_path = path;
 }
 

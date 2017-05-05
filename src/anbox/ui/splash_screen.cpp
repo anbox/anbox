@@ -82,12 +82,7 @@ void SplashScreen::process_events() {
   while (event_thread_running_) {
     SDL_Event event;
     while (SDL_WaitEventTimeout(&event, 100)) {
-      switch (event.type) {
-      case SDL_QUIT:
-        break;
-      default:
-        break;
-      }
+      // Keep running until we're terminated
     }
   }
 }

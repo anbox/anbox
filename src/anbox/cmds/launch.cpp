@@ -88,8 +88,8 @@ anbox::cmds::Launch::Launch()
 
     const auto snap_path = utils::get_env_value("SNAP");
     if (!snap_path.empty()) {
-      const auto resource_path = utils::string_format("%s/usr/share/anbox", snap_path);
-      SystemConfiguration::instance().set_resource_path(resource_path);
+      const auto resource_path = fs::path(snap_path) / "usr" / "share" / "anbox";
+      SystemConfiguration::instance().set_resource_path(resource_path.string());
     }
 
     std::shared_ptr<ui::SplashScreen> ss;
@@ -126,12 +126,17 @@ anbox::cmds::Launch::Launch()
         }
 
         try {
-          const auto flags = core::posix::StandardStream::empty; // core::posix::StandardStream::stdout | core::posix::StandardStream::stderr;
+          const auto flags = core::posix::StandardStream::stdout | core::posix::StandardStream::stderr;
           auto child = core::posix::fork([&]() {
             auto grandchild = core::posix::exec(exe_path, args, env, flags);
             grandchild.dont_kill_on_cleanup();
             return core::posix::exit::Status::success;
           }, flags);
+
+          // We don't wait for the grandchild but the child as we use double forking
+          // here to break through the process hierarchy and make the grandchild a
+          // direct child of the init process so it keeps running on its own and
+          // indepent of our short living process here.
           child.wait_for(core::posix::wait::Flags::untraced);
 
           DEBUG("Started session manager, will now try to connect ..");
@@ -173,8 +178,10 @@ anbox::cmds::Launch::Launch()
     boost::asio::deadline_timer timer(rt->service());
     timer.expires_from_now(max_wait_timeout);
     timer.async_wait([&](const boost::system::error_code&) {
-      WARNING("Stopped waiting as we're already waited for too long. Something");
+      WARNING("Stopped waiting as we've already waited for too long. Something");
       WARNING("is wrong with your setup or the container has failed to boot.");
+      WARNING("If you think you found a bug please don't hesitate to file on");
+      WARNING("at https://github.com/anbox/anbox/issues/new");
       trap->stop();
     });
 
