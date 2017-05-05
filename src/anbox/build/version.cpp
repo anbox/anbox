@@ -18,16 +18,21 @@
 #include "anbox/build/version.h"
 #include "anbox/utils.h"
 
+#include <cstring>
+
 namespace anbox {
 namespace build {
+static std::string init_version_string() {
+  std::string v;
+  if (!version_suffix || std::strlen(version_suffix) == 0)
+    v = utils::string_format("%d", version_major);
+  else
+    v = utils::string_format("%d-%s", version_major, version_suffix);
+  return v;
+}
+
 std::string print_version() {
-  static std::string v;
-  if (v.empty()) {
-    if (version_suffix.empty())
-      v = utils::string_format("%d", version_major);
-    else
-      v = utils::string_format("%d-%s", version_major, version_suffix);
-  }
+  static const std::string v{init_version_string()};
   return v;
 }
 }  // namespace build
