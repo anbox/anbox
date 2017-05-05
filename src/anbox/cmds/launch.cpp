@@ -44,10 +44,14 @@ bool anbox::cmds::Launch::try_launch_activity(const std::shared_ptr<dbus::stub::
   try {
     DEBUG("Sending launch intent %s to Android ..", intent_);
     stub->launch(intent_, graphics::Rect::Invalid, stack_);
-  } catch (std::exception &err) {
+  } catch (const std::exception &err) {
     ERROR("Failed to launch activity: %s", err.what());
     return false;
+  } catch (...) {
+    ERROR("Failed to launch activity");
+    return false;
   }
+
   return true;
 }
 
