@@ -57,10 +57,12 @@ set(SOURCES
     anbox/utils.cpp
     anbox/cli.cpp
     anbox/runtime.cpp
-    anbox/version.cpp
     anbox/daemon.cpp
     anbox/config.cpp
     anbox/not_reachable.cpp
+
+    anbox/build/version.cpp
+    anbox/build/version.h.in
 
     anbox/android/intent.cpp
 
