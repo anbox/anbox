@@ -35,7 +35,7 @@ std::ostream &operator<<(std::ostream &out, const Intent &intent) {
     out << " " << "package=" << intent.package << " ";
   if (!intent.component.empty())
     out << "component=" << intent.component << " ";
-  if (!intent.categories.size() > 0) {
+  if (intent.categories.size() > 0) {
     out << "categories=[ ";
     for (const auto &category : intent.categories) out << category << " ";
     out << "] ";
