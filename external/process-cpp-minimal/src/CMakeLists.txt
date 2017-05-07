@@ -47,3 +47,7 @@ target_link_libraries(
   ${Boost_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
 )
+
+target_include_directories(
+  process-cpp PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include
+)

@@ -18,7 +18,7 @@ macro(ANBOX_ADD_TEST test_name src)
 
     anbox-core
 
-    ${GMOCK_LIBRARIES}
+    ${GMOCK_LIBRARY}
     ${GTEST_BOTH_LIBRARIES}
 
     ${ARGN}
@@ -28,6 +28,8 @@ macro(ANBOX_ADD_TEST test_name src)
   )
 
   add_test(${test_name} ${CMAKE_CURRENT_BINARY_DIR}/${test_name} --gtest_filter=*-*requires*)
+
+  add_dependencies(${test_name} GMock) # manual dependency to external project to ensure build order
 endmacro(ANBOX_ADD_TEST)
 
 add_subdirectory(anbox)

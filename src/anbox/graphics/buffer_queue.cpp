@@ -14,6 +14,8 @@
 
 #include "anbox/graphics/buffer_queue.h"
 
+#include <memory>
+
 namespace anbox {
 namespace graphics {
 BufferQueue::BufferQueue(size_t capacity)

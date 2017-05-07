@@ -18,11 +18,11 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic -Wno-variadic-macros -Wextra
 # setting of LINK_FLAGS below).
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default")
 
-set(C_AND_CXX_WARNINGS "-pedantic -Wall -Wextra")
+set(C_AND_CXX_WARNINGS "-pedantic -Wall -Wextra -Wno-error=sign-compare")
 
 # Some additional warnings not included by the general flags set above.
-set(EXTRA_C_WARNINGS "-Wcast-align -Wcast-qual -Wformat -Wredundant-decls -Wswitch-default")
-set(EXTRA_CXX_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast")
+set(EXTRA_C_WARNINGS "-Wcast-align -Wcast-qual -Wformat -Wredundant-decls -Wswitch-default -Wno-error=switch-default")
+set(EXTRA_CXX_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast -Wno-error=old-style-cast")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_AND_CXX_WARNINGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_WARNINGS}")
@@ -64,7 +64,7 @@ find_package(GLESv2 REQUIRED)
 find_package(Protobuf REQUIRED)
 
 pkg_check_modules(SDL2 sdl2 REQUIRED)
-pkg_check_modules(DBUS_CPP dbus-cpp REQUIRED)
+pkg_check_modules(DBUS_CPP dbus-cpp)
 pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(MIRCLIENT mirclient)
@@ -87,7 +87,7 @@ IF(CMAKE_BUILD_TYPE MATCHES [cC][oO][vV][eE][rR][aA][gG][eE])
   SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -ftest-coverage -fprofile-arcs" )
 ENDIF(CMAKE_BUILD_TYPE MATCHES [cC][oO][vV][eE][rR][aA][gG][eE])
 
-find_package(GMock)
+find_package(Gtest)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
 
