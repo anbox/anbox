@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
+ * Copyright (C) 2017 Simon Fels <morphis@gravedo.de>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -15,31 +15,28 @@
  *
  */
 
-#ifndef ANBOX_CMDS_LAUNCH_H_
-#define ANBOX_CMDS_LAUNCH_H_
+#ifndef ANBOX_UI_SPLASH_SCREEN_H_
+#define ANBOX_UI_SPLASH_SCREEN_H_
 
-#include <functional>
-#include <iostream>
-#include <memory>
+#include <thread>
 
-#include "anbox/android/intent.h"
-#include "anbox/dbus/stub/application_manager.h"
-#include "anbox/wm/stack.h"
-#include "anbox/cli.h"
+#include <SDL2/SDL.h>
 
 namespace anbox {
-namespace cmds {
-class Launch : public cli::CommandWithFlagsAndAction {
+namespace ui {
+class SplashScreen {
  public:
-  Launch();
+  SplashScreen();
+  ~SplashScreen();
 
  private:
-  bool try_launch_activity(const std::shared_ptr<dbus::stub::ApplicationManager> &stub);
+  void process_events();
 
-  android::Intent intent_;
-  wm::Stack::Id stack_;
+  std::thread event_thread_;
+  bool event_thread_running_;
+  SDL_Window *window_;
 };
-}  // namespace cmds
-}  // namespace anbox
+} // namespace ui
+} // namespace anbox
 
 #endif

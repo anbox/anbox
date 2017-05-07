@@ -116,6 +116,7 @@ parts:
       - libprotobuf-dev
       - libproperties-cpp-dev
       - libsdl2-dev
+      - libsdl2-image-dev
       - pkg-config
       - protobuf-compiler
     stage-packages:
@@ -128,4 +129,5 @@ parts:
       make test
     prime:
       - usr/bin/anbox
+      - usr/share/anbox
       - usr/lib/*-linux-*/

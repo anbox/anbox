@@ -114,6 +114,12 @@ public:
      */
     wait::Result wait_for(const wait::Flags& flags);
 
+    /**
+     * @brief Mark the child process to not to be killed when the ChildProcess
+     *        instance goes away.
+     */
+    void dont_kill_on_cleanup();
+
 #ifndef ANDROID
     /**
      * @brief Access this process's stderr.

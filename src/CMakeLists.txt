@@ -7,6 +7,7 @@ include_directories(
   ${DBUS_CPP_INCLUDE_DIRS}
   ${DBUS_INCLUDE_DIRS}
   ${SDL2_INCLUDE_DIRS}
+  ${SDL2_IMAGE_INCLUDE_DIRS}
   ${LXC_INCLUDE_DIRS}
   ${MIRCLIENT_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -206,6 +207,8 @@ set(SOURCES
 
     anbox/utils/environment_file.cpp
 
+    anbox/ui/splash_screen.cpp
+
     anbox/do_not_copy_or_move.h
     anbox/optional.h
     anbox/defer_action.h)
@@ -218,6 +221,8 @@ target_link_libraries(anbox-core
   ${DBUS_CPP_LIBRARIES}
   ${SDL2_LDFLAGS}
   ${SDL2_LIBRARIES}
+  ${SDL2_IMAGE_LDFLAGS}
+  ${SDL2_IMAGE_LIBRARIES}
   ${LXC_LDFLAGS}
   ${LXC_LIBRARIES}
   ${MIRCLIENT_LDFLAGS}

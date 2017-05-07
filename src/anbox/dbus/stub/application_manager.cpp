@@ -25,7 +25,7 @@ namespace dbus {
 namespace stub {
 std::shared_ptr<ApplicationManager> ApplicationManager::create_for_bus(const core::dbus::Bus::Ptr &bus) {
   auto service = core::dbus::Service::use_service_or_throw_if_not_available(bus, anbox::dbus::interface::Service::name());
-  auto object = service->add_object_for_path(anbox::dbus::interface::Service::path());
+  auto object = service->object_for_path(anbox::dbus::interface::Service::path());
   return std::make_shared<ApplicationManager>(bus, service, object);
 }
 
