@@ -94,6 +94,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
 set(ANBOX_TRANSLATOR_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/anbox/translators)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTRANSLATOR_INSTALL_DIR=\\\"${CMAKE_INSTALL_PREFIX}/${ANBOX_TRANSLATOR_INSTALL_DIR}\\\"")
 
+if (NOT ANBOX_VERSION)
+    set(ANBOX_VERSION 2)
+    if ("${cmake_build_type_lower}" STREQUAL "release")
+        set(ANBOX_VERSION_SUFFIX "")
+    else()
+        set(ANBOX_VERSION_SUFFIX dev)
+    endif()
+endif()
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/version.h.in
+               ${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/version.h)
+
 add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(tests)

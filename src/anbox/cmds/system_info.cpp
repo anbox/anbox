@@ -19,9 +19,9 @@
 #include "anbox/graphics/emugl/RenderApi.h"
 #include "anbox/graphics/emugl/DispatchTables.h"
 #include "anbox/utils/environment_file.h"
-#include "anbox/version.h"
 #include "anbox/logger.h"
-#include "anbox/version.h"
+
+#include "anbox/build/version.h"
 
 #include <sstream>
 #include <fstream>
@@ -50,10 +50,7 @@ class SystemInformation {
     std::stringstream s;
 
     s << "version: "
-      << anbox::utils::string_format("%d.%d.%d",
-          anbox::build::version_major,
-          anbox::build::version_minor,
-          anbox::build::version_patch)
+      << anbox::build::print_version()
       << std::endl;
 
     s << "os:" << std::endl

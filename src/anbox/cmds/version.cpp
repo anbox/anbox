@@ -18,16 +18,15 @@
  */
 
 #include "anbox/cmds/version.h"
-#include "anbox/version.h"
+#include "anbox/build/version.h"
+#include "anbox/utils.h"
 
 anbox::cmds::Version::Version()
     : CommandWithFlagsAndAction{
           cli::Name{"version"}, cli::Usage{"version"},
           cli::Description{"print the version of the daemon"}} {
   action([](const cli::Command::Context& ctxt) {
-    std::uint32_t major, minor, patch;
-    anbox::version(major, minor, patch);
-    ctxt.cout << "anbox " << major << "." << minor << "." << patch << std::endl;
+    ctxt.cout << "anbox " << build::print_version() << std::endl;
     return 0;
   });
 }
