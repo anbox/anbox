@@ -130,8 +130,8 @@ $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
     libboost-program-options-dev libboost-system-dev libboost-test-dev \
     libboost-thread-dev libcap-dev libdbus-1-dev libdbus-cpp-dev libegl1-mesa-dev \
     libgles2-mesa-dev libglib2.0-dev libglm-dev libgtest-dev liblxc1 \
-    libproperties-cpp-dev libprotobuf-dev libsdl2-dev lxc-dev pkg-config \
-    protobuf-compiler
+    libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
+    pkg-config protobuf-compiler 
 ```
 
 Afterwards you can build Anbox with
