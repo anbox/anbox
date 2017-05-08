@@ -45,6 +45,7 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
   graphics::GLRendererServer::Config::Driver gles_driver_;
   bool single_window_ = false;
   graphics::Rect window_size_;
+  bool standalone_ = false;
 };
 }  // namespace cmds
 }  // namespace anbox

@@ -106,6 +106,9 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
   flag(cli::make_flag(cli::Name{"window-size"},
                       cli::Description{"Size of the window in single window mode, e.g. --window-size=1024,768"},
                       window_size_));
+  flag(cli::make_flag(cli::Name{"standalone"},
+                      cli::Description{"Prevents the Container Manager from starting the default container (Experimental)"},
+                      standalone_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -136,10 +139,12 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     auto dispatcher = anbox::common::create_dispatcher_for_runtime(rt);
 
     container::Client container(rt);
-    container.register_terminate_handler([&]() {
-      WARNING("Lost connection to container manager, terminating.");
-      trap->stop();
-    });
+    if (!standalone_) {
+      container.register_terminate_handler([&]() {
+	  WARNING("Lost connection to container manager, terminating.");
+	  trap->stop();
+	});
+    }
 
     auto input_manager = std::make_shared<input::Manager>(rt);
 
@@ -213,7 +218,8 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
             }));
 
     container::Configuration container_configuration;
-    container_configuration.bind_mounts = {
+    if (!standalone_) {
+      container_configuration.bind_mounts = {
         {qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"},
         {bridge_connector->socket_file(), "/dev/anbox_bridge"},
         {audio_server->socket_file(), "/dev/anbox_audio"},
@@ -221,9 +227,10 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
         {"/dev/binder", "/dev/binder"},
         {"/dev/ashmem", "/dev/ashmem"},
         {"/dev/fuse", "/dev/fuse"},
-    };
+      };
 
-    dispatcher->dispatch([&]() { container.start(container_configuration); });
+      dispatcher->dispatch([&]() { container.start(container_configuration); });
+    }
 
     auto bus = bus_factory_();
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
@@ -233,9 +240,11 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     rt->start();
     trap->run();
 
-    // Stop the container which should close all open connections we have on
-    // our side and should terminate all services.
-    container.stop();
+    if (!standalone_) {
+      // Stop the container which should close all open connections we have on
+      // our side and should terminate all services.
+      container.stop();
+    }
 
     rt->stop();
 
