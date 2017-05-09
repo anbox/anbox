@@ -34,6 +34,7 @@ namespace fs = boost::filesystem;
 
 namespace {
 constexpr const char *os_release_path{"/etc/os-release"};
+constexpr const char *host_os_release_path{"/var/lib/snapd/hostfs/etc/os-release"};
 constexpr const char *proc_version_path{"/proc/version"};
 constexpr const char *binder_path{"/dev/binder"};
 constexpr const char *ashmem_path{"/dev/ashmem"};
@@ -94,14 +95,18 @@ class SystemInformation {
  private:
   void collect_os_info() {
     os_info_.snap_based = (getenv("SNAP") != nullptr);
-    if (fs::exists(os_release_path)) {
+    fs::path path = os_release_path;
+    // If we're running from within a snap the best we can do is to
+    // access the hostfs and read the os-release file from there.
+    if (os_info_.snap_based && fs::exists(host_os_release_path))
+        path = host_os_release_path;
+
+    // Double check that there aren't any permission errors when trying
+    // to access the file (e.g. because of snap confinement)
+    if (fs::exists(path)) {
       anbox::utils::EnvironmentFile os_release(os_release_path);
       os_info_.name = os_release.value("NAME");
       os_info_.version = os_release.value("VERSION");
-    } else if (os_info_.snap_based) {
-      // As we can't read /etc/os-release and we're snap-based this is the best we can guess
-      os_info_.name = "Ubuntu";
-      os_info_.version = "16";
     }
   }
 
