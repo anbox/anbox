@@ -53,6 +53,12 @@ class SystemInformation {
       << anbox::build::print_version()
       << std::endl;
 
+    if (anbox::utils::is_env_set("SNAP_REVISION")) {
+      s << "snap-revision: "
+        << anbox::utils::get_env_value("SNAP_REVISION")
+        << std::endl;
+    }
+
     s << "os:" << std::endl
       << "  name: " << os_info_.name << std::endl
       << "  version: " << os_info_.version << std::endl
