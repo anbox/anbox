@@ -38,6 +38,8 @@ constexpr const char *host_os_release_path{"/var/lib/snapd/hostfs/etc/os-release
 constexpr const char *proc_version_path{"/proc/version"};
 constexpr const char *binder_path{"/dev/binder"};
 constexpr const char *ashmem_path{"/dev/ashmem"};
+constexpr const char *os_release_name{"NAME"};
+constexpr const char *os_release_version{"VERSION"};
 
 class SystemInformation {
  public:
@@ -94,7 +96,7 @@ class SystemInformation {
 
  private:
   void collect_os_info() {
-    os_info_.snap_based = (getenv("SNAP") != nullptr);
+    os_info_.snap_based = !anbox::utils::get_env_value("SNAP").empty();
     fs::path path = os_release_path;
     // If we're running from within a snap the best we can do is to
     // access the hostfs and read the os-release file from there.
@@ -104,9 +106,9 @@ class SystemInformation {
     // Double check that there aren't any permission errors when trying
     // to access the file (e.g. because of snap confinement)
     if (fs::exists(path)) {
-      anbox::utils::EnvironmentFile os_release(os_release_path);
-      os_info_.name = os_release.value("NAME");
-      os_info_.version = os_release.value("VERSION");
+      anbox::utils::EnvironmentFile os_release(path);
+      os_info_.name = os_release.value(os_release_name);
+      os_info_.version = os_release.value(os_release_version);
     }
   }
 
