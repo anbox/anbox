@@ -79,6 +79,7 @@ set(SOURCES
     anbox/common/loop_device.cpp
     anbox/common/loop_device_allocator.cpp
     anbox/common/mount_entry.cpp
+    anbox/common/binary_writer.cpp
 
     anbox/testing/gtest_utils.h
 
