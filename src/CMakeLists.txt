@@ -66,6 +66,7 @@ set(SOURCES
     anbox/build/version.h.in
 
     anbox/android/intent.cpp
+    anbox/android/ip_config_builder.cpp
 
     anbox/common/fd.cpp
     anbox/common/fd_sets.h

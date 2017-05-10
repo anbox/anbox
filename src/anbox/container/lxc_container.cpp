@@ -15,6 +15,7 @@
  *
  */
 
+#include "anbox/android/ip_config_builder.h"
 #include "anbox/container/lxc_container.h"
 #include "anbox/config.h"
 #include "anbox/logger.h"
@@ -22,6 +23,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <fstream>
 
 #include <boost/filesystem.hpp>
 #include <boost/throw_exception.hpp>
@@ -74,6 +76,53 @@ void LxcContainer::setup_id_maps() {
                   utils::string_format("g %d %d %d", creds_.uid() + 1,
                                        base_id + creds_.gid() + 1,
                                        max_id - creds_.gid() - 1));
+}
+
+void LxcContainer::setup_network() {
+  if (!fs::exists("/sys/class/net/anbox0")) {
+    WARNING("Anbox bridge interface 'anbox0' doesn't exist. Network functionality will not be available");
+    return;
+  }
+
+  set_config_item("lxc.network.type", "veth");
+  set_config_item("lxc.network.flags", "up");
+  set_config_item("lxc.network.link", "anbox0");
+
+  // Instead of relying on DHCP we will give Android a static IP configuration
+  // for the virtual ethernet interface LXC creates for us. This will be bridged
+  // to the host and will allows us to have reliable network connectivity and
+  // not depend on any other system service.
+  //
+  // See http://androidxref.com/7.1.1_r6/xref/frameworks/base/core/java/android/net/IpConfiguration.java
+  // for more details of the IP configuration format used here.
+
+  android::IpConfigBuilder ip_conf;
+  ip_conf.set_version(android::IpConfigBuilder::Version::Version2);
+  ip_conf.set_assignment(android::IpConfigBuilder::Assignment::Static);
+  ip_conf.set_link_address("192.168.250.2", 24);
+  ip_conf.set_gateway("192.168.250.1");
+  ip_conf.set_dns_servers({"8.8.8.8"});
+  ip_conf.set_id(0);
+
+  std::vector<std::uint8_t> buffer(512);
+  common::BinaryWriter writer(buffer.begin(), buffer.end());
+  const auto size = ip_conf.write(writer);
+
+  const auto ip_conf_dir = SystemConfiguration::instance().data_dir() / "data" / "misc" / "ethernet";
+  if (!fs::exists(ip_conf_dir))
+    fs::create_directories(ip_conf_dir);
+
+  const auto ip_conf_path = ip_conf_dir / "ipconfig.txt";
+  if (fs::exists(ip_conf_path))
+    fs::remove(ip_conf_path);
+
+  std::ofstream f(ip_conf_path.string(), std::ofstream::binary);
+  if (f.is_open()) {
+    f.write(reinterpret_cast<const char*>(buffer.data()), size);
+    f.close();
+  } else {
+    ERROR("Failed to write IP configuration. Network functionality will not be available.");
+  }
 }
 
 void LxcContainer::start(const Configuration &configuration) {
@@ -131,11 +180,7 @@ void LxcContainer::start(const Configuration &configuration) {
   const auto log_path = SystemConfiguration::instance().log_dir();
   set_config_item("lxc.logfile", utils::string_format("%s/container.log", log_path).c_str());
 
-  if (fs::exists("/sys/class/net/anboxbr0")) {
-    set_config_item("lxc.network.type", "veth");
-    set_config_item("lxc.network.flags", "up");
-    set_config_item("lxc.network.link", "anboxbr0");
-  }
+  setup_network();
 
 #if 0
     // Android uses namespaces as well so we have to allow nested namespaces for LXC
