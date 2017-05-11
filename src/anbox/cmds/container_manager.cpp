@@ -48,11 +48,22 @@ anbox::cmds::ContainerManager::ContainerManager()
   flag(cli::make_flag(cli::Name{"privileged"},
                       cli::Description{"Run Android container in privileged mode"},
                       privileged_));
+  flag(cli::make_flag(cli::Name{"daemon"},
+                      cli::Description{"Mark service as being started as systemd daemon"},
+                      daemon_));
 
   action([&](const cli::Command::Context&) {
     try {
-      if (getuid() != 0) {
-        ERROR("You're not running the container-manager as root. Generally you don't");
+      if (!daemon_) {
+        WARNING("You are running the container manager manually which is most likely not");
+        WARNING("what you want. The container manager is normally started by systemd or");
+        WARNING("another init system. If you still want to run the container-manager");
+        WARNING("you can get rid of this warning by starting with the --daemon option.");
+        WARNING("");
+      }
+
+      if (geteuid() != 0) {
+        ERROR("You are not running the container-manager as root. Generally you don't");
         ERROR("want to run the container-manager manually unless you're a developer");
         ERROR("as it is started by the init system of your operating system.");
         return EXIT_FAILURE;
