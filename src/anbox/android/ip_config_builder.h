@@ -26,7 +26,8 @@
 
 namespace anbox {
 namespace android {
-struct IpConfigBuilder {
+class IpConfigBuilder {
+ public:
   enum class Version : std::uint32_t {
     Version1 = 1,
     Version2 = 2,
@@ -36,6 +37,8 @@ struct IpConfigBuilder {
     Static,
     DHCP,
   };
+
+  IpConfigBuilder() = default;
 
   std::size_t write(common::BinaryWriter &writer);
 
