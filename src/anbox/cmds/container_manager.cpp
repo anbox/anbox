@@ -62,7 +62,7 @@ anbox::cmds::ContainerManager::ContainerManager()
         WARNING("");
       }
 
-      if (getuid() != 0) {
+      if (geteuid() != 0) {
         ERROR("You are not running the container-manager as root. Generally you don't");
         ERROR("want to run the container-manager manually unless you're a developer");
         ERROR("as it is started by the init system of your operating system.");
