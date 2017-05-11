@@ -31,6 +31,7 @@ TEST(BinaryWriter, WritesUnsignedLong) {
   writer.write_unsigned_long(0x10);
   writer.write_unsigned_long(0x3322);
 
+  ASSERT_EQ(writer.bytes_written(), 8);
   ASSERT_THAT(buffer, ElementsAre(0x10, 0x00, 0x00, 0x00, 0x22, 0x33, 0x00, 0x00));
 }
 
@@ -48,6 +49,7 @@ TEST(BinaryWriter, WriteUnsignedLongWithChangedBinaryOrder) {
   writer.set_byte_order(ac::BinaryWriter::Order::Big);
   writer.write_unsigned_long(0x11223344);
 
+  ASSERT_EQ(writer.bytes_written(), 4);
   ASSERT_THAT(buffer, ElementsAre(0x11, 0x22, 0x33, 0x44));
 
   buffer.clear();
@@ -58,6 +60,7 @@ TEST(BinaryWriter, WriteUnsignedLongWithChangedBinaryOrder) {
   writer.set_byte_order(ac::BinaryWriter::Order::Little);
   writer.write_unsigned_long(0x11223344);
 
+  ASSERT_EQ(writer.bytes_written(), 4);
   ASSERT_THAT(buffer, ElementsAre(0x44, 0x33, 0x22, 0x11));
 }
 
@@ -69,6 +72,7 @@ TEST(BinaryWriter, WriteUnsignedShort) {
   writer.write_unsigned_short(0x10);
   writer.write_unsigned_short(0x3322);
 
+  ASSERT_EQ(writer.bytes_written(), 4);
   ASSERT_THAT(buffer, ElementsAre(0x10, 0x00, 0x22, 0x33));
 }
 
@@ -86,6 +90,7 @@ TEST(BinaryWriter, WriteUnsignedShortWithChangedBinaryOrder) {
   writer.set_byte_order(ac::BinaryWriter::Order::Big);
   writer.write_unsigned_short(0x1122);
 
+  ASSERT_EQ(writer.bytes_written(), 2);
   ASSERT_THAT(buffer, ElementsAre(0x11, 0x22));
 
   buffer.clear();
@@ -96,5 +101,30 @@ TEST(BinaryWriter, WriteUnsignedShortWithChangedBinaryOrder) {
   writer.set_byte_order(ac::BinaryWriter::Order::Little);
   writer.write_unsigned_short(0x1122);
 
+  ASSERT_EQ(writer.bytes_written(), 2);
   ASSERT_THAT(buffer, ElementsAre(0x22, 0x11));
+}
+
+TEST(BinaryWriter, WriteString) {
+  std::vector<std::uint8_t> buffer;
+  buffer.resize(sizeof(std::uint8_t) * 4);
+  ac::BinaryWriter writer(buffer.begin(), buffer.end());
+
+  writer.write_string("test", 4);
+
+  ASSERT_EQ(writer.bytes_written(), 4);
+  ASSERT_THAT(buffer, ElementsAre(0x74, 0x65, 0x73, 0x74));
+}
+
+TEST(BinaryWriter, WriteStringWithSize) {
+  std::vector<std::uint8_t> buffer;
+  buffer.resize(sizeof(std::uint8_t) * 6);
+  ac::BinaryWriter writer(buffer.begin(), buffer.end());
+
+  writer.set_byte_order(ac::BinaryWriter::Order::Big);
+
+  writer.write_string_with_size("test");
+
+  ASSERT_EQ(writer.bytes_written(), 6);
+  ASSERT_THAT(buffer, ElementsAre(0x00, 0x04, 0x74, 0x65, 0x73, 0x74));
 }
