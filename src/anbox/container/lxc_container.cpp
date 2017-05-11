@@ -35,6 +35,13 @@
 
 namespace fs = boost::filesystem;
 
+namespace {
+constexpr const char *default_container_ip_address{"192.168.250.2"};
+constexpr const std::uint32_t default_container_ip_prefix_length{24};
+constexpr const char *default_host_ip_address{"192.168.250.1"};
+constexpr const char *default_dns_server{"8.8.8.8"};
+}
+
 namespace anbox {
 namespace container {
 LxcContainer::LxcContainer(bool privileged, const network::Credentials &creds)
@@ -92,16 +99,13 @@ void LxcContainer::setup_network() {
   // for the virtual ethernet interface LXC creates for us. This will be bridged
   // to the host and will allows us to have reliable network connectivity and
   // not depend on any other system service.
-  //
-  // See http://androidxref.com/7.1.1_r6/xref/frameworks/base/core/java/android/net/IpConfiguration.java
-  // for more details of the IP configuration format used here.
 
   android::IpConfigBuilder ip_conf;
   ip_conf.set_version(android::IpConfigBuilder::Version::Version2);
   ip_conf.set_assignment(android::IpConfigBuilder::Assignment::Static);
-  ip_conf.set_link_address("192.168.250.2", 24);
-  ip_conf.set_gateway("192.168.250.1");
-  ip_conf.set_dns_servers({"8.8.8.8"});
+  ip_conf.set_link_address(default_container_ip_address, default_container_ip_prefix_length);
+  ip_conf.set_gateway(default_host_ip_address);
+  ip_conf.set_dns_servers({default_dns_server});
   ip_conf.set_id(0);
 
   std::vector<std::uint8_t> buffer(512);

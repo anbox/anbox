@@ -33,6 +33,9 @@ constexpr const char *assignment_static{"STATIC"};
 constexpr const char *assignment_dhcp{"DHCP"};
 constexpr const char *assignment_unknown{"UNKNOWN"};
 
+constexpr const std::uint32_t is_default_gateway{0};
+constexpr const std::uint32_t gateway_is_present{1};
+
 namespace aa = anbox::android;
 std::string assignment_to_string(const aa::IpConfigBuilder::Assignment &value) {
   switch (value) {
@@ -54,6 +57,9 @@ namespace android {
 std::size_t IpConfigBuilder::write(common::BinaryWriter &writer) {
   writer.set_byte_order(common::BinaryWriter::Order::Big);
 
+  // See http://androidxref.com/7.1.1_r6/xref/frameworks/base/services/core/java/com/android/server/net/IpConfigStore.java
+  // for more details on the binary file format used here.
+
   writer.write_unsigned_long(static_cast<std::uint32_t>(version_));
 
   writer.write_string_with_size(assignment_key);
@@ -64,8 +70,8 @@ std::size_t IpConfigBuilder::write(common::BinaryWriter &writer) {
   writer.write_unsigned_long(link_.prefix_length);
 
   writer.write_string_with_size(gateway_key);
-  writer.write_unsigned_long(0);
-  writer.write_unsigned_long(1);
+  writer.write_unsigned_long(is_default_gateway);
+  writer.write_unsigned_long(gateway_is_present);
   writer.write_string_with_size(gateway_);
 
   writer.write_string_with_size(dns_key);
