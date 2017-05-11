@@ -23,31 +23,31 @@ namespace ac = anbox::common;
 
 using namespace ::testing;
 
-TEST(BinaryWriter, WritesUnsignedLong) {
+TEST(BinaryWriter, WriteUint32) {
   std::vector<std::uint8_t> buffer;
   buffer.resize(sizeof(std::uint32_t) * 2);
   ac::BinaryWriter writer(buffer.begin(), buffer.end());
 
-  writer.write_unsigned_long(0x10);
-  writer.write_unsigned_long(0x3322);
+  writer.write_uint32(0x10);
+  writer.write_uint32(0x3322);
 
   ASSERT_EQ(writer.bytes_written(), 8);
   ASSERT_THAT(buffer, ElementsAre(0x10, 0x00, 0x00, 0x00, 0x22, 0x33, 0x00, 0x00));
 }
 
-TEST(BinaryWriter, WriteUnsignedLongFailsWithExhaustedError) {
+TEST(BinaryWriter, WriteUint32FailsWithExhaustedError) {
   std::vector<std::uint8_t> buffer;
   ac::BinaryWriter writer(buffer.begin(), buffer.end());
-  EXPECT_THROW(writer.write_unsigned_long(0x11), std::out_of_range);
+  EXPECT_THROW(writer.write_uint32(0x11), std::out_of_range);
 }
 
-TEST(BinaryWriter, WriteUnsignedLongWithChangedBinaryOrder) {
+TEST(BinaryWriter, WriteUint32WithChangedBinaryOrder) {
   std::vector<std::uint8_t> buffer;
   buffer.resize(sizeof(std::uint32_t));
   ac::BinaryWriter writer(buffer.begin(), buffer.end());
 
   writer.set_byte_order(ac::BinaryWriter::Order::Big);
-  writer.write_unsigned_long(0x11223344);
+  writer.write_uint32(0x11223344);
 
   ASSERT_EQ(writer.bytes_written(), 4);
   ASSERT_THAT(buffer, ElementsAre(0x11, 0x22, 0x33, 0x44));
@@ -58,37 +58,37 @@ TEST(BinaryWriter, WriteUnsignedLongWithChangedBinaryOrder) {
   writer = ac::BinaryWriter(buffer.begin(), buffer.end());
 
   writer.set_byte_order(ac::BinaryWriter::Order::Little);
-  writer.write_unsigned_long(0x11223344);
+  writer.write_uint32(0x11223344);
 
   ASSERT_EQ(writer.bytes_written(), 4);
   ASSERT_THAT(buffer, ElementsAre(0x44, 0x33, 0x22, 0x11));
 }
 
-TEST(BinaryWriter, WriteUnsignedShort) {
+TEST(BinaryWriter, WriteUint16) {
   std::vector<std::uint8_t> buffer;
   buffer.resize(sizeof(std::uint16_t) * 2);
   ac::BinaryWriter writer(buffer.begin(), buffer.end());
 
-  writer.write_unsigned_short(0x10);
-  writer.write_unsigned_short(0x3322);
+  writer.write_uint16(0x10);
+  writer.write_uint16(0x3322);
 
   ASSERT_EQ(writer.bytes_written(), 4);
   ASSERT_THAT(buffer, ElementsAre(0x10, 0x00, 0x22, 0x33));
 }
 
-TEST(BinaryWriter, WriteUnsignedShortFailsWithExhaustedError) {
+TEST(BinaryWriter, WriteUint16FailsWithExhaustedError) {
   std::vector<std::uint8_t> buffer;
   ac::BinaryWriter writer(buffer.begin(), buffer.end());
-  EXPECT_THROW(writer.write_unsigned_short(0x11), std::out_of_range);
+  EXPECT_THROW(writer.write_uint16(0x11), std::out_of_range);
 }
 
-TEST(BinaryWriter, WriteUnsignedShortWithChangedBinaryOrder) {
+TEST(BinaryWriter, WriteUint16WithChangedBinaryOrder) {
   std::vector<std::uint8_t> buffer;
   buffer.resize(sizeof(std::uint16_t));
   ac::BinaryWriter writer(buffer.begin(), buffer.end());
 
   writer.set_byte_order(ac::BinaryWriter::Order::Big);
-  writer.write_unsigned_short(0x1122);
+  writer.write_uint16(0x1122);
 
   ASSERT_EQ(writer.bytes_written(), 2);
   ASSERT_THAT(buffer, ElementsAre(0x11, 0x22));
@@ -99,7 +99,7 @@ TEST(BinaryWriter, WriteUnsignedShortWithChangedBinaryOrder) {
   writer = ac::BinaryWriter(buffer.begin(), buffer.end());
 
   writer.set_byte_order(ac::BinaryWriter::Order::Little);
-  writer.write_unsigned_short(0x1122);
+  writer.write_uint16(0x1122);
 
   ASSERT_EQ(writer.bytes_written(), 2);
   ASSERT_THAT(buffer, ElementsAre(0x22, 0x11));

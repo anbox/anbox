@@ -60,18 +60,18 @@ std::size_t IpConfigBuilder::write(common::BinaryWriter &writer) {
   // See http://androidxref.com/7.1.1_r6/xref/frameworks/base/services/core/java/com/android/server/net/IpConfigStore.java
   // for more details on the binary file format used here.
 
-  writer.write_unsigned_long(static_cast<std::uint32_t>(version_));
+  writer.write_uint32(static_cast<std::uint32_t>(version_));
 
   writer.write_string_with_size(assignment_key);
   writer.write_string_with_size(assignment_to_string(assignment_));
 
   writer.write_string_with_size(link_address_key);
   writer.write_string_with_size(link_.address);
-  writer.write_unsigned_long(link_.prefix_length);
+  writer.write_uint32(link_.prefix_length);
 
   writer.write_string_with_size(gateway_key);
-  writer.write_unsigned_long(is_default_gateway);
-  writer.write_unsigned_long(gateway_is_present);
+  writer.write_uint32(is_default_gateway);
+  writer.write_uint32(gateway_is_present);
   writer.write_string_with_size(gateway_);
 
   writer.write_string_with_size(dns_key);
@@ -79,7 +79,7 @@ std::size_t IpConfigBuilder::write(common::BinaryWriter &writer) {
     writer.write_string_with_size(server);
 
   writer.write_string_with_size(id_key);
-  writer.write_unsigned_long(id_);
+  writer.write_uint32(id_);
 
   writer.write_string_with_size(eos_key);
 

@@ -42,7 +42,7 @@ void BinaryWriter::set_byte_order(Order order) {
   byte_order_ = order;
 }
 
-void BinaryWriter::write_unsigned_short(std::uint16_t value) {
+void BinaryWriter::write_uint16(std::uint16_t value) {
   if (current_ + sizeof(value) > end_)
     throw std::out_of_range{"Write buffer exhausted"};
 
@@ -62,7 +62,7 @@ void BinaryWriter::write_unsigned_short(std::uint16_t value) {
   current_ += sizeof(v);
 }
 
-void BinaryWriter::write_unsigned_long(std::uint32_t value) {
+void BinaryWriter::write_uint32(std::uint32_t value) {
   if (current_ + sizeof(value) > end_)
     throw std::out_of_range{"Write buffer exhausted"};
 
@@ -95,7 +95,7 @@ void BinaryWriter::write_string_with_size(const std::string &str) {
 }
 
 void BinaryWriter::write_string_with_size(const char *s, std::size_t size) {
-  write_unsigned_short(size);
+  write_uint16(size);
   write_string(s, size);
 }
 

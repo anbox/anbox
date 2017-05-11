@@ -37,8 +37,8 @@ class BinaryWriter {
 
   void set_byte_order(Order order);
 
-  void write_unsigned_short(std::uint16_t value);
-  void write_unsigned_long(std::uint32_t value);
+  void write_uint16(std::uint16_t value);
+  void write_uint32(std::uint32_t value);
   void write_string(const char *s, std::size_t size);
   void write_string_with_size(const std::string &str);
   void write_string_with_size(const char *s, std::size_t size);
