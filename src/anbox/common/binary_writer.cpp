@@ -25,8 +25,8 @@
 
 namespace {
 bool is_little_endian() {
-  std::uint32_t v = 1;
-  return (*reinterpret_cast<std::uint8_t*>(&v) ==  1);
+  static const std::uint32_t v = 1;
+  return (*reinterpret_cast<const std::uint8_t*>(&v) ==  1);
 }
 }
 
