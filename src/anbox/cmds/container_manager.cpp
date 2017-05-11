@@ -57,7 +57,7 @@ anbox::cmds::ContainerManager::ContainerManager()
       if (!daemon_) {
         WARNING("You are running the container manager manually which is most likely not");
         WARNING("what you want. The container manager is normally started by systemd or");
-        WARNING("or another init system. If you still want to run the container-manager");
+        WARNING("another init system. If you still want to run the container-manager");
         WARNING("you can get rid of this warning by starting with the --daemon option.");
         WARNING("");
       }
