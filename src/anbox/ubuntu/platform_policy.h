@@ -41,8 +41,7 @@ class Manager;
 namespace ubuntu {
 class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
                        public platform::Policy,
-                       public Window::Observer,
-                       public DisplayManager {
+                       public Window::Observer {
  public:
   PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager,
                  const graphics::Rect &static_display_frame = graphics::Rect::Invalid,
@@ -60,8 +59,6 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
                     const std::int32_t &y) override;
   void window_resized(const Window::Id &id, const std::int32_t &width,
                       const std::int32_t &height) override;
-
-  DisplayInfo display_info() const override;
 
   void set_renderer(const std::shared_ptr<Renderer> &renderer);
   void set_window_manager(const std::shared_ptr<wm::Manager> &window_manager);
@@ -89,7 +86,6 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
   bool event_thread_running_;
   std::shared_ptr<input::Device> pointer_;
   std::shared_ptr<input::Device> keyboard_;
-  DisplayManager::DisplayInfo display_info_;
   bool window_size_immutable_ = false;
   bool single_window_ = false;
 };
