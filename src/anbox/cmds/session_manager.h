@@ -30,6 +30,9 @@
 #include "anbox/graphics/rect.h"
 
 namespace anbox {
+namespace container {
+class Client;
+}  // namespace container
 namespace cmds {
 class SessionManager : public cli::CommandWithFlagsAndAction {
  public:
@@ -40,6 +43,7 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
   SessionManager(const BusFactory& bus_factory = session_bus_factory());
 
  private:
+  std::shared_ptr<container::Client> container_;
   BusFactory bus_factory_;
   std::string desktop_file_hint_;
   graphics::GLRendererServer::Config::Driver gles_driver_;

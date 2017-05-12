@@ -146,9 +146,9 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     auto rt = Runtime::create();
     auto dispatcher = anbox::common::create_dispatcher_for_runtime(rt);
 
-    container::Client container(rt);
     if (!standalone_) {
-      container.register_terminate_handler([&]() {
+      container_ = std::make_shared<container::Client>(rt);
+      container_->register_terminate_handler([&]() {
 	  WARNING("Lost connection to container manager, terminating.");
 	  trap->stop();
 	});
@@ -237,7 +237,7 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
         {"/dev/fuse", "/dev/fuse"},
       };
 
-      dispatcher->dispatch([&]() { container.start(container_configuration); });
+      dispatcher->dispatch([&]() { container_->start(container_configuration); });
     }
 
     auto bus = bus_factory_();
@@ -251,7 +251,7 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     if (!standalone_) {
       // Stop the container which should close all open connections we have on
       // our side and should terminate all services.
-      container.stop();
+      container_->stop();
     }
 
     rt->stop();
