@@ -46,6 +46,7 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
   bool single_window_ = false;
   graphics::Rect window_size_;
   bool standalone_ = false;
+  bool experimental_ = false;
 };
 }  // namespace cmds
 }  // namespace anbox

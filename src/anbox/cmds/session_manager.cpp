@@ -109,6 +109,9 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
   flag(cli::make_flag(cli::Name{"standalone"},
                       cli::Description{"Prevents the Container Manager from starting the default container (Experimental)"},
                       standalone_));
+  flag(cli::make_flag(cli::Name{"experimental"},
+                      cli::Description{"Allows users to use experimental features"},
+                      experimental_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -117,6 +120,11 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
       INFO("Signal %i received. Good night.", static_cast<int>(signal));
       trap->stop();
     });
+
+    if (standalone_ && !experimental_) {
+      ERROR("Experimental features selected, but --experimental flag not set");
+      return EXIT_FAILURE;
+    }
 
     if (!fs::exists("/dev/binder") || !fs::exists("/dev/ashmem")) {
       ERROR("Failed to start as either binder or ashmem kernel drivers are not loaded");
