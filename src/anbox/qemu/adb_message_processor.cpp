@@ -27,10 +27,14 @@
 namespace {
 const unsigned short default_adb_client_port{5037};
 const unsigned short default_host_listen_port{6664};
+constexpr const char *loopback_address{"127.0.0.1"};
 const std::string accept_command{"accept"};
 const std::string ok_command{"ok"};
 const std::string ko_command{"ko"};
 const std::string start_command{"start"};
+// This timeount should be too high to not cause a too long wait time for the
+// user until we connect to the adb host instance after it appeared and not
+// too short to not put unnecessary burden on the CPU.
 const boost::posix_time::seconds default_adb_wait_time{1};
 static std::mutex active_instance;
 }
@@ -102,7 +106,7 @@ void AdbMessageProcessor::advance_state() {
 void AdbMessageProcessor::wait_for_host_connection() {
   if (!host_connector_) {
     host_connector_ = std::make_shared<network::TcpSocketConnector>(
-        boost::asio::ip::address_v4::from_string("127.0.0.1"),
+        boost::asio::ip::address_v4::from_string(loopback_address),
         default_host_listen_port, runtime_,
         std::make_shared<
             network::DelegateConnectionCreator<boost::asio::ip::tcp>>(
@@ -113,12 +117,9 @@ void AdbMessageProcessor::wait_for_host_connection() {
     // Notify the adb host instance so that it knows on which port our
     // proxy is waiting for incoming connections.
     auto messenger = std::make_shared<network::TcpSocketMessenger>(
-        boost::asio::ip::address_v4::from_string("127.0.0.1"),
-        default_adb_client_port, runtime_);
-    auto message =
-        utils::string_format("host:emulator:%d", default_host_listen_port);
-    auto handshake =
-        utils::string_format("%04x%s", message.size(), message.c_str());
+        boost::asio::ip::address_v4::from_string(loopback_address), default_adb_client_port, runtime_);
+    auto message = utils::string_format("host:emulator:%d", default_host_listen_port);
+    auto handshake = utils::string_format("%04x%s", message.size(), message.c_str());
     messenger->send(handshake.data(), handshake.size());
   } catch (std::exception &) {
     // Try again later when the host adb service is maybe available
