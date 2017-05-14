@@ -36,13 +36,14 @@ const std::string start_command{"start"};
 // user until we connect to the adb host instance after it appeared and not
 // too short to not put unnecessary burden on the CPU.
 const boost::posix_time::seconds default_adb_wait_time{1};
-static std::mutex active_instance;
 }
 
 using namespace std::placeholders;
 
 namespace anbox {
 namespace qemu {
+std::mutex AdbMessageProcessor::active_instance_{};
+
 AdbMessageProcessor::AdbMessageProcessor(
     const std::shared_ptr<Runtime> &rt,
     const std::shared_ptr<network::SocketMessenger> &messenger)
@@ -50,16 +51,14 @@ AdbMessageProcessor::AdbMessageProcessor(
       state_(waiting_for_guest_accept_command),
       expected_command_(accept_command),
       messenger_(messenger),
-      host_notify_timer_(rt->service()) {}
+      host_notify_timer_(rt->service()),
+      lock_(active_instance_, std::defer_lock) {}
 
 AdbMessageProcessor::~AdbMessageProcessor() {
   state_ = closed_by_host;
 
   host_notify_timer_.cancel();
   host_connector_.reset();
-
-  // Unlock our lock to bring down any waiting instance
-  active_instance.unlock();
 }
 
 void AdbMessageProcessor::advance_state() {
@@ -69,7 +68,7 @@ void AdbMessageProcessor::advance_state() {
       // running we don't have to do anything here until that one is done.
       // The container directly starts a second connection once the first
       // one is established but will not use it until the active one is closed.
-      active_instance.lock();
+      lock_.lock();
 
       if (state_ == closed_by_host) {
         host_notify_timer_.cancel();
