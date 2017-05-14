@@ -132,7 +132,11 @@ void AdbMessageProcessor::wait_for_host_connection() {
     // Try again later when the host adb service is maybe available
     host_notify_timer_.cancel();
     host_notify_timer_.expires_from_now(default_adb_wait_time);
-    host_notify_timer_.async_wait([&](const boost::system::error_code &) { wait_for_host_connection(); });
+    host_notify_timer_.async_wait([this](const boost::system::error_code &err) {
+      if (err)
+        return;
+      wait_for_host_connection();
+    });
   }
 }
 
@@ -156,8 +160,7 @@ void AdbMessageProcessor::on_host_connection(std::shared_ptr<boost::asio::basic_
 
 void AdbMessageProcessor::read_next_host_message() {
   auto callback = std::bind(&AdbMessageProcessor::on_host_read_size, this, _1, _2);
-  host_messenger_->async_receive_msg(callback,
-                                     boost::asio::buffer(host_buffer_));
+  host_messenger_->async_receive_msg(callback, boost::asio::buffer(host_buffer_));
 }
 
 void AdbMessageProcessor::on_host_read_size(const boost::system::error_code &error, std::size_t bytes_read) {
