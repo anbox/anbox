@@ -27,6 +27,8 @@
 
 #include <boost/asio.hpp>
 
+#include <mutex>
+
 namespace anbox {
 namespace qemu {
 class AdbMessageProcessor : public network::MessageProcessor {
@@ -66,6 +68,9 @@ class AdbMessageProcessor : public network::MessageProcessor {
   std::shared_ptr<network::TcpSocketMessenger> host_messenger_;
   std::array<std::uint8_t, 8192> host_buffer_;
   boost::asio::deadline_timer host_notify_timer_;
+  std::unique_lock<std::mutex> lock_;
+
+  static std::mutex active_instance_;
 };
 }  // namespace graphics
 }  // namespace anbox
