@@ -13,9 +13,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #ifndef _RENDER_CONTROL_H
 #define _RENDER_CONTROL_H
 
+// Generated with emugl at build time
 #include "renderControl_dec.h"
 
 #include <memory>

@@ -13,19 +13,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "RenderControl.h"
 
-#include "ChecksumCalculatorThreadInfo.h"
-#include "DispatchTables.h"
-#include "DisplayManager.h"
-#include "RenderThreadInfo.h"
-#include "Renderer.h"
-#include "RendererConfig.h"
-
-#include "OpenGLESDispatch/EGLDispatch.h"
-
+#include "anbox/graphics/emugl/RenderControl.h"
+#include "anbox/graphics/emugl/DispatchTables.h"
+#include "anbox/graphics/emugl/DisplayManager.h"
+#include "anbox/graphics/emugl/RenderThreadInfo.h"
+#include "anbox/graphics/emugl/Renderer.h"
+#include "anbox/graphics/emugl/RendererConfig.h"
 #include "anbox/graphics/layer_composer.h"
 #include "anbox/logger.h"
+
+#include "external/android-emugl/shared/OpenglCodecCommon/ChecksumCalculatorThreadInfo.h"
+#include "external/android-emugl/host/include/OpenGLESDispatch/EGLDispatch.h"
+
 
 #include <map>
 #include <string>

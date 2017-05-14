@@ -14,18 +14,17 @@
 * limitations under the License.
 */
 
-#include "Renderer.h"
-
-#include "DispatchTables.h"
-#include "RenderThreadInfo.h"
-#include "TimeUtils.h"
-#include "gles2_dec.h"
-
-#include "OpenGLESDispatch/EGLDispatch.h"
-
+#include "anbox/graphics/emugl/Renderer.h"
+#include "anbox/graphics/emugl/DispatchTables.h"
+#include "anbox/graphics/emugl/RenderThreadInfo.h"
+#include "anbox/graphics/emugl/TimeUtils.h"
 #include "anbox/graphics/gl_extensions.h"
-
 #include "anbox/logger.h"
+
+#include "external/android-emugl/host/include/OpenGLESDispatch/EGLDispatch.h"
+
+// Generated with emugl at build time
+#include "gles2_dec.h"
 
 #include <stdio.h>
 
@@ -361,13 +360,14 @@ HandleType Renderer::genHandle() {
 
 HandleType Renderer::createColorBuffer(int p_width, int p_height,
                                        GLenum p_internalFormat) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
+
   HandleType ret = 0;
 
   ColorBufferPtr cb(ColorBuffer::create(
       getDisplay(), p_width, p_height, p_internalFormat,
       getCaps().has_eglimage_texture_2d, m_colorBufferHelper));
-  if (cb.Ptr() != NULL) {
+  if (cb) {
     ret = genHandle();
     m_colorbuffers[ret].cb = cb;
     m_colorbuffers[ret].refcount = 1;
@@ -377,7 +377,8 @@ HandleType Renderer::createColorBuffer(int p_width, int p_height,
 
 HandleType Renderer::createRenderContext(int p_config, HandleType p_share,
                                          bool p_isGL2) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
+
   HandleType ret = 0;
 
   const RendererConfig *config = getConfigs()->get(p_config);
@@ -394,11 +395,11 @@ HandleType Renderer::createRenderContext(int p_config, HandleType p_share,
     share = (*s).second;
   }
   EGLContext sharedContext =
-      share.Ptr() ? share->getEGLContext() : EGL_NO_CONTEXT;
+      share ? share->getEGLContext() : EGL_NO_CONTEXT;
 
   RenderContextPtr rctx(RenderContext::create(
       m_eglDisplay, config->getEglConfig(), sharedContext, p_isGL2));
-  if (rctx.Ptr() != NULL) {
+  if (rctx) {
     ret = genHandle();
     m_contexts[ret] = rctx;
     RenderThreadInfo *tinfo = RenderThreadInfo::get();
@@ -409,7 +410,7 @@ HandleType Renderer::createRenderContext(int p_config, HandleType p_share,
 
 HandleType Renderer::createWindowSurface(int p_config, int p_width,
                                          int p_height) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
 
   HandleType ret = 0;
 
@@ -420,7 +421,7 @@ HandleType Renderer::createWindowSurface(int p_config, int p_width,
 
   WindowSurfacePtr win(WindowSurface::create(
       getDisplay(), config->getEglConfig(), p_width, p_height));
-  if (win.Ptr() != NULL) {
+  if (win) {
     ret = genHandle();
     m_windows[ret] = std::pair<WindowSurfacePtr, HandleType>(win, 0);
     RenderThreadInfo *tinfo = RenderThreadInfo::get();
@@ -431,7 +432,8 @@ HandleType Renderer::createWindowSurface(int p_config, int p_width,
 }
 
 void Renderer::drainRenderContext() {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
+
   RenderThreadInfo *tinfo = RenderThreadInfo::get();
   if (tinfo->m_contextSet.empty()) return;
   for (std::set<HandleType>::iterator it = tinfo->m_contextSet.begin();
@@ -443,7 +445,8 @@ void Renderer::drainRenderContext() {
 }
 
 void Renderer::drainWindowSurface() {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
+
   RenderThreadInfo *tinfo = RenderThreadInfo::get();
   if (tinfo->m_windowSet.empty()) return;
   for (std::set<HandleType>::iterator it = tinfo->m_windowSet.begin();
@@ -466,7 +469,8 @@ void Renderer::drainWindowSurface() {
 }
 
 void Renderer::DestroyRenderContext(HandleType p_context) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
+
   m_contexts.erase(p_context);
   RenderThreadInfo *tinfo = RenderThreadInfo::get();
   if (tinfo->m_contextSet.empty()) return;
@@ -474,7 +478,8 @@ void Renderer::DestroyRenderContext(HandleType p_context) {
 }
 
 void Renderer::DestroyWindowSurface(HandleType p_surface) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
+
   if (m_windows.find(p_surface) != m_windows.end()) {
     m_windows.erase(p_surface);
     RenderThreadInfo *tinfo = RenderThreadInfo::get();
@@ -484,7 +489,8 @@ void Renderer::DestroyWindowSurface(HandleType p_surface) {
 }
 
 int Renderer::openColorBuffer(HandleType p_colorbuffer) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
+
   ColorBufferMap::iterator c(m_colorbuffers.find(p_colorbuffer));
   if (c == m_colorbuffers.end()) {
     // bad colorbuffer handle
@@ -496,7 +502,8 @@ int Renderer::openColorBuffer(HandleType p_colorbuffer) {
 }
 
 void Renderer::closeColorBuffer(HandleType p_colorbuffer) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
+
   ColorBufferMap::iterator c(m_colorbuffers.find(p_colorbuffer));
   if (c == m_colorbuffers.end()) {
     // This is harmless: it is normal for guest system to issue
@@ -511,7 +518,7 @@ void Renderer::closeColorBuffer(HandleType p_colorbuffer) {
 }
 
 bool Renderer::flushWindowSurfaceColorBuffer(HandleType p_surface) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
 
   WindowSurfaceMap::iterator w(m_windows.find(p_surface));
   if (w == m_windows.end()) {
@@ -521,7 +528,10 @@ bool Renderer::flushWindowSurfaceColorBuffer(HandleType p_surface) {
     return false;
   }
 
-  WindowSurface *surface = (*w).second.first.Ptr();
+  auto surface = (*w).second.first;
+  if (!surface)
+    return false;
+
   surface->flushColorBuffer();
 
   return true;
@@ -529,7 +539,7 @@ bool Renderer::flushWindowSurfaceColorBuffer(HandleType p_surface) {
 
 bool Renderer::setWindowSurfaceColorBuffer(HandleType p_surface,
                                            HandleType p_colorbuffer) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
 
   WindowSurfaceMap::iterator w(m_windows.find(p_surface));
   if (w == m_windows.end()) {
@@ -553,7 +563,7 @@ bool Renderer::setWindowSurfaceColorBuffer(HandleType p_surface,
 void Renderer::readColorBuffer(HandleType p_colorbuffer, int x, int y,
                                int width, int height, GLenum format,
                                GLenum type, void *pixels) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
 
   ColorBufferMap::iterator c(m_colorbuffers.find(p_colorbuffer));
   if (c == m_colorbuffers.end()) {
@@ -567,7 +577,7 @@ void Renderer::readColorBuffer(HandleType p_colorbuffer, int x, int y,
 bool Renderer::updateColorBuffer(HandleType p_colorbuffer, int x, int y,
                                  int width, int height, GLenum format,
                                  GLenum type, void *pixels) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
 
   ColorBufferMap::iterator c(m_colorbuffers.find(p_colorbuffer));
   if (c == m_colorbuffers.end()) {
@@ -581,7 +591,7 @@ bool Renderer::updateColorBuffer(HandleType p_colorbuffer, int x, int y,
 }
 
 bool Renderer::bindColorBufferToTexture(HandleType p_colorbuffer) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
 
   ColorBufferMap::iterator c(m_colorbuffers.find(p_colorbuffer));
   if (c == m_colorbuffers.end()) {
@@ -593,7 +603,7 @@ bool Renderer::bindColorBufferToTexture(HandleType p_colorbuffer) {
 }
 
 bool Renderer::bindColorBufferToRenderbuffer(HandleType p_colorbuffer) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
 
   ColorBufferMap::iterator c(m_colorbuffers.find(p_colorbuffer));
   if (c == m_colorbuffers.end()) {
@@ -606,7 +616,7 @@ bool Renderer::bindColorBufferToRenderbuffer(HandleType p_colorbuffer) {
 
 bool Renderer::bindContext(HandleType p_context, HandleType p_drawSurface,
                            HandleType p_readSurface) {
-  emugl::Mutex::AutoLock mutex(m_lock);
+  std::unique_lock<std::mutex> l(m_lock);
 
   WindowSurfacePtr draw(NULL), read(NULL);
   RenderContextPtr ctx(NULL);
@@ -654,7 +664,7 @@ bool Renderer::bindContext(HandleType p_context, HandleType p_drawSurface,
   //
   RenderThreadInfo *tinfo = RenderThreadInfo::get();
   WindowSurfacePtr bindDraw, bindRead;
-  if (draw.Ptr() == NULL && read.Ptr() == NULL) {
+  if (!draw && !read) {
     // Unbind the current read and draw surfaces from the context
     bindDraw = tinfo->currDrawSurf;
     bindRead = tinfo->currReadSurf;
@@ -663,8 +673,8 @@ bool Renderer::bindContext(HandleType p_context, HandleType p_drawSurface,
     bindRead = read;
   }
 
-  if (bindDraw.Ptr() != NULL && bindRead.Ptr() != NULL) {
-    if (bindDraw.Ptr() != bindRead.Ptr()) {
+  if (bindDraw && bindRead) {
+    if (bindDraw != bindRead) {
       bindDraw->bind(ctx, WindowSurface::BIND_DRAW);
       bindRead->bind(ctx, WindowSurface::BIND_READ);
     } else {

@@ -16,10 +16,8 @@
 #ifndef _LIBRENDER_WINDOW_SURFACE_H
 #define _LIBRENDER_WINDOW_SURFACE_H
 
-#include "ColorBuffer.h"
-#include "RenderContext.h"
-
-#include "emugl/common/smart_ptr.h"
+#include "anbox/graphics/emugl/ColorBuffer.h"
+#include "anbox/graphics/emugl/RenderContext.h"
 
 #include <EGL/egl.h>
 #include <GLES/gl.h>
@@ -94,6 +92,6 @@ class WindowSurface {
   EGLDisplay mDisplay;
 };
 
-typedef emugl::SmartPtr<WindowSurface> WindowSurfacePtr;
+typedef std::shared_ptr<WindowSurface> WindowSurfacePtr;
 
 #endif  // _LIBRENDER_WINDOW_SURFACE_H

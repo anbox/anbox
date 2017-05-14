@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "TextureDraw.h"
-
-#include "DispatchTables.h"
+#include "anbox/graphics/emugl/TextureDraw.h"
+#include "anbox/graphics/emugl/DispatchTables.h"
+#include "anbox/logger.h"
 
 #include <math.h>
 #include <string.h>
 #include <vector>
 
 #include <stdio.h>
-
-#include "anbox/logger.h"
 
 // M_PI isn't defined in C++ (when strict ISO compliance is enabled)
 #ifndef M_PI

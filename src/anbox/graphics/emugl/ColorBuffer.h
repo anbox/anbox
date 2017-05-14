@@ -19,7 +19,6 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES/gl.h>
-#include "emugl/common/smart_ptr.h"
 
 #include <memory>
 
@@ -135,6 +134,6 @@ class ColorBuffer {
   TextureResize* m_resizer;
 };
 
-typedef emugl::SmartPtr<ColorBuffer> ColorBufferPtr;
+typedef std::shared_ptr<ColorBuffer> ColorBufferPtr;
 
 #endif
