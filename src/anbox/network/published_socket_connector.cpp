@@ -33,7 +33,7 @@ PublishedSocketConnector::PublishedSocketConnector(
   start_accept();
 }
 
-PublishedSocketConnector::~PublishedSocketConnector() {}
+PublishedSocketConnector::~PublishedSocketConnector() noexcept {}
 
 void PublishedSocketConnector::start_accept() {
   auto socket = std::make_shared<boost::asio::local::stream_protocol::socket>(runtime_->service());

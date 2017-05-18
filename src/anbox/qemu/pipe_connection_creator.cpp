@@ -73,7 +73,7 @@ PipeConnectionCreator::PipeConnectionCreator(const std::shared_ptr<Renderer> &re
           std::make_shared<network::Connections<network::SocketConnection>>()) {
 }
 
-PipeConnectionCreator::~PipeConnectionCreator() {
+PipeConnectionCreator::~PipeConnectionCreator() noexcept {
   connections_->clear();
 }
 

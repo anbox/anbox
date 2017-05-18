@@ -57,7 +57,6 @@ constexpr const char* xdg_data_dirs{"XDG_DATA_DIRS"};
 constexpr const char* xdg_config_home{"XDG_CONFIG_HOME"};
 constexpr const char* xdg_config_dirs{"XDG_CONFIG_DIRS"};
 constexpr const char* xdg_cache_home{"XDG_CACHE_HOME"};
-constexpr const char* xdg_runtime_dir{"XDG_RUNTIME_DIR"};
 }
 
 namespace impl

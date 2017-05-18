@@ -35,22 +35,6 @@ inline void* SafePointerFromUInt(unsigned int handle) {
   return reinterpret_cast<void*>(static_cast<uintptr_t>(handle));
 }
 
-inline unsigned int SafeUIntFromPointer(const void* ptr) {
-#if 1
-  // Ignore the assert below to avoid crashing when running older
-  // system images, which might have buggy encoder libraries. Print
-  // an error message though.
-  if (reinterpret_cast<uintptr_t>(ptr) != static_cast<unsigned int>(reinterpret_cast<uintptr_t>(ptr))) {
-    WARNING("Bad generic pointer %p", ptr);
-  }
-#else
-  // Assertion error if the pointer contains a value that does not fit
-  // in an unsigned integer!
-  assert((uintptr_t)(ptr) == (unsigned int)(uintptr_t)(ptr));
-#endif
-  return static_cast<unsigned int>(reinterpret_cast<uintptr_t>(ptr));
-}
-
 // Lazily create and bind a framebuffer object to the current host context.
 // |fbo| is the address of the framebuffer object name.
 // |tex| is the name of a texture that is attached to the framebuffer object

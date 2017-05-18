@@ -27,12 +27,17 @@
 #include "anbox/bridge/android_api_stub.h"
 #include "anbox/bridge/platform_api_skeleton.h"
 #include "anbox/bridge/platform_message_processor.h"
+#include "anbox/graphics/gl_renderer_server.h"
+
+namespace {
+std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Config::Driver& driver);
+}
+
 #include "anbox/cmds/session_manager.h"
 #include "anbox/common/dispatcher.h"
 #include "anbox/config.h"
 #include "anbox/container/client.h"
 #include "anbox/dbus/skeleton/service.h"
-#include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/input/manager.h"
 #include "anbox/logger.h"
 #include "anbox/network/published_socket_connector.h"
