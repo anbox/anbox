@@ -177,8 +177,6 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
       display_frame = window_size_;
 
     auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager, display_frame, single_window_);
-    // FIXME this needs to be removed and solved differently behind the scenes
-    registerDisplayManager(policy);
 
     auto app_db = std::make_shared<application::Database>();
 

@@ -17,22 +17,22 @@
 
 #include "DisplayManager.h"
 
-namespace {
-std::shared_ptr<DisplayManager> display_mgr;
-
-class NullDisplayManager : public DisplayManager {
- public:
-  DisplayInfo display_info() const override { return {1280, 720}; }
-};
+namespace anbox {
+namespace graphics {
+namespace emugl {
+std::shared_ptr<DisplayInfo> DisplayInfo::get() {
+  static auto info = std::make_shared<DisplayInfo>();
+  return info;
 }
 
-DisplayManager::~DisplayManager() {}
-
-std::shared_ptr<DisplayManager> DisplayManager::get() {
-  if (!display_mgr) display_mgr = std::make_shared<NullDisplayManager>();
-  return display_mgr;
+void DisplayInfo::set_resolution(const std::uint32_t &vertical, const std::uint32_t horizontal) {
+  vertical_resolution_ = vertical;
+  horizontal_resolution_ = horizontal;
 }
 
-void registerDisplayManager(const std::shared_ptr<DisplayManager> &mgr) {
-  display_mgr = mgr;
-}
+std::uint32_t DisplayInfo::vertical_resolution() const { return vertical_resolution_; }
+
+std::uint32_t DisplayInfo::horizontal_resolution() const { return horizontal_resolution_; }
+} // namespace emugl
+} // namespace graphics
+} // namespace anbox

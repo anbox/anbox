@@ -35,7 +35,7 @@ namespace wm {
 class Window;
 class SingleWindowManager : public Manager {
  public:
-  SingleWindowManager(const std::shared_ptr<platform::Policy> &policy,
+  SingleWindowManager(const std::weak_ptr<platform::Policy> &policy,
                       const graphics::Rect &window_size,
                       const std::shared_ptr<application::Database> &app_db);
   ~SingleWindowManager();
@@ -52,7 +52,7 @@ class SingleWindowManager : public Manager {
   void remove_task(const Task::Id &task) override;
 
  private:
-  std::shared_ptr<platform::Policy> platform_policy_;
+  std::weak_ptr<platform::Policy> platform_policy_;
   graphics::Rect window_size_;
   std::shared_ptr<application::Database> app_db_;
   std::shared_ptr<Window> window_;
