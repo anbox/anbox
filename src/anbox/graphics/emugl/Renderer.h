@@ -16,14 +16,12 @@
 #ifndef _LIBRENDER_FRAMEBUFFER_H
 #define _LIBRENDER_FRAMEBUFFER_H
 
-#include "ColorBuffer.h"
-#include "RenderContext.h"
-#include "RendererConfig.h"
-#include "TextureDraw.h"
-#include "WindowSurface.h"
-#include "emugl/common/mutex.h"
-
-#include "Renderable.h"
+#include "anbox/graphics/emugl/ColorBuffer.h"
+#include "anbox/graphics/emugl/RenderContext.h"
+#include "anbox/graphics/emugl/RendererConfig.h"
+#include "anbox/graphics/emugl/TextureDraw.h"
+#include "anbox/graphics/emugl/WindowSurface.h"
+#include "anbox/graphics/emugl/Renderable.h"
 
 #include "anbox/graphics/primitives.h"
 #include "anbox/graphics/program_family.h"
@@ -32,6 +30,7 @@
 #include <EGL/egl.h>
 
 #include <map>
+#include <mutex>
 
 #include <stdint.h>
 
@@ -257,7 +256,7 @@ class Renderer : public anbox::graphics::Renderer {
  private:
   static Renderer* s_renderer;
   static HandleType s_nextHandle;
-  emugl::Mutex m_lock;
+  std::mutex m_lock;
   RendererConfigList* m_configs;
   RendererCaps m_caps;
   EGLDisplay m_eglDisplay;

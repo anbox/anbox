@@ -13,16 +13,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "ColorBuffer.h"
 
-#include "DispatchTables.h"
-#include "RenderThreadInfo.h"
-#include "TextureDraw.h"
-#include "TextureResize.h"
-
-#include "OpenGLESDispatch/EGLDispatch.h"
-
+#include "anbox/graphics/emugl/ColorBuffer.h"
+#include "anbox/graphics/emugl/DispatchTables.h"
+#include "anbox/graphics/emugl/RenderThreadInfo.h"
+#include "anbox/graphics/emugl/TextureDraw.h"
+#include "anbox/graphics/emugl/TextureResize.h"
 #include "anbox/logger.h"
+
+#include "external/android-emugl/host/include/OpenGLESDispatch/EGLDispatch.h"
 
 #include <stdio.h>
 
@@ -235,7 +234,7 @@ void ColorBuffer::subUpdate(int x, int y, int width, int height,
 
 bool ColorBuffer::blitFromCurrentReadBuffer() {
   RenderThreadInfo* tInfo = RenderThreadInfo::get();
-  if (!tInfo->currContext.Ptr()) {
+  if (!tInfo->currContext) {
     // no Current context
     return false;
   }
@@ -296,7 +295,7 @@ bool ColorBuffer::bindToTexture() {
     return false;
   }
   RenderThreadInfo* tInfo = RenderThreadInfo::get();
-  if (!tInfo->currContext.Ptr()) {
+  if (!tInfo->currContext) {
     return false;
   }
   if (tInfo->currContext->isGL2()) {
@@ -312,7 +311,7 @@ bool ColorBuffer::bindToRenderbuffer() {
     return false;
   }
   RenderThreadInfo* tInfo = RenderThreadInfo::get();
-  if (!tInfo->currContext.Ptr()) {
+  if (!tInfo->currContext) {
     return false;
   }
   if (tInfo->currContext->isGL2()) {

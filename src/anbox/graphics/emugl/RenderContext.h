@@ -13,13 +13,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #ifndef _LIBRENDER_RENDER_CONTEXT_H
 #define _LIBRENDER_RENDER_CONTEXT_H
 
-#include "GLDecoderContextData.h"
-#include "emugl/common/smart_ptr.h"
+#include "external/android-emugl/shared/OpenglCodecCommon/GLDecoderContextData.h"
 
 #include <EGL/egl.h>
+
+#include <memory>
 
 // A class used to model a guest EGLContext. This simply wraps a host
 // EGLContext, associated with an GLDecoderContextData instance that is
@@ -60,6 +62,6 @@ class RenderContext {
   GLDecoderContextData mContextData;
 };
 
-typedef emugl::SmartPtr<RenderContext> RenderContextPtr;
+typedef std::shared_ptr<RenderContext> RenderContextPtr;
 
 #endif  // _LIBRENDER_RENDER_CONTEXT_H
