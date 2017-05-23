@@ -130,7 +130,11 @@ anbox::cmds::Launch::Launch()
         }
 
         try {
-          const auto flags = core::posix::StandardStream::stdout | core::posix::StandardStream::stderr;
+          auto flags = core::posix::StandardStream::stdout | core::posix::StandardStream::stderr;
+          // If we have logging enable in debug mode then we allow the child process
+          // to print to stdout/stderr too.
+          if (Log().GetSeverity() == Logger::Severity::kDebug)
+            flags = core::posix::StandardStream::empty;
           auto child = core::posix::fork([&]() {
             auto grandchild = core::posix::exec(exe_path, args, env, flags);
             grandchild.dont_kill_on_cleanup();

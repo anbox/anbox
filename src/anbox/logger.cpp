@@ -64,6 +64,10 @@ struct BoostLogLogger : public anbox::Logger {
     severity_ = severity;
   }
 
+  Severity GetSeverity() override {
+    return severity_;
+  }
+
   void Log(Severity severity, const std::string& message, const boost::optional<Location>& loc) override {
     if (!initialized_) Init();
 
