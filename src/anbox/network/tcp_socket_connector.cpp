@@ -34,7 +34,7 @@ TcpSocketConnector::TcpSocketConnector(
   start_accept();
 }
 
-TcpSocketConnector::~TcpSocketConnector() { acceptor_.cancel(); }
+TcpSocketConnector::~TcpSocketConnector() noexcept { acceptor_.cancel(); }
 
 void TcpSocketConnector::start_accept() {
   auto socket =

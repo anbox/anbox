@@ -42,15 +42,12 @@ class TextureDraw {
   bool draw(GLuint texture);
 
  private:
-  EGLDisplay mDisplay;
   GLuint mVertexShader;
   GLuint mFragmentShader;
   GLuint mProgram;
   GLint mPositionSlot;
   GLint mInCoordSlot;
   GLint mTextureSlot;
-  GLint mRotationSlot;
-  GLint mTranslationSlot;
   GLuint mVertexBuffer;
   GLuint mIndexBuffer;
 };

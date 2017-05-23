@@ -97,16 +97,13 @@ const GLint kIndicesLen = sizeof(kIndices) / sizeof(kIndices[0]);
 
 }  // namespace
 
-TextureDraw::TextureDraw(EGLDisplay display)
-    : mDisplay(display),
-      mVertexShader(0),
+TextureDraw::TextureDraw(EGLDisplay)
+    : mVertexShader(0),
       mFragmentShader(0),
       mProgram(0),
       mPositionSlot(-1),
       mInCoordSlot(-1),
-      mTextureSlot(-1),
-      mRotationSlot(-1),
-      mTranslationSlot(-1) {
+      mTextureSlot(-1) {
   // Create shaders and program.
   mVertexShader = createShader(GL_VERTEX_SHADER, kVertexShaderSource);
   mFragmentShader = createShader(GL_FRAGMENT_SHADER, kFragmentShaderSource);
