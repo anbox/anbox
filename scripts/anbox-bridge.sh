@@ -14,33 +14,20 @@
 # limitations under the License.
 
 # Taken from https://github.com/lxc/lxd-pkg-ubuntu/blob/dpm-xenial/lxd-bridge/lxd-bridge
+# but modified for the use within anbox.
 
 varrun="/run/anbox"
-varlib="/var/lib/anbox"
 
-BRIDGE="anboxbr0"
+BRIDGE="anbox0"
 
 # IPv4
-IPV4_ADDR="10.0.6.1"
+IPV4_ADDR="192.168.250.1"
 IPV4_NETMASK="255.255.255.0"
-IPV4_NETWORK="10.0.6.1/24"
-IPV4_DHCP_RANGE="10.0.6.2,10.0.6.254"
-IPV4_DHCP_MAX="252"
+IPV4_NETWORK="192.168.250.1/24"
 IPV4_NAT="true"
-
-# IPv6
-IPV6_ADDR="fd9d:e4dc:4e00:9e98::1"
-IPV6_MASK="64"
-IPV6_NETWORK="fd9d:e4dc:4e00:9e98::1/64"
-IPV6_NAT="true"
-IPV6_PROXY="false"
 
 use_iptables_lock="-w"
 iptables -w -L -n > /dev/null 2>&1 || use_iptables_lock=""
-
-HAS_IPV6=false
-[ -e "/proc/sys/net/ipv6/conf/default/disable_ipv6" ] && \
-    [ "$(cat /proc/sys/net/ipv6/conf/default/disable_ipv6)" = "0" ] && HAS_IPV6=true
 
 _netmask2cidr () {
     # Assumes there's no "255." after a non-255 byte in the mask
@@ -88,11 +75,6 @@ start() {
     # set up the anbox network
     [ ! -d "/sys/class/net/${BRIDGE}" ] && ip link add dev "${BRIDGE}" type bridge
 
-    if [ "${HAS_IPV6}" = "true" ]; then
-        echo 0 > "/proc/sys/net/ipv6/conf/${BRIDGE}/autoconf" || true
-        echo 0 > "/proc/sys/net/ipv6/conf/${BRIDGE}/accept_dad" || true
-    fi
-
     # if we are run from systemd on a system with selinux enabled,
     # the mkdir will create /run/anbox as init_var_run_t which dnsmasq
     # can't write its pid into, so we restorecon it (to var_run_t)
@@ -100,13 +82,6 @@ start() {
         mkdir -p "${varrun}"
         if which restorecon >/dev/null 2>&1; then
             restorecon "${varrun}"
-        fi
-    fi
-
-    if [ ! -d "${varlib}" ]; then
-        mkdir -p "${varlib}"
-        if which restorecon >/dev/null 2>&1; then
-            restorecon "${varlib}"
         fi
     fi
 
@@ -118,25 +93,6 @@ start() {
         if [ "${IPV4_NAT}" = "true" ]; then
             iptables "${use_iptables_lock}" -t nat -A POSTROUTING -s "${IPV4_NETWORK}" ! -d "${IPV4_NETWORK}" -j MASQUERADE -m comment --comment "managed by anbox-bridge"
         fi
-        IPV4_ARG="--listen-address ${IPV4_ADDR} --dhcp-range ${IPV4_DHCP_RANGE} --dhcp-lease-max=${IPV4_DHCP_MAX}"
-    fi
-
-    IPV6_ARG=""
-    if [ "${HAS_IPV6}" = "true" ] && [ -n "${IPV6_ADDR}" ] && [ -n "${IPV6_MASK}" ] && [ -n "${IPV6_NETWORK}" ]; then
-        # IPv6 sysctls don't respect the "all" path...
-        for interface in /proc/sys/net/ipv6/conf/*; do
-            echo 2 > "${interface}/accept_ra"
-        done
-
-        for interface in /proc/sys/net/ipv6/conf/*; do
-            echo 1 > "${interface}/forwarding"
-        done
-
-        ip -6 addr add dev "${BRIDGE}" "${IPV6_ADDR}/${IPV6_MASK}"
-        if [ "${IPV6_NAT}" = "true" ]; then
-            ip6tables "${use_iptables_lock}" -t nat -A POSTROUTING -s "${IPV6_NETWORK}" ! -d "${IPV6_NETWORK}" -j MASQUERADE -m comment --comment "managed by anbox-bridge"
-        fi
-        IPV6_ARG="--dhcp-range=${IPV6_ADDR},ra-stateless,ra-names --listen-address ${IPV6_ADDR}"
     fi
 
     iptables "${use_iptables_lock}" -I INPUT -i "${BRIDGE}" -p udp --dport 67 -j ACCEPT -m comment --comment "managed by anbox-bridge"
@@ -146,35 +102,6 @@ start() {
     iptables "${use_iptables_lock}" -I FORWARD -i "${BRIDGE}" -j ACCEPT -m comment --comment "managed by anbox-bridge"
     iptables "${use_iptables_lock}" -I FORWARD -o "${BRIDGE}" -j ACCEPT -m comment --comment "managed by anbox-bridge"
     iptables "${use_iptables_lock}" -t mangle -A POSTROUTING -o "${BRIDGE}" -p udp -m udp --dport 68 -j CHECKSUM --checksum-fill -m comment --comment "managed by anbox-bridge"
-
-    DOMAIN_ARG=""
-    if [ -n "${DOMAIN}" ]; then
-        DOMAIN_ARG="-s ${DOMAIN} -S /${DOMAIN}/"
-    fi
-
-    CONFILE_ARG=""
-    if [ -n "${CONFILE}" ]; then
-        CONFILE_ARG="--conf-file=${CONFILE}"
-    fi
-
-    # https://lists.linuxcontainers.org/pipermail/lxc-devel/2014-October/010561.html
-    for DNSMASQ_USER in anbox dnsmasq nobody
-    do
-        if getent passwd "${DNSMASQ_USER}" >/dev/null; then
-            break
-        fi
-    done
-
-    if [ -n "${IPV4_ADDR}" ] || [ -n "${IPV6_ADDR}" ]; then
-        # shellcheck disable=SC2086
-        dnsmasq ${CONFILE_ARG} ${DOMAIN_ARG} -u "${DNSMASQ_USER}" --strict-order --bind-interfaces --pid-file="${varrun}/dnsmasq.pid" --dhcp-no-override --except-interface=lo --interface="${BRIDGE}" --dhcp-leasefile="${varlib}/dnsmasq.${BRIDGE}.leases" --dhcp-authoritative ${IPV4_ARG} ${IPV6_ARG} || cleanup
-    fi
-
-    if [ "${HAS_IPV6}" = "true" ] && [ "${IPV6_PROXY}" = "true" ]; then
-        PATH="${PATH}:$(dirname "${0}")" anbox-bridge-proxy --addr="[fe80::1%${BRIDGE}]:13128" &
-        PID=$!
-        echo "${PID}" > "${varrun}/proxy.pid"
-    fi
 
     touch "${varrun}/network_up"
     FAILED=0
@@ -195,20 +122,6 @@ stop() {
 
         if [ -n "${IPV4_NETWORK}" ] && [ "${IPV4_NAT}" = "true" ]; then
             iptables ${use_iptables_lock} -t nat -D POSTROUTING -s ${IPV4_NETWORK} ! -d ${IPV4_NETWORK} -j MASQUERADE -m comment --comment "managed by anbox-bridge"
-        fi
-
-        if [ "${HAS_IPV6}" = "true" ] && [ -n "${IPV6_NETWORK}" ] && [ "${IPV6_NAT}" = "true" ]; then
-            ip6tables ${use_iptables_lock} -t nat -D POSTROUTING -s ${IPV6_NETWORK} ! -d ${IPV6_NETWORK} -j MASQUERADE -m comment --comment "managed by anbox-bridge"
-        fi
-
-        if [ -e "${varrun}/dnsmasq.pid" ]; then
-            pid=$(cat "${varrun}/dnsmasq.pid" 2>/dev/null) && kill -9 "${pid}"
-            rm -f "${varrun}/dnsmasq.pid"
-        fi
-
-        if [ -e "${varrun}/proxy.pid" ]; then
-            pid=$(cat "${varrun}/proxy.pid" 2>/dev/null) && kill -9 "${pid}"
-            rm -f "${varrun}/proxy.pid"
         fi
 
         # if ${BRIDGE} has attached interfaces, don't destroy the bridge

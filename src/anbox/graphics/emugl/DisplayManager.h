@@ -15,25 +15,32 @@
  *
  */
 
-#ifndef DISPLAY_MANAGER_H_
-#define DISPLAY_MANAGER_H_
+#ifndef ANBOX_GRAPHICS_EMUGL_DISPLAY_INFO_H_
+#define ANBOX_GRAPHICS_EMUGL_DISPLAY_INFO_H_
 
+#include <cstdint>
 #include <memory>
 
-class DisplayManager {
+namespace anbox {
+namespace graphics {
+namespace emugl {
+class DisplayInfo {
  public:
-  virtual ~DisplayManager();
+  DisplayInfo() = default;
 
-  struct DisplayInfo {
-    int horizontal_resolution;
-    int vertical_resolution;
-  };
+  static std::shared_ptr<DisplayInfo> get();
 
-  virtual DisplayInfo display_info() const = 0;
+  void set_resolution(const std::uint32_t &vertical, const std::uint32_t horizontal);
 
-  static std::shared_ptr<DisplayManager> get();
+  std::uint32_t vertical_resolution() const;
+  std::uint32_t horizontal_resolution() const;
+
+ private:
+  std::uint32_t vertical_resolution_ = 1280;
+  std::uint32_t horizontal_resolution_ = 720;
 };
-
-void registerDisplayManager(const std::shared_ptr<DisplayManager> &mgr);
+} // namespace emugl
+} // namespace graphics
+} // namespace anbox
 
 #endif

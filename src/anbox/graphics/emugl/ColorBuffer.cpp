@@ -13,16 +13,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "ColorBuffer.h"
 
-#include "DispatchTables.h"
-#include "RenderThreadInfo.h"
-#include "TextureDraw.h"
-#include "TextureResize.h"
-
-#include "OpenGLESDispatch/EGLDispatch.h"
-
+#include "anbox/graphics/emugl/ColorBuffer.h"
+#include "anbox/graphics/emugl/DispatchTables.h"
+#include "anbox/graphics/emugl/RenderThreadInfo.h"
+#include "anbox/graphics/emugl/TextureDraw.h"
+#include "anbox/graphics/emugl/TextureResize.h"
 #include "anbox/logger.h"
+
+#include "external/android-emugl/host/include/OpenGLESDispatch/EGLDispatch.h"
 
 #include <stdio.h>
 
@@ -33,22 +32,6 @@ namespace {
 // help casting between them safely without generating compiler warnings.
 inline void* SafePointerFromUInt(unsigned int handle) {
   return reinterpret_cast<void*>(static_cast<uintptr_t>(handle));
-}
-
-inline unsigned int SafeUIntFromPointer(const void* ptr) {
-#if 1
-  // Ignore the assert below to avoid crashing when running older
-  // system images, which might have buggy encoder libraries. Print
-  // an error message though.
-  if (reinterpret_cast<uintptr_t>(ptr) != static_cast<unsigned int>(reinterpret_cast<uintptr_t>(ptr))) {
-    WARNING("Bad generic pointer %p", ptr);
-  }
-#else
-  // Assertion error if the pointer contains a value that does not fit
-  // in an unsigned integer!
-  assert((uintptr_t)(ptr) == (unsigned int)(uintptr_t)(ptr));
-#endif
-  return static_cast<unsigned int>(reinterpret_cast<uintptr_t>(ptr));
 }
 
 // Lazily create and bind a framebuffer object to the current host context.
@@ -251,7 +234,7 @@ void ColorBuffer::subUpdate(int x, int y, int width, int height,
 
 bool ColorBuffer::blitFromCurrentReadBuffer() {
   RenderThreadInfo* tInfo = RenderThreadInfo::get();
-  if (!tInfo->currContext.Ptr()) {
+  if (!tInfo->currContext) {
     // no Current context
     return false;
   }
@@ -312,7 +295,7 @@ bool ColorBuffer::bindToTexture() {
     return false;
   }
   RenderThreadInfo* tInfo = RenderThreadInfo::get();
-  if (!tInfo->currContext.Ptr()) {
+  if (!tInfo->currContext) {
     return false;
   }
   if (tInfo->currContext->isGL2()) {
@@ -328,7 +311,7 @@ bool ColorBuffer::bindToRenderbuffer() {
     return false;
   }
   RenderThreadInfo* tInfo = RenderThreadInfo::get();
-  if (!tInfo->currContext.Ptr()) {
+  if (!tInfo->currContext) {
     return false;
   }
   if (tInfo->currContext->isGL2()) {

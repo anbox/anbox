@@ -16,10 +16,10 @@
  */
 
 #include "anbox/qemu/adb_message_processor.h"
-#include "anbox/logger.h"
 #include "anbox/network/delegate_connection_creator.h"
 #include "anbox/network/delegate_message_processor.h"
 #include "anbox/network/tcp_socket_messenger.h"
+#include "anbox/utils.h"
 
 #include <fstream>
 #include <functional>
@@ -27,18 +27,23 @@
 namespace {
 const unsigned short default_adb_client_port{5037};
 const unsigned short default_host_listen_port{6664};
+constexpr const char *loopback_address{"127.0.0.1"};
 const std::string accept_command{"accept"};
 const std::string ok_command{"ok"};
 const std::string ko_command{"ko"};
 const std::string start_command{"start"};
+// This timeount should be too high to not cause a too long wait time for the
+// user until we connect to the adb host instance after it appeared and not
+// too short to not put unnecessary burden on the CPU.
 const boost::posix_time::seconds default_adb_wait_time{1};
-static std::mutex active_instance;
 }
 
 using namespace std::placeholders;
 
 namespace anbox {
 namespace qemu {
+std::mutex AdbMessageProcessor::active_instance_{};
+
 AdbMessageProcessor::AdbMessageProcessor(
     const std::shared_ptr<Runtime> &rt,
     const std::shared_ptr<network::SocketMessenger> &messenger)
@@ -46,12 +51,14 @@ AdbMessageProcessor::AdbMessageProcessor(
       state_(waiting_for_guest_accept_command),
       expected_command_(accept_command),
       messenger_(messenger),
-      host_notify_timer_(rt->service()) {}
+      host_notify_timer_(rt->service()),
+      lock_(active_instance_, std::defer_lock) {}
 
 AdbMessageProcessor::~AdbMessageProcessor() {
   state_ = closed_by_host;
+
+  host_notify_timer_.cancel();
   host_connector_.reset();
-  active_instance.unlock();
 }
 
 void AdbMessageProcessor::advance_state() {
@@ -61,9 +68,10 @@ void AdbMessageProcessor::advance_state() {
       // running we don't have to do anything here until that one is done.
       // The container directly starts a second connection once the first
       // one is established but will not use it until the active one is closed.
-      active_instance.lock();
+      lock_.lock();
 
       if (state_ == closed_by_host) {
+        host_notify_timer_.cancel();
         host_connector_.reset();
         return;
       }
@@ -100,9 +108,12 @@ void AdbMessageProcessor::advance_state() {
 }
 
 void AdbMessageProcessor::wait_for_host_connection() {
+  if (state_ == closed_by_host || state_ == closed_by_container)
+    return;
+
   if (!host_connector_) {
     host_connector_ = std::make_shared<network::TcpSocketConnector>(
-        boost::asio::ip::address_v4::from_string("127.0.0.1"),
+        boost::asio::ip::address_v4::from_string(loopback_address),
         default_host_listen_port, runtime_,
         std::make_shared<
             network::DelegateConnectionCreator<boost::asio::ip::tcp>>(
@@ -113,18 +124,19 @@ void AdbMessageProcessor::wait_for_host_connection() {
     // Notify the adb host instance so that it knows on which port our
     // proxy is waiting for incoming connections.
     auto messenger = std::make_shared<network::TcpSocketMessenger>(
-        boost::asio::ip::address_v4::from_string("127.0.0.1"),
-        default_adb_client_port, runtime_);
-    auto message =
-        utils::string_format("host:emulator:%d", default_host_listen_port);
-    auto handshake =
-        utils::string_format("%04x%s", message.size(), message.c_str());
+        boost::asio::ip::address_v4::from_string(loopback_address), default_adb_client_port, runtime_);
+    auto message = utils::string_format("host:emulator:%d", default_host_listen_port);
+    auto handshake = utils::string_format("%04x%s", message.size(), message.c_str());
     messenger->send(handshake.data(), handshake.size());
-  } catch (std::exception &) {
+  } catch (...) {
     // Try again later when the host adb service is maybe available
+    host_notify_timer_.cancel();
     host_notify_timer_.expires_from_now(default_adb_wait_time);
-    host_notify_timer_.async_wait(
-        [&](const boost::system::error_code &) { wait_for_host_connection(); });
+    host_notify_timer_.async_wait([this](const boost::system::error_code &err) {
+      if (err)
+        return;
+      wait_for_host_connection();
+    });
   }
 }
 
@@ -148,15 +160,13 @@ void AdbMessageProcessor::on_host_connection(std::shared_ptr<boost::asio::basic_
 
 void AdbMessageProcessor::read_next_host_message() {
   auto callback = std::bind(&AdbMessageProcessor::on_host_read_size, this, _1, _2);
-  host_messenger_->async_receive_msg(callback,
-                                     boost::asio::buffer(host_buffer_));
+  host_messenger_->async_receive_msg(callback, boost::asio::buffer(host_buffer_));
 }
 
-void AdbMessageProcessor::on_host_read_size(
-    const boost::system::error_code &error, std::size_t bytes_read) {
+void AdbMessageProcessor::on_host_read_size(const boost::system::error_code &error, std::size_t bytes_read) {
   if (error) {
     state_ = closed_by_host;
-    BOOST_THROW_EXCEPTION(std::runtime_error(error.message()));
+    return;
   }
 
   messenger_->send(reinterpret_cast<const char *>(host_buffer_.data()), bytes_read);

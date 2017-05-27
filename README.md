@@ -1,3 +1,6 @@
+[![Snap Status](https://build.snapcraft.io/badge/anbox/anbox.svg)](https://build.snapcraft.io/user/anbox/anbox)
+[![Build Status](https://travis-ci.org/anbox/anbox.svg?branch=master)](https://travis-ci.org/anbox/anbox)
+
 # Anbox
 
 Anbox is a container-based approach to boot a full Android system on a
@@ -130,8 +133,8 @@ $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
     libboost-program-options-dev libboost-system-dev libboost-test-dev \
     libboost-thread-dev libcap-dev libdbus-1-dev libdbus-cpp-dev libegl1-mesa-dev \
     libgles2-mesa-dev libglib2.0-dev libglm-dev libgtest-dev liblxc1 \
-    libproperties-cpp-dev libprotobuf-dev libsdl2-dev lxc-dev pkg-config \
-    protobuf-compiler
+    libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
+    pkg-config protobuf-compiler 
 ```
 
 Afterwards you can build Anbox with

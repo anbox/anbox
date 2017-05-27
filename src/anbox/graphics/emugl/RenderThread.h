@@ -13,15 +13,16 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #ifndef _LIB_OPENGL_RENDER_RENDER_THREAD_H
 #define _LIB_OPENGL_RENDER_RENDER_THREAD_H
 
-#include "IOStream.h"
+#include "external/android-emugl/host/include/libOpenglRender/IOStream.h"
 
-#include "emugl/common/mutex.h"
 #include "emugl/common/thread.h"
 
 #include <memory>
+#include <mutex>
 
 class Renderer;
 
@@ -36,7 +37,7 @@ class RenderThread : public emugl::Thread {
   // decoding operations between all threads.
   // TODO(digit): Why is this needed here? Shouldn't this be handled
   //              by the decoders themselves or at a lower-level?
-  static RenderThread* create(const std::shared_ptr<Renderer>& renderer, IOStream* stream, emugl::Mutex* mutex);
+  static RenderThread* create(const std::shared_ptr<Renderer>& renderer, IOStream* stream, std::mutex &m);
 
   // Destructor.
   virtual ~RenderThread();
@@ -51,12 +52,12 @@ class RenderThread : public emugl::Thread {
  private:
   RenderThread();  // No default constructor
 
-  RenderThread(const std::shared_ptr<Renderer>& renderer, IOStream* stream, emugl::Mutex* mutex);
+  RenderThread(const std::shared_ptr<Renderer>& renderer, IOStream* stream, std::mutex &m);
 
   virtual intptr_t main();
 
   std::shared_ptr<Renderer> renderer_;
-  emugl::Mutex* m_lock;
+  std::mutex &m_lock;
   IOStream* m_stream;
 };
 

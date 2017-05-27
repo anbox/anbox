@@ -1,4 +1,8 @@
 name: anbox
+# NOTE: Always only use increasing numeric values here. This is
+# passed down into cmake and assigned to an integer variable which
+# can be used for version number comparision inside the code base
+# to accomondate for any breaking changes.
 version: 2
 summary: Android in a Box
 description: |
@@ -84,6 +88,7 @@ parts:
       # FIXME: Anbox currently has some paths with hard coded prefixes. Once
       # that is fixed we can avoid using a prefix here.
       - -DCMAKE_INSTALL_PREFIX:PATH=/usr
+      - -DVERSION=$SNAPCRAFT_PROJECT_VERSION
     build-packages:
       - build-essential
       - cmake
@@ -111,6 +116,7 @@ parts:
       - libprotobuf-dev
       - libproperties-cpp-dev
       - libsdl2-dev
+      - libsdl2-image-dev
       - pkg-config
       - protobuf-compiler
     stage-packages:
@@ -123,4 +129,5 @@ parts:
       make test
     prime:
       - usr/bin/anbox
+      - usr/share/anbox
       - usr/lib/*-linux-*/

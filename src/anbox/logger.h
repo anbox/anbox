@@ -51,6 +51,7 @@ class Logger : public DoNotCopyOrMove {
 
   bool SetSeverityFromString(const std::string &severity);
   virtual void SetSeverity(const Severity& severity) = 0;
+  virtual Severity GetSeverity() = 0;
 
   virtual void Log(Severity severity, const std::string& message,
                    const boost::optional<Location>& location) = 0;

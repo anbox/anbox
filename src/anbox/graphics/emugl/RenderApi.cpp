@@ -14,15 +14,14 @@
 * limitations under the License.
 */
 
-#include "RenderApi.h"
+#include "anbox/graphics/emugl/RenderApi.h"
+#include "anbox/graphics/emugl/DispatchTables.h"
 
-#include "DispatchTables.h"
+#include "external/android-emugl/host/include/OpenGLESDispatch/EGLDispatch.h"
+#include "external/android-emugl/host/include/OpenGLESDispatch/GLESv1Dispatch.h"
+#include "external/android-emugl/host/include/OpenGLESDispatch/GLESv2Dispatch.h"
 
-#include "OpenGLESDispatch/EGLDispatch.h"
-#include "OpenGLESDispatch/GLESv1Dispatch.h"
-#include "OpenGLESDispatch/GLESv2Dispatch.h"
-
-#include "emugl/common/crash_reporter.h"
+#include "external/android-emugl/shared/emugl/common/crash_reporter.h"
 
 #include <string.h>
 

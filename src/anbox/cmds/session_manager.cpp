@@ -27,12 +27,17 @@
 #include "anbox/bridge/android_api_stub.h"
 #include "anbox/bridge/platform_api_skeleton.h"
 #include "anbox/bridge/platform_message_processor.h"
+#include "anbox/graphics/gl_renderer_server.h"
+
+namespace {
+std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Config::Driver& driver);
+}
+
 #include "anbox/cmds/session_manager.h"
 #include "anbox/common/dispatcher.h"
 #include "anbox/config.h"
 #include "anbox/container/client.h"
 #include "anbox/dbus/skeleton/service.h"
-#include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/input/manager.h"
 #include "anbox/logger.h"
 #include "anbox/network/published_socket_connector.h"
@@ -106,6 +111,12 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
   flag(cli::make_flag(cli::Name{"window-size"},
                       cli::Description{"Size of the window in single window mode, e.g. --window-size=1024,768"},
                       window_size_));
+  flag(cli::make_flag(cli::Name{"standalone"},
+                      cli::Description{"Prevents the Container Manager from starting the default container (Experimental)"},
+                      standalone_));
+  flag(cli::make_flag(cli::Name{"experimental"},
+                      cli::Description{"Allows users to use experimental features"},
+                      experimental_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -114,6 +125,11 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
       INFO("Signal %i received. Good night.", static_cast<int>(signal));
       trap->stop();
     });
+
+    if (standalone_ && !experimental_) {
+      ERROR("Experimental features selected, but --experimental flag not set");
+      return EXIT_FAILURE;
+    }
 
     if (!fs::exists("/dev/binder") || !fs::exists("/dev/ashmem")) {
       ERROR("Failed to start as either binder or ashmem kernel drivers are not loaded");
@@ -135,11 +151,13 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     auto rt = Runtime::create();
     auto dispatcher = anbox::common::create_dispatcher_for_runtime(rt);
 
-    container::Client container(rt);
-    container.register_terminate_handler([&]() {
-      WARNING("Lost connection to container manager, terminating.");
-      trap->stop();
-    });
+    if (!standalone_) {
+      container_ = std::make_shared<container::Client>(rt);
+      container_->register_terminate_handler([&]() {
+	  WARNING("Lost connection to container manager, terminating.");
+	  trap->stop();
+	});
+    }
 
     auto input_manager = std::make_shared<input::Manager>(rt);
 
@@ -159,8 +177,6 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
       display_frame = window_size_;
 
     auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager, display_frame, single_window_);
-    // FIXME this needs to be removed and solved differently behind the scenes
-    registerDisplayManager(policy);
 
     auto app_db = std::make_shared<application::Database>();
 
@@ -213,7 +229,8 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
             }));
 
     container::Configuration container_configuration;
-    container_configuration.bind_mounts = {
+    if (!standalone_) {
+      container_configuration.bind_mounts = {
         {qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"},
         {bridge_connector->socket_file(), "/dev/anbox_bridge"},
         {audio_server->socket_file(), "/dev/anbox_audio"},
@@ -221,9 +238,10 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
         {"/dev/binder", "/dev/binder"},
         {"/dev/ashmem", "/dev/ashmem"},
         {"/dev/fuse", "/dev/fuse"},
-    };
+      };
 
-    dispatcher->dispatch([&]() { container.start(container_configuration); });
+      dispatcher->dispatch([&]() { container_->start(container_configuration); });
+    }
 
     auto bus = bus_factory_();
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
@@ -233,9 +251,11 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     rt->start();
     trap->run();
 
-    // Stop the container which should close all open connections we have on
-    // our side and should terminate all services.
-    container.stop();
+    if (!standalone_) {
+      // Stop the container which should close all open connections we have on
+      // our side and should terminate all services.
+      container_->stop();
+    }
 
     rt->stop();
 

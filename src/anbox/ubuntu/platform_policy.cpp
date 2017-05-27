@@ -68,8 +68,7 @@ PlatformPolicy::PlatformPolicy(
     window_size_immutable_ = true;
   }
 
-  display_info_.horizontal_resolution = display_frame.width();
-  display_info_.vertical_resolution = display_frame.height();
+  graphics::emugl::DisplayInfo::get()->set_resolution(display_frame.width(), display_frame.height());
 
   pointer_ = input_manager->create_device();
   pointer_->set_name("anbox-pointer");
@@ -283,10 +282,6 @@ void PlatformPolicy::window_resized(const Window::Id &id,
     window->update_frame(new_frame);
     window_manager_->resize_task(window->task(), new_frame, 3);
   }
-}
-
-DisplayManager::DisplayInfo PlatformPolicy::display_info() const {
-  return display_info_;
 }
 
 void PlatformPolicy::set_clipboard_data(const ClipboardData &data) {

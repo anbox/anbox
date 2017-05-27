@@ -18,16 +18,15 @@
 #ifndef ANBOX_GRAPHICS_OPENGLES_MESSAGE_PROCESSOR_H_
 #define ANBOX_GRAPHICS_OPENGLES_MESSAGE_PROCESSOR_H_
 
-#include <memory>
-
-#include <boost/asio.hpp>
-
 #include "anbox/network/message_processor.h"
 #include "anbox/network/socket_connection.h"
 #include "anbox/network/socket_messenger.h"
 #include "anbox/runtime.h"
 
-#include "external/android-emugl/shared/emugl/common/mutex.h"
+#include <boost/asio.hpp>
+
+#include <memory>
+#include <mutex>
 
 class IOStream;
 class RenderThread;
@@ -45,7 +44,7 @@ class OpenGlesMessageProcessor : public network::MessageProcessor {
   bool process_data(const std::vector<std::uint8_t> &data) override;
 
  private:
-  static emugl::Mutex global_lock;
+  static std::mutex global_lock;
 
   std::shared_ptr<network::SocketMessenger> messenger_;
   std::shared_ptr<IOStream> stream_;

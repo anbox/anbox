@@ -42,6 +42,7 @@ class ContainerManager : public cli::CommandWithFlagsAndAction {
   std::shared_ptr<common::LoopDevice> android_img_loop_dev_;
   std::vector<std::shared_ptr<common::MountEntry>> mounts_;
   bool privileged_ = false;
+  bool daemon_ = false;
 };
 }  // namespace cmds
 }  // namespace anbox

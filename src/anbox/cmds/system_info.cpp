@@ -19,9 +19,9 @@
 #include "anbox/graphics/emugl/RenderApi.h"
 #include "anbox/graphics/emugl/DispatchTables.h"
 #include "anbox/utils/environment_file.h"
-#include "anbox/version.h"
 #include "anbox/logger.h"
-#include "anbox/version.h"
+
+#include "anbox/build/version.h"
 
 #include <sstream>
 #include <fstream>
@@ -34,9 +34,12 @@ namespace fs = boost::filesystem;
 
 namespace {
 constexpr const char *os_release_path{"/etc/os-release"};
+constexpr const char *host_os_release_path{"/var/lib/snapd/hostfs/etc/os-release"};
 constexpr const char *proc_version_path{"/proc/version"};
 constexpr const char *binder_path{"/dev/binder"};
 constexpr const char *ashmem_path{"/dev/ashmem"};
+constexpr const char *os_release_name{"NAME"};
+constexpr const char *os_release_version{"VERSION"};
 
 class SystemInformation {
  public:
@@ -50,11 +53,14 @@ class SystemInformation {
     std::stringstream s;
 
     s << "version: "
-      << anbox::utils::string_format("%d.%d.%d",
-          anbox::build::version_major,
-          anbox::build::version_minor,
-          anbox::build::version_patch)
+      << anbox::build::print_version()
       << std::endl;
+
+    if (anbox::utils::is_env_set("SNAP_REVISION")) {
+      s << "snap-revision: "
+        << anbox::utils::get_env_value("SNAP_REVISION")
+        << std::endl;
+    }
 
     s << "os:" << std::endl
       << "  name: " << os_info_.name << std::endl
@@ -96,15 +102,19 @@ class SystemInformation {
 
  private:
   void collect_os_info() {
-    os_info_.snap_based = (getenv("SNAP") != nullptr);
-    if (fs::exists(os_release_path)) {
-      anbox::utils::EnvironmentFile os_release(os_release_path);
-      os_info_.name = os_release.value("NAME");
-      os_info_.version = os_release.value("VERSION");
-    } else if (os_info_.snap_based) {
-      // As we can't read /etc/os-release and we're snap-based this is the best we can guess
-      os_info_.name = "Ubuntu";
-      os_info_.version = "16";
+    os_info_.snap_based = !anbox::utils::get_env_value("SNAP").empty();
+    fs::path path = os_release_path;
+    // If we're running from within a snap the best we can do is to
+    // access the hostfs and read the os-release file from there.
+    if (os_info_.snap_based && fs::exists(host_os_release_path))
+        path = host_os_release_path;
+
+    // Double check that there aren't any permission errors when trying
+    // to access the file (e.g. because of snap confinement)
+    if (fs::exists(path)) {
+      anbox::utils::EnvironmentFile os_release(path);
+      os_info_.name = os_release.value(os_release_name);
+      os_info_.version = os_release.value(os_release_version);
     }
   }
 

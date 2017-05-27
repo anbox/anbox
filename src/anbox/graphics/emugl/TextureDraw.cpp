@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "TextureDraw.h"
-
-#include "DispatchTables.h"
+#include "anbox/graphics/emugl/TextureDraw.h"
+#include "anbox/graphics/emugl/DispatchTables.h"
+#include "anbox/logger.h"
 
 #include <math.h>
 #include <string.h>
 #include <vector>
 
 #include <stdio.h>
-
-#include "anbox/logger.h"
 
 // M_PI isn't defined in C++ (when strict ISO compliance is enabled)
 #ifndef M_PI
@@ -97,16 +95,13 @@ const GLint kIndicesLen = sizeof(kIndices) / sizeof(kIndices[0]);
 
 }  // namespace
 
-TextureDraw::TextureDraw(EGLDisplay display)
-    : mDisplay(display),
-      mVertexShader(0),
+TextureDraw::TextureDraw(EGLDisplay)
+    : mVertexShader(0),
       mFragmentShader(0),
       mProgram(0),
       mPositionSlot(-1),
       mInCoordSlot(-1),
-      mTextureSlot(-1),
-      mRotationSlot(-1),
-      mTranslationSlot(-1) {
+      mTextureSlot(-1) {
   // Create shaders and program.
   mVertexShader = createShader(GL_VERTEX_SHADER, kVertexShaderSource);
   mFragmentShader = createShader(GL_FRAGMENT_SHADER, kFragmentShaderSource);

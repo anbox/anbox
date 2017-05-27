@@ -29,7 +29,7 @@
 
 namespace anbox {
 namespace graphics {
-emugl::Mutex OpenGlesMessageProcessor::global_lock{};
+std::mutex OpenGlesMessageProcessor::global_lock{};
 
 OpenGlesMessageProcessor::OpenGlesMessageProcessor(
     const std::shared_ptr<Renderer> &renderer,
@@ -43,7 +43,7 @@ OpenGlesMessageProcessor::OpenGlesMessageProcessor(
       boost::asio::buffer(&client_flags, sizeof(unsigned int)));
   if (err) ERROR("%s", err.message());
 
-  render_thread_.reset(RenderThread::create(renderer, stream_.get(), &global_lock));
+  render_thread_.reset(RenderThread::create(renderer, stream_.get(), std::ref(global_lock)));
   if (!render_thread_->start())
     BOOST_THROW_EXCEPTION(
         std::runtime_error("Failed to start renderer thread"));

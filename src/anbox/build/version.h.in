@@ -17,11 +17,22 @@
  *
  */
 
-#include "anbox/version.h"
+#ifndef ANBOX_VERSION_H_
+#define ANBOX_VERSION_H_
 
-void anbox::version(std::uint32_t& major, std::uint32_t& minor,
-                    std::uint32_t& patch) {
-  major = anbox::build::version_major;
-  minor = anbox::build::version_minor;
-  patch = anbox::build::version_patch;
-}
+#include <cstdint>
+#include <string>
+
+namespace anbox {
+namespace build {
+/// @brief version_major marks the major version
+static constexpr const std::uint32_t version_major{@ANBOX_VERSION@};
+/// @brief version_suffix is an additional suffix which can be amended to
+/// the major version number to indicate a dev build for example.
+static constexpr const char *version_suffix{"@ANBOX_VERSION_SUFFIX@"};
+/// @brief version queries the version of Anbox
+std::string print_version();
+}  // namespace build
+}  // namespace anbox
+
+#endif  // ANBOX_VERSION_H_

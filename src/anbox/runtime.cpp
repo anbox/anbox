@@ -57,7 +57,7 @@ Runtime::Runtime(std::uint32_t pool_size)
       strand_{service_},
       keep_alive_{service_} {}
 
-Runtime::~Runtime() {
+Runtime::~Runtime() noexcept(true) {
   try {
     stop();
   } catch (...) {

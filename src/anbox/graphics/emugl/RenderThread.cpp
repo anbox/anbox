@@ -13,32 +13,31 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "RenderThread.h"
 
-#include "ReadBuffer.h"
-#include "RenderControl.h"
-#include "RenderThreadInfo.h"
-#include "Renderer.h"
-#include "TimeUtils.h"
-
-#include "../../../shared/OpenglCodecCommon/ChecksumCalculatorThreadInfo.h"
-#include "OpenGLESDispatch/EGLDispatch.h"
-#include "OpenGLESDispatch/GLESv1Dispatch.h"
-#include "OpenGLESDispatch/GLESv2Dispatch.h"
-
+#include "anbox/graphics/emugl/RenderThread.h"
+#include "anbox/graphics/emugl/ReadBuffer.h"
+#include "anbox/graphics/emugl/RenderControl.h"
+#include "anbox/graphics/emugl/RenderThreadInfo.h"
+#include "anbox/graphics/emugl/Renderer.h"
+#include "anbox/graphics/emugl/TimeUtils.h"
 #include "anbox/logger.h"
+
+#include "external/android-emugl/shared/OpenglCodecCommon/ChecksumCalculatorThreadInfo.h"
+#include "external/android-emugl/host/include/OpenGLESDispatch/EGLDispatch.h"
+#include "external/android-emugl/host/include/OpenGLESDispatch/GLESv1Dispatch.h"
+#include "external/android-emugl/host/include/OpenGLESDispatch/GLESv2Dispatch.h"
 
 #define STREAM_BUFFER_SIZE 4 * 1024 * 1024
 
-RenderThread::RenderThread(const std::shared_ptr<Renderer> &renderer, IOStream *stream, emugl::Mutex *lock)
-    : emugl::Thread(), renderer_(renderer), m_lock(lock), m_stream(stream) {}
+RenderThread::RenderThread(const std::shared_ptr<Renderer> &renderer, IOStream *stream, std::mutex &m)
+    : emugl::Thread(), renderer_(renderer), m_lock(m), m_stream(stream) {}
 
 RenderThread::~RenderThread() {
   forceStop();
 }
 
-RenderThread *RenderThread::create(const std::shared_ptr<Renderer> &renderer, IOStream *stream, emugl::Mutex *lock) {
-  return new RenderThread(renderer, stream, lock);
+RenderThread *RenderThread::create(const std::shared_ptr<Renderer> &renderer, IOStream *stream, std::mutex &m) {
+  return new RenderThread(renderer, stream, m);
 }
 
 void RenderThread::forceStop() { m_stream->forceStop(); }
@@ -62,7 +61,8 @@ intptr_t RenderThread::main() {
     do {
       progress = false;
 
-      m_lock->lock();
+      std::unique_lock<std::mutex> l(m_lock);
+
       size_t last =
           threadInfo.m_glDec.decode(readBuf.buf(), readBuf.validData(), m_stream);
       if (last > 0) {
@@ -82,8 +82,6 @@ intptr_t RenderThread::main() {
         readBuf.consume(last);
         progress = true;
       }
-
-      m_lock->unlock();
 
     } while (progress);
   }

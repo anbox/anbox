@@ -28,6 +28,6 @@ set(COMMON_SOURCES
     thread_unittest.cpp
     unique_integer_map.h)
 
-add_library(emugl_common ${COMMON_SOURCES})
+add_library(emugl_common STATIC ${COMMON_SOURCES})
 target_link_libraries(emugl_common
     dl pthread)

@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "RendererConfig.h"
+#include "anbox/graphics/emugl/RendererConfig.h"
+#include "anbox/logger.h"
 
-#include "OpenGLESDispatch/EGLDispatch.h"
+#include "external/android-emugl/host/include/OpenGLESDispatch/EGLDispatch.h"
 
 #include <stdio.h>
 #include <string.h>
-
-#include "anbox/logger.h"
 
 namespace {
 const GLuint kConfigAttributes[] = {
