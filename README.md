@@ -1,3 +1,6 @@
+[![Snap Status](https://build.snapcraft.io/badge/anbox/anbox.svg)](https://build.snapcraft.io/user/anbox/anbox)
+[![Build Status](https://travis-ci.org/anbox/anbox.svg?branch=master)](https://travis-ci.org/anbox/anbox)
+
 # Anbox
 
 Anbox is a container-based approach to boot a full Android system on a
