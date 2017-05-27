@@ -169,10 +169,10 @@ static EGLint rcGetFBParam(EGLint param) {
 
   switch (param) {
     case FB_WIDTH:
-      ret = static_cast<EGLint>(anbox::graphics::emugl::DisplayInfo::get()->horizontal_resolution());
+      ret = static_cast<EGLint>(anbox::graphics::emugl::DisplayInfo::get()->vertical_resolution());
       break;
     case FB_HEIGHT:
-      ret = static_cast<EGLint>(anbox::graphics::emugl::DisplayInfo::get()->vertical_resolution());
+      ret = static_cast<EGLint>(anbox::graphics::emugl::DisplayInfo::get()->horizontal_resolution());
       break;
     case FB_XDPI:
       ret = 72;  // XXX: should be implemented
@@ -360,12 +360,12 @@ int rcGetNumDisplays() {
 
 int rcGetDisplayWidth(uint32_t display_id) {
   (void)display_id;
-  return static_cast<int>(anbox::graphics::emugl::DisplayInfo::get()->horizontal_resolution());
+  return static_cast<int>(anbox::graphics::emugl::DisplayInfo::get()->vertical_resolution());
 }
 
 int rcGetDisplayHeight(uint32_t display_id) {
   (void)display_id;
-  return static_cast<int>(anbox::graphics::emugl::DisplayInfo::get()->vertical_resolution());
+  return static_cast<int>(anbox::graphics::emugl::DisplayInfo::get()->horizontal_resolution());
 }
 
 int rcGetDisplayDpiX(uint32_t display_id) {
