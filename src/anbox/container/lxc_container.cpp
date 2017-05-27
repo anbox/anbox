@@ -32,6 +32,9 @@
 #include <sys/prctl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+
+#include <unistd.h>
 
 namespace fs = boost::filesystem;
 
@@ -114,18 +117,31 @@ void LxcContainer::setup_network() {
 
   const auto data_ethernet_path = fs::path("data") / "misc" / "ethernet";
   const auto ip_conf_dir = SystemConfiguration::instance().data_dir() / data_ethernet_path;
-  if (!fs::exists(ip_conf_dir)) {
+  if (!fs::exists(ip_conf_dir))
     fs::create_directories(ip_conf_dir);
 
-    // We have to walk through the created directory hierachy now and
-    // ensure the permissions are set correctly. Otherwise the Android
-    // system will fail to boot as it isn't allowed to write anything
-    // into these directories.
-    for (auto iter = data_ethernet_path.begin(); iter != data_ethernet_path.end(); iter++) {
-      const auto path = SystemConfiguration::instance().data_dir() / *iter;
-      if (::chown(path.c_str(), unprivileged_user_id, unprivileged_user_id) < 0)
-        WARNING("Failed to set owner for path '%s'", path);
+  // We have to walk through the created directory hierachy now and
+  // ensure the permissions are set correctly. Otherwise the Android
+  // system will fail to boot as it isn't allowed to write anything
+  // into these directories. As previous versions of Anbox which were
+  // published to our users did this incorrectly we need to check on
+  // every startup if those directories are still owned by root and
+  // if they are we move them over to the unprivileged user.
+  auto path = SystemConfiguration::instance().data_dir();
+  for (auto iter = data_ethernet_path.begin(); iter != data_ethernet_path.end(); iter++) {
+    path /= *iter;
+
+    struct stat st;
+    if (stat(path.c_str(), &st) < 0) {
+      WARNING("Cannot retrieve permissions of path %s", path);
+      continue;
     }
+
+    if (st.st_uid != 0 && st.st_gid != 0)
+      continue;
+
+    if (::chown(path.c_str(), unprivileged_user_id, unprivileged_user_id) < 0)
+      WARNING("Failed to set owner for path '%s'", path);
   }
 
   const auto ip_conf_path = ip_conf_dir / "ipconfig.txt";
