@@ -3,7 +3,7 @@ name: anbox
 # passed down into cmake and assigned to an integer variable which
 # can be used for version number comparision inside the code base
 # to accomondate for any breaking changes.
-version: 2
+version: 3
 summary: Android in a Box
 description: |
   Runtime for Android applications which runs a full Android system
