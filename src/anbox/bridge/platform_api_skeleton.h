@@ -18,6 +18,7 @@
 #ifndef ANBOX_BRIDGE_PLATFORM_SERVER_H_
 #define ANBOX_BRIDGE_PLATFORM_SERVER_H_
 
+#include <functional>
 #include <memory>
 
 namespace google {
