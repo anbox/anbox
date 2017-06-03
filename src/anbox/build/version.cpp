@@ -25,9 +25,9 @@ namespace build {
 static std::string init_version_string() {
   std::string v;
   if (!version_suffix || std::strlen(version_suffix) == 0)
-    v = utils::string_format("%d", version_major);
+    v = utils::string_format("%s", version);
   else
-    v = utils::string_format("%d-%s", version_major, version_suffix);
+    v = utils::string_format("%s-%s", version, version_suffix);
   return v;
 }
 
