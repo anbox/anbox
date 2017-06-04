@@ -173,11 +173,11 @@ about. Please have a look at the ["Runtime Setup"](docs/runtime-setup.md)
 documentation.
 
 An alias will save typing later.
-...
+```
 $ alias android='anbox launch --package=org.anbox.appmgr --component=org.anbox.appmgr.AppViewActivity'
 $ alias android >> ~/.bashrc
 $ android
-...
+```
 
 ## documentation
 
