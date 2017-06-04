@@ -146,7 +146,7 @@ $ make
 A simple
 
 ```
-$ make install
+$ sudo make install
 ```
 
 will install the necessary bits into your system.
@@ -171,6 +171,13 @@ $ snap install --dangerous --devmode anbox_1_amd64.snap
 Running Anbox from a local build requires a few more things you need to know
 about. Please have a look at the ["Runtime Setup"](docs/runtime-setup.md)
 documentation.
+
+An alias will save typing later.
+...
+$ alias android='anbox launch --package=org.anbox.appmgr --component=org.anbox.appmgr.AppViewActivity'
+$ alias android >> ~/.bashrc
+$ android
+...
 
 ## documentation
 
