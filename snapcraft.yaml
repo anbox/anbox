@@ -90,7 +90,7 @@ parts:
       # FIXME: Anbox currently has some paths with hard coded prefixes. Once
       # that is fixed we can avoid using a prefix here.
       - -DCMAKE_INSTALL_PREFIX:PATH=/usr
-      - -DVERSION=$SNAPCRAFT_PROJECT_VERSION
+      - -DANBOX_VERSION=$SNAPCRAFT_PROJECT_VERSION
     build-packages:
       - build-essential
       - cmake
