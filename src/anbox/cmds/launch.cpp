@@ -79,6 +79,11 @@ anbox::cmds::Launch::Launch()
                       stack_));
 
   action([this](const cli::Command::Context&) {
+    if (!intent_.valid()) {
+      ERROR("The intent you provided is invalid. Please provide a correct launch intent.");
+      return EXIT_FAILURE;
+    }
+
     auto trap = core::posix::trap_signals_for_process({core::posix::Signal::sig_term, core::posix::Signal::sig_int});
     trap->signal_raised().connect([trap](const core::posix::Signal& signal) {
       INFO("Signal %i received. Good night.", static_cast<int>(signal));
