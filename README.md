@@ -177,10 +177,6 @@ Running Anbox from a local build requires a few more things you need to know
 about. Please have a look at the ["Runtime Setup"](docs/runtime-setup.md)
 documentation.
 
-```
-$ anbox launch --package=org.anbox.appmgr --component=org.anbox.appmgr.AppViewActivity'
-```
-
 ## Documentation
 
 You will find additional documentation for Anbox in the *docs* subdirectory
