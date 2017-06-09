@@ -20,5 +20,5 @@ if ("${cmake_build_type_lower}" STREQUAL "trace")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPENGL_DEBUG}")
 endif()
 
-add_library(GLESv1_dec ${SOURCES} ${GENERATED_SOURCES})
+add_library(GLESv1_dec STATIC ${SOURCES} ${GENERATED_SOURCES})
 target_link_libraries(GLESv1_dec OpenglCodecCommon)

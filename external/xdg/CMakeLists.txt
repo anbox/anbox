@@ -11,7 +11,7 @@ include_directories(
     ${Boost_INCLUDE_DIRS}
 )
 
-add_library(xdg xdg.cpp)
+add_library(xdg STATIC xdg.cpp)
 set_property(TARGET xdg PROPERTY CXX_STANDARD 11)
 target_link_libraries(xdg ${Boost_LIBRARIES})
 

@@ -14,10 +14,10 @@
 * limitations under the License.
 */
 
-#include "RenderThreadInfo.h"
+#include "anbox/graphics/emugl/RenderThreadInfo.h"
 
-#include "emugl/common/lazy_instance.h"
-#include "emugl/common/thread_store.h"
+#include "external/android-emugl/shared/emugl/common/lazy_instance.h"
+#include "external/android-emugl/shared/emugl/common/thread_store.h"
 
 namespace {
 class ThreadInfoStore : public ::emugl::ThreadStore {

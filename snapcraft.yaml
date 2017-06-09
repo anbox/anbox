@@ -1,5 +1,11 @@
 name: anbox
-version: 1-dev
+version: 3
+version-script: |
+  if [ "$SNAPCRAFT_GRADE" = "stable" ]; then
+    echo $SNAPCRAFT_PROJECT_VERSION
+  else
+    echo $SNAPCRAFT_PROJECT_VERSION-$(git rev-parse --short HEAD)
+  fi
 summary: Android in a Box
 description: |
   Runtime for Android applications which runs a full Android system
@@ -84,6 +90,7 @@ parts:
       # FIXME: Anbox currently has some paths with hard coded prefixes. Once
       # that is fixed we can avoid using a prefix here.
       - -DCMAKE_INSTALL_PREFIX:PATH=/usr
+      - -DANBOX_VERSION=$SNAPCRAFT_PROJECT_VERSION
     build-packages:
       - build-essential
       - cmake
@@ -111,6 +118,7 @@ parts:
       - libprotobuf-dev
       - libproperties-cpp-dev
       - libsdl2-dev
+      - libsdl2-image-dev
       - pkg-config
       - protobuf-compiler
     stage-packages:
@@ -123,4 +131,5 @@ parts:
       make test
     prime:
       - usr/bin/anbox
+      - usr/share/anbox
       - usr/lib/*-linux-*/

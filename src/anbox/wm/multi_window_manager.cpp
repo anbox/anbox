@@ -25,7 +25,7 @@
 
 namespace anbox {
 namespace wm {
-MultiWindowManager::MultiWindowManager(const std::shared_ptr<platform::Policy> &policy,
+MultiWindowManager::MultiWindowManager(const std::weak_ptr<platform::Policy> &policy,
                                        const std::shared_ptr<bridge::AndroidApiStub> &android_api_stub,
                                        const std::shared_ptr<application::Database> &app_db)
     : platform_policy_(policy), android_api_stub_(android_api_stub), app_db_(app_db) {}
@@ -67,9 +67,16 @@ void MultiWindowManager::apply_window_state_update(const WindowState::List &upda
     if (app.valid())
       title = app.name;
 
-    auto platform_window = platform_policy_->create_window(window.task(), window.frame(), title);
-    platform_window->attach();
-    windows_.insert({window.task(), platform_window});
+    if (auto p = platform_policy_.lock()) {
+      auto w = p->create_window(window.task(), window.frame(), title);
+      if (w) {
+        w->attach();
+        windows_.insert({window.task(), w});
+      } else {
+        // FIXME can we call this here safely or do we need to schedule the removal?
+        remove_task(window.task());
+      }
+    }
   }
 
   // Send updates we collected per task down to the corresponding window

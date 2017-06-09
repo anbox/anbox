@@ -13,16 +13,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "TextureResize.h"
 
-#include "DispatchTables.h"
+#include "anbox/graphics/emugl/TextureResize.h"
+#include "anbox/graphics/emugl/DispatchTables.h"
+#include "anbox/logger.h"
 
 #include <stdio.h>
 #include <sstream>
 #include <string>
 #include <utility>
-
-#include "anbox/logger.h"
 
 #define MAX_FACTOR_POWER 4
 

@@ -15,6 +15,8 @@
 # Authored by: Thomas Voss <thomas.voss@canonical.com>
 add_library(
   process-cpp
+
+  STATIC
   
   core/posix/backtrace.h
   core/posix/backtrace.cpp

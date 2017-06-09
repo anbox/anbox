@@ -12,6 +12,6 @@ set(SOURCES
     objectNameManager.cpp
     FramebufferData.cpp)
 
-add_library(GLcommon ${SOURCES})
+add_library(GLcommon STATIC ${SOURCES})
 target_link_libraries(GLcommon
     emugl_common)

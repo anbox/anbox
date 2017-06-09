@@ -13,17 +13,18 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "WindowSurface.h"
-#include "RendererConfig.h"
 
-#include "OpenGLESDispatch/EGLDispatch.h"
+#include "anbox/graphics/emugl/WindowSurface.h"
+#include "anbox/graphics/emugl/RendererConfig.h"
+#include "anbox/logger.h"
+
+#include "external/android-emugl/host/include/OpenGLESDispatch/EGLDispatch.h"
 
 #include <GLES/glext.h>
 
 #include <stdio.h>
 #include <string.h>
 
-#include "anbox/logger.h"
 
 WindowSurface::WindowSurface(EGLDisplay display, EGLConfig config)
     : mSurface(NULL),
@@ -84,7 +85,7 @@ void WindowSurface::bind(RenderContextPtr p_ctx, BindType p_bindType) {
 }
 
 bool WindowSurface::flushColorBuffer() {
-  if (!mAttachedColorBuffer.Ptr()) {
+  if (!mAttachedColorBuffer) {
     return true;
   }
   if (!mWidth || !mHeight) {
@@ -98,7 +99,7 @@ bool WindowSurface::flushColorBuffer() {
     return false;
   }
 
-  if (!mDrawContext.Ptr()) {
+  if (!mDrawContext) {
     ERROR("Draw context is NULL");
     return false;
   }

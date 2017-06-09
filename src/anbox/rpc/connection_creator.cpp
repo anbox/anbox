@@ -34,7 +34,7 @@ ConnectionCreator::ConnectionCreator(const std::shared_ptr<Runtime>& rt,
           std::make_shared<network::Connections<network::SocketConnection>>()),
       message_processor_factory_(factory) {}
 
-ConnectionCreator::~ConnectionCreator() {}
+ConnectionCreator::~ConnectionCreator() noexcept {}
 
 void ConnectionCreator::create_connection_for(
     std::shared_ptr<boost::asio::local::stream_protocol::socket> const&
@@ -43,8 +43,7 @@ void ConnectionCreator::create_connection_for(
     socket->close();
     WARNING(
         "A second client tried to connect. Denied request as we already have "
-        "one"
-        "and only allow a single client");
+        "one and only allow a single client");
     return;
   }
 

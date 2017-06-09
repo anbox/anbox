@@ -13,13 +13,17 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #ifndef _LIB_OPENGL_RENDER_THREAD_INFO_H
 #define _LIB_OPENGL_RENDER_THREAD_INFO_H
 
-#include "GLESv1Decoder.h"
-#include "GLESv2Decoder.h"
-#include "RenderContext.h"
-#include "WindowSurface.h"
+#include "anbox/graphics/emugl/RenderContext.h"
+#include "anbox/graphics/emugl/WindowSurface.h"
+
+#include "external/android-emugl/host/libs/GLESv1_dec/GLESv1Decoder.h"
+#include "external/android-emugl/host/libs/GLESv2_dec/GLESv2Decoder.h"
+
+// Generated with emugl at build time
 #include "renderControl_dec.h"
 
 #include <set>

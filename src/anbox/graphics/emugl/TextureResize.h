@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #ifndef _LIBRENDER_TEXTURERESIZE_H
 #define _LIBRENDER_TEXTURERESIZE_H
 

@@ -13,19 +13,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "RenderControl.h"
 
-#include "ChecksumCalculatorThreadInfo.h"
-#include "DispatchTables.h"
-#include "DisplayManager.h"
-#include "RenderThreadInfo.h"
-#include "Renderer.h"
-#include "RendererConfig.h"
-
-#include "OpenGLESDispatch/EGLDispatch.h"
-
+#include "anbox/graphics/emugl/RenderControl.h"
+#include "anbox/graphics/emugl/DispatchTables.h"
+#include "anbox/graphics/emugl/DisplayManager.h"
+#include "anbox/graphics/emugl/RenderThreadInfo.h"
+#include "anbox/graphics/emugl/Renderer.h"
+#include "anbox/graphics/emugl/RendererConfig.h"
 #include "anbox/graphics/layer_composer.h"
 #include "anbox/logger.h"
+
+#include "external/android-emugl/shared/OpenglCodecCommon/ChecksumCalculatorThreadInfo.h"
+#include "external/android-emugl/host/include/OpenGLESDispatch/EGLDispatch.h"
+
 
 #include <map>
 #include <string>
@@ -169,10 +169,10 @@ static EGLint rcGetFBParam(EGLint param) {
 
   switch (param) {
     case FB_WIDTH:
-      ret = DisplayManager::get()->display_info().horizontal_resolution;
+      ret = static_cast<EGLint>(anbox::graphics::emugl::DisplayInfo::get()->vertical_resolution());
       break;
     case FB_HEIGHT:
-      ret = DisplayManager::get()->display_info().vertical_resolution;
+      ret = static_cast<EGLint>(anbox::graphics::emugl::DisplayInfo::get()->horizontal_resolution());
       break;
     case FB_XDPI:
       ret = 72;  // XXX: should be implemented
@@ -360,12 +360,12 @@ int rcGetNumDisplays() {
 
 int rcGetDisplayWidth(uint32_t display_id) {
   (void)display_id;
-  return DisplayManager::get()->display_info().horizontal_resolution;
+  return static_cast<int>(anbox::graphics::emugl::DisplayInfo::get()->vertical_resolution());
 }
 
 int rcGetDisplayHeight(uint32_t display_id) {
   (void)display_id;
-  return DisplayManager::get()->display_info().vertical_resolution;
+  return static_cast<int>(anbox::graphics::emugl::DisplayInfo::get()->horizontal_resolution());
 }
 
 int rcGetDisplayDpiX(uint32_t display_id) {

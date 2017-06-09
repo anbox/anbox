@@ -31,6 +31,8 @@ struct Intent {
   std::string package;
   std::string component;
   std::vector<std::string> categories;
+
+  bool valid() const;
 };
 
 std::ostream &operator<<(std::ostream &out, const Intent &intent);

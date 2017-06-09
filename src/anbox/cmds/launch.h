@@ -23,6 +23,7 @@
 #include <memory>
 
 #include "anbox/android/intent.h"
+#include "anbox/dbus/stub/application_manager.h"
 #include "anbox/wm/stack.h"
 #include "anbox/cli.h"
 
@@ -33,6 +34,8 @@ class Launch : public cli::CommandWithFlagsAndAction {
   Launch();
 
  private:
+  bool try_launch_activity(const std::shared_ptr<dbus::stub::ApplicationManager> &stub);
+
   android::Intent intent_;
   wm::Stack::Id stack_;
 };
