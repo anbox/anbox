@@ -151,7 +151,7 @@ $ make
 A simple
 
 ```
-$ make install
+$ sudo make install
 ```
 
 will install the necessary bits into your system.
