@@ -14,6 +14,19 @@ description: |
 confinement: devmode
 grade: devel
 
+slots:
+  # Depending on in which environment we're running we either need
+  # to use the system or session DBus so we also need to have one
+  # slot for each.
+  dbus-session:
+    interface: dbus
+    bus: system
+    name: org.anbox
+  dbus-system:
+    interface: dbus
+    bus: system
+    name: org.anbox
+
 apps:
   anbox:
     command: bin/anbox-wrapper.sh
