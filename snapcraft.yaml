@@ -25,13 +25,36 @@ apps:
 parts:
   android-images:
     plugin: dump
+    # This needs to be any directory but not the root one as if we use
+    # it we get superious permissions errors with the copied .git tree
+    source: data
     build-packages:
       - wget
     install: |
+      IMAGE_PATH=
+      IMAGE_NAME=
+      ARCH=$(uname -m)
+
+      case "$ARCH" in
+        x86_64)
+          IMAGE_PATH="2017/04/12"
+          IMAGE_NAME="android_1_amd64"
+          ;;
+        arm*)
+          IMAGE_PATH="2017/06/12"
+          IMAGE_NAME="android_1_armhf"
+          ;;
+      esac
+
+      if [ -z "$IMAGE_PATH" ] || [ -z "$IMAGE_NAME" ]; then
+        echo "ERROR: Unknown architecture $ARCH"
+        exit 1
+      fi
+
       # FIXME: downloading with a source: field doesn't work as snapcraft
       # expects the downloaded file to be an archive it can extract.
-      wget http://build.anbox.io/android-images/2017/04/12/android_1_amd64.img
-      mv android_1_amd64.img $SNAPCRAFT_PART_INSTALL/android.img
+      wget http://build.anbox.io/android-images/$IMAGE_PATH/$IMAGE_NAME.img
+      mv $IMAGE_NAME.img $SNAPCRAFT_PART_INSTALL/android.img
     prime:
       - android.img
   anbox-common:
