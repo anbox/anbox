@@ -21,7 +21,7 @@
 #include <gtest/gtest.h>
 
 #include "anbox/application/database.h"
-#include "anbox/platform/default_policy.h"
+#include "anbox/platform/base_platform.h"
 #include "anbox/wm/multi_window_manager.h"
 #include "anbox/wm/window_state.h"
 
@@ -45,9 +45,9 @@ TEST(LayerComposer, FindsNoSuitableWindowForLayer) {
 
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform_policy = std::make_shared<platform::DefaultPolicy>();
+  auto platform = platform::create();
   auto app_db = std::make_shared<application::Database>();
-  auto wm = std::make_shared<wm::MultiWindowManager>(platform_policy, nullptr, app_db);
+  auto wm = std::make_shared<wm::MultiWindowManager>(platform, nullptr, app_db);
 
   auto single_window = wm::WindowState{
       wm::Display::Id{1},
@@ -79,9 +79,9 @@ TEST(LayerComposer, MapsLayersToWindows) {
 
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform_policy = std::make_shared<platform::DefaultPolicy>();
+  auto platform = platform::create();
   auto app_db = std::make_shared<application::Database>();
-  auto wm = std::make_shared<wm::MultiWindowManager>(platform_policy, nullptr, app_db);
+  auto wm = std::make_shared<wm::MultiWindowManager>(platform, nullptr, app_db);
 
   auto first_window = wm::WindowState{
       wm::Display::Id{1},
@@ -139,9 +139,9 @@ TEST(LayerComposer, WindowPartiallyOffscreen) {
 
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform_policy = std::make_shared<platform::DefaultPolicy>();
+  auto platform = platform::create();
   auto app_db = std::make_shared<application::Database>();
-  auto wm = std::make_shared<wm::MultiWindowManager>(platform_policy, nullptr, app_db);
+  auto wm = std::make_shared<wm::MultiWindowManager>(platform, nullptr, app_db);
 
   auto window = wm::WindowState{
       wm::Display::Id{1},
@@ -184,9 +184,9 @@ TEST(LayerComposer, PopupShouldNotCauseWindowLayerOffset) {
 
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform_policy = std::make_shared<platform::DefaultPolicy>();
+  auto platform = platform::create();
   auto app_db = std::make_shared<application::Database>();
-  auto wm = std::make_shared<wm::MultiWindowManager>(platform_policy, nullptr, app_db);
+  auto wm = std::make_shared<wm::MultiWindowManager>(platform, nullptr, app_db);
 
   auto window = wm::WindowState{
       wm::Display::Id{1},

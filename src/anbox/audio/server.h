@@ -22,7 +22,7 @@
 #include "anbox/audio/client_info.h"
 #include "anbox/network/socket_messenger.h"
 #include "anbox/network/socket_connection.h"
-#include "anbox/platform/policy.h"
+#include "anbox/platform/base_platform.h"
 
 #include <atomic>
 
@@ -33,7 +33,7 @@ class PublishedSocketConnector;
 namespace audio {
 class Server {
  public:
-  Server(const std::shared_ptr<Runtime>& rt, const std::shared_ptr<platform::Policy> &platform_policy);
+  Server(const std::shared_ptr<Runtime>& rt, const std::shared_ptr<platform::BasePlatform> &platform);
   ~Server();
 
   std::string socket_file() const { return socket_file_; }
@@ -44,7 +44,7 @@ class Server {
 
   int next_id();
 
-  std::shared_ptr<platform::Policy> platform_policy_;
+  std::shared_ptr<platform::BasePlatform> platform_;
   std::string socket_file_;
   std::shared_ptr<network::PublishedSocketConnector> connector_;
   std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;

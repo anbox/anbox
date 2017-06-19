@@ -15,38 +15,24 @@
  *
  */
 
-#ifndef ANBOX_PLATFORM_POLICY_H_
-#define ANBOX_PLATFORM_POLICY_H_
+#ifndef ANBOX_PLATFORM_NULL_PLATFORM_H_
+#define ANBOX_PLATFORM_NULL_PLATFORM_H_
 
-#include "anbox/graphics/rect.h"
-#include "anbox/wm/window_state.h"
-
-#include <memory>
+#include "anbox/platform/base_platform.h"
 
 namespace anbox {
-namespace audio {
-class Sink;
-class Source;
-} // namespace audio
-namespace wm {
-class Window;
-} // namespace wm
 namespace platform {
-class Policy {
+class NullPlatform : public BasePlatform {
  public:
-  virtual ~Policy();
-
-  virtual std::shared_ptr<wm::Window> create_window(const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame, const std::string &title) = 0;
-
-  struct ClipboardData {
-    std::string text;
-  };
-
-  virtual void set_clipboard_data(const ClipboardData &data) = 0;
-  virtual ClipboardData get_clipboard_data() = 0;
-
-  virtual std::shared_ptr<audio::Sink> create_audio_sink() = 0;
-  virtual std::shared_ptr<audio::Source> create_audio_source() = 0;
+  NullPlatform();
+  std::shared_ptr<wm::Window> create_window(
+      const anbox::wm::Task::Id &task,
+      const anbox::graphics::Rect &frame,
+      const std::string &title) override;
+  void set_clipboard_data(const ClipboardData &data) override;
+  ClipboardData get_clipboard_data() override;
+  std::shared_ptr<audio::Sink> create_audio_sink() override;
+  std::shared_ptr<audio::Source> create_audio_source() override;
 };
 }  // namespace wm
 }  // namespace anbox

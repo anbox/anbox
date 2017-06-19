@@ -164,8 +164,9 @@ set(SOURCES
     anbox/wm/window_state.cpp
     anbox/wm/window.cpp
 
-    anbox/platform/policy.cpp
-    anbox/platform/default_policy.cpp
+    anbox/platform/base_platform.cpp
+
+    anbox/platform/null/platform.cpp
 
     anbox/input/manager.cpp
     anbox/input/device.cpp

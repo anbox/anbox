@@ -17,7 +17,7 @@
 
 #include "anbox/bridge/platform_api_skeleton.h"
 #include "anbox/application/database.h"
-#include "anbox/platform/policy.h"
+#include "anbox/platform/base_platform.h"
 #include "anbox/wm/manager.h"
 #include "anbox/wm/window_state.h"
 #include "anbox/logger.h"
@@ -32,11 +32,11 @@ namespace anbox {
 namespace bridge {
 PlatformApiSkeleton::PlatformApiSkeleton(
     const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
-    const std::shared_ptr<platform::Policy> &platform_policy,
+    const std::shared_ptr<platform::BasePlatform> &platform,
     const std::shared_ptr<wm::Manager> &window_manager,
     const std::shared_ptr<application::Database> &app_db)
     : pending_calls_(pending_calls),
-      platform_policy_(platform_policy),
+      platform_(platform),
       window_manager_(window_manager),
       app_db_(app_db) {}
 
@@ -49,7 +49,7 @@ void PlatformApiSkeleton::set_clipboard_data(anbox::protobuf::bridge::ClipboardD
   (void)response;
 
   if (request->has_text())
-    platform_policy_->set_clipboard_data(platform::Policy::ClipboardData{request->text()});
+    platform_->set_clipboard_data(platform::BasePlatform::ClipboardData{request->text()});
 
   done->Run();
 }
@@ -59,7 +59,7 @@ void PlatformApiSkeleton::get_clipboard_data(anbox::protobuf::rpc::Void const *r
                                              google::protobuf::Closure *done) {
   (void)request;
 
-  auto data = platform_policy_->get_clipboard_data();
+  auto data = platform_->get_clipboard_data();
   if (!data.text.empty())
     response->set_text(data.text);
 

@@ -19,7 +19,7 @@
 #define ANBOX_UBUNTU_PLATFORM_POLICY_H_
 
 #include "anbox/ubuntu/window.h"
-#include "anbox/platform/policy.h"
+#include "anbox/platform/base_platform.h"
 
 #include "anbox/graphics/emugl/DisplayManager.h"
 
@@ -40,7 +40,7 @@ class Manager;
 } // namespace wm
 namespace ubuntu {
 class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
-                       public platform::Policy,
+                       public platform::BasePlatform,
                        public Window::Observer {
  public:
   PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager,

@@ -16,7 +16,7 @@
  */
 
 #include "anbox/wm/single_window_manager.h"
-#include "anbox/platform/policy.h"
+#include "anbox/platform/base_platform.h"
 #include "anbox/logger.h"
 
 #include <algorithm>
@@ -26,15 +26,15 @@
 
 namespace anbox {
 namespace wm {
-SingleWindowManager::SingleWindowManager(const std::weak_ptr<platform::Policy> &policy,
+SingleWindowManager::SingleWindowManager(const std::weak_ptr<platform::BasePlatform> &platform,
                                          const graphics::Rect &window_size,
                                          const std::shared_ptr<application::Database> &app_db)
-    : platform_policy_(policy), window_size_(window_size), app_db_(app_db) {}
+    : platform_(platform), window_size_(window_size), app_db_(app_db) {}
 
 SingleWindowManager::~SingleWindowManager() {}
 
 void SingleWindowManager::setup() {
-  if (auto p = platform_policy_.lock()) {
+  if (auto p = platform_.lock()) {
     window_ = p->create_window(0, window_size_, "Anbox - Android in a Box");
     if (!window_->attach())
       WARNING("Failed to attach window to renderer");

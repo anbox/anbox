@@ -15,7 +15,7 @@
  *
  */
 
-#include "anbox/platform/default_policy.h"
+#include "anbox/platform/null/platform.h"
 #include "anbox/wm/window.h"
 #include "anbox/logger.h"
 
@@ -31,29 +31,29 @@ class NullWindow : public anbox::wm::Window {
 
 namespace anbox {
 namespace platform {
-DefaultPolicy::DefaultPolicy() {}
+NullPlatform::NullPlatform() {}
 
-std::shared_ptr<wm::Window> DefaultPolicy::create_window(
+std::shared_ptr<wm::Window> NullPlatform::create_window(
     const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame, const std::string &title) {
   return std::make_shared<::NullWindow>(task, frame, title);
 }
 
-void DefaultPolicy::set_clipboard_data(const ClipboardData &data) {
+void NullPlatform::set_clipboard_data(const ClipboardData &data) {
   (void)data;
   ERROR("Not implemented");
 }
 
-DefaultPolicy::ClipboardData DefaultPolicy::get_clipboard_data() {
+NullPlatform::ClipboardData NullPlatform::get_clipboard_data() {
   ERROR("Not implemented");
   return ClipboardData{};
 }
 
-std::shared_ptr<audio::Sink> DefaultPolicy::create_audio_sink() {
+std::shared_ptr<audio::Sink> NullPlatform::create_audio_sink() {
   ERROR("Not implemented");
   return nullptr;
 }
 
-std::shared_ptr<audio::Source> DefaultPolicy::create_audio_source() {
+std::shared_ptr<audio::Source> NullPlatform::create_audio_source() {
   ERROR("Not implemented");
   return nullptr;
 }
