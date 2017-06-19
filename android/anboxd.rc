@@ -1,2 +1,5 @@
 service anboxd /system/bin/anboxd
     class core
+
+service anbox-log-dumper /system/bin/logcat -f /data/system.log -r 2048 -n 4
+    class core
