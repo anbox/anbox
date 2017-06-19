@@ -69,10 +69,12 @@ pkg_check_modules(DBUS_CPP dbus-cpp REQUIRED)
 pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
-pkg_check_modules(MIRCLIENT mirclient)
-if (MIRCLIENT_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
-endif()
+# FIXME mir support is currently broken due to mir's API
+# being broken with recent landings in Ubuntu 16.04
+# pkg_check_modules(MIRCLIENT mirclient)
+# if (MIRCLIENT_FOUND)
+#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
+# endif()
 
 #####################################################################
 # Enable code coverage calculation with gcov/gcovr/lcov
