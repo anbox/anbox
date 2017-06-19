@@ -14,7 +14,7 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "anbox/ubuntu/mir_display_connection.h"
+#include "anbox/platform/sdlmir_display_connection.h"
 #include "anbox/logger.h"
 
 #include <boost/throw_exception.hpp>
@@ -43,7 +43,7 @@ static const MirDisplayOutput *find_active_output(
 }
 
 namespace anbox {
-namespace ubuntu {
+namespace sdl {
 MirDisplayConnection::MirDisplayConnection()
     : connection_(nullptr),
       output_id_(-1),
@@ -119,5 +119,5 @@ int MirDisplayConnection::vertical_resolution() const {
 int MirDisplayConnection::horizontal_resolution() const {
   return horizontal_resolution_;
 }
-}  // namespace ubuntu
+}  // namespace sdl
 }  // namespace anbox

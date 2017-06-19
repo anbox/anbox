@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_UBUNTU_AUDIO_SINK_H_
-#define ANBOX_UBUNTU_AUDIO_SINK_H_
+#ifndef ANBOX_PLATFORM_SDL_AUDIO_SINK_H_
+#define ANBOX_PLATFORM_SDL_AUDIO_SINK_H_
 
 #include "anbox/audio/sink.h"
 #include "anbox/graphics/buffer_queue.h"
@@ -26,7 +26,8 @@
 #include <thread>
 
 namespace anbox {
-namespace ubuntu {
+namespace platform {
+namespace sdl {
 class AudioSink : public audio::Sink {
  public:
   AudioSink();
@@ -48,7 +49,8 @@ class AudioSink : public audio::Sink {
   graphics::Buffer read_buffer_;
   size_t read_buffer_left_ = 0;
 };
-} // namespace ubuntu
+} // namespace sdl
+} // namespace platform
 } // namespace anbox
 
 #endif

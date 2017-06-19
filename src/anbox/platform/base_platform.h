@@ -23,6 +23,8 @@
 
 #include <memory>
 
+class Renderer;
+
 namespace anbox {
 namespace audio {
 class Sink;
@@ -30,7 +32,11 @@ class Source;
 } // namespace audio
 namespace wm {
 class Window;
+class Manager;
 } // namespace wm
+namespace input {
+class Manager;
+} // namespace input
 namespace platform {
 class BasePlatform {
  public:
@@ -47,9 +53,15 @@ class BasePlatform {
 
   virtual std::shared_ptr<audio::Sink> create_audio_sink() = 0;
   virtual std::shared_ptr<audio::Source> create_audio_source() = 0;
+
+  virtual void set_renderer(const std::shared_ptr<Renderer> &renderer) = 0;
+  virtual void set_window_manager(const std::shared_ptr<wm::Manager> &window_manager) = 0;
 };
-std::shared_ptr<BasePlatform> create(const std::string &name = "");
-}  // namespace wm
+std::shared_ptr<BasePlatform> create(const std::string &name = "",
+                                     const std::shared_ptr<input::Manager> &input_manager = nullptr,
+                                     const graphics::Rect &display_frame = graphics::Rect::Invalid,
+                                     bool single_window = false);
+}  // namespace platform
 }  // namespace anbox
 
 #endif

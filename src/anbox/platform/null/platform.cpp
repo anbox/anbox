@@ -57,5 +57,15 @@ std::shared_ptr<audio::Source> NullPlatform::create_audio_source() {
   ERROR("Not implemented");
   return nullptr;
 }
+
+void NullPlatform::set_renderer(const std::shared_ptr<Renderer> &renderer) {
+  (void) renderer;
+  ERROR("Not implemented");
+}
+
+void NullPlatform::set_window_manager(const std::shared_ptr<wm::Manager> &window_manager) {
+  (void) window_manager;
+  ERROR("Not implemented");
+}
 }  // namespace wm
 }  // namespace anbox

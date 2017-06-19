@@ -45,7 +45,7 @@ std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Co
 #include "anbox/rpc/channel.h"
 #include "anbox/rpc/connection_creator.h"
 #include "anbox/runtime.h"
-#include "anbox/ubuntu/platform_policy.h"
+#include "anbox/platform/base_platform.h"
 #include "anbox/wm/multi_window_manager.h"
 #include "anbox/wm/single_window_manager.h"
 
@@ -176,7 +176,12 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     if (single_window_)
       display_frame = window_size_;
 
-    auto platform = std::make_shared<ubuntu::PlatformPolicy>(input_manager, display_frame, single_window_);
+    auto platform = platform::create(utils::get_env_value("ANBOX_PLATFORM", "sdl"),
+                                     input_manager,
+                                     display_frame,
+                                     single_window_);
+    if (!platform)
+      return EXIT_FAILURE;
 
     auto app_db = std::make_shared<application::Database>();
 

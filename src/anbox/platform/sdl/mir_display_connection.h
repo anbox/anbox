@@ -15,25 +15,38 @@
  *
  */
 
-#ifndef ANBOX_UBUNTU_KEYCODE_CONVERTER_H_
-#define ANBOX_UBUNTU_KEYCODE_CONVERTER_H_
+#ifndef ANBOX_PLATFORM_SDL_MIR_DISPLAY_CONNECTION_H_
+#define ANBOX_PLATFORM_SDL_MIR_DISPLAY_CONNECTION_H_
 
-#include <SDL_scancode.h>
+#define MIR_EGL_PLATFORM
 
-#include <cstdint>
+#include <mirclient/mir_toolkit/mir_client_library.h>
 
-#include <array>
+#include <EGL/egl.h>
 
 namespace anbox {
-namespace ubuntu {
-class KeycodeConverter {
+namespace sdl {
+class MirDisplayConnection {
  public:
-  static std::uint16_t convert(const SDL_Scancode &scan_code);
+  MirDisplayConnection();
+  ~MirDisplayConnection();
+
+  MirPixelFormat default_pixel_format() const;
+
+  MirConnection* connection() const;
+  EGLNativeDisplayType native_display() const;
+
+  int output_id() const;
+  int vertical_resolution() const;
+  int horizontal_resolution() const;
 
  private:
-  static const std::array<SDL_Scancode, 249> code_map;
+  MirConnection* connection_;
+  int output_id_;
+  int vertical_resolution_;
+  int horizontal_resolution_;
 };
-}  // namespace ubuntu
+}  // namespace sdl
 }  // namespace anbox
 
 #endif

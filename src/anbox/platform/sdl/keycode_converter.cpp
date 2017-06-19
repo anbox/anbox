@@ -16,13 +16,14 @@
  */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-default"
-#include "anbox/ubuntu/keycode_converter.h"
+#include "anbox/platform/sdl/keycode_converter.h"
 #pragma GCC diagnostic pop
 
 #include <linux/input.h>
 
 namespace anbox {
-namespace ubuntu {
+namespace platform {
+namespace sdl {
 std::uint16_t KeycodeConverter::convert(const SDL_Scancode &scan_code) {
   for (std::uint16_t n = 0; n < code_map.size(); n++) {
     if (code_map[n] == scan_code) return n;
@@ -289,5 +290,6 @@ const std::array<SDL_Scancode, 249> KeycodeConverter::code_map = {{
                              */
     SDL_SCANCODE_UNKNOWN         /*  KEY_MICMUTE     248 Mute / unmute the microphone */
 }};
-}  // namespace ubuntu
-}  // namespace anbox
+} // namespace sdl
+} // namespace platform
+} // namespace anbox
