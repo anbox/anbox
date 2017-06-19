@@ -1,3 +1,10 @@
+anbox (7) artful; urgency=medium
+
+  * Rebuild dkms modules with the kernel asked for and not the current
+    running kernel.
+
+ -- Simon Fels <morphis@gravedo.de>  Thu, 15 Jun 2017 18:19:07 +0200
+
 anbox (6) artful; urgency=medium
 
   * Add anbox-common package which ships any additional files needed for
