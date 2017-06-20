@@ -68,6 +68,8 @@ class Platform : public std::enable_shared_from_this<Platform>,
   std::shared_ptr<audio::Sink> create_audio_sink() override;
   std::shared_ptr<audio::Source> create_audio_source() override;
 
+  bool supports_multi_window() const override;
+
  private:
   void process_events();
   void process_input_event(const SDL_Event &event);

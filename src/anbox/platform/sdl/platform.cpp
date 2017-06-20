@@ -312,6 +312,10 @@ std::shared_ptr<audio::Source> Platform::create_audio_source() {
   ERROR("Not implemented");
   return nullptr;
 }
+
+bool Platform::supports_multi_window() const {
+  return true;
+}
 } // namespace sdl
 } // namespace platform
 } // namespace anbox
