@@ -1,0 +1,1 @@
+ANBOX_ADD_TEST(restricted_manager_tests restricted_manager_tests.cpp)
