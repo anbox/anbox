@@ -15,10 +15,15 @@
  *
  */
 
-#include "anbox/platform/policy.h"
+#ifndef ANBOX_PLATFORM_SDL_WRAPPER_H_
+#define ANBOX_PLATFORM_SDL_WRAPPER_H_
 
-namespace anbox {
-namespace platform {
-Policy::~Policy() {}
-}  // namespace wm
-}  // namespace anbox
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_audio.h>
+#include <SDL2/SDL_syswm.h>
+#include <SDL2/SDL_scancode.h>
+#pragma GCC diagnostic pop
+
+#endif

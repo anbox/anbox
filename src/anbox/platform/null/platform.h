@@ -15,16 +15,16 @@
  *
  */
 
-#ifndef ANBOX_PLATFORM_DEFAULT_POLICY_H_
-#define ANBOX_PLATFORM_DEFAULT_POLICY_H_
+#ifndef ANBOX_PLATFORM_NULL_PLATFORM_H_
+#define ANBOX_PLATFORM_NULL_PLATFORM_H_
 
-#include "anbox/platform/policy.h"
+#include "anbox/platform/base_platform.h"
 
 namespace anbox {
 namespace platform {
-class DefaultPolicy : public Policy {
+class NullPlatform : public BasePlatform {
  public:
-  DefaultPolicy();
+  NullPlatform();
   std::shared_ptr<wm::Window> create_window(
       const anbox::wm::Task::Id &task,
       const anbox::graphics::Rect &frame,
@@ -33,6 +33,8 @@ class DefaultPolicy : public Policy {
   ClipboardData get_clipboard_data() override;
   std::shared_ptr<audio::Sink> create_audio_sink() override;
   std::shared_ptr<audio::Source> create_audio_source() override;
+  void set_renderer(const std::shared_ptr<Renderer> &renderer) override;
+  void set_window_manager(const std::shared_ptr<wm::Manager> &window_manager) override;
 };
 }  // namespace wm
 }  // namespace anbox

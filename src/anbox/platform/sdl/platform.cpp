@@ -17,13 +17,13 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-default"
-#include "anbox/ubuntu/platform_policy.h"
+#include "anbox/platform/sdl/platform.h"
 #include "anbox/input/device.h"
 #include "anbox/input/manager.h"
 #include "anbox/logger.h"
-#include "anbox/ubuntu/keycode_converter.h"
-#include "anbox/ubuntu/window.h"
-#include "anbox/ubuntu/audio_sink.h"
+#include "anbox/platform/sdl/keycode_converter.h"
+#include "anbox/platform/sdl/window.h"
+#include "anbox/platform/sdl/audio_sink.h"
 #include "anbox/wm/manager.h"
 
 #include <boost/throw_exception.hpp>
@@ -33,8 +33,9 @@
 #pragma GCC diagnostic pop
 
 namespace anbox {
-namespace ubuntu {
-PlatformPolicy::PlatformPolicy(
+namespace platform {
+namespace sdl {
+Platform::Platform(
     const std::shared_ptr<input::Manager> &input_manager,
     const graphics::Rect &static_display_frame,
     bool single_window)
@@ -92,25 +93,25 @@ PlatformPolicy::PlatformPolicy(
   keyboard_->set_key_bit(BTN_MISC);
   keyboard_->set_key_bit(KEY_OK);
 
-  event_thread_ = std::thread(&PlatformPolicy::process_events, this);
+  event_thread_ = std::thread(&Platform::process_events, this);
 }
 
-PlatformPolicy::~PlatformPolicy() {
+Platform::~Platform() {
   if (event_thread_running_) {
     event_thread_running_ = false;
     event_thread_.join();
   }
 }
 
-void PlatformPolicy::set_renderer(const std::shared_ptr<Renderer> &renderer) {
+void Platform::set_renderer(const std::shared_ptr<Renderer> &renderer) {
   renderer_ = renderer;
 }
 
-void PlatformPolicy::set_window_manager(const std::shared_ptr<wm::Manager> &window_manager) {
+void Platform::set_window_manager(const std::shared_ptr<wm::Manager> &window_manager) {
   window_manager_ = window_manager;
 }
 
-void PlatformPolicy::process_events() {
+void Platform::process_events() {
   event_thread_running_ = true;
 
   while (event_thread_running_) {
@@ -144,7 +145,7 @@ void PlatformPolicy::process_events() {
   }
 }
 
-void PlatformPolicy::process_input_event(const SDL_Event &event) {
+void Platform::process_input_event(const SDL_Event &event) {
   std::vector<input::Event> mouse_events;
   std::vector<input::Event> keyboard_events;
 
@@ -216,12 +217,12 @@ void PlatformPolicy::process_input_event(const SDL_Event &event) {
   if (keyboard_events.size() > 0) keyboard_->send_events(keyboard_events);
 }
 
-Window::Id PlatformPolicy::next_window_id() {
+Window::Id Platform::next_window_id() {
   static Window::Id next_id = 0;
   return next_id++;
 }
 
-std::shared_ptr<wm::Window> PlatformPolicy::create_window(
+std::shared_ptr<wm::Window> Platform::create_window(
     const anbox::wm::Task::Id &task, const anbox::graphics::Rect &frame, const std::string &title) {
   if (!renderer_) {
     ERROR("Can't create window without a renderer set");
@@ -234,7 +235,7 @@ std::shared_ptr<wm::Window> PlatformPolicy::create_window(
   return w;
 }
 
-void PlatformPolicy::window_deleted(const Window::Id &id) {
+void Platform::window_deleted(const Window::Id &id) {
   auto w = windows_.find(id);
   if (w == windows_.end()) {
     WARNING("Got window removed event for unknown window (id %d)", id);
@@ -245,7 +246,7 @@ void PlatformPolicy::window_deleted(const Window::Id &id) {
   windows_.erase(w);
 }
 
-void PlatformPolicy::window_wants_focus(const Window::Id &id) {
+void Platform::window_wants_focus(const Window::Id &id) {
   auto w = windows_.find(id);
   if (w == windows_.end()) return;
 
@@ -253,7 +254,7 @@ void PlatformPolicy::window_wants_focus(const Window::Id &id) {
     window_manager_->set_focused_task(window->task());
 }
 
-void PlatformPolicy::window_moved(const Window::Id &id, const std::int32_t &x,
+void Platform::window_moved(const Window::Id &id, const std::int32_t &x,
                                   const std::int32_t &y) {
   auto w = windows_.find(id);
   if (w == windows_.end()) return;
@@ -266,7 +267,7 @@ void PlatformPolicy::window_moved(const Window::Id &id, const std::int32_t &x,
   }
 }
 
-void PlatformPolicy::window_resized(const Window::Id &id,
+void Platform::window_resized(const Window::Id &id,
                                     const std::int32_t &width,
                                     const std::int32_t &height) {
   auto w = windows_.find(id);
@@ -284,13 +285,13 @@ void PlatformPolicy::window_resized(const Window::Id &id,
   }
 }
 
-void PlatformPolicy::set_clipboard_data(const ClipboardData &data) {
+void Platform::set_clipboard_data(const ClipboardData &data) {
   if (data.text.empty())
     return;
   SDL_SetClipboardText(data.text.c_str());
 }
 
-PlatformPolicy::ClipboardData PlatformPolicy::get_clipboard_data() {
+Platform::ClipboardData Platform::get_clipboard_data() {
   if (!SDL_HasClipboardText())
     return ClipboardData{};
 
@@ -303,13 +304,14 @@ PlatformPolicy::ClipboardData PlatformPolicy::get_clipboard_data() {
   return data;
 }
 
-std::shared_ptr<audio::Sink> PlatformPolicy::create_audio_sink() {
+std::shared_ptr<audio::Sink> Platform::create_audio_sink() {
   return std::make_shared<AudioSink>();
 }
 
-std::shared_ptr<audio::Source> PlatformPolicy::create_audio_source() {
+std::shared_ptr<audio::Source> Platform::create_audio_source() {
   ERROR("Not implemented");
   return nullptr;
 }
-}  // namespace wm
-}  // namespace anbox
+} // namespace sdl
+} // namespace platform
+} // namespace anbox

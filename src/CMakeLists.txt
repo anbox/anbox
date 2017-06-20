@@ -164,8 +164,15 @@ set(SOURCES
     anbox/wm/window_state.cpp
     anbox/wm/window.cpp
 
-    anbox/platform/policy.cpp
-    anbox/platform/default_policy.cpp
+    anbox/platform/base_platform.cpp
+
+    anbox/platform/null/platform.cpp
+
+    anbox/platform/sdl/sdl_wrapper.h
+    anbox/platform/sdl/window.cpp
+    anbox/platform/sdl/keycode_converter.cpp
+    anbox/platform/sdl/platform.cpp
+    anbox/platform/sdl/audio_sink.cpp
 
     anbox/input/manager.cpp
     anbox/input/device.cpp
@@ -186,11 +193,6 @@ set(SOURCES
     anbox/bridge/platform_message_processor.cpp
     anbox/bridge/platform_api_skeleton.cpp
     anbox/bridge/android_api_stub.cpp
-
-    anbox/ubuntu/window.cpp
-    anbox/ubuntu/keycode_converter.cpp
-    anbox/ubuntu/platform_policy.cpp
-    anbox/ubuntu/audio_sink.cpp
 
     anbox/dbus/interface.h
     anbox/dbus/codecs.h

@@ -15,22 +15,22 @@
  *
  */
 
-#ifndef ANBOX_UBUNTU_WINDOW_H_
-#define ANBOX_UBUNTU_WINDOW_H_
+#ifndef ANBOX_PLATFORM_SDL_WINDOW_H_
+#define ANBOX_PLATFORM_SDL_WINDOW_H_
 
 #include "anbox/wm/window.h"
+#include "anbox/platform/sdl/sdl_wrapper.h"
 
 #include <EGL/egl.h>
 
 #include <memory>
 #include <vector>
 
-#include <SDL.h>
-
 class Renderer;
 
 namespace anbox {
-namespace ubuntu {
+namespace platform {
+namespace sdl {
 class Window : public std::enable_shared_from_this<Window>, public wm::Window {
  public:
   typedef std::int32_t Id;
@@ -68,7 +68,8 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
   EGLNativeWindowType native_window_;
   SDL_Window *window_;
 };
-}  // namespace bridge
-}  // namespace anbox
+} // namespace sdl
+} // namespace platform
+} // namespace anbox
 
 #endif

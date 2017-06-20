@@ -15,18 +15,16 @@
  *
  */
 
-#ifndef ANBOX_UBUNTU_PLATFORM_POLICY_H_
-#define ANBOX_UBUNTU_PLATFORM_POLICY_H_
+#ifndef ANBOX_PLATFORM_SDL_PLATFORM_H_
+#define ANBOX_PLATFORM_SDL_PLATFORM_H_
 
-#include "anbox/ubuntu/window.h"
-#include "anbox/platform/policy.h"
-
+#include "anbox/platform/sdl/window.h"
+#include "anbox/platform/sdl/sdl_wrapper.h"
+#include "anbox/platform/base_platform.h"
 #include "anbox/graphics/emugl/DisplayManager.h"
 
 #include <map>
 #include <thread>
-
-#include <SDL.h>
 
 class Renderer;
 
@@ -38,15 +36,16 @@ class Manager;
 namespace wm {
 class Manager;
 } // namespace wm
-namespace ubuntu {
-class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
-                       public platform::Policy,
+namespace platform {
+namespace sdl {
+class Platform : public std::enable_shared_from_this<Platform>,
+                       public platform::BasePlatform,
                        public Window::Observer {
  public:
-  PlatformPolicy(const std::shared_ptr<input::Manager> &input_manager,
+  Platform(const std::shared_ptr<input::Manager> &input_manager,
                  const graphics::Rect &static_display_frame = graphics::Rect::Invalid,
                  bool single_window = false);
-  ~PlatformPolicy();
+  ~Platform();
 
   std::shared_ptr<wm::Window> create_window(
       const anbox::wm::Task::Id &task,
@@ -60,8 +59,8 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
   void window_resized(const Window::Id &id, const std::int32_t &width,
                       const std::int32_t &height) override;
 
-  void set_renderer(const std::shared_ptr<Renderer> &renderer);
-  void set_window_manager(const std::shared_ptr<wm::Manager> &window_manager);
+  void set_renderer(const std::shared_ptr<Renderer> &renderer) override;
+  void set_window_manager(const std::shared_ptr<wm::Manager> &window_manager) override;
 
   void set_clipboard_data(const ClipboardData &data) override;
   ClipboardData get_clipboard_data() override;
@@ -89,7 +88,8 @@ class PlatformPolicy : public std::enable_shared_from_this<PlatformPolicy>,
   bool window_size_immutable_ = false;
   bool single_window_ = false;
 };
-}  // namespace wm
-}  // namespace anbox
+} // namespace sdl
+} // namespace platform
+} // namespace anbox
 
 #endif

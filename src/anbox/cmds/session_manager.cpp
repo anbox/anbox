@@ -45,7 +45,7 @@ std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Co
 #include "anbox/rpc/channel.h"
 #include "anbox/rpc/connection_creator.h"
 #include "anbox/runtime.h"
-#include "anbox/ubuntu/platform_policy.h"
+#include "anbox/platform/base_platform.h"
 #include "anbox/wm/multi_window_manager.h"
 #include "anbox/wm/single_window_manager.h"
 
@@ -176,25 +176,30 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     if (single_window_)
       display_frame = window_size_;
 
-    auto policy = std::make_shared<ubuntu::PlatformPolicy>(input_manager, display_frame, single_window_);
+    auto platform = platform::create(utils::get_env_value("ANBOX_PLATFORM", "sdl"),
+                                     input_manager,
+                                     display_frame,
+                                     single_window_);
+    if (!platform)
+      return EXIT_FAILURE;
 
     auto app_db = std::make_shared<application::Database>();
 
     std::shared_ptr<wm::Manager> window_manager;
     if (single_window_)
-      window_manager = std::make_shared<wm::SingleWindowManager>(policy, display_frame, app_db);
+      window_manager = std::make_shared<wm::SingleWindowManager>(platform, display_frame, app_db);
     else
-      window_manager = std::make_shared<wm::MultiWindowManager>(policy, android_api_stub, app_db);
+      window_manager = std::make_shared<wm::MultiWindowManager>(platform, android_api_stub, app_db);
 
     auto gl_server = std::make_shared<graphics::GLRendererServer>(
           graphics::GLRendererServer::Config{gles_driver_, single_window_}, window_manager);
 
-    policy->set_window_manager(window_manager);
-    policy->set_renderer(gl_server->renderer());
+    platform->set_window_manager(window_manager);
+    platform->set_renderer(gl_server->renderer());
 
     window_manager->setup();
 
-    auto audio_server = std::make_shared<audio::Server>(rt, policy);
+    auto audio_server = std::make_shared<audio::Server>(rt, platform);
 
     const auto socket_path = SystemConfiguration::instance().socket_dir();
 
@@ -219,7 +224,7 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
               android_api_stub->set_rpc_channel(rpc_channel);
 
               auto server = std::make_shared<bridge::PlatformApiSkeleton>(
-                  pending_calls, policy, window_manager, app_db);
+                  pending_calls, platform, window_manager, app_db);
               server->register_boot_finished_handler([&]() {
                 DEBUG("Android successfully booted");
                 android_api_stub->ready().set(true);
