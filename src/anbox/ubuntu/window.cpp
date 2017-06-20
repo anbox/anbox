@@ -78,7 +78,7 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
 #if defined(MIR_SUPPORT)
     case SDL_SYSWM_MIR: {
       native_display_ = static_cast<EGLNativeDisplayType>(mir_connection_get_egl_native_display(info.info.mir.connection));
-      auto buffer_stream = mir_surface_get_buffer_stream(info.info.mir.surface);
+      auto buffer_stream = mir_window_get_buffer_stream(info.info.mir.surface);
       native_window_ = reinterpret_cast<EGLNativeWindowType>(mir_buffer_stream_get_egl_native_window(buffer_stream));
       break;
     }
