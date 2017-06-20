@@ -19,13 +19,12 @@
 #define ANBOX_PLATFORM_SDL_WINDOW_H_
 
 #include "anbox/wm/window.h"
+#include "anbox/platform/sdl/sdl_wrapper.h"
 
 #include <EGL/egl.h>
 
 #include <memory>
 #include <vector>
-
-#include <SDL.h>
 
 class Renderer;
 

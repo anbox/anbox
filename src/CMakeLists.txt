@@ -168,6 +168,7 @@ set(SOURCES
 
     anbox/platform/null/platform.cpp
 
+    anbox/platform/sdl/sdl_wrapper.h
     anbox/platform/sdl/window.cpp
     anbox/platform/sdl/keycode_converter.cpp
     anbox/platform/sdl/platform.cpp

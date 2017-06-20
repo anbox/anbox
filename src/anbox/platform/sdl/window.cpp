@@ -15,8 +15,6 @@
  *
  */
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wswitch-default"
 #include "anbox/platform/sdl/window.h"
 #include "anbox/logger.h"
 #include "anbox/wm/window_state.h"
@@ -26,9 +24,6 @@
 #if defined(MIR_SUPPORT)
 #include <mir_toolkit/mir_client_library.h>
 #endif
-
-#include <SDL_syswm.h>
-#pragma GCC diagnostic pop
 
 namespace anbox {
 namespace platform {

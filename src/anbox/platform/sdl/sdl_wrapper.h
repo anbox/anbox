@@ -15,27 +15,15 @@
  *
  */
 
-#ifndef ANBOX_PLATFORM_SDL_KEYCODE_CONVERTER_H_
-#define ANBOX_PLATFORM_SDL_KEYCODE_CONVERTER_H_
+#ifndef ANBOX_PLATFORM_SDL_WRAPPER_H_
+#define ANBOX_PLATFORM_SDL_WRAPPER_H_
 
-#include "anbox/platform/sdl/sdl_wrapper.h"
-
-#include <cstdint>
-
-#include <array>
-
-namespace anbox {
-namespace platform {
-namespace sdl {
-class KeycodeConverter {
- public:
-  static std::uint16_t convert(const SDL_Scancode &scan_code);
-
- private:
-  static const std::array<SDL_Scancode, 249> code_map;
-};
-} // namespace sdl
-} // namespace platform
-} // namespace anbox
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_audio.h>
+#include <SDL2/SDL_syswm.h>
+#include <SDL2/SDL_scancode.h>
+#pragma GCC diagnostic pop
 
 #endif

@@ -20,8 +20,7 @@
 
 #include "anbox/audio/sink.h"
 #include "anbox/graphics/buffer_queue.h"
-
-#include <SDL2/SDL_audio.h>
+#include "anbox/platform/sdl/sdl_wrapper.h"
 
 #include <thread>
 

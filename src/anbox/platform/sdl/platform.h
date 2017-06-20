@@ -19,14 +19,12 @@
 #define ANBOX_PLATFORM_SDL_PLATFORM_H_
 
 #include "anbox/platform/sdl/window.h"
+#include "anbox/platform/sdl/sdl_wrapper.h"
 #include "anbox/platform/base_platform.h"
-
 #include "anbox/graphics/emugl/DisplayManager.h"
 
 #include <map>
 #include <thread>
-
-#include <SDL.h>
 
 class Renderer;
 
