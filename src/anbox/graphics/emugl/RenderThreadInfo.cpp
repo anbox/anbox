@@ -16,8 +16,11 @@
 
 #include "anbox/graphics/emugl/RenderThreadInfo.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 #include "external/android-emugl/shared/emugl/common/lazy_instance.h"
 #include "external/android-emugl/shared/emugl/common/thread_store.h"
+#pragma GCC diagnostic pop
 
 namespace {
 class ThreadInfoStore : public ::emugl::ThreadStore {
