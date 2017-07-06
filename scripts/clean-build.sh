@@ -58,6 +58,7 @@ cd build
 cmake ..
 make -j10
 make test
+cd ..
 
 cleanup
 
