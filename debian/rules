@@ -11,6 +11,8 @@ VERSION=$(shell dpkg-parsechangelog -SVersion)
 %:
 	dh $@ --parallel --fail-missing --with systemd
 
+override_dh_auto_configure:
+
 override_dh_auto_build:
 	cat data/anbox.service.in | sed s:@SNAP_MOUNT_DIR@:/snap/bin:g > data/anbox.service
 	cat data/anbox.conf.in | sed s:@SNAP_MOUNT_DIR@:/snap/bin:g > data/anbox.conf
