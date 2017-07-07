@@ -35,6 +35,7 @@ class NullPlatform : public BasePlatform {
   std::shared_ptr<audio::Source> create_audio_source() override;
   void set_renderer(const std::shared_ptr<Renderer> &renderer) override;
   void set_window_manager(const std::shared_ptr<wm::Manager> &window_manager) override;
+  bool supports_multi_window() const override;
 };
 }  // namespace wm
 }  // namespace anbox
