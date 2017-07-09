@@ -38,6 +38,7 @@ class Launch : public cli::CommandWithFlagsAndAction {
 
   android::Intent intent_;
   wm::Stack::Id stack_;
+  bool use_system_dbus_ = false;
 };
 }  // namespace cmds
 }  // namespace anbox

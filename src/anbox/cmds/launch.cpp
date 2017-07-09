@@ -77,6 +77,9 @@ anbox::cmds::Launch::Launch()
   flag(cli::make_flag(cli::Name{"stack"},
                       cli::Description{"Which window stack the activity should be started on. Possible: default, fullscreen, freeform"},
                       stack_));
+  flag(cli::make_flag(cli::Name{"use-system-dbus"},
+                      cli::Description{"Use system instead of session DBus"},
+                      use_system_dbus_));
 
   action([this](const cli::Command::Context&) {
     if (!intent_.valid()) {
@@ -92,7 +95,11 @@ anbox::cmds::Launch::Launch()
 
     auto rt = Runtime::create();
 
-    auto bus = std::make_shared<core::dbus::Bus>(core::dbus::WellKnownBus::session);
+    auto bus_type = core::dbus::WellKnownBus::session;
+    if (use_system_dbus_)
+        bus_type = core::dbus::WellKnownBus::system;
+
+    auto bus = std::make_shared<core::dbus::Bus>(bus_type);
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
 
     const auto snap_path = utils::get_env_value("SNAP");
