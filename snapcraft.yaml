@@ -117,6 +117,12 @@ parts:
       - lib/liblxc.so.1
       - lib/liblxc.so.1.2.0
       - libexec/lxc/lxc-monitord
+      - bin/lxc-start
+      - bin/lxc-stop
+      - bin/lxc-info
+      - bin/lxc-attach
+      - bin/lxc-ls
+      - bin/lxc-top
   anbox:
     plugin: cmake
     after:
