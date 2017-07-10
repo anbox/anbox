@@ -58,7 +58,7 @@ void BinaryWriter::write_uint16(std::uint16_t value) {
     break;
   }
 
-  *reinterpret_cast<std::uint16_t*>(&(*current_)) = v;
+  memcpy(&(*current_), &v, sizeof(std::uint16_t));
   current_ += sizeof(v);
 }
 
@@ -77,8 +77,7 @@ void BinaryWriter::write_uint32(std::uint32_t value) {
   default:
     break;
   }
-
-  *reinterpret_cast<std::uint32_t*>(&(*current_)) = v;
+  memcpy(&(*current_), &v, sizeof(std::uint32_t));
   current_ += sizeof(v);
 }
 
