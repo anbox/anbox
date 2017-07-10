@@ -85,16 +85,9 @@ std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Co
 }
 }
 
-anbox::cmds::SessionManager::BusFactory anbox::cmds::SessionManager::session_bus_factory() {
-  return []() {
-    return std::make_shared<core::dbus::Bus>(core::dbus::WellKnownBus::session);
-  };
-}
-
-anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
+anbox::cmds::SessionManager::SessionManager()
     : CommandWithFlagsAndAction{cli::Name{"session-manager"}, cli::Usage{"session-manager"},
                                 cli::Description{"Run the the anbox session manager"}},
-      bus_factory_(bus_factory),
       window_size_(default_single_window_size) {
   // Just for the purpose to allow QtMir (or unity8) to find this on our
   // /proc/*/cmdline
@@ -117,6 +110,9 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
   flag(cli::make_flag(cli::Name{"experimental"},
                       cli::Description{"Allows users to use experimental features"},
                       experimental_));
+  flag(cli::make_flag(cli::Name{"use-system-dbus"},
+                      cli::Description{"Use system instead of session DBus"},
+                      use_system_dbus_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -251,7 +247,11 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
       dispatcher->dispatch([&]() { container_->start(container_configuration); });
     }
 
-    auto bus = bus_factory_();
+    auto bus_type = core::dbus::WellKnownBus::session;
+    if (use_system_dbus_)
+        bus_type = core::dbus::WellKnownBus::system;
+
+    auto bus = std::make_shared<core::dbus::Bus>(bus_type);
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
 
     auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, app_manager);

@@ -36,21 +36,17 @@ class Client;
 namespace cmds {
 class SessionManager : public cli::CommandWithFlagsAndAction {
  public:
-  typedef std::function<core::dbus::Bus::Ptr()> BusFactory;
-
-  static BusFactory session_bus_factory();
-
-  SessionManager(const BusFactory& bus_factory = session_bus_factory());
+  SessionManager();
 
  private:
   std::shared_ptr<container::Client> container_;
-  BusFactory bus_factory_;
   std::string desktop_file_hint_;
   graphics::GLRendererServer::Config::Driver gles_driver_;
   bool single_window_ = false;
   graphics::Rect window_size_;
   bool standalone_ = false;
   bool experimental_ = false;
+  bool use_system_dbus_ = false;
 };
 }  // namespace cmds
 }  // namespace anbox
