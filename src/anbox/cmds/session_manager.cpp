@@ -163,15 +163,6 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
 
     auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
-    auto app_manager = std::static_pointer_cast<application::Manager>(android_api_stub);
-    if (!single_window_) {
-      // When we're not running single window mode we need to restrict ourself to
-      // only launch applications in freeform mode as otherwise the window tracking
-      // doesn't work.
-      app_manager = std::make_shared<application::RestrictedManager>(
-            android_api_stub, wm::Stack::Id::Freeform);
-    }
-
     auto display_frame = graphics::Rect::Invalid;
     if (single_window_)
       display_frame = window_size_;
@@ -186,10 +177,13 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     auto app_db = std::make_shared<application::Database>();
 
     std::shared_ptr<wm::Manager> window_manager;
+    bool using_single_window = false;
     if (platform->supports_multi_window() && !single_window_)
       window_manager = std::make_shared<wm::MultiWindowManager>(platform, android_api_stub, app_db);
-    else
+    else {
       window_manager = std::make_shared<wm::SingleWindowManager>(platform, display_frame, app_db);
+      using_single_window = true;
+    }
 
     auto gl_server = std::make_shared<graphics::GLRendererServer>(
           graphics::GLRendererServer::Config{gles_driver_, single_window_}, window_manager);
@@ -198,6 +192,15 @@ anbox::cmds::SessionManager::SessionManager(const BusFactory &bus_factory)
     platform->set_renderer(gl_server->renderer());
 
     window_manager->setup();
+
+    auto app_manager = std::static_pointer_cast<application::Manager>(android_api_stub);
+    if (!using_single_window) {
+      // When we're not running single window mode we need to restrict ourself to
+      // only launch applications in freeform mode as otherwise the window tracking
+      // doesn't work.
+      app_manager = std::make_shared<application::RestrictedManager>(
+            android_api_stub, wm::Stack::Id::Freeform);
+    }
 
     auto audio_server = std::make_shared<audio::Server>(rt, platform);
 
