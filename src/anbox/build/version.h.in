@@ -27,11 +27,6 @@ namespace anbox {
 namespace build {
 /// @brief version marks the version
 static constexpr const char *version{"@ANBOX_VERSION@"};
-/// @brief version_suffix is an additional suffix which can be amended to
-/// the major version number to indicate a dev build for example.
-static constexpr const char *version_suffix{"@ANBOX_VERSION_SUFFIX@"};
-/// @brief version queries the version of Anbox
-std::string print_version();
 }  // namespace build
 }  // namespace anbox
 

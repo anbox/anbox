@@ -53,7 +53,7 @@ class SystemInformation {
     std::stringstream s;
 
     s << "version: "
-      << anbox::build::print_version()
+      << anbox::build::version
       << std::endl;
 
     if (anbox::utils::is_env_set("SNAP_REVISION")) {

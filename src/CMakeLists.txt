@@ -63,7 +63,6 @@ set(SOURCES
     anbox/config.cpp
     anbox/not_reachable.cpp
 
-    anbox/build/version.cpp
     anbox/build/version.h.in
 
     anbox/android/intent.cpp
