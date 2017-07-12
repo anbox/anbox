@@ -27,6 +27,8 @@
 
 #include <fcntl.h>
 #include <mntent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "anbox/utils.h"
 
@@ -34,7 +36,6 @@ namespace fs = boost::filesystem;
 
 namespace anbox {
 namespace utils {
-
 std::vector<std::string> collect_arguments(int argc, char **argv) {
   std::vector<std::string> result;
   for (int i = 1; i < argc; i++) result.push_back(argv[i]);
@@ -193,5 +194,17 @@ bool is_mounted(const std::string &path) {
 
 }
 
+std::string find_program_on_path(const std::string &name) {
+  struct stat sb;
+  std::string path = std::string(getenv("PATH"));
+  size_t start_pos = 0, end_pos = 0;
+  while ((end_pos = path.find(':', start_pos)) != std::string::npos) {
+    const auto current_path = path.substr(start_pos, end_pos - start_pos) + "/" + name;
+    if ((::stat(current_path.c_str(), &sb) == 0) && (sb.st_mode & S_IXOTH))
+      return current_path;
+    start_pos = end_pos + 1;
+  }
+  return "";
+}
 }  // namespace utils
 }  // namespace anbox

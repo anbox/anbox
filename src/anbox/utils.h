@@ -56,6 +56,8 @@ std::string process_get_exe_path(const pid_t &pid);
 
 bool is_mounted(const std::string &path);
 
+std::string find_program_on_path(const std::string &name);
+
 template <typename... Types>
 static std::string string_format(const std::string &fmt_str, Types &&... args);
 }  // namespace utils
