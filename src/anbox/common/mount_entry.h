@@ -31,6 +31,8 @@ class MountEntry {
   static std::shared_ptr<MountEntry> create(const std::shared_ptr<LoopDevice> &loop, const boost::filesystem::path &target,
                                             const std::string &fs_type = "", unsigned long flags = 0);
 
+  static std::shared_ptr<MountEntry> create(const boost::filesystem::path &target);
+
   ~MountEntry();
 
  private:

@@ -46,6 +46,16 @@ std::shared_ptr<MountEntry> MountEntry::create(const std::shared_ptr<LoopDevice>
   return entry;
 }
 
+std::shared_ptr<MountEntry> MountEntry::create(const boost::filesystem::path &target) {
+  auto entry = std::shared_ptr<MountEntry>(new MountEntry(target));
+  if (!entry)
+    return nullptr;
+
+  entry->active_ = true;
+
+  return entry;
+}
+
 MountEntry::MountEntry(const boost::filesystem::path &target) :
   active_{false}, target_{target} {}
 
