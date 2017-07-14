@@ -14,8 +14,6 @@ VERSION=$(shell dpkg-parsechangelog -SVersion)
 override_dh_auto_configure:
 
 override_dh_auto_build:
-	cat data/anbox.service.in | sed s:@SNAP_MOUNT_DIR@:/snap/bin:g > data/anbox.service
-	cat data/anbox.conf.in | sed s:@SNAP_MOUNT_DIR@:/snap/bin:g > data/anbox.conf
 
 override_dh_install:
 	VERSION=$(shell dpkg-parsechangelog -SVersion)
@@ -29,13 +27,6 @@ override_dh_install:
 
 	install -d $(CURDIR)/debian/tmp/etc/modules-load.d
 	install -m 0644 kernel/anbox.conf $(CURDIR)/debian/tmp/etc/modules-load.d
-
-	install -d $(CURDIR)/debian/tmp/usr/lib/systemd/user/default.target.wants
-	install -m 0644 data/anbox.service $(CURDIR)/debian/tmp/usr/lib/systemd/user/
-	ln -sf /usr/lib/systemd/user/anbox.service $(CURDIR)/debian/tmp/usr/lib/systemd/user/default.target.wants/anbox.service
-
-	install -d $(CURDIR)/debian/tmp/usr/share/upstart/sessions/
-	install -m 0644 data/anbox.conf $(CURDIR)/debian/tmp/usr/share/upstart/sessions/
 
 	install -d $(CURDIR)/debian/tmp/etc/X11/Xsession.d
 	install -m 0644 data/xsession.conf $(CURDIR)/debian/tmp/etc/X11/Xsession.d/68anbox

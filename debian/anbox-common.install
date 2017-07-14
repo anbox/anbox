@@ -1,4 +1,1 @@
 etc/X11/Xsession.d/68anbox
-usr/share/upstart/sessions/anbox.conf
-usr/lib/systemd/user/anbox.service
-usr/lib/systemd/user/default.target.wants/anbox.service

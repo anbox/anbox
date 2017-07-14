@@ -10,7 +10,7 @@ Vcs-Git: https://github.com/anbox/anbox.git
 
 Package: anbox-common
 Architecture: all
-Depends: ${misc:Depends}, dbus-user-session
+Depends: ${misc:Depends}
 Description: Common files necessary for Anbox
  .
  This package contains necessary things which can't be shipped
