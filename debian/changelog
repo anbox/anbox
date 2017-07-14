@@ -1,3 +1,9 @@
+anbox (8) artful; urgency=medium
+
+  * Drop upstart/systemctl session jobs
+
+ -- Simon Fels <morphis@gravedo.de>  Fri, 14 Jul 2017 20:28:49 +0200
+
 anbox (7) artful; urgency=medium
 
   * Rebuild dkms modules with the kernel asked for and not the current
