@@ -50,8 +50,8 @@ parts:
 
       case "$ARCH" in
         x86_64)
-          IMAGE_PATH="2017/07/07"
-          IMAGE_NAME="android_2_amd64"
+          IMAGE_PATH="2017/07/13"
+          IMAGE_NAME="android_3_amd64"
           ;;
         arm*)
           IMAGE_PATH="2017/06/12"
