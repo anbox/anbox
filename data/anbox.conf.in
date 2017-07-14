@@ -1,6 +1,0 @@
-start on started dbus
-
-respawn
-respawn limit 10 5
-
-exec @SNAP_MOUNT_DIR@/anbox session-manager
