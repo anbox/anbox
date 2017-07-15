@@ -100,6 +100,8 @@ Untested but likely to work:
 
 ## Build from source
 
+### Requirements
+
 To build the Anbox runtime itself there is nothing special to know. We're using
 cmake as build system. A few build dependencies need to be present on your host
 system:
@@ -136,6 +138,10 @@ $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
     libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
     pkg-config protobuf-compiler 
 ```
+We recommend Ubuntu 16.04 (xenial) with **GCC 5.x** as your build environment.
+
+
+### Build
 
 Afterwards you can build Anbox with
 
