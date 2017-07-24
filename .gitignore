@@ -13,6 +13,7 @@ CMakeLists.txt.user
 *.mod.o
 modules.order
 .tmp_versions
+.idea
 
 debian/anbox-modules-dkms.debhelper.log
 debian/anbox-modules-dkms.substvars
