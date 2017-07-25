@@ -15,30 +15,16 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_DENSITY_H_
-#define ANBOX_GRAPHICS_DENSITY_H_
+#include "anbox/graphics/density.h"
 
 namespace anbox {
 namespace graphics {
-/**
- * @brief Defines different types of density being used in an Android system.
- * See the
- *        documentation in
- * frameworks/base/core/java/android/util/DisplayMetrics.java
- *        of the Android source tree which defines the different types.
- */
-enum class DensityType {
-  low = 120,
-  medium = 160,
-  tv = 213,
-  high = 240,
-  xhigh = 360,
-  xxhigh = 480,
-};
+DensityType current_density() {
+  return DensityType::medium;
+}
 
-DensityType current_density();
-int dp_to_pixel(unsigned int dp);
+int dp_to_pixel(unsigned int dp) {
+  return dp * static_cast<unsigned int>(current_density()) / static_cast<unsigned int>(DensityType::medium);
+}
 }  // namespace graphics
 }  // namespace anbox
-
-#endif
