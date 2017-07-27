@@ -34,6 +34,8 @@ apps:
     command: bin/container-manager.sh start
     stop-command: bin/container-manager.sh stop
     daemon: simple
+  collect-bug-info:
+    command: bin/collect-bug-info.sh
 
 parts:
   android-images:
@@ -77,10 +79,12 @@ parts:
       snap-wrapper.sh: bin/anbox-wrapper.sh
       container-manager.sh: bin/container-manager.sh
       anbox-bridge.sh: bin/anbox-bridge.sh
+      collect-bug-info.sh: bin/collect-bug-info.sh
     prime:
       - bin/anbox-bridge.sh
       - bin/anbox-wrapper.sh
       - bin/container-manager.sh
+      - bin/collect-bug-info.sh
   apparmor:
     plugin: nil
     stage-packages:
