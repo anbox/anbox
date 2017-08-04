@@ -6,9 +6,14 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/kallsyms.h>
+#include <linux/version.h>
 
 static struct vm_struct *(*get_vm_area_ptr)(unsigned long, unsigned long) = NULL;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+static void (*zap_page_range_ptr)(struct vm_area_struct *, unsigned long, unsigned long) = NULL;
+#else
 static void (*zap_page_range_ptr)(struct vm_area_struct *, unsigned long, unsigned long, struct zap_details *) = NULL;
+#endif
 static int (*map_kernel_range_noflush_ptr)(unsigned long start, unsigned long size, pgprot_t prot, struct page **pages) = NULL;
 static void (*unmap_kernel_range_ptr)(unsigned long, unsigned long) = NULL;
 static struct files_struct *(*get_files_struct_ptr)(struct task_struct *) = NULL;
@@ -30,11 +35,19 @@ struct vm_struct *get_vm_area(unsigned long size, unsigned long flags)
 	return get_vm_area_ptr(size, flags);
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+void zap_page_range(struct vm_area_struct *vma, unsigned long address, unsigned long size)
+#else
 void zap_page_range(struct vm_area_struct *vma, unsigned long address, unsigned long size, struct zap_details *details)
+#endif
 {
 	if (!zap_page_range_ptr)
 		zap_page_range_ptr = kallsyms_lookup_name("zap_page_range");
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+	zap_page_range_ptr(vma, address, size);
+#else
 	zap_page_range_ptr(vma, address, size, details);
+#endif
 }
 
 int map_kernel_range_noflush(unsigned long start, unsigned long size, pgprot_t prot, struct page **pages)
