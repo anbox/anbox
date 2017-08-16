@@ -88,6 +88,7 @@ std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Co
 anbox::cmds::SessionManager::SessionManager()
     : CommandWithFlagsAndAction{cli::Name{"session-manager"}, cli::Usage{"session-manager"},
                                 cli::Description{"Run the the anbox session manager"}},
+      gles_driver_(graphics::GLRendererServer::Config::Driver::Host),
       window_size_(default_single_window_size) {
   // Just for the purpose to allow QtMir (or unity8) to find this on our
   // /proc/*/cmdline
