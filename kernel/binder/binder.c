@@ -18,12 +18,13 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <asm/cacheflush.h>
+#include <linux/cdev.h>
+#include <linux/device.h>
 #include <linux/fdtable.h>
 #include <linux/file.h>
 #include <linux/freezer.h>
 #include <linux/fs.h>
 #include <linux/list.h>
-#include <linux/miscdevice.h>
 #include <linux/mm.h>
 #include <linux/module.h>
 #include <linux/mutex.h>
@@ -50,12 +51,20 @@
 #define BINDER_IPC_32BIT 1
 #endif
 
+/* Until I upstream a better version of this patch choose an arbitrary major
+ * number in the high end spectrum that has not yet been given away and is
+ * unlikely to be given away in the near future.
+ */
+#define BINDER_DKMS_MAJOR 511
+#define BINDER_DKMS_MAX_MINOR 1024
+
 #include "binder.h"
 #include "binder_trace.h"
 
 static DEFINE_MUTEX(binder_main_lock);
 static DEFINE_MUTEX(binder_deferred_lock);
 static DEFINE_MUTEX(binder_mmap_lock);
+static DEFINE_MUTEX(binder_devices_mtx);
 
 static HLIST_HEAD(binder_devices);
 static HLIST_HEAD(binder_procs);
@@ -121,8 +130,8 @@ module_param_named(debug_mask, binder_debug_mask, uint, S_IWUSR | S_IRUGO);
 static bool binder_debug_no_lock;
 module_param_named(proc_no_lock, binder_debug_no_lock, bool, S_IWUSR | S_IRUGO);
 
-static char *binder_devices_param = CONFIG_ANDROID_BINDER_DEVICES;
-module_param_named(devices, binder_devices_param, charp, 0444);
+static int binder_devices_param = 1;
+module_param_named(num_devices, binder_devices_param, int, 0444);
 
 static DECLARE_WAIT_QUEUE_HEAD(binder_user_error_wait);
 static int binder_stop_on_user_error;
@@ -239,7 +248,8 @@ struct binder_context {
 
 struct binder_device {
 	struct hlist_node hlist;
-	struct miscdevice miscdev;
+	struct cdev cdev;
+	struct device class_dev;
 	struct binder_context context;
 };
 
@@ -3470,6 +3480,8 @@ err_bad_arg:
 
 static int binder_open(struct inode *nodp, struct file *filp)
 {
+	int minor = iminor(nodp);
+	struct hlist_node *tmp;
 	struct binder_proc *proc;
 	struct binder_device *binder_dev;
 
@@ -3484,8 +3496,18 @@ static int binder_open(struct inode *nodp, struct file *filp)
 	INIT_LIST_HEAD(&proc->todo);
 	init_waitqueue_head(&proc->wait);
 	proc->default_priority = task_nice(current);
-	binder_dev = container_of(filp->private_data, struct binder_device,
-				  miscdev);
+
+	mutex_lock(&binder_devices_mtx);
+	hlist_for_each_entry_safe(binder_dev, tmp, &binder_devices, hlist) {
+		if (MINOR(binder_dev->cdev.dev) == minor)
+			break;
+		binder_dev = NULL;
+	}
+	mutex_unlock(&binder_devices_mtx);
+	if (!binder_dev)
+		BUG();
+
+	filp->private_data = &binder_dev->class_dev;
 	proc->context = &binder_dev->context;
 
 	binder_lock(__func__);
@@ -4200,39 +4222,84 @@ BINDER_DEBUG_ENTRY(stats);
 BINDER_DEBUG_ENTRY(transactions);
 BINDER_DEBUG_ENTRY(transaction_log);
 
-static int __init init_binder_device(const char *name)
+static struct class *binder_class;
+
+static void binder_device_release(struct device *dev)
+{
+}
+
+static int __init init_binder_device(int idx)
 {
 	int ret;
+	char *name;
+	dev_t devnr;
 	struct binder_device *binder_device;
+	/* strlen("binder")
+	 * +
+	 * maximum length of 64 bit int as string
+	 */
+	char numstr[6 + 21] = "binder";
 
 	binder_device = kzalloc(sizeof(*binder_device), GFP_KERNEL);
 	if (!binder_device)
 		return -ENOMEM;
 
-	binder_device->miscdev.fops = &binder_fops;
-	binder_device->miscdev.minor = MISC_DYNAMIC_MINOR;
-	binder_device->miscdev.name = name;
+	cdev_init(&binder_device->cdev, &binder_fops);
+	binder_device->cdev.owner = THIS_MODULE;
 
-	binder_device->context.binder_context_mgr_uid = INVALID_UID;
-	binder_device->context.name = name;
-
-	ret = misc_register(&binder_device->miscdev);
-	if (ret < 0) {
+	devnr = MKDEV(BINDER_DKMS_MAJOR, idx);
+	ret = cdev_add(&binder_device->cdev, devnr, 1);
+	if (ret) {
 		kfree(binder_device);
 		return ret;
 	}
 
-	hlist_add_head(&binder_device->hlist, &binder_devices);
+	if (binder_devices_param > 1)
+		ret = snprintf(numstr, sizeof(numstr), "binder%d", idx);
+	if (ret < 0 || (size_t)ret >= sizeof(numstr)) {
+		cdev_del(&binder_device->cdev);
+		kfree(binder_device);
+		return -EIO;
+	}
 
-	return ret;
+	name = kzalloc(strlen(numstr) + 1, GFP_KERNEL);
+	if (!name) {
+		cdev_del(&binder_device->cdev);
+		kfree(binder_device);
+		return -ENOMEM;
+	}
+	strcpy(name, numstr);
+	binder_device->context.name = name;
+	binder_device->context.binder_context_mgr_uid = INVALID_UID;
+
+	binder_device->class_dev.devt = binder_device->cdev.dev;
+	binder_device->class_dev.class = binder_class;
+	binder_device->class_dev.release = binder_device_release;
+	dev_set_name(&binder_device->class_dev, "%s", name);
+	ret = device_register(&binder_device->class_dev);
+	if (ret) {
+		cdev_del(&binder_device->cdev);
+		kfree(binder_device);
+		kfree(name);
+		return ret;
+	}
+
+	mutex_lock(&binder_devices_mtx);
+	hlist_add_head(&binder_device->hlist, &binder_devices);
+	mutex_unlock(&binder_devices_mtx);
+
+	return 0;
 }
 
 static int __init binder_init(void)
 {
-	int ret;
-	char *device_name, *device_names;
+	int i, ret;
 	struct binder_device *device;
 	struct hlist_node *tmp;
+
+	if (binder_devices_param <= 0 ||
+	    binder_devices_param > BINDER_DKMS_MAX_MINOR)
+		return -EINVAL;
 
 	binder_debugfs_dir_entry_root = debugfs_create_dir("binder", NULL);
 	if (binder_debugfs_dir_entry_root)
@@ -4267,19 +4334,17 @@ static int __init binder_init(void)
 				    &binder_transaction_log_fops);
 	}
 
-	/*
-	 * Copy the module_parameter string, because we don't want to
-	 * tokenize it in-place.
-	 */
-	device_names = kzalloc(strlen(binder_devices_param) + 1, GFP_KERNEL);
-	if (!device_names) {
-		ret = -ENOMEM;
-		goto err_alloc_device_names_failed;
-	}
-	strcpy(device_names, binder_devices_param);
+	ret = register_chrdev_region(MKDEV(BINDER_DKMS_MAJOR, 0),
+				     BINDER_DKMS_MAX_MINOR, "binder");
+	if (ret)
+		goto on_error_remove_debugfs;
 
-	while ((device_name = strsep(&device_names, ","))) {
-		ret = init_binder_device(device_name);
+	binder_class = class_create(THIS_MODULE, "binder");
+	if (IS_ERR(binder_class))
+		goto on_error_unregister_chrdev_region;
+
+	for (i = 0; i < binder_devices_param; i++) {
+		ret = init_binder_device(i);
 		if (ret)
 			goto err_init_binder_device_failed;
 	}
@@ -4287,18 +4352,52 @@ static int __init binder_init(void)
 	return ret;
 
 err_init_binder_device_failed:
+	mutex_lock(&binder_devices_mtx);
 	hlist_for_each_entry_safe(device, tmp, &binder_devices, hlist) {
-		misc_deregister(&device->miscdev);
+		cdev_del(&device->cdev);
+		device_unregister(&device->class_dev);
+		kfree(device->context.name);
 		hlist_del(&device->hlist);
 		kfree(device);
 	}
-err_alloc_device_names_failed:
+	mutex_unlock(&binder_devices_mtx);
+	class_destroy(binder_class);
+
+on_error_unregister_chrdev_region:
+	unregister_chrdev_region(MKDEV(BINDER_DKMS_MAJOR, 0),
+				 BINDER_DKMS_MAX_MINOR);
+
+on_error_remove_debugfs:
 	debugfs_remove_recursive(binder_debugfs_dir_entry_root);
 
-	return ret;
+	return -1;
 }
 
-device_initcall(binder_init);
+static void __exit binder_exit(void)
+{
+	struct binder_device *device;
+	struct hlist_node *tmp;
+
+	mutex_lock(&binder_devices_mtx);
+	hlist_for_each_entry_safe(device, tmp, &binder_devices, hlist) {
+		cdev_del(&device->cdev);
+		device_unregister(&device->class_dev);
+		kfree(device->context.name);
+		hlist_del(&device->hlist);
+		kfree(device);
+	}
+	mutex_unlock(&binder_devices_mtx);
+
+	class_destroy(binder_class);
+
+	unregister_chrdev_region(MKDEV(BINDER_DKMS_MAJOR, 0),
+				 BINDER_DKMS_MAX_MINOR);
+
+	debugfs_remove_recursive(binder_debugfs_dir_entry_root);
+}
+
+module_init(binder_init);
+module_exit(binder_exit);
 
 #define CREATE_TRACE_POINTS
 #include "binder_trace.h"
