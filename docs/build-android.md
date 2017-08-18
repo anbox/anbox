@@ -44,14 +44,14 @@ $ . build/envsetup.sh
 Then initialize the build using ```lunch```.
 
 ```
-$ lunch anbox_desktop_x86_64-userdebug
+$ lunch anbox_x86_64-userdebug
 ```
 
 The complete list of supported build targets:
 
- * anbox_desktop_x86_64-userdebug
- * anbox_desktop_armv7a_neon-userdebug
- * anbox_desktop_arm64-userdebug
+ * anbox_x86_64-userdebug
+ * anbox_armv7a_neon-userdebug
+ * anbox_arm64-userdebug
 
 Now build everything with
 
