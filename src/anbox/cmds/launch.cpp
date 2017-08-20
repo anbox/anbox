@@ -84,6 +84,8 @@ anbox::cmds::Launch::Launch()
   action([this](const cli::Command::Context&) {
     if (!intent_.valid()) {
       ERROR("The intent you provided is invalid. Please provide a correct launch intent.");
+      ERROR("For example to launch the application manager, run:");
+      ERROR("$ anbox launch --package=org.anbox.appmgr --component=org.anbox.appmgr.AppViewActivity");
       return EXIT_FAILURE;
     }
 
