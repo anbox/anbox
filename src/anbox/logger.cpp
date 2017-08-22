@@ -25,12 +25,14 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/manipulators.hpp>
 #include <boost/log/utility/setup.hpp>
+#define BOOST_LOG_USE_NATIVE_SYSLOG
+#include <boost/log/sinks/syslog_backend.hpp>
 
 #include "anbox/logger.h"
 
 namespace {
 namespace attrs {
-BOOST_LOG_ATTRIBUTE_KEYWORD(Severity, "anbox::Severity", anbox::Logger::Severity)
+BOOST_LOG_ATTRIBUTE_KEYWORD(Severity, "Severity", anbox::Logger::Severity)
 BOOST_LOG_ATTRIBUTE_KEYWORD(Location, "Location", anbox::Logger::Location)
 BOOST_LOG_ATTRIBUTE_KEYWORD(Timestamp, "Timestamp", boost::posix_time::ptime)
 }
@@ -39,7 +41,8 @@ struct BoostLogLogger : public anbox::Logger {
   BoostLogLogger() : initialized_(false) {}
 
   void Init(const anbox::Logger::Severity& severity = anbox::Logger::Severity::kWarning) override {
-    if (initialized_) return;
+    if (initialized_)
+      return;
 
     boost::log::formatter formatter =
         boost::log::expressions::stream
@@ -53,8 +56,21 @@ struct BoostLogLogger : public anbox::Logger {
         << boost::log::expressions::smessage;
 
     boost::log::core::get()->remove_all_sinks();
-    auto logger = boost::log::add_console_log(std::cout);
-    logger->set_formatter(formatter);
+
+    // If we have a controlling tty then we use the console for log outpu
+    // and otherwise we move everything into the system syslog.
+    if (isatty(0)) {
+      auto logger = boost::log::add_console_log(std::cout);
+      logger->set_formatter(formatter);
+    } else {
+      boost::shared_ptr<boost::log::sinks::syslog_backend> backend(
+            new boost::log::sinks::syslog_backend(
+              boost::log::keywords::facility = boost::log::sinks::syslog::user,
+              boost::log::keywords::use_impl = boost::log::sinks::syslog::native));
+      backend->set_severity_mapper(boost::log::sinks::syslog::direct_severity_mapping<int>("Severity"));
+      boost::log::core::get()->add_sink(boost::make_shared<boost::log::sinks::synchronous_sink<
+                                          boost::log::sinks::syslog_backend>>(backend));
+    }
 
     severity_ = severity;
     initialized_ = true;
