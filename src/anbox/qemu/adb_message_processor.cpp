@@ -20,13 +20,21 @@
 #include "anbox/network/delegate_message_processor.h"
 #include "anbox/network/tcp_socket_messenger.h"
 #include "anbox/utils.h"
+#include "anbox/logger.h"
 
 #include <fstream>
 #include <functional>
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <unistd.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
+
 namespace {
 const unsigned short default_adb_client_port{5037};
-const unsigned short default_host_listen_port{6664};
+const unsigned short default_host_listen_port{5559};
 constexpr const char *loopback_address{"127.0.0.1"};
 const std::string accept_command{"accept"};
 const std::string ok_command{"ok"};
@@ -52,9 +60,12 @@ AdbMessageProcessor::AdbMessageProcessor(
       expected_command_(accept_command),
       messenger_(messenger),
       host_notify_timer_(rt->service()),
-      lock_(active_instance_, std::defer_lock) {}
+      lock_(active_instance_, std::defer_lock) {
+  INFO("%p constructor", this);
+}
 
 AdbMessageProcessor::~AdbMessageProcessor() {
+  INFO("%p destructor", this);
   state_ = closed_by_host;
 
   host_notify_timer_.cancel();
@@ -62,6 +73,7 @@ AdbMessageProcessor::~AdbMessageProcessor() {
 }
 
 void AdbMessageProcessor::advance_state() {
+  INFO("%p [%d] state %d", this, syscall(SYS_gettid), state_);
   switch (state_) {
     case waiting_for_guest_accept_command:
       // Try to get a lock here as if we already have another processor
@@ -108,7 +120,9 @@ void AdbMessageProcessor::advance_state() {
 }
 
 void AdbMessageProcessor::wait_for_host_connection() {
-  if (state_ == closed_by_host || state_ == closed_by_container)
+  INFO("%p state %d", this, state_);
+
+  if (state_ != waiting_for_guest_accept_command)
     return;
 
   if (!host_connector_) {
@@ -141,6 +155,8 @@ void AdbMessageProcessor::wait_for_host_connection() {
 }
 
 void AdbMessageProcessor::on_host_connection(std::shared_ptr<boost::asio::basic_stream_socket<boost::asio::ip::tcp>> const &socket) {
+  INFO("%p state %d", this, state_);
+
   host_messenger_ = std::make_shared<network::TcpSocketMessenger>(socket);
 
   // set_no_delay() reduces the latency of sending data, at the cost
@@ -159,13 +175,19 @@ void AdbMessageProcessor::on_host_connection(std::shared_ptr<boost::asio::basic_
 }
 
 void AdbMessageProcessor::read_next_host_message() {
+  INFO("%p state %d", this, state_);
+
   auto callback = std::bind(&AdbMessageProcessor::on_host_read_size, this, _1, _2);
   host_messenger_->async_receive_msg(callback, boost::asio::buffer(host_buffer_));
 }
 
 void AdbMessageProcessor::on_host_read_size(const boost::system::error_code &error, std::size_t bytes_read) {
   if (error) {
+    INFO("%p [%d] closed error %d", this, syscall(SYS_gettid), error.value());
     state_ = closed_by_host;
+    host_connector_.reset();
+    //messenger_.reset();
+    lock_.unlock();
     return;
   }
 
@@ -174,6 +196,8 @@ void AdbMessageProcessor::on_host_read_size(const boost::system::error_code &err
 }
 
 bool AdbMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
+  INFO("%p state %d bytes rx %d", this, state_, int(data.size()));
+
   if (state_ == proxying_data) {
     host_messenger_->send(reinterpret_cast<const char *>(data.data()),
                           data.size());
@@ -186,6 +210,7 @@ bool AdbMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
       buffer_.size() >= expected_command_.size()) {
     if (::memcmp(buffer_.data(), expected_command_.data(), data.size()) != 0) {
       // We got not the command we expected and will terminate here
+      INFO("%p not the expected command", this);
       return false;
     }
 
