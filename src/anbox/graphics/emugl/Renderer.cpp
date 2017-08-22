@@ -655,7 +655,7 @@ bool Renderer::bindContext(HandleType p_context, HandleType p_drawSurface,
                             draw ? draw->getEGLSurface() : EGL_NO_SURFACE,
                             read ? read->getEGLSurface() : EGL_NO_SURFACE,
                             ctx ? ctx->getEGLContext() : EGL_NO_CONTEXT)) {
-    ERROR("eglMakeCurrent failed");
+    ERROR("eglMakeCurrent failed: 0x%04x", s_egl.eglGetError());
     return false;
   }
 
@@ -737,7 +737,7 @@ bool Renderer::bind_locked() {
 
   if (!s_egl.eglMakeCurrent(m_eglDisplay, m_pbufSurface, m_pbufSurface,
                             m_pbufContext)) {
-    ERROR("eglMakeCurrent failed");
+    ERROR("eglMakeCurrent failed: 0x%04x", s_egl.eglGetError());
     return false;
   }
 
