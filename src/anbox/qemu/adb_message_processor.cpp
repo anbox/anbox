@@ -25,13 +25,6 @@
 #include <fstream>
 #include <functional>
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <sys/types.h>
-
 namespace {
 const unsigned short default_adb_client_port{5037};
 // For the listening port we have to use an odd port in the 5555-5585 range so
@@ -62,21 +55,19 @@ AdbMessageProcessor::AdbMessageProcessor(
       state_(waiting_for_guest_accept_command),
       expected_command_(accept_command),
       messenger_(messenger),
-      host_notify_timer_(rt->service()),
       lock_(active_instance_, std::defer_lock) {
-  INFO("%p constructor", this);
+  DEBUG("%p constructor", this);
 }
 
 AdbMessageProcessor::~AdbMessageProcessor() {
-  INFO("%p destructor", this);
+  DEBUG("%p destructor", this);
   state_ = closed_by_host;
 
-  host_notify_timer_.cancel();
   host_connector_.reset();
 }
 
 void AdbMessageProcessor::advance_state() {
-  INFO("%p [%d] state %d", this, syscall(SYS_gettid), state_);
+  DEBUG("%p state %d", this, state_);
   switch (state_) {
     case waiting_for_guest_accept_command:
       // Try to get a lock here as if we already have another processor
@@ -86,7 +77,6 @@ void AdbMessageProcessor::advance_state() {
       lock_.lock();
 
       if (state_ == closed_by_host) {
-        host_notify_timer_.cancel();
         host_connector_.reset();
         return;
       }
@@ -144,14 +134,7 @@ void AdbMessageProcessor::wait_for_host_connection() {
     auto handshake = utils::string_format("%04x%s", message.size(), message.c_str());
     messenger->send(handshake.data(), handshake.size());
   } catch (...) {
-    // Try again later when the host adb service is maybe available
-    host_notify_timer_.cancel();
-    host_notify_timer_.expires_from_now(default_adb_wait_time);
-    host_notify_timer_.async_wait([this](const boost::system::error_code &err) {
-      if (err)
-        return;
-      wait_for_host_connection();
-    });
+    DEBUG("%p adb host is not up yet", this);
   }
 }
 
@@ -174,8 +157,6 @@ void AdbMessageProcessor::on_host_connection(std::shared_ptr<boost::asio::basic_
 }
 
 void AdbMessageProcessor::read_next_host_message() {
-  INFO("%p state %d", this, state_);
-
   auto callback = std::bind(&AdbMessageProcessor::on_host_read_size, this, _1, _2);
   host_messenger_->async_receive_msg(callback, boost::asio::buffer(host_buffer_));
 }
@@ -218,7 +199,7 @@ bool AdbMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
       buffer_.size() >= expected_command_.size()) {
     if (::memcmp(buffer_.data(), expected_command_.data(), data.size()) != 0) {
       // We got not the command we expected and will terminate here
-      INFO("%p not the expected command", this);
+      WARNING("%p not the expected command", this);
       return false;
     }
 
