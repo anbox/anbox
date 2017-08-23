@@ -20,7 +20,6 @@
 #include "anbox/network/delegate_message_processor.h"
 #include "anbox/network/tcp_socket_messenger.h"
 #include "anbox/utils.h"
-#include "anbox/logger.h"
 
 #include <fstream>
 #include <functional>
@@ -56,18 +55,15 @@ AdbMessageProcessor::AdbMessageProcessor(
       expected_command_(accept_command),
       messenger_(messenger),
       lock_(active_instance_, std::defer_lock) {
-  DEBUG("%p constructor", this);
 }
 
 AdbMessageProcessor::~AdbMessageProcessor() {
-  DEBUG("%p destructor", this);
   state_ = closed_by_host;
 
   host_connector_.reset();
 }
 
 void AdbMessageProcessor::advance_state() {
-  DEBUG("%p state %d", this, state_);
   switch (state_) {
     case waiting_for_guest_accept_command:
       // Try to get a lock here as if we already have another processor
@@ -134,7 +130,7 @@ void AdbMessageProcessor::wait_for_host_connection() {
     auto handshake = utils::string_format("%04x%s", message.size(), message.c_str());
     messenger->send(handshake.data(), handshake.size());
   } catch (...) {
-    DEBUG("%p adb host is not up yet", this);
+    // Server not up. No problem, it will contact us when started.
   }
 }
 
@@ -199,7 +195,6 @@ bool AdbMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
       buffer_.size() >= expected_command_.size()) {
     if (::memcmp(buffer_.data(), expected_command_.data(), data.size()) != 0) {
       // We got not the command we expected and will terminate here
-      WARNING("%p not the expected command", this);
       return false;
     }
 
