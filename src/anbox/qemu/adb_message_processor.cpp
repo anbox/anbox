@@ -34,6 +34,9 @@
 
 namespace {
 const unsigned short default_adb_client_port{5037};
+// For the listening port we have to use an odd port in the 5555-5585 range so
+// the host can find us on start. See
+// https://developer.android.com/studio/command-line/adb.html.
 const unsigned short default_host_listen_port{5559};
 constexpr const char *loopback_address{"127.0.0.1"};
 const std::string accept_command{"accept"};
@@ -120,8 +123,6 @@ void AdbMessageProcessor::advance_state() {
 }
 
 void AdbMessageProcessor::wait_for_host_connection() {
-  INFO("%p state %d", this, state_);
-
   if (state_ != waiting_for_guest_accept_command)
     return;
 
@@ -155,8 +156,6 @@ void AdbMessageProcessor::wait_for_host_connection() {
 }
 
 void AdbMessageProcessor::on_host_connection(std::shared_ptr<boost::asio::basic_stream_socket<boost::asio::ip::tcp>> const &socket) {
-  INFO("%p state %d", this, state_);
-
   host_messenger_ = std::make_shared<network::TcpSocketMessenger>(socket);
 
   // set_no_delay() reduces the latency of sending data, at the cost
@@ -183,11 +182,22 @@ void AdbMessageProcessor::read_next_host_message() {
 
 void AdbMessageProcessor::on_host_read_size(const boost::system::error_code &error, std::size_t bytes_read) {
   if (error) {
-    INFO("%p [%d] closed error %d", this, syscall(SYS_gettid), error.value());
+    // When AdbMessageProcessor is destroyed on program termination, the sockets
+    // are closed and the standing operations are canceled. But, the callback is
+    // still called even in that case, and the object has already been
+    // deleted. We detect that condition by looking at the error code and avoid
+    // touching *this in that case.
+    if (error == boost::system::errc::operation_canceled)
+      return;
+
+    // For other errors, we assume the connection with the host is dropped. We
+    // close the connection to the container's adbd, which will trigger the
+    // deletion of this AdbMessageProcessor instance and free resources (most
+    // importantly, default_host_listen_port and the lock). The standing
+    // connection that adbd opened can then proceed and wait for the host to be
+    // up again.
     state_ = closed_by_host;
-    host_connector_.reset();
-    //messenger_.reset();
-    lock_.unlock();
+    messenger_->close();
     return;
   }
 
@@ -196,8 +206,6 @@ void AdbMessageProcessor::on_host_read_size(const boost::system::error_code &err
 }
 
 bool AdbMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
-  INFO("%p state %d bytes rx %d", this, state_, int(data.size()));
-
   if (state_ == proxying_data) {
     host_messenger_->send(reinterpret_cast<const char *>(data.data()),
                           data.size());
