@@ -25,6 +25,10 @@
 #include <string.h>
 #include <X11/Xlib.h>
 #include <GL/glx.h>
+#if defined(Status)
+// undef to address conflict between X11 symbol and protobuf
+#undef Status
+#endif
 
 namespace {
 
