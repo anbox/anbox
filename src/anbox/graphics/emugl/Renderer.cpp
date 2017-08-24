@@ -655,7 +655,7 @@ bool Renderer::bindContext(HandleType p_context, HandleType p_drawSurface,
                             draw ? draw->getEGLSurface() : EGL_NO_SURFACE,
                             read ? read->getEGLSurface() : EGL_NO_SURFACE,
                             ctx ? ctx->getEGLContext() : EGL_NO_CONTEXT)) {
-    ERROR("eglMakeCurrent failed");
+    ERROR("eglMakeCurrent failed: 0x%04x", s_egl.eglGetError());
     return false;
   }
 
@@ -737,7 +737,7 @@ bool Renderer::bind_locked() {
 
   if (!s_egl.eglMakeCurrent(m_eglDisplay, m_pbufSurface, m_pbufSurface,
                             m_pbufContext)) {
-    ERROR("eglMakeCurrent failed");
+    ERROR("eglMakeCurrent failed: 0x%04x", s_egl.eglGetError());
     return false;
   }
 
@@ -938,13 +938,14 @@ void Renderer::draw(RendererWindow *window, const Renderable &renderable,
 bool Renderer::draw(EGLNativeWindowType native_window,
                     const anbox::graphics::Rect &window_frame,
                     const RenderableList &renderables) {
+
+  std::unique_lock<std::mutex> l(m_lock);
+
   auto w = m_nativeWindows.find(native_window);
   if (w == m_nativeWindows.end()) return false;
 
-  if (!bindWindow_locked(w->second)) {
-    m_lock.unlock();
+  if (!bindWindow_locked(w->second))
     return false;
-  }
 
   setupViewport(w->second, window_frame);
   s_gles2.glViewport(0, 0, window_frame.width(), window_frame.height());
@@ -958,10 +959,6 @@ bool Renderer::draw(EGLNativeWindowType native_window,
   s_egl.eglSwapBuffers(m_eglDisplay, w->second->surface);
 
   unbind_locked();
-
-  m_lock.lock();
-
-  m_lock.unlock();
 
   return false;
 }

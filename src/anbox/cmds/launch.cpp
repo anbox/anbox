@@ -38,6 +38,21 @@ namespace {
 const boost::posix_time::seconds max_wait_timeout{240};
 const int max_restart_attempts{3};
 const std::chrono::seconds restart_interval{5};
+
+static int redirect_to_null(int flags, int fd) {
+  int fd2;
+  if ((fd2 = open("/dev/null", flags)) < 0)
+    return -1;
+
+  if (fd2 == fd)
+    return fd;
+
+  if (dup2(fd2, fd) < 0)
+    return -1;
+
+  close(fd2);
+  return fd;
+}
 }
 
 bool anbox::cmds::Launch::try_launch_activity(const std::shared_ptr<dbus::stub::ApplicationManager> &stub) {
@@ -84,6 +99,8 @@ anbox::cmds::Launch::Launch()
   action([this](const cli::Command::Context&) {
     if (!intent_.valid()) {
       ERROR("The intent you provided is invalid. Please provide a correct launch intent.");
+      ERROR("For example to launch the application manager, run:");
+      ERROR("$ anbox launch --package=org.anbox.appmgr --component=org.anbox.appmgr.AppViewActivity");
       return EXIT_FAILURE;
     }
 
@@ -142,12 +159,34 @@ anbox::cmds::Launch::Launch()
         }
 
         try {
-          auto flags = core::posix::StandardStream::stdout | core::posix::StandardStream::stderr;
-          // If we have logging enable in debug mode then we allow the child process
-          // to print to stdout/stderr too.
-          if (Log().GetSeverity() == Logger::Severity::kDebug)
-            flags = core::posix::StandardStream::empty;
+          auto flags = core::posix::StandardStream::empty;
           auto child = core::posix::fork([&]() {
+            // We redirect all in/out/err to /dev/null as they can't be seen
+            // anywhere. All logging output will directly go to syslog as we
+            // will become a session leader below which will get us rid of a
+            // controlling terminal.
+            if (redirect_to_null(O_RDONLY, 0) < 0 ||
+                redirect_to_null(O_WRONLY, 1) < 0 ||
+                redirect_to_null(O_WRONLY, 2) < 0) {
+              ERROR("Failed to redirect stdout/stderr/stdin: %s", strerror(errno));
+              return core::posix::exit::Status::failure;
+            }
+
+            // As we forked one time already we're sure that our process is
+            // not the session leader anymore so we can safely become the
+            // new one and lead the process group.
+            if (setsid() < 0) {
+              ERROR("Failed to become new session leader: %s", strerror(errno));
+              return core::posix::exit::Status::failure;
+            }
+
+            umask(0077);
+
+            if (chdir("/") < 0) {
+              ERROR("Failed to change current directory: %s", strerror(errno));
+              return core::posix::exit::Status::failure;
+            }
+
             auto grandchild = core::posix::exec(exe_path, args, env, flags);
             grandchild.dont_kill_on_cleanup();
             return core::posix::exit::Status::success;

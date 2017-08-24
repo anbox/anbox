@@ -18,6 +18,7 @@
 #include "anbox/ui/splash_screen.h"
 #include "anbox/config.h"
 #include "anbox/utils.h"
+#include "anbox/logger.h"
 
 #include <SDL2/SDL_image.h>
 
@@ -44,9 +45,15 @@ SplashScreen::SplashScreen() {
   SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, 0xee, 0xee, 0xee));
   SDL_UpdateWindowSurface(window_);
 
-  auto renderer = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
-  if (!renderer)
-    BOOST_THROW_EXCEPTION(std::runtime_error("Could not create renderer"));
+  auto renderer = SDL_GetRenderer(window_);
+  if (!renderer) {
+    DEBUG("Window has no associated renderer yet, creating one ...");
+    renderer = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
+    if (!renderer) {
+      const auto msg = utils::string_format("Could not create renderer: %s", SDL_GetError());
+      BOOST_THROW_EXCEPTION(std::runtime_error(msg));
+    }
+  }
 
   const auto icon_path = utils::string_format("%s/ui/loading-screen.png", SystemConfiguration::instance().resource_dir());
   auto img = IMG_LoadTexture(renderer, icon_path.c_str());
