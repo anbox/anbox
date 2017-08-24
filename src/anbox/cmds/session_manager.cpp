@@ -60,6 +60,9 @@ std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Co
 namespace fs = boost::filesystem;
 
 namespace {
+constexpr const char *default_appmgr_package{"org.anbox.appmgr"};
+constexpr const char *default_appmgr_component{"org.anbox.appmgr.AppViewActivity"};
+const boost::posix_time::milliseconds default_appmgr_startup_delay{50};
 const anbox::graphics::Rect default_single_window_size{0, 0, 1024, 768};
 
 class NullConnectionCreator : public anbox::network::ConnectionCreator<
@@ -83,6 +86,18 @@ std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Co
    BOOST_THROW_EXCEPTION(std::runtime_error("Invalid GLES driver value provided"));
   return in;
 }
+}
+
+void anbox::cmds::SessionManager::launch_appmgr_if_needed(const std::shared_ptr<bridge::AndroidApiStub> &android_api_stub) {
+  if (!single_window_)
+    return;
+
+  android::Intent launch_intent;
+  launch_intent.package = default_appmgr_package;
+  launch_intent.component = default_appmgr_component;
+  // As this will only be executed in single window mode we don't have
+  // to specify and launch bounds.
+  android_api_stub->launch(launch_intent, graphics::Rect::Invalid, wm::Stack::Id::Default);
 }
 
 anbox::cmds::SessionManager::SessionManager()
@@ -187,7 +202,6 @@ anbox::cmds::SessionManager::SessionManager()
 
     platform->set_window_manager(window_manager);
     platform->set_renderer(gl_server->renderer());
-
     window_manager->setup();
 
     auto app_manager = std::static_pointer_cast<application::Manager>(android_api_stub);
@@ -210,6 +224,8 @@ anbox::cmds::SessionManager::SessionManager()
             utils::string_format("%s/qemu_pipe", socket_path), rt,
             std::make_shared<qemu::PipeConnectionCreator>(gl_server->renderer(), rt));
 
+    boost::asio::deadline_timer appmgr_start_timer(rt->service());
+
     auto bridge_connector = std::make_shared<network::PublishedSocketConnector>(
         utils::string_format("%s/anbox_bridge", socket_path), rt,
         std::make_shared<rpc::ConnectionCreator>(
@@ -228,6 +244,12 @@ anbox::cmds::SessionManager::SessionManager()
               server->register_boot_finished_handler([&]() {
                 DEBUG("Android successfully booted");
                 android_api_stub->ready().set(true);
+                appmgr_start_timer.expires_from_now(default_appmgr_startup_delay);
+                appmgr_start_timer.async_wait([&](const boost::system::error_code &err) {
+                  if (err != boost::system::errc::success)
+                    return;
+                  launch_appmgr_if_needed(android_api_stub);
+                });
               });
               return std::make_shared<bridge::PlatformMessageProcessor>(
                   sender, server, pending_calls);

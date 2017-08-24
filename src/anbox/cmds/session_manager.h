@@ -30,6 +30,9 @@
 #include "anbox/graphics/rect.h"
 
 namespace anbox {
+namespace bridge {
+class AndroidApiStub;
+} // namespace bridge
 namespace container {
 class Client;
 }  // namespace container
@@ -39,6 +42,8 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
   SessionManager();
 
  private:
+  void launch_appmgr_if_needed(const std::shared_ptr<bridge::AndroidApiStub> &android_api_stub);
+
   std::shared_ptr<container::Client> container_;
   std::string desktop_file_hint_;
   graphics::GLRendererServer::Config::Driver gles_driver_;
