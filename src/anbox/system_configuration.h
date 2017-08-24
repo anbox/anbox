@@ -31,6 +31,7 @@ class SystemConfiguration {
   virtual ~SystemConfiguration() = default;
 
   void set_data_path(const std::string &path);
+  void set_lxc_conf_path(const std::string &path);
 
   boost::filesystem::path data_dir() const;
   std::string rootfs_dir() const;
@@ -41,12 +42,14 @@ class SystemConfiguration {
   std::string input_device_dir() const;
   std::string application_item_dir() const;
   std::string resource_dir() const;
+  std::string lxc_conf_path() const;
 
  protected:
   SystemConfiguration();
 
-  boost::filesystem::path data_path;
-  boost::filesystem::path resource_path;
+  boost::filesystem::path data_path_;
+  boost::filesystem::path resource_path_;
+  boost::filesystem::path lxc_conf_path_;
 };
 }  // namespace anbox
 

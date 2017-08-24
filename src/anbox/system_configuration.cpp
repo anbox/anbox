@@ -39,23 +39,27 @@ static std::string runtime_dir() {
 }
 
 void anbox::SystemConfiguration::set_data_path(const std::string &path) {
-  data_path = path;
+  data_path_ = path;
+}
+
+void anbox::SystemConfiguration::set_lxc_conf_path(const std::string &path) {
+  lxc_conf_path_ = path;
 }
 
 fs::path anbox::SystemConfiguration::data_dir() const {
-  return data_path;
+  return data_path_;
 }
 
 std::string anbox::SystemConfiguration::rootfs_dir() const {
-  return (data_path / "rootfs").string();
+  return (data_path_ / "rootfs").string();
 }
 
 std::string anbox::SystemConfiguration::log_dir() const {
-  return (data_path / "logs").string();
+  return (data_path_ / "logs").string();
 }
 
 std::string anbox::SystemConfiguration::container_config_dir() const {
-  return (data_path / "containers").string();
+  return (data_path_ / "containers").string();
 }
 
 std::string anbox::SystemConfiguration::container_socket_path() const {
@@ -78,7 +82,11 @@ std::string anbox::SystemConfiguration::application_item_dir() const {
 }
 
 std::string anbox::SystemConfiguration::resource_dir() const {
-  return resource_path.string();
+  return resource_path_.string();
+}
+
+std::string anbox::SystemConfiguration::lxc_conf_path() const {
+  return lxc_conf_path_.string();
 }
 
 anbox::SystemConfiguration& anbox::SystemConfiguration::instance() {
@@ -96,6 +104,6 @@ anbox::SystemConfiguration::SystemConfiguration() {
     }
   };
 
-  resource_path = detect_resource_path();
-  data_path = anbox::build::default_data_path;
+  resource_path_ = detect_resource_path();
+  data_path_ = anbox::build::default_data_path;
 }

@@ -39,6 +39,7 @@ class ContainerManager : public cli::CommandWithFlagsAndAction {
 
   std::string android_img_path_;
   std::string data_path_;
+  std::string lxc_conf_path_;
   std::shared_ptr<common::LoopDevice> android_img_loop_dev_;
   std::vector<std::shared_ptr<common::MountEntry>> mounts_;
   bool privileged_ = false;
