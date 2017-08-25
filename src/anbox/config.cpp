@@ -41,10 +41,6 @@ void anbox::SystemConfiguration::set_data_path(const std::string &path) {
   data_path = path;
 }
 
-void anbox::SystemConfiguration::set_resource_path(const fs::path &path) {
-  resource_path = path;
-}
-
 fs::path anbox::SystemConfiguration::data_dir() const {
   return data_path;
 }
@@ -87,4 +83,25 @@ std::string anbox::SystemConfiguration::resource_dir() const {
 anbox::SystemConfiguration& anbox::SystemConfiguration::instance() {
   static SystemConfiguration config;
   return config;
+}
+
+anbox::SystemConfiguration::SystemConfiguration() {
+  auto gen_resource_path = [] () -> fs::path {
+    const auto snap_path = utils::get_env_value("SNAP");
+    if (!snap_path.empty()) {
+      return fs::path(snap_path) / "usr/share/anbox";
+    }
+
+    const std::string exe = utils::process_get_exe_path(::getpid());
+    const std::size_t pos = exe.rfind("/bin/anbox");
+    if (pos != std::string::npos) {
+      const std::string leading_path = exe.substr(0, pos);
+      return fs::path(leading_path) / "share/anbox";
+    } else {
+      return "/usr/local/share/anbox";
+    }
+  };
+
+  resource_path = gen_resource_path();
+  data_path = "/var/local/lib/anbox";
 }

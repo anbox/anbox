@@ -119,12 +119,6 @@ anbox::cmds::Launch::Launch()
     auto bus = std::make_shared<core::dbus::Bus>(bus_type);
     bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
 
-    const auto snap_path = utils::get_env_value("SNAP");
-    if (!snap_path.empty()) {
-      const auto resource_path = fs::path(snap_path) / "usr" / "share" / "anbox";
-      SystemConfiguration::instance().set_resource_path(resource_path);
-    }
-
     std::shared_ptr<ui::SplashScreen> ss;
 
     // Instead of relying on the user session init system to start our
