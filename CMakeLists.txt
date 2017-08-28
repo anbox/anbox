@@ -105,14 +105,11 @@ endif()
 if (ANBOX_VERSION_SUFFIX)
     set(ANBOX_VERSION "${ANBOX_VERSION}-${ANBOX_VERSION_SUFFIX}")
 endif()
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/version.h.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/version.h)
-
 set(ANBOX_RESOURCE_DIR "${CMAKE_INSTALL_DATADIR}/anbox")
 set(ANBOX_RESOURCE_DIR_FULL "${CMAKE_INSTALL_FULL_DATADIR}/anbox")
 set(ANBOX_STATEDIR_FULL "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/anbox")
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/config.h.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/config.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/config.h.in
+               ${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/config.h)
 
 add_subdirectory(external)
 add_subdirectory(src)

@@ -16,7 +16,6 @@ CMakeLists.txt.user
 modules.order
 .tmp_versions
 .idea
-src/anbox/config.h
 
 
 debian/anbox-modules-dkms.debhelper.log

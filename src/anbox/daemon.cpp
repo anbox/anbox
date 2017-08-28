@@ -18,7 +18,7 @@
 #include <signal.h>
 #include <sys/prctl.h>
 
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/daemon.h"
 #include "anbox/logger.h"
 

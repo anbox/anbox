@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_CONFIG_H_
-#define ANBOX_CONFIG_H_
+#ifndef ANBOX_SYSTEM_CONFIGURATION_H_
+#define ANBOX_SYSTEM_CONFIGURATION_H_
 
 #include <string>
 #include <memory>
@@ -47,12 +47,7 @@ class SystemConfiguration {
 
   boost::filesystem::path data_path;
   boost::filesystem::path resource_path;
-
- private:
-  static constexpr const char *default_resource_path{"@ANBOX_RESOURCE_DIR_FULL@"};
-  static constexpr const char *default_path_path{"@ANBOX_STATEDIR_FULL@"};
-
 };
 }  // namespace anbox
 
-#endif
+#endif // ANBOX_SYSTEM_CONFIGURATION_H_

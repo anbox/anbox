@@ -16,7 +16,7 @@
  */
 
 #include "anbox/ui/splash_screen.h"
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/utils.h"
 #include "anbox/logger.h"
 

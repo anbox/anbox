@@ -17,7 +17,7 @@
 
 #include "anbox/application/database.h"
 #include "anbox/application/launcher_storage.h"
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/logger.h"
 
 namespace anbox {

@@ -18,7 +18,7 @@
  */
 
 #include "anbox/cmds/version.h"
-#include "anbox/build/version.h"
+#include "anbox/build/config.h"
 #include "anbox/utils.h"
 
 anbox::cmds::Version::Version()

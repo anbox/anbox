@@ -20,7 +20,7 @@
 #include "anbox/dbus/stub/application_manager.h"
 #include "anbox/common/dispatcher.h"
 #include "anbox/ui/splash_screen.h"
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/runtime.h"
 #include "anbox/logger.h"
 

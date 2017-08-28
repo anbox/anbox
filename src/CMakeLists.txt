@@ -60,10 +60,10 @@ set(SOURCES
     anbox/cli.cpp
     anbox/runtime.cpp
     anbox/daemon.cpp
-    anbox/config.cpp
+    anbox/system_configuration.cpp
     anbox/not_reachable.cpp
 
-    anbox/build/version.h.in
+    anbox/build/config.h.in
 
     anbox/android/intent.cpp
     anbox/android/ip_config_builder.cpp

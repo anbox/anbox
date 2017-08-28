@@ -22,7 +22,7 @@
 #include "anbox/network/local_socket_messenger.h"
 #include "anbox/network/message_processor.h"
 #include "anbox/common/type_traits.h"
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/utils.h"
 #include "anbox/logger.h"
 

@@ -16,8 +16,9 @@
  */
 
 
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/utils.h"
+#include "anbox/build/config.h"
 
 #include "external/xdg/xdg.h"
 
@@ -86,15 +87,15 @@ anbox::SystemConfiguration& anbox::SystemConfiguration::instance() {
 }
 
 anbox::SystemConfiguration::SystemConfiguration() {
-  auto gen_resource_path = [] () -> fs::path {
+  auto detect_resource_path = [] () -> fs::path {
     const auto snap_path = utils::get_env_value("SNAP");
     if (!snap_path.empty()) {
-      return fs::path(snap_path) / "usr/share/anbox";
+      return fs::path(snap_path) / "usr" / "share" / "anbox";
     } else {
-      return default_resource_path;
+      return anbox::build::default_resource_path;
     }
   };
 
-  resource_path = gen_resource_path();
-  data_path = default_path_path;
+  resource_path = detect_resource_path();
+  data_path = anbox::build::default_data_path;
 }
