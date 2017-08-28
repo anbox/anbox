@@ -90,18 +90,11 @@ anbox::SystemConfiguration::SystemConfiguration() {
     const auto snap_path = utils::get_env_value("SNAP");
     if (!snap_path.empty()) {
       return fs::path(snap_path) / "usr/share/anbox";
-    }
-
-    const std::string exe = utils::process_get_exe_path(::getpid());
-    const std::size_t pos = exe.rfind("/bin/anbox");
-    if (pos != std::string::npos) {
-      const std::string leading_path = exe.substr(0, pos);
-      return fs::path(leading_path) / "share/anbox";
     } else {
-      return "/usr/local/share/anbox";
+      return default_resource_path;
     }
   };
 
   resource_path = gen_resource_path();
-  data_path = "/var/local/lib/anbox";
+  data_path = default_path_path;
 }

@@ -108,6 +108,12 @@ endif()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/version.h.in
                ${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/version.h)
 
+set(ANBOX_RESOURCE_DIR "${CMAKE_INSTALL_DATADIR}/anbox")
+set(ANBOX_RESOURCE_DIR_FULL "${CMAKE_INSTALL_FULL_DATADIR}/anbox")
+set(ANBOX_STATEDIR_FULL "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/anbox")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/config.h.in
+               ${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/config.h)
+
 add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(tests)
@@ -118,7 +124,7 @@ if (NOT "${HOST_CMAKE_C_COMPILER}" STREQUAL "")
   message(STATUS "Host C compiler: ${HOST_CMAKE_CXX_COMPILER}")
 endif()
 
-install(FILES data/ui/loading-screen.png DESTINATION share/anbox/ui)
+install(FILES data/ui/loading-screen.png DESTINATION ${ANBOX_RESOURCE_DIR}/ui)
 
 # uninstall target
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
