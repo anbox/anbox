@@ -1,6 +1,6 @@
 GLOBAL
 	base_opcode 2048
-	encoder_headers <string.h> "glUtils.h" "GLESv2EncoderUtils.h"
+	encoder_headers <string.h> "glUtils.h" "GL2EncoderUtils.h"
 
 #void glBindAttribLocation(GLuint program, GLuint index, GLchar *name)
 glBindAttribLocation
