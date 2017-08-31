@@ -21,4 +21,5 @@ if ("${cmake_build_type_lower}" STREQUAL "trace")
 endif()
 
 add_library(GLESv1_dec STATIC ${SOURCES} ${GENERATED_SOURCES})
+add_dependencies(GLESv1_dec GLHeaders)
 target_link_libraries(GLESv1_dec OpenglCodecCommon)
