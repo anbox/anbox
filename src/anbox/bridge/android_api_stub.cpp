@@ -16,7 +16,7 @@
  */
 
 #include "anbox/bridge/android_api_stub.h"
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/logger.h"
 #include "anbox/rpc/channel.h"
 #include "anbox/utils.h"

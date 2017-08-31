@@ -2,6 +2,8 @@ build*/
 parts/
 stage/
 prime/
+snap/
+android-images/
 *.snap
 CMakeLists.txt.user
 *.o.cmd
@@ -14,6 +16,7 @@ CMakeLists.txt.user
 modules.order
 .tmp_versions
 .idea
+
 
 debian/anbox-modules-dkms.debhelper.log
 debian/anbox-modules-dkms.substvars

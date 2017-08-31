@@ -17,7 +17,7 @@
 
 #include "anbox/android/ip_config_builder.h"
 #include "anbox/container/lxc_container.h"
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/logger.h"
 #include "anbox/utils.h"
 

@@ -16,8 +16,9 @@
  */
 
 
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/utils.h"
+#include "anbox/build/config.h"
 
 #include "external/xdg/xdg.h"
 
@@ -39,10 +40,6 @@ static std::string runtime_dir() {
 
 void anbox::SystemConfiguration::set_data_path(const std::string &path) {
   data_path = path;
-}
-
-void anbox::SystemConfiguration::set_resource_path(const fs::path &path) {
-  resource_path = path;
 }
 
 fs::path anbox::SystemConfiguration::data_dir() const {
@@ -87,4 +84,18 @@ std::string anbox::SystemConfiguration::resource_dir() const {
 anbox::SystemConfiguration& anbox::SystemConfiguration::instance() {
   static SystemConfiguration config;
   return config;
+}
+
+anbox::SystemConfiguration::SystemConfiguration() {
+  auto detect_resource_path = [] () -> fs::path {
+    const auto snap_path = utils::get_env_value("SNAP");
+    if (!snap_path.empty()) {
+      return fs::path(snap_path) / "usr" / "share" / "anbox";
+    } else {
+      return anbox::build::default_resource_path;
+    }
+  };
+
+  resource_path = detect_resource_path();
+  data_path = anbox::build::default_data_path;
 }

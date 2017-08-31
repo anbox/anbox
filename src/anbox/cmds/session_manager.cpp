@@ -35,7 +35,7 @@ std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Co
 
 #include "anbox/cmds/session_manager.h"
 #include "anbox/common/dispatcher.h"
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/container/client.h"
 #include "anbox/dbus/skeleton/service.h"
 #include "anbox/input/manager.h"

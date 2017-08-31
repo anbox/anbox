@@ -16,7 +16,7 @@
  */
 
 #include "anbox/container/client.h"
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/container/management_api_stub.h"
 #include "anbox/logger.h"
 #include "anbox/network/local_socket_messenger.h"

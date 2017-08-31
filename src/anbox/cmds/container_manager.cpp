@@ -20,7 +20,7 @@
 #include "anbox/common/loop_device_allocator.h"
 #include "anbox/logger.h"
 #include "anbox/runtime.h"
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 
 #include "core/posix/signal.h"
 #include "core/posix/exec.h"

@@ -21,7 +21,7 @@
 #include "anbox/utils/environment_file.h"
 #include "anbox/logger.h"
 
-#include "anbox/build/version.h"
+#include "anbox/build/config.h"
 
 #include <sstream>
 #include <fstream>

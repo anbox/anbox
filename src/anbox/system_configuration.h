@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ANBOX_CONFIG_H_
-#define ANBOX_CONFIG_H_
+#ifndef ANBOX_SYSTEM_CONFIGURATION_H_
+#define ANBOX_SYSTEM_CONFIGURATION_H_
 
 #include <string>
 #include <memory>
@@ -31,7 +31,6 @@ class SystemConfiguration {
   virtual ~SystemConfiguration() = default;
 
   void set_data_path(const std::string &path);
-  void set_resource_path(const boost::filesystem::path &path);
 
   boost::filesystem::path data_dir() const;
   std::string rootfs_dir() const;
@@ -44,12 +43,11 @@ class SystemConfiguration {
   std::string resource_dir() const;
 
  protected:
-  SystemConfiguration() = default;
+  SystemConfiguration();
 
-  boost::filesystem::path data_path = "/var/lib/anbox";
-  boost::filesystem::path resource_path = "/usr/share/anbox";
-
+  boost::filesystem::path data_path;
+  boost::filesystem::path resource_path;
 };
 }  // namespace anbox
 
-#endif
+#endif // ANBOX_SYSTEM_CONFIGURATION_H_

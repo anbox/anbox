@@ -16,7 +16,7 @@
  */
 
 #include "anbox/container/service.h"
-#include "anbox/config.h"
+#include "anbox/system_configuration.h"
 #include "anbox/container/lxc_container.h"
 #include "anbox/container/management_api_message_processor.h"
 #include "anbox/container/management_api_skeleton.h"
