@@ -131,6 +131,11 @@ anbox::cmds::SessionManager::SessionManager()
                       use_system_dbus_));
 
   action([this](const cli::Command::Context &) {
+
+    Log().SetLogFile(std::string("/var/log/anbox/session.txt"));
+    Log().SetSeverityFromString("debug");
+    INFO("======================Session Manager Log======================");
+
     auto trap = core::posix::trap_signals_for_process(
         {core::posix::Signal::sig_term, core::posix::Signal::sig_int});
     trap->signal_raised().connect([trap](const core::posix::Signal &signal) {
