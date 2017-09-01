@@ -44,7 +44,7 @@ std::vector<std::string> collect_arguments(int argc, char **argv) {
 
 std::string read_file_if_exists_or_throw(const std::string &file_path) {
   if (!boost::filesystem::is_regular(boost::filesystem::path(file_path)))
-    BOOST_THROW_EXCEPTION(std::runtime_error("File does not exist"));
+    BOOST_THROW_EXCEPTION(std::runtime_error("File does not exist: " + file_path));
 
   std::ifstream file;
   file.open(file_path, std::ifstream::in);
@@ -52,6 +52,18 @@ std::string read_file_if_exists_or_throw(const std::string &file_path) {
   file >> content;
   file.close();
   return content;
+}
+
+// this will read all content of a file, do not use to read large file.
+std::string read_file_content(const std::string &file_path) {
+  if (!boost::filesystem::is_regular(boost::filesystem::path(file_path)))
+    BOOST_THROW_EXCEPTION(std::runtime_error("File does not exist: " + file_path));
+
+  std::ifstream file(file_path, std::ifstream::in);
+  std::ostringstream content;
+  content << file.rdbuf();
+  file.close();
+  return std::string(content.str());
 }
 
 bool write_to_file(const std::string &file_path, const std::string &content) {
@@ -205,6 +217,17 @@ std::string find_program_on_path(const std::string &name) {
     start_pos = end_pos + 1;
   }
   return "";
+}
+
+std::string string_trim(const std::string &str, const std::string &trimmer)
+{
+    const auto begin = str.find_first_not_of(trimmer);
+    if (begin == std::string::npos)
+        return "";
+    const auto end = str.find_last_not_of(trimmer);
+    const auto len = end - begin + 1;
+
+    return str.substr(begin, len);
 }
 }  // namespace utils
 }  // namespace anbox

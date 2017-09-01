@@ -52,6 +52,9 @@ anbox::cmds::ContainerManager::ContainerManager()
   flag(cli::make_flag(cli::Name{"daemon"},
                       cli::Description{"Mark service as being started as systemd daemon"},
                       daemon_));
+  flag(cli::make_flag(cli::Name{"lxc-conf"},
+                      cli::Description{"Path to Lxc configuration which manages container resource"},
+                      lxc_conf_path_));
 
   action([&](const cli::Command::Context&) {
     try {
@@ -61,6 +64,14 @@ anbox::cmds::ContainerManager::ContainerManager()
         WARNING("another init system. If you still want to run the container-manager");
         WARNING("you can get rid of this warning by starting with the --daemon option.");
         WARNING("");
+      }
+
+      if (!lxc_conf_path_.empty()) {
+        SystemConfiguration::instance().set_lxc_conf_path(lxc_conf_path_);
+        WARNING("You have provided a Lxc configuration which is not required mostly");
+        WARNING("unless you prefer to manage the hardware resource (CPU cores or memory)");
+        WARNING("that the container can access. Be carefull for they may overwite");
+        WARNING("system's default configuration and lead to faulty");
       }
 
       if (geteuid() != 0) {

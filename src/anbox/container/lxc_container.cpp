@@ -157,6 +157,44 @@ void LxcContainer::setup_network() {
   }
 }
 
+void LxcContainer::read_and_set_lxc_config(const std::string &path) {
+  // Read config first
+  std::vector<std::string> configs;
+  try {
+    std::string content = utils::read_file_content(path);
+    configs = utils::string_split(content, '\n');
+  } catch (const std::runtime_error &e) {
+    if (!path.empty()) {
+        WARNING("Error when reading Lxc config: %s", e.what());
+    }
+    return;
+  }
+
+  auto parser = [] (const std::string &c, std::string &k, std::string &v) -> bool {
+    if (utils::string_starts_with(c, "#")) {
+      // lines that start with '#' are comments
+      return false;
+    }
+    std::vector<std::string> kv = utils::string_split(c, '=');
+    if (kv.size() != 2) {
+      TRACE("ignoring invalid config: " + c);
+      return false;
+    }
+
+    k = utils::string_trim(kv[0]);
+    v = utils::string_trim(kv[1]);
+    return true;
+  };
+
+  // Parse and setup
+  for (auto config : configs) {
+    std::string key, value;
+    if (parser(config, key, value)) {
+      set_config_item(key, value);
+    }
+  }
+}
+
 void LxcContainer::start(const Configuration &configuration) {
   if (getuid() != 0)
     BOOST_THROW_EXCEPTION(std::runtime_error("You have to start the container as root"));
@@ -182,6 +220,8 @@ void LxcContainer::start(const Configuration &configuration) {
     // its configuration is synchronized.
     if (container_->is_running(container_)) container_->stop(container_);
   }
+
+  read_and_set_lxc_config(SystemConfiguration::instance().lxc_conf_path());
 
   // We can mount proc/sys as rw here as we will run the container unprivileged
   // in the end
@@ -286,7 +326,7 @@ void LxcContainer::stop() {
 void LxcContainer::set_config_item(const std::string &key,
                                    const std::string &value) {
   if (!container_->set_config_item(container_, key.c_str(), value.c_str()))
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to configure LXC container"));
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to configure LXC container: " + key + " = " + value));
 }
 
 Container::State LxcContainer::state() { return state_; }

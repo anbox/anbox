@@ -193,6 +193,7 @@ Interesting things to have a look at
  * [Runtime Setup](docs/runtime-setup.md)
  * [Build Android image](docs/build-android.md)
  * [Generate Android emugl source](docs/generate-emugl-source.md)
+ * [Manage Container Resource with Lxc](docs/lxc-config.md)
 
 ## Reporting bugs
 

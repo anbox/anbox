@@ -29,6 +29,7 @@ namespace utils {
 std::vector<std::string> collect_arguments(int argc, char **argv);
 
 std::string read_file_if_exists_or_throw(const std::string &file_path);
+std::string read_file_content(const std::string &file_path);
 
 bool write_to_file(const std::string &file_path,
                    const std::string &content = "");
@@ -60,6 +61,8 @@ std::string find_program_on_path(const std::string &name);
 
 template <typename... Types>
 static std::string string_format(const std::string &fmt_str, Types &&... args);
+
+std::string string_trim(const std::string &str, const std::string &trimmer = " \t");
 }  // namespace utils
 }  // namespace anbox
 
