@@ -6,8 +6,6 @@
 
 
 #include "gl_types.h"
-
-#include "emugl/common/logging.h"
 #ifndef gl_APIENTRY
 #define gl_APIENTRY 
 #endif

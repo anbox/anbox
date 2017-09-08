@@ -6,8 +6,6 @@
 
 
 #include "renderControl_types.h"
-
-#include "emugl/common/logging.h"
 #ifndef renderControl_APIENTRY
 #define renderControl_APIENTRY 
 #endif
