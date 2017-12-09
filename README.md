@@ -75,7 +75,7 @@ $ anbox-installer
 
 This will guide you through the installation process.
 
-**NOTE:** Anbox is currently in a **pre-alpha development state**. Don't expect a
+**NOTE:** Anbox is currently in a **alpha development state**. Don't expect a
 fully working system for a production system with all features you need. You will
 for sure see bugs and crashes. If you do so, please don't hestitate and report them!
 
