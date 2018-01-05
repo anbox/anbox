@@ -25,12 +25,16 @@
 #
 # Anything else is an error.
 
+from __future__ import print_function
 import re
 import sys
 import argparse
 
 re_func = re.compile(r"""^(.*[\* ])([A-Za-z_][A-Za-z0-9_]*)\((.*)\);$""")
 re_param = re.compile(r"""^(.*[\* ])([A-Za-z_][A-Za-z0-9_]*)$""")
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 class Entry:
     """Small class used to model a single DLL entry point."""
@@ -413,9 +417,7 @@ def parse_file(filename, lines, mode):
     entries, prefix_name, verbatim, errors = parse_entries_file(lines)
     if errors:
         for error in errors:
-            print("ERROR: %s:%s" % (filename, error))
-            #FIXME
-            #print >> sys.stderr, "ERROR: %s:%s" % (filename, error)
+            eprint("ERROR: %s:%s" % (filename, error), file=sys.stderr)
         sys.exit(1)
 
     if not prefix_name:
@@ -468,9 +470,7 @@ parser.add_argument("file", help=".entries file path")
 args = parser.parse_args()
 
 if not args.mode:
-    print("ERROR: Please use --mode=<name>, see --help.")
-    #FIXME
-    #print >> sys.stderr, "ERROR: Please use --mode=<name>, see --help."
+    eprint("ERROR: Please use --mode=<name>, see --help.", file=sys.stderr)
     sys.exit(1)
 
 if args.output:
