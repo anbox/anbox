@@ -11,6 +11,11 @@ include /usr/share/dpkg/default.mk
 %:
 	dh $@ --parallel --fail-missing --with systemd
 
+
+override_dh_auto_configure:
+	# Enable debug builds
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Debug
+
 override_dh_install:
 	VERSION=$(shell dpkg-parsechangelog -SVersion)
 	install -d $(CURDIR)/debian/tmp/usr/src
