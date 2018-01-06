@@ -6,14 +6,10 @@
 
 VERSION=$(shell dpkg-parsechangelog -SVersion)
 
-# include /usr/share/dpkg/default.mk
+include /usr/share/dpkg/default.mk
 
 %:
 	dh $@ --parallel --fail-missing --with systemd
-
-override_dh_auto_configure:
-
-override_dh_auto_build:
 
 override_dh_install:
 	VERSION=$(shell dpkg-parsechangelog -SVersion)
@@ -31,4 +27,7 @@ override_dh_install:
 	install -d $(CURDIR)/debian/tmp/etc/X11/Xsession.d
 	install -m 0644 data/xsession.conf $(CURDIR)/debian/tmp/etc/X11/Xsession.d/68anbox
 
-	dh_install
+	install -d $(CURDIR)/debian/tmp/usr/bin
+	install -m 0644 scripts/anbox-bridge.sh $(CURDIR)/debian/tmp/usr/bin/anbox-bridge.sh
+
+	dh_install --fail-missing
