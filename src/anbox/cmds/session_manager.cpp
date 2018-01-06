@@ -143,7 +143,8 @@ anbox::cmds::SessionManager::SessionManager()
       return EXIT_FAILURE;
     }
 
-    if (!fs::exists("/dev/binder") || !fs::exists("/dev/ashmem")) {
+    auto binder = utils::get_env_value("ANBOX_BINDER", "/dev/binder");
+    if (!fs::exists(binder) || !fs::exists("/dev/ashmem")) {
       ERROR("Failed to start as either binder or ashmem kernel drivers are not loaded");
       return EXIT_FAILURE;
     }
@@ -255,7 +256,7 @@ anbox::cmds::SessionManager::SessionManager()
         {bridge_connector->socket_file(), "/dev/anbox_bridge"},
         {audio_server->socket_file(), "/dev/anbox_audio"},
         {SystemConfiguration::instance().input_device_dir(), "/dev/input"},
-        {"/dev/binder", "/dev/binder"},
+        {binder, "/dev/binder"},
         {"/dev/ashmem", "/dev/ashmem"},
         {"/dev/fuse", "/dev/fuse"},
       };
