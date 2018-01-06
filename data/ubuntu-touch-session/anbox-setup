@@ -57,7 +57,7 @@ done
 
 mkdir $ANBOX_DATA
 wget -q --show-progress -O "$ANBOX_DATA/android.img" "$URL"
-cp usr/share/anbox/anbox.desktop /home/phablet/.local/share/applications/
+cp /usr/share/anbox/anbox.desktop /home/phablet/.local/share/applications/
 touch "$ANBOX_DATA/.enable"
 sudo start anbox-container || true
 echo "Anbox is ready to rock!"
