@@ -1,5 +1,5 @@
 usr/bin/anbox
-usr/bin/anbox-bridge.sh
+usr/bin/anbox-bridge
 usr/share/anbox/ui/loading-screen.png
 usr/lib/*/anbox/translators/libGLES_V2_translator.so
 usr/lib/*/anbox/translators/libEGL_translator.so

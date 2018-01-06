@@ -27,7 +27,16 @@ override_dh_install:
 	install -d $(CURDIR)/debian/tmp/etc/X11/Xsession.d
 	install -m 0644 data/xsession.conf $(CURDIR)/debian/tmp/etc/X11/Xsession.d/68anbox
 
+	install -d $(CURDIR)/debian/tmp/etc/init
+	install -m 0644 data/ubuntu-touch-session/anbox-container.conf $(CURDIR)/debian/tmp/etc/init/anbox-container.conf
+
+	install -d $(CURDIR)/debian/tmp/usr/share/applications
+	install -m 0644 data/ubuntu-touch-session/anbox.desktop $(CURDIR)/debian/tmp/usr/share/anbox/anbox.desktop
+
 	install -d $(CURDIR)/debian/tmp/usr/bin
-	install -m 0644 scripts/anbox-bridge.sh $(CURDIR)/debian/tmp/usr/bin/anbox-bridge.sh
+	install -m 0644 scripts/anbox-bridge.sh $(CURDIR)/debian/tmp/usr/bin/anbox-bridge
+
+	install -d $(CURDIR)/debian/tmp/usr/bin
+	install -m 0644 data/ubuntu-touch-session/anbox-setup $(CURDIR)/debian/tmp/usr/bin/anbox-setup
 
 	dh_install --fail-missing

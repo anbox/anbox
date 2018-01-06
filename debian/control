@@ -56,6 +56,15 @@ Description: Common files necessary for Anbox
  This package contains necessary things which can't be shipped
  with anbox snap package
 
+Package: anbox-ubuntu-touch
+Architecture: all
+Depends: ${misc:Depends},
+         anbox,
+         anbox-common
+Description: Files necessary for Ubuntu touch
+ .
+ Files necessary for Ubuntu touch
+
 Package: anbox-modules-dkms
 Architecture: all
 Depends: dkms (>= 1.95), ${misc:Depends}

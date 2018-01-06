@@ -1,0 +1,63 @@
+#!/bin/bash
+# Copyright (C) 2017 The UBports project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Author: Marius Gripsgard <marius@ubports.com>
+## Setup anbox on ubuntu touch
+
+SUPPORTED_DEVICES="turbo cooler frieza"
+USE_BINDER64="turbo cooler frieza"
+
+BASE_URL="http://cdimage.ubports.com/anbox-images"
+IMAGE_ARMHF="android-armhf"
+IMAGE_ARM64="android-arm64"
+BINDER32="32binder.img"
+BINDER64="64binder.img"
+
+ANBOX_DATA="/home/phablet/anbox-data"
+
+if [ -f "$ANBOX_DATA/.enable" ]; then
+  echo "anbox has alredy been setup!"
+  exit 1
+fi
+
+DEVICE=$(getprop ro.product.device)
+SUPPORTED="false"
+for i in $SUPPORTED_DEVICES; do
+  if [ $i == $DEVICE ]; then
+    SUPPORTED="true"
+  fi
+done
+
+if [ $SUPPORTED == "false" ]; then
+  echo "$DEVICE is not supported (yet)"
+  exit 1
+fi
+
+# We still don't have 64bit
+# USE_ARM64="turbo cooler frieza"
+#
+# TODO check for binder version
+URL="$BASE_URL/$IMAGE_ARMHF-$BINDER32"
+for i in $USE_BINDER64; do
+  if [ $i == $DEVICE ]; then
+    URL="$BASE_URL/$IMAGE_ARMHF-$BINDER64"
+  fi
+done
+
+mkdir $ANBOX_DATA
+wget -q --show-progress -O "$ANBOX_DATA/android.img" "$URL"
+cp usr/share/anbox/anbox.desktop /home/phablet/.local/share/applications/
+touch "$ANBOX_DATA/.enable"
+sudo start anbox-container || true
+echo "Anbox is ready to rock!"

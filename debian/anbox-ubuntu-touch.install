@@ -1,0 +1,3 @@
+etc/init/anbox-container.conf
+usr/share/anbox/anbox.desktop
+usr/bin/anbox-setup
