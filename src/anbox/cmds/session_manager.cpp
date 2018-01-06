@@ -144,6 +144,12 @@ anbox::cmds::SessionManager::SessionManager()
     }
 
     auto binder = utils::get_env_value("ANBOX_BINDER", "/dev/binder");
+
+    // If binder1 exist, use that as default!
+    if (fs::exists("/dev/binder1")) {
+      INFO("Using binder1");
+      binder = utils::get_env_value("ANBOX_BINDER", "/dev/binder1");
+    }
     if (!fs::exists(binder) || !fs::exists("/dev/ashmem")) {
       ERROR("Failed to start as either binder or ashmem kernel drivers are not loaded");
       return EXIT_FAILURE;
