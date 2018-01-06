@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Anbox
-Exec=ANBOX_BINDER=/dev/binder1 anbox session-manager --single-window --window-size=1080,1860
+Exec=anbox session-manager --single-window --window-size=1080,1860
 Terminal=false
 Type=Application
 X-Ubuntu-Touch=true
