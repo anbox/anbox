@@ -55,8 +55,9 @@ void Device::send_events(const std::vector<Event> &events) {
     // NOTE: A bit dirty but as we're running currently a 64 bit container
     // struct input_event has a different size. We rebuild the struct here
     // to reach the correct size.
-    std::uint64_t sec;
-    std::uint64_t usec;
+    // (mariogrip) ubuntu touch HACK set this to 32 bit for now
+    std::uint32_t sec;
+    std::uint32_t usec;
     std::uint16_t type;
     std::uint16_t code;
     std::uint32_t value;
