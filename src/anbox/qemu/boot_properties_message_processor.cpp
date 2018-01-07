@@ -18,6 +18,7 @@
 #include "anbox/qemu//boot_properties_message_processor.h"
 #include "anbox/graphics/density.h"
 #include "anbox/utils.h"
+#include <string>
 
 namespace anbox {
 namespace qemu {
@@ -33,12 +34,18 @@ void BootPropertiesMessageProcessor::handle_command(
 }
 
 void BootPropertiesMessageProcessor::list_properties() {
+  // For ubuntu-touch we use GRID_UNIT_PX to calculate lcd_density
+  int density = static_cast<int>(graphics::DensityType::medium);
+  if (utils::get_env_value("GRID_UNIT_PX").length() > 0) {
+    auto grid_unit_px = std::stoi(utils::get_env_value("GRID_UNIT_PX"));
+    density = grid_unit_px * 20;
+  }
+
   std::vector<std::string> properties = {
       // TODO(morphis): Using HDPI here for now but should be adjusted to the
       // device
       // we're running on.
-      utils::string_format("ro.sf.lcd_density=%d",
-                           static_cast<int>(graphics::DensityType::medium)),
+      utils::string_format("ro.sf.lcd_density=%d", density),
   };
 
   for (const auto &prop : properties) {
