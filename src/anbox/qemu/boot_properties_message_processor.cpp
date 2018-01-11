@@ -18,6 +18,7 @@
 #include "anbox/qemu//boot_properties_message_processor.h"
 #include "anbox/graphics/density.h"
 #include "anbox/utils.h"
+#include "anbox/logger.h"
 #include <string>
 
 namespace anbox {
@@ -39,8 +40,9 @@ void BootPropertiesMessageProcessor::list_properties() {
   if (utils::get_env_value("GRID_UNIT_PX").length() > 0) {
     auto grid_unit_px = std::stoi(utils::get_env_value("GRID_UNIT_PX"));
     density = grid_unit_px * 20;
+    DEBUG("Using grid_units %d", grid_unit_px);
   }
-
+  DEBUG("density %d", density);
   std::vector<std::string> properties = {
       // TODO(morphis): Using HDPI here for now but should be adjusted to the
       // device
