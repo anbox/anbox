@@ -150,9 +150,9 @@ anbox::cmds::SessionManager::SessionManager()
 
     auto binder = utils::get_env_value("ANBOX_BINDER", "/dev/binder");
 
-    // If binder1 exist, use that as default!
+    // Ubuntu touch devices need to use binder1
     if (fs::exists("/dev/binder1")) {
-      INFO("Using binder1");
+      DEBUG("Using binder1");
       binder = utils::get_env_value("ANBOX_BINDER", "/dev/binder1");
     }
     if (!fs::exists(binder) || !fs::exists("/dev/ashmem")) {
