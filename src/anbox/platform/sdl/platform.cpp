@@ -38,17 +38,25 @@ namespace sdl {
 Platform::Platform(
     const std::shared_ptr<input::Manager> &input_manager,
     const graphics::Rect &static_display_frame,
-    bool single_window)
+    bool single_window,
+    bool rootless)
     : input_manager_(input_manager),
       event_thread_running_(false),
-      single_window_(single_window) {
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) {
+      single_window_(single_window),
+      rootless_(rootless) {
+
+  auto sdl_init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS;
+  if (rootless_)
+    sdl_init_flags = SDL_INIT_AUDIO | SDL_INIT_EVENTS;
+  if (SDL_Init(sdl_init_flags) < 0) {
     const auto message = utils::string_format("Failed to initialize SDL: %s", SDL_GetError());
     BOOST_THROW_EXCEPTION(std::runtime_error(message));
   }
 
   auto display_frame = graphics::Rect::Invalid;
   if (static_display_frame == graphics::Rect::Invalid) {
+    // We would need to init video to fetch display info
+    if (rootless_) SDL_VideoInit(NULL);
     for (auto n = 0; n < SDL_GetNumVideoDisplays(); n++) {
       SDL_Rect r;
       if (SDL_GetDisplayBounds(n, &r) != 0) continue;
@@ -60,6 +68,7 @@ Platform::Platform(
       else
         display_frame.merge(frame);
     }
+    if (rootless_) SDL_VideoQuit();
 
     if (display_frame == graphics::Rect::Invalid)
       BOOST_THROW_EXCEPTION(

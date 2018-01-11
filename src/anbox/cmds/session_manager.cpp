@@ -129,6 +129,11 @@ anbox::cmds::SessionManager::SessionManager()
   flag(cli::make_flag(cli::Name{"use-system-dbus"},
                       cli::Description{"Use system instead of session DBus"},
                       use_system_dbus_));
+#if defined(MIR_SUPPORT)
+  flag(cli::make_flag(cli::Name{"mir-rootless"},
+                      cli::Description{"[Mir only] Run in rootless mode"},
+                      rootless_));
+#endif
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -182,7 +187,8 @@ anbox::cmds::SessionManager::SessionManager()
     auto platform = platform::create(utils::get_env_value("ANBOX_PLATFORM", "sdl"),
                                      input_manager,
                                      display_frame,
-                                     single_window_);
+                                     single_window_,
+                                     rootless_);
     if (!platform)
       return EXIT_FAILURE;
 
