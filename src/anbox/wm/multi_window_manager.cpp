@@ -44,8 +44,8 @@ void MultiWindowManager::apply_window_state_update(const WindowState::List &upda
   std::map<Task::Id, WindowState::List> task_updates;
 
   for (const auto &window : updated) {
-    // Ignore all windows which are not part of the freeform task stack
-    if (window.stack() != Stack::Id::Freeform) continue;
+    // Ignore all windows which are not part of the freeform or fullscreen task stack
+    if (window.stack() != Stack::Id::Freeform && window.stack() != Stack::Id::Fullscreen) continue;
 
     // And also those which don't have a surface mapped at the moment
     if (!window.has_surface()) continue;
