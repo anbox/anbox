@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace anbox {
 namespace application {
