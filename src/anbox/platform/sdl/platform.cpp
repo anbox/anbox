@@ -63,6 +63,12 @@ Platform::Platform(
 
       graphics::Rect frame{r.x, r.y, r.x + r.w, r.y + r.h};
 
+      // (mariogrip) FIXME, extremly hacky!
+      // Hack for mir giving full size not "usable desktop area size"
+      if (utils::get_env_value("QT_QPA_PLATFORM", "") == "ubuntumirclient")
+        frame.resize(r.w, r.h - 40);
+
+
       if (display_frame == graphics::Rect::Invalid)
         display_frame = frame;
       else
