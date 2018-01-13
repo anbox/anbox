@@ -99,7 +99,8 @@ void PlatformApiStub::update_application_list(const ApplicationListUpdate &updat
             *c = category;
         }
 
-        app->set_icon(a.icon.data(), a.icon.size());
+        if (a.icon.size() > 0)
+          app->set_icon(a.icon.data(), a.icon.size());
     }
 
     for (const auto &package : update.removed_applications) {
