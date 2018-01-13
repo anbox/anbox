@@ -92,6 +92,7 @@ class Platform : public std::enable_shared_from_this<Platform>,
   bool window_size_immutable_ = false;
   bool single_window_ = false;
   bool rootless_ = false;
+  bool video_has_been_closed_ = false;
 };
 } // namespace sdl
 } // namespace platform

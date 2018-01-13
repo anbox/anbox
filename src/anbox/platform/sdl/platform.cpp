@@ -151,6 +151,9 @@ void Platform::process_events() {
     while (SDL_WaitEventTimeout(&event, 100)) {
       switch (event.type) {
         case SDL_QUIT:
+          // Mir workaround
+          video_has_been_closed_ = true;
+          DEBUG("SDL_QUIT");
           break;
         case SDL_WINDOWEVENT:
           for (auto &iter : windows_) {
@@ -364,6 +367,13 @@ std::shared_ptr<wm::Window> Platform::create_window(
   if (!renderer_) {
     ERROR("Can't create window without a renderer set");
     return nullptr;
+  }
+
+  // Force video init again after sdl has closed
+  if (rootless_ && video_has_been_closed_) {
+    DEBUG("forcing video init");
+    SDL_VideoInit(NULL);
+    video_has_been_closed_ = false;
   }
 
   auto id = next_window_id();
