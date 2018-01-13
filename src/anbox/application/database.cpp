@@ -25,13 +25,15 @@ namespace application {
 const Database::Item Database::Unknown{};
 
 Database::Database() :
-  storage_(std::make_shared<LauncherStorage>(SystemConfiguration::instance().application_item_dir())) {
-  storage_->reset();
-}
+  storage_(std::make_shared<LauncherStorage>(SystemConfiguration::instance().application_item_dir())) {}
 
 Database::~Database() {}
 
 void Database::store_or_update(const Item &item) {
+  if (!done_reset) {
+    storage_->reset();
+    done_reset = true;
+  }
   storage_->add_or_update(item);
   items_[item.package] = item;
 
