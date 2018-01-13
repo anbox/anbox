@@ -1,7 +1,8 @@
 [Desktop Entry]
 Name=Anbox
-Exec=anbox session-manager --single-window --window-size=1080,1860
+Exec=anbox session-manager --mir-rootless
 Terminal=false
 Type=Application
 X-Ubuntu-Touch=true
 Name[en_US]=Anbox
+NoDisplay=true

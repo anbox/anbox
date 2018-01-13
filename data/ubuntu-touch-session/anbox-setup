@@ -26,11 +26,6 @@ BINDER64="64binder.img"
 
 ANBOX_DATA="/home/phablet/anbox-data"
 
-if [ -f "$ANBOX_DATA/.enable" ]; then
-  echo "anbox has alredy been setup!"
-  exit 1
-fi
-
 DEVICE=$(getprop ro.product.device)
 SUPPORTED="false"
 for i in $SUPPORTED_DEVICES; do
@@ -55,9 +50,19 @@ for i in $USE_BINDER64; do
   fi
 done
 
-mkdir $ANBOX_DATA
+mkdir $ANBOX_DATA || true
+if [ -f "$ANBOX_DATA/.enable" ]; then
+  echo "Updating anbox"
+  stop anbox-session || true
+  sudo stop anbox-container || true
+  rm "$ANBOX_DATA/android.img" || true
+fi
 wget -q --show-progress -O "$ANBOX_DATA/android.img" "$URL"
-ln -s /usr/share/anbox/anbox.desktop /home/phablet/.local/share/applications/
-touch "$ANBOX_DATA/.enable"
+touch "$ANBOX_DATA/.enable" || true
 sudo start anbox-container || true
+start anbox-session || true
+while [ ! -f ~/.local/share/applications/anbox-com-android-settings.desktop ]
+do
+  sleep 2
+done
 echo "Anbox is ready to rock!"
