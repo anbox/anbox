@@ -312,6 +312,8 @@ static ssize_t ashmem_read(struct file *file, char __user *buf,
 	 * once asma->file is set it will never be changed, and will not
 	 * be destroyed until all references to the file are dropped and
 	 * ashmem_release is called.
+	 * 
+	 * kernel_read supersedes vfs_read from kernel version 3.9
 	 */
 	#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 9, 0)
 		ret = __vfs_read(asma->file, buf, len, pos);
