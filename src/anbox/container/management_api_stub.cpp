@@ -24,6 +24,9 @@
 
 namespace anbox {
 namespace container {
+
+const std::chrono::milliseconds ManagementApiStub::stop_waiting_millis{3000};
+
 ManagementApiStub::ManagementApiStub(
     const std::shared_ptr<rpc::Channel> &channel)
     : channel_(channel) {}
@@ -75,7 +78,7 @@ void ManagementApiStub::stop_container() {
   channel_->call_method("stop_container", &message, c->response.get(),
       google::protobuf::NewCallback(this, &ManagementApiStub::container_stopped, c.get()));
 
-  c->wh.wait_for_all();
+  c->wh.wait_for_pending(stop_waiting_millis);
 
   if (c->response->has_error()) throw std::runtime_error(c->response->error());
 }
