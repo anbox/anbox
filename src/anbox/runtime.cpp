@@ -53,7 +53,7 @@ std::shared_ptr<Runtime> Runtime::create(std::uint32_t pool_size) {
 
 Runtime::Runtime(std::uint32_t pool_size)
     : pool_size_{pool_size},
-      service_{pool_size_},
+      service_{static_cast<int>(pool_size_)},
       strand_{service_},
       keep_alive_{service_} {}
 
