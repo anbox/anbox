@@ -19,6 +19,7 @@
 #define ANBOX_RUNTIME_H_
 
 #include <boost/asio.hpp>
+#include <boost/version.hpp>
 
 #include <memory.h>
 #include <functional>
