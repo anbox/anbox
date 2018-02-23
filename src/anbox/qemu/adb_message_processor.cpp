@@ -72,12 +72,12 @@ void AdbMessageProcessor::advance_state() {
       // one is established but will not use it until the active one is closed.
       lock_.lock();
 
-      if (state_ == closed_by_host)
+      if (state_ == closed_by_host) {
         host_connector_.reset();
-      else
-        wait_for_host_connection();
+        return;
+      }
 
-      lock_.unlock();
+      wait_for_host_connection();
       break;
     case waiting_for_host_connection:
       messenger_->send(reinterpret_cast<const char *>(ok_command.data()),
