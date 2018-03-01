@@ -137,7 +137,11 @@ static DECLARE_WAIT_QUEUE_HEAD(binder_user_error_wait);
 static int binder_stop_on_user_error;
 
 static int binder_set_stop_on_user_error(const char *val,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
+					 const struct kernel_param *kp)
+#else
 					 struct kernel_param *kp)
+#endif
 {
 	int ret;
 
