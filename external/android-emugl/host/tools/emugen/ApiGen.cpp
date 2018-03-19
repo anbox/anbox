@@ -1158,8 +1158,7 @@ int ApiGen::genDecoderImpl(const std::string &filename)
                         varoffset.c_str(),
                         varoffset.c_str(),
                         varoffset.c_str(),
-                        classname.c_str(),
-                        e->name().c_str()
+                        classname.c_str()
                         );
 
                 varoffset += " + 4";
