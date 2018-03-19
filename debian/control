@@ -2,8 +2,8 @@ Source: anbox
 Section: misc
 Priority: optional
 Maintainer: Simon Fels <morphis@gravedo.de>
-Build-Depends: debhelper (>= 7), dkms, dh-systemd
-Standards-Version: 3.9.7
+Build-Depends: debhelper (>= 9), dkms, dh-systemd
+Standards-Version: 4.1.3
 Homepage: http://anbox.io
 Vcs-Browser: https://github.com/anbox/anbox
 Vcs-Git: https://github.com/anbox/anbox.git
