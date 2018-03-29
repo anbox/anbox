@@ -84,7 +84,11 @@ intptr_t RenderThread::main() {
       }
 
     } while (progress);
+
   }
+
+  threadInfo.m_gl2Dec.freeShader();
+  threadInfo.m_gl2Dec.freeProgram();
 
   // Release references to the current thread's context/surfaces if any
   renderer_->bindContext(0, 0, 0);
