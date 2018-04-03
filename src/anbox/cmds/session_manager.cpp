@@ -131,7 +131,7 @@ anbox::cmds::SessionManager::SessionManager()
                       use_system_dbus_));
 
   action([this](const cli::Command::Context &) {
-    auto trap = core::posix::trap_signals_for_process(
+    core::posix::SignalTrap* trap = core::posix::trap_signals_for_process(
         {core::posix::Signal::sig_term, core::posix::Signal::sig_int});
     trap->signal_raised().connect([trap](const core::posix::Signal &signal) {
       INFO("Signal %i received. Good night.", static_cast<int>(signal));
@@ -139,11 +139,13 @@ anbox::cmds::SessionManager::SessionManager()
     });
 
     if (standalone_ && !experimental_) {
+      delete trap;
       ERROR("Experimental features selected, but --experimental flag not set");
       return EXIT_FAILURE;
     }
 
     if (!fs::exists("/dev/binder") || !fs::exists("/dev/ashmem")) {
+      delete trap;
       ERROR("Failed to start as either binder or ashmem kernel drivers are not loaded");
       return EXIT_FAILURE;
     }
@@ -176,8 +178,10 @@ anbox::cmds::SessionManager::SessionManager()
                                      input_manager,
                                      display_frame,
                                      single_window_);
-    if (!platform)
+    if (!platform) {
+      delete trap;
       return EXIT_FAILURE;
+    }
 
     auto app_db = std::make_shared<application::Database>();
 
@@ -283,6 +287,7 @@ anbox::cmds::SessionManager::SessionManager()
 
     rt->stop();
 
+    delete trap;
     return EXIT_SUCCESS;
   });
 }

@@ -100,7 +100,7 @@ protected:
   * @brief Traps the specified signals for the entire process.
   */
 CORE_POSIX_DLL_PUBLIC
-std::shared_ptr<SignalTrap> trap_signals_for_process(
+SignalTrap* trap_signals_for_process(
         std::initializer_list<core::posix::Signal> blocked_signals);
 
 /**
