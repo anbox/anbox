@@ -1215,10 +1215,8 @@ int ApiGen::genDecoderImpl(const std::string &filename)
 		fprintf(fp, 
 			"\t\t\tm_lock.lock(); \n"
 			"\t\t\tauto pro = m_programs.find(var_program); \n"
-			"\t\t\tif (pro == m_programs.end()) \n"
-			"\t\t\t{\n"
-			"\t\t\t\tDEBUG(\"This should not happened!\"); \n"
-			"\t\t\t} else { \n"
+			"\t\t\tif (pro != m_programs.end()) \n"
+			"\t\t\t{ \n"
 			"\t\t\t\tm_programs.erase(pro); \n"
 			"\t\t\t}\n"
 			"\t\t\tm_lock.unlock();\n");
@@ -1226,10 +1224,8 @@ int ApiGen::genDecoderImpl(const std::string &filename)
 		fprintf(fp, 
 			"\t\t\tm_lock.lock(); \n\
 			\t\t\tauto shader = m_shaders.find(var_shader); \n\
-			\t\t\tif (shader == m_shaders.end()) \n\
+			\t\t\tif (shader != m_shaders.end()) \n\
 			\t\t\t{ \n\
-			\t\t\t\tDEBUG(\"This should not happened!\"); \n\
-			\t\t\t} else { \n\
 			\t\t\t\tm_shaders.erase(shader); \n\
 			\t\t\t} \n\
 			\t\t\tm_lock.unlock(); \n");
