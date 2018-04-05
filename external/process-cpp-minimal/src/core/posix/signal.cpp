@@ -203,10 +203,12 @@ private:
 };
 }
 
-core::posix::SignalTrap* core::posix::trap_signals_for_process(
+std::shared_ptr<core::posix::SignalTrap> core::posix::trap_signals_for_process(
 	std::initializer_list<core::posix::Signal> blocked_signals)
 {
-    return new impl::SignalTrap(impl::SignalTrap::Scope::process, blocked_signals);
+    return std::make_shared<impl::SignalTrap>(
+                impl::SignalTrap::Scope::process,
+                blocked_signals);
 }
 
 std::shared_ptr<core::posix::SignalTrap> core::posix::trap_signals_for_all_subsequent_threads(
