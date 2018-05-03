@@ -56,6 +56,7 @@ class ManagementApiStub : public DoNotCopyOrMove {
 
   mutable std::mutex mutex_;
   std::shared_ptr<rpc::Channel> channel_;
+  static const std::chrono::milliseconds stop_waiting_timeout;
 };
 }  // namespace container
 }  // namespace anbox
