@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
+#define GLM_ENABLE_EXPERIMENTAL
 #include "anbox/graphics/emugl/Renderer.h"
 #include "anbox/graphics/emugl/DispatchTables.h"
 #include "anbox/graphics/emugl/RenderThreadInfo.h"
