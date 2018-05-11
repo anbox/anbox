@@ -176,7 +176,7 @@ anbox::cmds::SessionManager::SessionManager()
                                      input_manager,
                                      display_frame,
                                      single_window_);
-    if (!platform)
+    if (!platform) 
       return EXIT_FAILURE;
 
     auto app_db = std::make_shared<application::Database>();
