@@ -170,7 +170,6 @@ parts:
       - libegl1-mesa-dev
       - libgles2-mesa-dev
       - libglib2.0-dev
-      - libglm-dev
       - libgtest-dev
       - libprotobuf-dev
       - libproperties-cpp-dev

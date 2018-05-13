@@ -28,6 +28,7 @@ include_directories(
   ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/GLESv2_dec
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/renderControl_dec
   ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/renderControl_dec
+  ${CMAKE_SOURCE_DIR}/external/glm
 )
 
 protobuf_generate_cpp(

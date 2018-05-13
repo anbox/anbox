@@ -24,7 +24,10 @@
 
 #include <cstdint>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <glm/glm.hpp>
+#pragma GCC diagnostic pop
 
 class Renderable {
  public:
