@@ -55,7 +55,7 @@ cleanup
 
 mkdir build || rm -rf build/*
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake ..
 VERBOSE=1 make -j10
 VERBOSE=1 make test
 cd ..
