@@ -80,6 +80,22 @@ struct BoostLogLogger : public anbox::Logger {
     severity_ = severity;
   }
 
+  void SetLogFile(const std::string& filename) override {
+    log_file_name = filename;
+
+    try{
+        auto logger = boost::log::add_file_log(log_file_name);
+	auto formatter = boost::log::expressions::stream
+            << "[" << boost::log::expressions::format_date_time<boost::posix_time::ptime>("Timestamp", "%Y-%m-%d %H:%M:%S")<< "]"
+	    <<" ["<< attrs::Severity << "]"
+	    << boost::log::expressions::if_(boost::log::expressions::has_attr(attrs::Location))[boost::log::expressions::stream << "[" << attrs::Location << "] "] 
+	    << boost::log::expressions::smessage;
+	logger->set_formatter(formatter);
+    }catch (std::exception &err){
+          ERROR("%s", err.what());
+    }
+  }
+
   Severity GetSeverity() override {
     return severity_;
   }
@@ -178,17 +194,17 @@ void Logger::Fatal(const std::string& message,
 std::ostream& operator<<(std::ostream& strm, anbox::Logger::Severity severity) {
   switch (severity) {
     case anbox::Logger::Severity::kTrace:
-      return strm << "TT";
+      return strm << "TRACE";
     case anbox::Logger::Severity::kDebug:
-      return strm << "DD";
+      return strm << "DEBUG";
     case anbox::Logger::Severity::kInfo:
-      return strm << "II";
+      return strm << "INFO";
     case anbox::Logger::Severity::kWarning:
-      return strm << "WW";
+      return strm << "WARNING";
     case anbox::Logger::Severity::kError:
-      return strm << "EE";
+      return strm << "ERROR";
     case anbox::Logger::Severity::kFatal:
-      return strm << "FF";
+      return strm << "FATAL";
     default:
       return strm << static_cast<uint>(severity);
   }
@@ -196,7 +212,7 @@ std::ostream& operator<<(std::ostream& strm, anbox::Logger::Severity severity) {
 
 std::ostream& operator<<(std::ostream& out, const Logger::Location& location) {
   return out << utils::string_format(
-             "%s:%d@%s",
+             "%s +%d::%s",
              boost::filesystem::path(location.file).filename().string(),
              location.line, location.function);
 }
