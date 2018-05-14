@@ -118,9 +118,9 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
 
   // Create EGL context for framebuffer post rendering.
   GLint surfaceType = EGL_WINDOW_BIT | EGL_PBUFFER_BIT;
-  const GLint configAttribs[] = {EGL_RED_SIZE, 1,
-                                 EGL_GREEN_SIZE, 1,
-                                 EGL_BLUE_SIZE, 1,
+  const GLint configAttribs[] = {EGL_RED_SIZE, 8,
+                                 EGL_GREEN_SIZE, 8,
+                                 EGL_BLUE_SIZE, 8,
                                  EGL_SURFACE_TYPE, surfaceType,
                                  EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
                                  EGL_NONE};
