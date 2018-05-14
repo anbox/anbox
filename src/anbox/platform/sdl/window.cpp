@@ -43,7 +43,8 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
       observer_(observer),
       native_display_(0),
       native_window_(0) {
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 
   // NOTE: We don't furce GL initialization of the window as this will
   // be take care of by the Renderer when we attach to it. On EGL
