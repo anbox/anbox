@@ -258,7 +258,7 @@ Renderer::Program::Program(GLuint program_id) {
   position_attr = s_gles2.glGetAttribLocation(id, "position");
   texcoord_attr = s_gles2.glGetAttribLocation(id, "texcoord");
   tex_uniform = s_gles2.glGetUniformLocation(id, "tex");
-  center_uniform = s_gles2.glGetUniformLocation(id, "centre");
+  center_uniform = s_gles2.glGetUniformLocation(id, "center");
   display_transform_uniform =
       s_gles2.glGetUniformLocation(id, "display_transform");
   transform_uniform = s_gles2.glGetUniformLocation(id, "transform");
