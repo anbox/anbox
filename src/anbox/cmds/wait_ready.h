@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
+ * Copyright (C) 2018 Simon Fels <morphis@gravedo.de>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -15,30 +15,22 @@
  *
  */
 
-#ifndef ANBOX_CMDS_LAUNCH_H_
-#define ANBOX_CMDS_LAUNCH_H_
+#ifndef ANBOX_CMDS_WAIT_READY_H_
+#define ANBOX_CMDS_WAIT_READY_H_
 
 #include <functional>
 #include <iostream>
 #include <memory>
 
-#include "anbox/android/intent.h"
-#include "anbox/dbus/stub/application_manager.h"
-#include "anbox/wm/stack.h"
 #include "anbox/cli.h"
 
 namespace anbox {
 namespace cmds {
-class Launch : public cli::CommandWithFlagsAndAction {
+class WaitReady : public cli::CommandWithFlagsAndAction {
  public:
-  Launch();
+  WaitReady();
 
  private:
-  bool launch_session_manager();
-  bool try_launch_activity(const std::shared_ptr<dbus::stub::ApplicationManager> &stub);
-
-  android::Intent intent_;
-  wm::Stack::Id stack_;
   bool use_system_dbus_ = false;
 };
 }  // namespace cmds

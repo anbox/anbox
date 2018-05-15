@@ -24,8 +24,6 @@
 #include <iostream>
 #include <memory>
 
-#include <core/dbus/bus.h>
-
 #include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/graphics/rect.h"
 

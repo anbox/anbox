@@ -148,7 +148,7 @@ class SystemInformation {
       EGLConfig config;
       int n;
       if (s_egl.eglChooseConfig(display, config_attribs, &config, 1, &n) && n > 0) {
-        GLint attribs[] = { EGL_CONTEXT_CLIENT_VERSION, 1, EGL_NONE};
+        GLint attribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
         auto context = s_egl.eglCreateContext(display, config, nullptr, attribs);
         if (context != EGL_NO_CONTEXT) {
           // We require surfaceless-context support here for now. If eglMakeCurrent fails

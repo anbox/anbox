@@ -33,6 +33,7 @@
 #include "anbox/common/dispatcher.h"
 #include "anbox/system_configuration.h"
 #include "anbox/container/client.h"
+#include "anbox/dbus/bus.h"
 #include "anbox/dbus/skeleton/service.h"
 #include "anbox/input/manager.h"
 #include "anbox/logger.h"
@@ -49,8 +50,6 @@
 
 #include <sys/prctl.h>
 
-#include <core/dbus/asio/executor.h>
-#include <core/dbus/bus.h>
 #pragma GCC diagnostic pop
 
 namespace fs = boost::filesystem;
@@ -140,13 +139,12 @@ anbox::cmds::SessionManager::SessionManager()
     if (!standalone_) {
       container_ = std::make_shared<container::Client>(rt);
       container_->register_terminate_handler([&]() {
-	  WARNING("Lost connection to container manager, terminating.");
-	  trap->stop();
-	});
+        WARNING("Lost connection to container manager, terminating.");
+        trap->stop();
+      });
     }
 
     auto input_manager = std::make_shared<input::Manager>(rt);
-
     auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
     auto display_frame = graphics::Rect::Invalid;
@@ -244,17 +242,20 @@ anbox::cmds::SessionManager::SessionManager()
         {"/dev/fuse", "/dev/fuse"},
       };
 
-      dispatcher->dispatch([&]() { container_->start(container_configuration); });
+      dispatcher->dispatch([&]() {
+        DEBUG("Starting container");
+        container_->start(container_configuration);
+      });
     }
 
-    auto bus_type = core::dbus::WellKnownBus::session;
+    auto bus_type = anbox::dbus::Bus::Type::Session;
     if (use_system_dbus_)
-        bus_type = core::dbus::WellKnownBus::system;
-
-    auto bus = std::make_shared<core::dbus::Bus>(bus_type);
-    bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
+      bus_type = anbox::dbus::Bus::Type::System;
+    auto bus = std::make_shared<anbox::dbus::Bus>(bus_type);
 
     auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, app_manager);
+
+    bus->run_async();
 
     rt->start();
     trap->run();

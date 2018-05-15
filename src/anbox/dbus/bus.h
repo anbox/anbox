@@ -15,38 +15,45 @@
  *
  */
 
-#ifndef ANBOX_DBUS_SKELETON_APPLICATION_MANAGER_H_
-#define ANBOX_DBUS_SKELETON_APPLICATION_MANAGER_H_
+#ifndef ANBOX_DBUS_BUS_H_
+#define ANBOX_DBUS_BUS_H_
 
-#include "anbox/application/manager.h"
-#include "anbox/dbus/bus.h"
+#include "anbox/do_not_copy_or_move.h"
 
+#include <atomic>
 #include <memory>
+#include <mutex>
+#include <thread>
+
+#include <systemd/sd-bus.h>
 
 namespace anbox {
 namespace dbus {
-namespace stub {
-class ApplicationManager : public anbox::application::Manager {
+class Bus : public DoNotCopyOrMove {
  public:
-  static std::shared_ptr<ApplicationManager> create_for_bus(const BusPtr& bus);
+  enum class Type {
+    System,
+    Session
+  };
 
-  ~ApplicationManager();
+  Bus(Type type);
+  ~Bus();
 
-  void launch(const android::Intent &intent,
-              const graphics::Rect &launch_bounds = graphics::Rect::Invalid,
-              const wm::Stack::Id &stack = wm::Stack::Id::Default) override;
+  sd_bus* raw();
 
-  core::Property<bool>& ready() override;
-
-  void update_properties();
+  bool has_service_with_name(const std::string& name);
+  void run_async();
+  void stop();
 
  private:
-  ApplicationManager(const BusPtr& bus);
+  void worker_main();
 
-  BusPtr bus_;
-  core::Property<bool> ready_;
+  Type type_;
+  sd_bus *bus_ = nullptr;
+  std::thread worker_thread_;
+  std::atomic_bool running_{false};
 };
-}  // namespace stub
+using BusPtr = std::shared_ptr<Bus>;
 }  // namespace dbus
 }  // namespace anbox
 

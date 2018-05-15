@@ -11,6 +11,7 @@ include_directories(
   ${PROPERTIES_CPP_INCLUDE_DIRS}
   ${LXC_INCLUDE_DIRS}
   ${MIRCLIENT_INCLUDE_DIRS}
+  ${LIBSYSTEMD_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
@@ -195,11 +196,16 @@ set(SOURCES
     anbox/bridge/platform_api_skeleton.cpp
     anbox/bridge/android_api_stub.cpp
 
+    anbox/dbus/bus.cpp
+    anbox/dbus/bus.h
+    anbox/dbus/sd_bus_helpers.h
     anbox/dbus/interface.h
-    anbox/dbus/codecs.h
     anbox/dbus/skeleton/service.cpp
+    anbox/dbus/skeleton/service.h
     anbox/dbus/skeleton/application_manager.cpp
+    anbox/dbus/skeleton/application_manager.h
     anbox/dbus/stub/application_manager.cpp
+    anbox/dbus/stub/application_manager.h
 
     anbox/application/launcher_storage.cpp
     anbox/application/database.cpp
@@ -210,6 +216,8 @@ set(SOURCES
     anbox/cmds/container_manager.cpp
     anbox/cmds/launch.cpp
     anbox/cmds/system_info.cpp
+    anbox/cmds/wait_ready.cpp
+    anbox/cmds/wait_ready.h
 
     anbox/utils/environment_file.cpp
 
@@ -233,6 +241,8 @@ target_link_libraries(anbox-core
   ${LXC_LIBRARIES}
   ${MIRCLIENT_LDFLAGS}
   ${MIRCLIENT_LIBRARIES}
+  ${LIBSYSTEMD_LDFLAGS}
+  ${LIBSYSTEMD_LIBRARIES}
   pthread
   process-cpp
   emugl_common

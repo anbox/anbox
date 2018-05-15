@@ -65,10 +65,10 @@ find_package(Protobuf REQUIRED)
 
 pkg_check_modules(SDL2 sdl2 REQUIRED)
 pkg_check_modules(SDL2_IMAGE SDL2_image REQUIRED)
-pkg_check_modules(DBUS_CPP dbus-cpp REQUIRED)
 pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
+pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
 # FIXME mir support is currently broken due to mir's API
 # being broken with recent landings in Ubuntu 16.04
 # pkg_check_modules(MIRCLIENT mirclient)
