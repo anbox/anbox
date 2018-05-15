@@ -76,7 +76,7 @@ GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<w
 
   composer_ = std::make_shared<LayerComposer>(renderer_, composer_strategy);
 
-  auto gl_libs = emugl::default_gl_libraries(true);
+  auto gl_libs = emugl::default_gl_libraries();
 
   emugl_logger_struct log_funcs;
   log_funcs.coarse = logger_write;
