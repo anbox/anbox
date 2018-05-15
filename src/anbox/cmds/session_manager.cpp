@@ -29,10 +29,6 @@
 #include "anbox/bridge/platform_message_processor.h"
 #include "anbox/graphics/gl_renderer_server.h"
 
-namespace {
-std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Config::Driver& driver);
-}
-
 #include "anbox/cmds/session_manager.h"
 #include "anbox/common/dispatcher.h"
 #include "anbox/system_configuration.h"
@@ -75,17 +71,6 @@ class NullConnectionCreator : public anbox::network::ConnectionCreator<
     socket->close();
   }
 };
-
-std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Config::Driver& driver) {
-  std::string str(std::istreambuf_iterator<char>(in), {});
-  if (str.empty() || str == "translator")
-    driver = anbox::graphics::GLRendererServer::Config::Driver::Translator;
-  else if (str == "host")
-    driver = anbox::graphics::GLRendererServer::Config::Driver::Host;
-  else
-   BOOST_THROW_EXCEPTION(std::runtime_error("Invalid GLES driver value provided"));
-  return in;
-}
 }
 
 void anbox::cmds::SessionManager::launch_appmgr_if_needed(const std::shared_ptr<bridge::AndroidApiStub> &android_api_stub) {
@@ -103,7 +88,6 @@ void anbox::cmds::SessionManager::launch_appmgr_if_needed(const std::shared_ptr<
 anbox::cmds::SessionManager::SessionManager()
     : CommandWithFlagsAndAction{cli::Name{"session-manager"}, cli::Usage{"session-manager"},
                                 cli::Description{"Run the the anbox session manager"}},
-      gles_driver_(graphics::GLRendererServer::Config::Driver::Host),
       window_size_(default_single_window_size) {
   // Just for the purpose to allow QtMir (or unity8) to find this on our
   // /proc/*/cmdline
@@ -111,9 +95,6 @@ anbox::cmds::SessionManager::SessionManager()
   flag(cli::make_flag(cli::Name{"desktop_file_hint"},
                       cli::Description{"Desktop file hint for QtMir/Unity8"},
                       desktop_file_hint_));
-  flag(cli::make_flag(cli::Name{"gles-driver"},
-                      cli::Description{"Which GLES driver to use. Possible values are 'host' or'translator'"},
-                      gles_driver_));
   flag(cli::make_flag(cli::Name{"single-window"},
                       cli::Description{"Start in single window mode."},
                       single_window_));
@@ -190,8 +171,11 @@ anbox::cmds::SessionManager::SessionManager()
       using_single_window = true;
     }
 
-    auto gl_server = std::make_shared<graphics::GLRendererServer>(
-          graphics::GLRendererServer::Config{gles_driver_, single_window_}, window_manager);
+    graphics::GLRendererServer::Config renderer_config {
+      graphics::GLRendererServer::Config::Driver::Host,
+      single_window_
+    };
+    auto gl_server = std::make_shared<graphics::GLRendererServer>(renderer_config, window_manager);
 
     platform->set_window_manager(window_manager);
     platform->set_renderer(gl_server->renderer());

@@ -78,14 +78,6 @@ GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<w
 
   auto gl_libs = emugl::default_gl_libraries(true);
 
-  if (config.driver == Config::Driver::Translator) {
-    DEBUG("Using GLES-to-GL translator for rendering");
-    boost::filesystem::path translator_dir = utils::prefix_dir_from_env(TRANSLATOR_INSTALL_DIR, "SNAP");
-    gl_libs.push_back(emugl::GLLibrary{emugl::GLLibrary::Type::EGL, (translator_dir / "libEGL_translator.so")});
-    gl_libs.push_back(emugl::GLLibrary{emugl::GLLibrary::Type::GLESv1, (translator_dir / "libGLES_CM_translator.so")});
-    gl_libs.push_back(emugl::GLLibrary{emugl::GLLibrary::Type::GLESv2, (translator_dir / "libGLES_V2_translator.so")});
-  }
-
   emugl_logger_struct log_funcs;
   log_funcs.coarse = logger_write;
   log_funcs.fine = logger_write;

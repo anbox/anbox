@@ -35,7 +35,7 @@ class LayerComposer;
 class GLRendererServer {
  public:
   struct Config {
-    enum class Driver { Translator, Host };
+    enum class Driver { Host };
     Driver driver;
     bool single_window;
   };

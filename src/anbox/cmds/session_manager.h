@@ -46,7 +46,6 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
 
   std::shared_ptr<container::Client> container_;
   std::string desktop_file_hint_;
-  graphics::GLRendererServer::Config::Driver gles_driver_;
   bool single_window_ = false;
   graphics::Rect window_size_;
   bool standalone_ = false;
