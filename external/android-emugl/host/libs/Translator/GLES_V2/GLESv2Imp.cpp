@@ -1048,8 +1048,10 @@ GL_APICALL void  GL_APIENTRY glGetIntegerv(GLenum pname, GLint* params){
     if (ctx->glGetIntegerv(pname,params))
     {
         if (destroyCtx)
+        {
             deleteGLESContext(ctx);
             return;
+        }
     }
   
     bool es2 = ctx->getCaps()->GL_ARB_ES2_COMPATIBILITY;
