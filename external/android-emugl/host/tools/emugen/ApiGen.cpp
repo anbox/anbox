@@ -753,6 +753,10 @@ int ApiGen::genDecoderHeader(const std::string &filename)
 
     fprintf(fp, "#include \"IOStream.h\" \n");
     fprintf(fp, "#include \"%s_%s_context.h\"\n\n\n", m_basename.c_str(), sideString(SERVER_SIDE));
+    if (strcmp(classname.c_str(), "gles2_decoder_context_t") == 0) {
+        fprintf(fp, "\n#include <map>\n");
+        fprintf(fp, "\n#include <mutex>\n");
+    }
     fprintf(fp, "\n#include \"emugl/common/logging.h\"\n");
 
     for (size_t i = 0; i < m_decoderHeaders.size(); i++) {
@@ -763,6 +767,17 @@ int ApiGen::genDecoderHeader(const std::string &filename)
     fprintf(fp, "struct %s : public %s_%s_context_t {\n\n",
             classname.c_str(), m_basename.c_str(), sideString(SERVER_SIDE));
     fprintf(fp, "\tsize_t decode(void *buf, size_t bufsize, IOStream *stream);\n");
+    if (strcmp(classname.c_str(), "gles2_decoder_context_t") == 0){ 
+	fprintf(fp, 
+			"\tvoid freeShader(); \n\
+			\tvoid freeProgram(); \n\
+			\tstd::map<GLuint, GLuint> m_programs; \n\
+			\tstd::map<GLuint, GLuint> m_shaders; \n\
+			\tstd::mutex m_lock; \n\
+		");
+
+
+    }
     fprintf(fp, "\n};\n\n");
     fprintf(fp, "#endif  // GUARD_%s\n", classname.c_str());
 
@@ -834,6 +849,35 @@ int ApiGen::genDecoderImpl(const std::string &filename)
 
     // helper templates
     fprintf(fp, "using namespace emugl;\n\n");
+
+    // glsl shader/program free;
+    if (strcmp(classname.c_str(), "gles2_decoder_context_t") == 0) {
+        fprintf(fp, "void %s::freeShader(){\n", classname.c_str());
+	fprintf(fp, 
+		"                       \n\
+\tauto it = m_shaders.begin();\n\
+\tm_lock.lock();\n\
+\twhile(it != m_shaders.end()) \n\
+\t{\n\
+\t\tthis->glDeleteShader(it->first);\n\
+\t\tit++;\n\
+\t}\n\
+\tm_lock.unlock();\n\
+}\n\n");
+
+        fprintf(fp, "void %s::freeProgram(){\n", classname.c_str());
+	fprintf(fp, 
+		"		\n\
+\tauto it = m_programs.begin(); \n\
+\tm_lock.lock();\n\
+\twhile(it != m_programs.end()) \n\
+\t{\n\
+\t\tthis->glDeleteProgram(it->first);\n\
+\t\tit++;\n\
+\t}\n\
+\tm_lock.unlock();\n\
+}\n\n");
+    }
 
     // decoder switch;
     fprintf(fp, "size_t %s::decode(void *buf, size_t len, IOStream *stream)\n{\n", classname.c_str());
@@ -1114,8 +1158,7 @@ int ApiGen::genDecoderImpl(const std::string &filename)
                         varoffset.c_str(),
                         varoffset.c_str(),
                         varoffset.c_str(),
-                        classname.c_str(),
-                        e->name().c_str()
+                        classname.c_str()
                         );
 
                 varoffset += " + 4";
@@ -1161,6 +1204,37 @@ int ApiGen::genDecoderImpl(const std::string &filename)
 
         } // pass;
         fprintf(fp, "\t\t\tSET_LASTCALL(\"%s\");\n", e->name().c_str());
+	if (strcmp(m_basename.c_str(), "gles2") == 0) {
+	    if (strcmp(e->name().c_str(), "glAttachShader") == 0){
+		fprintf(fp, "\n\
+			\t\t\tm_lock.lock();\n\
+			m_shaders.insert({var_shader, 1});\n\
+			m_lock.unlock();\n");
+	    } else if(strcmp(e->name().c_str(), "glDeleteProgram") == 0){
+		fprintf(fp, 
+			"\t\t\tm_lock.lock(); \n"
+			"\t\t\tauto pro = m_programs.find(var_program); \n"
+			"\t\t\tif (pro != m_programs.end()) \n"
+			"\t\t\t{ \n"
+			"\t\t\t\tm_programs.erase(pro); \n"
+			"\t\t\t}\n"
+			"\t\t\tm_lock.unlock();\n");
+            } else if(strcmp(e->name().c_str(), "glDeleteShader") == 0){
+		fprintf(fp, 
+			"\t\t\tm_lock.lock(); \n\
+			\t\t\tauto shader = m_shaders.find(var_shader); \n\
+			\t\t\tif (shader != m_shaders.end()) \n\
+			\t\t\t{ \n\
+			\t\t\t\tm_shaders.erase(shader); \n\
+			\t\t\t} \n\
+			\t\t\tm_lock.unlock(); \n");
+	    } else if(strcmp(e->name().c_str(), "glLinkProgram") == 0){
+		fprintf(fp, "	\n\
+			\t\t\tm_lock.lock();\n\
+			\t\t\tm_programs.insert({var_program, 1});\n\
+			\t\t\tm_lock.unlock();\n");
+	}
+	}
         fprintf(fp, "\t\t\tbreak;\n");
         fprintf(fp, "\t\t}\n");
 
