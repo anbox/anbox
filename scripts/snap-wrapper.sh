@@ -22,4 +22,11 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SNAP/lib
 # launchers.
 export XDG_DATA_HOME="$SNAP_USER_COMMON/app-data"
 
+# In order to support GLVND based systems we need to work around a bug in snapd
+# as it does not yet expose the EGL vendor configurations from the host to snaps.
+# As long as this isn't fixed we have to carry a set of configs on our own which
+# may map to the host. GLVND will handle situation properly where a vendor is
+# configured but the actual EGL implementation is missing.
+export __EGL_VENDOR_LIBRARY_DIRS="$SNAP/glvnd"
+
 exec $SNAP/usr/bin/anbox $@
