@@ -29,7 +29,7 @@ slots:
 
 apps:
   anbox:
-    command: bin/anbox-wrapper.sh
+    command: desktop-launch $SNAP/bin/anbox-wrapper.sh
   container-manager:
     command: bin/container-manager.sh start
     stop-command: bin/container-manager.sh stop
@@ -38,14 +38,14 @@ apps:
     command: bin/collect-bug-info.sh
 
 parts:
-  android-images:
+  android:
     plugin: dump
     # This needs to be any directory but not the root one as if we use
     # it we get superious permissions errors with the copied .git tree
     source: data
     build-packages:
       - wget
-    install: |
+    override-build: |
       LOCAL_IMAGE=$SNAPCRAFT_PART_INSTALL/../../../android-images/android.img
 
       if [ -f $LOCAL_IMAGE ]; then
@@ -83,23 +83,12 @@ parts:
       fi
     prime:
       - android.img
-  anbox-common:
-    plugin: dump
-    source: scripts
-    organize:
-      snap-wrapper.sh: bin/anbox-wrapper.sh
-      container-manager.sh: bin/container-manager.sh
-      anbox-bridge.sh: bin/anbox-bridge.sh
-      collect-bug-info.sh: bin/collect-bug-info.sh
-    prime:
-      - bin/anbox-bridge.sh
-      - bin/anbox-wrapper.sh
-      - bin/container-manager.sh
-      - bin/collect-bug-info.sh
+
   apparmor:
     plugin: nil
     stage-packages:
       - apparmor
+
   lxc:
     source: https://github.com/lxc/lxc
     source-type: git
@@ -138,10 +127,32 @@ parts:
       - bin/lxc-attach
       - bin/lxc-ls
       - bin/lxc-top
+
+  anbox-scripts:
+    plugin: dump
+    source: scripts
+    organize:
+      snap-wrapper.sh: bin/anbox-wrapper.sh
+      container-manager.sh: bin/container-manager.sh
+      anbox-bridge.sh: bin/anbox-bridge.sh
+      collect-bug-info.sh: bin/collect-bug-info.sh
+    prime:
+      - bin/anbox-bridge.sh
+      - bin/anbox-wrapper.sh
+      - bin/container-manager.sh
+      - bin/collect-bug-info.sh
+
+  anbox-data:
+    plugin: dump
+    source: data
+    prime:
+      - glvnd
+
   anbox:
     plugin: cmake
     after:
       - lxc
+      - desktop-glib-only
     source: .
     configflags:
       # FIXME: Anbox currently has some paths with hard coded prefixes. Once
@@ -178,13 +189,17 @@ parts:
       - pkg-config
       - protobuf-compiler
     stage-packages:
+      - libboost-log1.58.0
+      - libboost-program-options1.58.0
+      - libboost-thread1.58.0
+      - libdb5.3
+      - libdbus-cpp5
       - libegl1-mesa
       - libgles2-mesa
       - libgl1-mesa-glx
       - libsdl2-2.0-0
       - libsdl2-gfx-1.0-0
-    install: |
-      make test
+      - libsdl2-image-2.0-0
     prime:
       - usr/bin/anbox
       - usr/share/anbox
