@@ -5,8 +5,8 @@ include(CTest)
 include(GNUInstallDirs)
 
 if (NOT CMAKE_BUILD_TYPE)
-    message(STATUS "No build type selected, default to release")
-    set(CMAKE_BUILD_TYPE "release")
+    message(STATUS "No build type selected, default to RelWithDebInfo")
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)

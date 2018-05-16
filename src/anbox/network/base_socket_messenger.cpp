@@ -138,7 +138,7 @@ unsigned short BaseSocketMessenger<stream_protocol>::local_port() const {
 
 template <typename stream_protocol>
 void BaseSocketMessenger<stream_protocol>::set_no_delay() {
-  const auto fd = socket->native();
+  const auto fd = socket->native_handle();
   int flag = 1;
   const auto ret =
       ::setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
