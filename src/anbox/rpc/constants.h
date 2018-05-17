@@ -20,7 +20,7 @@
 
 namespace anbox {
 namespace rpc {
-static constexpr const long header_size{3};
+static constexpr const long header_size{4};
 static constexpr unsigned int const serialization_buffer_size{2048};
 
 enum MessageType {
