@@ -56,8 +56,8 @@ cleanup
 mkdir build || rm -rf build/*
 cd build
 cmake ..
-make -j10
-make test
+VERBOSE=1 make -j10
+VERBOSE=1 make test
 cd ..
 
 cleanup
