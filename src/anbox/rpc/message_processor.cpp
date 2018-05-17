@@ -47,9 +47,10 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
 
   while (buffer_.size() > 0) {
     const auto high = buffer_[0];
-    const auto low = buffer_[1];
-    size_t const message_size = (high << 8) + low;
-    const auto message_type = buffer_[2];
+    const auto medium = buffer_[1];
+    const auto low = buffer_[2];
+    size_t const message_size = (high << 16) + (medium << 8) + low;
+    const auto message_type = buffer_[3];
 
     // If we don't have yet all bytes for a new message return and wait
     // until we have all.
@@ -101,6 +102,7 @@ void MessageProcessor::send_response(::google::protobuf::uint32 id,
 
   const size_t size = send_response_buffer.size();
   const unsigned char header_bytes[header_size] = {
+      static_cast<unsigned char>((size >> 16) & 0xff),
       static_cast<unsigned char>((size >> 8) & 0xff),
       static_cast<unsigned char>((size >> 0) & 0xff), MessageType::response,
   };
