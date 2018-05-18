@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=Anbox
-Exec=anbox run --rootfs=android-rootfs
-Icon=anbox
-Terminal=false
-Type=Application
-X-Ubuntu-Touch=true
