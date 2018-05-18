@@ -28,6 +28,10 @@
 #include "anbox/rpc/channel.h"
 #include "anbox/rpc/pending_call_cache.h"
 
+#include <boost/filesystem.hpp>
+
+namespace fs = boost::filesystem;
+
 namespace anbox {
 namespace container {
 std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt, bool privileged) {
@@ -41,6 +45,10 @@ std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt, boo
   });
 
   const auto container_socket_path = SystemConfiguration::instance().container_socket_path();
+  const auto socket_parent_path = fs::path(container_socket_path).parent_path();
+  if (!fs::exists(socket_parent_path))
+    fs::create_directories(socket_parent_path);
+
   sp->connector_ = std::make_shared<network::PublishedSocketConnector>(container_socket_path, rt, delegate_connector);
 
   // Make sure others can connect to our socket
