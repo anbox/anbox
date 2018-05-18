@@ -41,7 +41,7 @@ extern "C" {
 	int rcGetDisplayDpiX(uint32_t displayId);
 	int rcGetDisplayDpiY(uint32_t displayId);
 	int rcGetDisplayVsyncPeriod(uint32_t displayId);
-	void rcPostLayer(const char* name, uint32_t colorBuffer, int32_t sourceCropLeft, int32_t sourceCropTop, int32_t sourceCropRight, int32_t sourceCropBottom, int32_t displayFrameLeft, int32_t displayFrameTop, int32_t displayFrameRight, int32_t displayFrameBottom);
+	void rcPostLayer(const char* name, uint32_t colorBuffer, float alpha, int32_t sourceCropLeft, int32_t sourceCropTop, int32_t sourceCropRight, int32_t sourceCropBottom, int32_t displayFrameLeft, int32_t displayFrameTop, int32_t displayFrameRight, int32_t displayFrameBottom);
 	void rcPostAllLayersDone();
 };
 
@@ -262,10 +262,10 @@ int rcGetDisplayVsyncPeriod(uint32_t displayId)
 	return ctx->rcGetDisplayVsyncPeriod(ctx, displayId);
 }
 
-void rcPostLayer(const char* name, uint32_t colorBuffer, int32_t sourceCropLeft, int32_t sourceCropTop, int32_t sourceCropRight, int32_t sourceCropBottom, int32_t displayFrameLeft, int32_t displayFrameTop, int32_t displayFrameRight, int32_t displayFrameBottom)
+void rcPostLayer(const char* name, uint32_t colorBuffer, float alpha, int32_t sourceCropLeft, int32_t sourceCropTop, int32_t sourceCropRight, int32_t sourceCropBottom, int32_t displayFrameLeft, int32_t displayFrameTop, int32_t displayFrameRight, int32_t displayFrameBottom)
 {
 	GET_CONTEXT;
-	ctx->rcPostLayer(ctx, name, colorBuffer, sourceCropLeft, sourceCropTop, sourceCropRight, sourceCropBottom, displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom);
+	ctx->rcPostLayer(ctx, name, colorBuffer, alpha, sourceCropLeft, sourceCropTop, sourceCropRight, sourceCropBottom, displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom);
 }
 
 void rcPostAllLayersDone()
