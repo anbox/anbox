@@ -255,9 +255,10 @@ target_link_libraries(anbox-core
   anbox-protobuf
   xdg)
 
-add_executable(anbox main.cpp)
+add_executable(anbox main.cpp ${BACKWARD_ENABLE})
 target_link_libraries(anbox
     anbox-core)
+add_backward(anbox)
 
 install(
   TARGETS anbox
