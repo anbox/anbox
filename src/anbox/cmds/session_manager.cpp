@@ -243,7 +243,6 @@ anbox::cmds::SessionManager::SessionManager()
       };
 
       dispatcher->dispatch([&]() {
-        DEBUG("Starting container");
         container_->start(container_configuration);
       });
     }
