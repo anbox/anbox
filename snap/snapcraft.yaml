@@ -1,5 +1,5 @@
 name: anbox
-version: 3
+version: 4
 version-script: |
   if [ "$SNAPCRAFT_GRADE" = "stable" ]; then
     echo $SNAPCRAFT_PROJECT_VERSION
