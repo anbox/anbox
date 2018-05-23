@@ -36,27 +36,12 @@ apps:
     daemon: simple
   collect-bug-info:
     command: bin/collect-bug-info.sh
-
-  app-settings:
-    command: desktop-launch $SNAP/bin/app-settings.sh
-    desktop: desktop/settings.desktop
-
+  android-settings:
+    command: desktop-launch $SNAP/bin/app-android-settings.sh
+    desktop: desktop/android-settings.desktop
   appmgr:
     command: desktop-launch $SNAP/bin/app-appmgr.sh
     desktop: desktop/appmgr.desktop
-    slots:
-      - dbus-session-slot
-    plugs:
-      - dbus-session-plug
-      - x11
-      - unity7
-      - network
-      - opengl
-      - wayland
-      - pulseaudio
-      - home
-      - process-control
-      - desktop
 
 parts:
   android:
