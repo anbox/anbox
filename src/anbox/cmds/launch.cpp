@@ -39,7 +39,6 @@ const std::chrono::seconds session_mgr_wait_interval{5};
 constexpr unsigned int max_dbus_service_wait_attempts{10};
 const std::chrono::seconds dbus_service_wait_interval{5};
 
-#if 0
 static int redirect_to_null(int flags, int fd) {
   int fd2;
   if ((fd2 = open("/dev/null", flags)) < 0)
@@ -54,7 +53,6 @@ static int redirect_to_null(int flags, int fd) {
   close(fd2);
   return fd;
 }
-#endif
 } // namespace
 
 bool anbox::cmds::Launch::launch_session_manager() {
@@ -74,7 +72,6 @@ bool anbox::cmds::Launch::launch_session_manager() {
     auto flags = core::posix::StandardStream::empty;
     auto child = core::posix::fork([&]() {
 
-#if 0
       // We redirect all in/out/err to /dev/null as they can't be seen
       // anywhere. All logging output will directly go to syslog as we
       // will become a session leader below which will get us rid of a
@@ -85,8 +82,6 @@ bool anbox::cmds::Launch::launch_session_manager() {
         ERROR("Failed to redirect stdout/stderr/stdin: %s", strerror(errno));
         return core::posix::exit::Status::failure;
       }
-
-#endif
 
       // As we forked one time already we're sure that our process is
       // not the session leader anymore so we can safely become the
