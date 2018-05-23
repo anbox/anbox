@@ -114,9 +114,13 @@ void ApplicationManager::launch(const android::Intent &intent,
   if (r < 0)
     throw std::runtime_error("Failed to construct DBus message");
 
-  r = sd_bus_call(bus_->raw(), m, 0, nullptr, nullptr);
-  if (r < 0)
-    throw std::runtime_error("Failed to call Anbox application manager");
+  sd_bus_error error = SD_BUS_ERROR_NULL;
+  r = sd_bus_call(bus_->raw(), m, 0, &error, nullptr);
+  if (r < 0) {
+    const auto msg = utils::string_format("%s", error.message);
+    sd_bus_error_free(&error);
+    throw std::runtime_error(msg);
+  }
 }
 
 core::Property<bool>& ApplicationManager::ready() {

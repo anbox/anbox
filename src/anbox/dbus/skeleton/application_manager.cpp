@@ -92,6 +92,10 @@ int ApplicationManager::method_launch(sd_bus_message *m, void *userdata, sd_bus_
       if (r < 0)
         return r;
     }
+
+    r = sd_bus_message_exit_container(m);
+    if (r < 0)
+      return r;
   }
 
   r = sd_bus_message_exit_container(m);
