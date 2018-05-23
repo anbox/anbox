@@ -128,6 +128,23 @@ parts:
       - bin/lxc-ls
       - bin/lxc-top
 
+  swiftshader:
+    plugin: cmake
+    source: https://github.com/google/swiftshader.git
+    source-type: git
+    source-commit: cbb80f5f0078a9941f3ec43e83e52c3d15a43bea
+    override-build: |
+      git submodule update --init
+      snapcraftctl build
+    artifacts:
+      - libEGL.so
+      - libGLES_CM.so
+      - libGLESv2.so
+    organize:
+      libEGL.so: lib/anbox/swiftshader/libEGL.so
+      libGLES_CM.so: lib/anbox/swiftshader/libGLES_CM.so
+      libGLESv2.so: lib/anbox/swiftshader/libGLESv2.so
+
   anbox-scripts:
     plugin: dump
     source: scripts

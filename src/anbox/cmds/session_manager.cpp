@@ -109,6 +109,9 @@ anbox::cmds::SessionManager::SessionManager()
   flag(cli::make_flag(cli::Name{"use-system-dbus"},
                       cli::Description{"Use system instead of session DBus"},
                       use_system_dbus_));
+  flag(cli::make_flag(cli::Name{"software-rendering"},
+                      cli::Description{"Use software rendering instead of hardware accelerated GL rendering"},
+                      use_software_rendering_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -169,8 +172,12 @@ anbox::cmds::SessionManager::SessionManager()
       using_single_window = true;
     }
 
+    auto gl_driver = graphics::GLRendererServer::Config::Driver::Host;
+    if (use_software_rendering_)
+     gl_driver = graphics::GLRendererServer::Config::Driver::Software;
+
     graphics::GLRendererServer::Config renderer_config {
-      graphics::GLRendererServer::Config::Driver::Host,
+      gl_driver,
       single_window_
     };
     auto gl_server = std::make_shared<graphics::GLRendererServer>(renderer_config, window_manager);
