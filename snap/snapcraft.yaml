@@ -155,7 +155,7 @@ parts:
       container-manager.sh: bin/container-manager.sh
       anbox-bridge.sh: bin/anbox-bridge.sh
       collect-bug-info.sh: bin/collect-bug-info.sh
-      app-settings.sh: bin/app-settings.sh
+      app-android-settings.sh: bin/app-android-settings.sh
       app-appmgr.sh: bin/app-appmgr.sh
     prime:
       - bin/anbox-bridge.sh
