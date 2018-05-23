@@ -41,6 +41,23 @@ apps:
     command: desktop-launch $SNAP/bin/app-settings.sh
     desktop: desktop/settings.desktop
 
+  appmgr:
+    command: desktop-launch $SNAP/bin/app-appmgr.sh
+    desktop: desktop/appmgr.desktop
+    slots:
+      - dbus-session-slot
+    plugs:
+      - dbus-session-plug
+      - x11
+      - unity7
+      - network
+      - opengl
+      - wayland
+      - pulseaudio
+      - home
+      - process-control
+      - desktop
+
 parts:
   android:
     plugin: dump
@@ -154,6 +171,7 @@ parts:
       anbox-bridge.sh: bin/anbox-bridge.sh
       collect-bug-info.sh: bin/collect-bug-info.sh
       app-settings.sh: bin/app-settings.sh
+      app-appmgr.sh: bin/app-appmgr.sh
     prime:
       - bin/anbox-bridge.sh
       - bin/anbox-wrapper.sh
