@@ -18,51 +18,28 @@
 #ifndef ANBOX_DBUS_INTERFACE_H_
 #define ANBOX_DBUS_INTERFACE_H_
 
-#include <core/dbus/macros.h>
-#include <core/dbus/property.h>
-
-#include <chrono>
-#include <string>
-
 namespace anbox {
 namespace dbus {
 namespace interface {
 struct Service {
-  static inline std::string name() { return "org.anbox"; }
-  static inline std::string path() { return "/"; }
+  static inline const char* name() { return "org.anbox"; }
+  static inline const char* path() { return "/org/anbox"; }
 };
 struct ApplicationManager {
-  static inline std::string name() { return "org.anbox.ApplicationManager"; }
+  static inline const char* name() { return "org.anbox.ApplicationManager"; }
   struct Methods {
-    struct Launch {
-      static inline std::string name() { return "Launch"; }
-      typedef anbox::dbus::interface::ApplicationManager Interface;
-      typedef void ResultType;
-      static inline std::chrono::milliseconds default_timeout() {
-        return std::chrono::seconds{60};
-      }
-    };
+      struct Launch {
+        static inline const char* name() { return "Launch"; }
+      };
   };
   struct Properties {
-    DBUS_CPP_READABLE_PROPERTY_DEF(Ready, ApplicationManager, bool)
+    struct Ready {
+      static inline const char* name() { return "Ready"; }
+    };
   };
 };
 }  // namespace interface
 }  // namespace dbus
 }  // namespace anbox
-
-namespace core {
-namespace dbus {
-namespace traits {
-template <>
-struct Service<anbox::dbus::interface::ApplicationManager> {
-  static inline const std::string& interface_name() {
-    static const std::string s{"org.anbox.ApplicationManager"};
-    return s;
-  }
-};
-}  // namespace traits
-}  // namespace dbus
-}  // namespace core
 
 #endif

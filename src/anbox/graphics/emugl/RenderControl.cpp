@@ -414,7 +414,7 @@ bool is_layer_blacklisted(const std::string &name) {
   return std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end();
 }
 
-void rcPostLayer(const char *name, uint32_t color_buffer,
+void rcPostLayer(const char *name, uint32_t color_buffer, float alpha,
                  int32_t sourceCropLeft, int32_t sourceCropTop,
                  int32_t sourceCropRight, int32_t sourceCropBottom,
                  int32_t displayFrameLeft, int32_t displayFrameTop,
@@ -422,6 +422,7 @@ void rcPostLayer(const char *name, uint32_t color_buffer,
   Renderable r{
       name,
       color_buffer,
+      alpha,
       {displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom},
       {sourceCropLeft, sourceCropTop, sourceCropRight, sourceCropBottom}};
   frame_layers.push_back(r);

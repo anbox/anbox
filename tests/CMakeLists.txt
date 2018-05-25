@@ -5,6 +5,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include
   ${CMAKE_SOURCE_DIR}/src
+  ${CMAKE_SOURCE_DIR}/external/glm
 )
 
 macro(ANBOX_ADD_TEST test_name src)

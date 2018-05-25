@@ -23,7 +23,7 @@
 
 namespace {
 static constexpr const long header_size{4};
-}
+} // namespace
 
 namespace anbox {
 namespace qemu {
@@ -33,24 +33,29 @@ QemudMessageProcessor::QemudMessageProcessor(
 
 QemudMessageProcessor::~QemudMessageProcessor() {}
 
-bool QemudMessageProcessor::process_data(
-    const std::vector<std::uint8_t> &data) {
-  for (const auto &byte : data) buffer_.push_back(byte);
+bool QemudMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
+  for (const auto &byte : data)
+    buffer_.push_back(byte);
 
-  process_commands();
-
-  return true;
+  return process_commands();
 }
 
-void QemudMessageProcessor::process_commands() {
+bool QemudMessageProcessor::process_commands() {
   while (true) {
-    if (buffer_.size() < header_size) break;
+    if (buffer_.size() < header_size)
+      break;
 
     char header[header_size] = {0};
     ::memcpy(header, buffer_.data(), header_size);
 
     unsigned int body_size = 0;
     ::sscanf(header, "%04x", &body_size);
+
+    // Double check that we have enough data to ready the whole body. If
+    // not we have to wait until we have everything.
+    size_t total_size = header_size + body_size;
+    if (buffer_.size() < total_size)
+      break;
 
     std::string command;
     // Make sure we only copy as much bytes as we have to and not more
@@ -64,8 +69,11 @@ void QemudMessageProcessor::process_commands() {
     buffer_.erase(buffer_.begin(), buffer_.begin() + consumed);
 
     const auto remaining = buffer_.size() - consumed;
-    if (remaining <= 0) break;
+    if (remaining <= 0)
+      break;
   }
+
+  return true;
 }
 
 void QemudMessageProcessor::send_header(const size_t &size) {

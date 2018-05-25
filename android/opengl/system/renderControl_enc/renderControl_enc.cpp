@@ -1283,7 +1283,7 @@ int rcGetDisplayVsyncPeriod_enc(void *self , uint32_t displayId)
 	return retval;
 }
 
-void rcPostLayer_enc(void *self , const char* name, uint32_t colorBuffer, int32_t sourceCropLeft, int32_t sourceCropTop, int32_t sourceCropRight, int32_t sourceCropBottom, int32_t displayFrameLeft, int32_t displayFrameTop, int32_t displayFrameRight, int32_t displayFrameBottom)
+void rcPostLayer_enc(void *self , const char* name, uint32_t colorBuffer, float alpha, int32_t sourceCropLeft, int32_t sourceCropTop, int32_t sourceCropRight, int32_t sourceCropBottom, int32_t displayFrameLeft, int32_t displayFrameTop, int32_t displayFrameRight, int32_t displayFrameBottom)
 {
 
 	renderControl_encoder_context_t *ctx = (renderControl_encoder_context_t *)self;
@@ -1294,7 +1294,7 @@ void rcPostLayer_enc(void *self , const char* name, uint32_t colorBuffer, int32_
 	const unsigned int __size_name =  (strlen(name) + 1);
 	 unsigned char *ptr;
 	 unsigned char *buf;
-	 const size_t sizeWithoutChecksum = 8 + __size_name + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1*4;
+	 const size_t sizeWithoutChecksum = 8 + __size_name + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1*4;
 	 const size_t checksumSize = checksumCalculator->checksumByteSize();
 	 const size_t totalSize = sizeWithoutChecksum + checksumSize;
 	buf = stream->alloc(totalSize);
@@ -1305,6 +1305,7 @@ void rcPostLayer_enc(void *self , const char* name, uint32_t colorBuffer, int32_
 	*(unsigned int *)(ptr) = __size_name; ptr += 4;
 	memcpy(ptr, name, __size_name);ptr += __size_name;
 		memcpy(ptr, &colorBuffer, 4); ptr += 4;
+		memcpy(ptr, &alpha, 4); ptr += 4;
 		memcpy(ptr, &sourceCropLeft, 4); ptr += 4;
 		memcpy(ptr, &sourceCropTop, 4); ptr += 4;
 		memcpy(ptr, &sourceCropRight, 4); ptr += 4;

@@ -25,24 +25,40 @@ extern EGLDispatch s_egl;
 
 static emugl::SharedLibrary *s_gles1_lib = NULL;
 
-// An unimplemented function which prints out an error message.
-// To make it consistent with the guest, all GLES1 functions not supported by
-// the driver should be redirected to this function.
-
 static void gles1_unimplemented() {
     fprintf(stderr, "Called unimplemented GLESv1 API\n");
 }
 
-//
-// This function is called only once during initialiation before
-// any thread has been created - hence it should NOT be thread safe.
-//
+static void gles1_dummy() {}
+
+#define ASSIGN_DUMMY(return_type, function_name, signature, call_args) do { \
+    dispatch_table-> function_name = reinterpret_cast<function_name ## _t>(gles1_dummy); \
+  } while(0);
+
+
+#define LOOKUP_SYMBOL(return_type,function_name,signature,callargs) \
+    dispatch_table-> function_name = reinterpret_cast< function_name ## _t >( \
+            s_gles1_lib->findSymbol(#function_name));
+
+#define LOOKUP_EXT_SYMBOL(return_type,function_name,signature,callargs) \
+    dispatch_table-> function_name = reinterpret_cast< function_name ## _t >( \
+            s_egl.eglGetProcAddress(#function_name));
 
 namespace {
 constexpr const char *glesv1_lib_env_var{"ANBOX_GLESv1_LIB"};
 }
 
 bool gles1_dispatch_init(const char *path, GLESv1Dispatch* dispatch_table) {
+    if (!dispatch_table)
+        return false;
+
+    // If no path is given we assign dummy functions to all GL calls
+    // we would have loaded from a real implementation.
+    if (!path) {
+        LIST_GLES1_FUNCTIONS(ASSIGN_DUMMY, ASSIGN_DUMMY);
+        return true;
+    }
+
     const char* libName = getenv(glesv1_lib_env_var);
     if (!libName)
       libName = path;
@@ -56,17 +72,6 @@ bool gles1_dispatch_init(const char *path, GLESv1Dispatch* dispatch_table) {
                 libName, error);
         return false;
     }
-
-    //
-    // init the GLES dispatch table
-    //
-#define LOOKUP_SYMBOL(return_type,function_name,signature,callargs) \
-    dispatch_table-> function_name = reinterpret_cast< function_name ## _t >( \
-            s_gles1_lib->findSymbol(#function_name));
-
-#define LOOKUP_EXT_SYMBOL(return_type,function_name,signature,callargs) \
-    dispatch_table-> function_name = reinterpret_cast< function_name ## _t >( \
-            s_egl.eglGetProcAddress(#function_name));
 
     LIST_GLES1_FUNCTIONS(LOOKUP_SYMBOL,LOOKUP_EXT_SYMBOL)
 

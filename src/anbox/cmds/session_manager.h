@@ -24,8 +24,6 @@
 #include <iostream>
 #include <memory>
 
-#include <core/dbus/bus.h>
-
 #include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/graphics/rect.h"
 
@@ -46,12 +44,12 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
 
   std::shared_ptr<container::Client> container_;
   std::string desktop_file_hint_;
-  graphics::GLRendererServer::Config::Driver gles_driver_;
   bool single_window_ = false;
   graphics::Rect window_size_;
   bool standalone_ = false;
   bool experimental_ = false;
   bool use_system_dbus_ = false;
+  bool use_software_rendering_ = false;
 };
 }  // namespace cmds
 }  // namespace anbox

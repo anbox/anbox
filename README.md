@@ -89,12 +89,10 @@ a simple task.
 At the moment we officially support the following Linux distributions:
 
  * Ubuntu 16.04 (xenial)
+ * Ubuntu 18.04 (bionic)
 
-Untested but likely to work:
-
- * Ubuntu 14.04 (trusty)
- * Ubuntu 16.10 (yakkety)
- * Ubuntu 17.04 (zesty)
+However all other distributions supporting snap packages should work as
+well as long as they provide the mandatory kernel modules (see kernel/).
 
 ## Install and Run Android Applications
 
@@ -118,7 +116,7 @@ system:
  * libboost-test
  * libboost-thread
  * libcap
- * libdbus-cpp
+ * libsystemd
  * mesa (libegl1, libgles2)
  * glib-2.0
  * libsdl2
@@ -133,7 +131,7 @@ command:
 $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
     libboost-dev libboost-filesystem-dev libboost-log-dev libboost-iostreams-dev \
     libboost-program-options-dev libboost-system-dev libboost-test-dev \
-    libboost-thread-dev libcap-dev libdbus-1-dev libdbus-cpp-dev libegl1-mesa-dev \
+    libboost-thread-dev libcap-dev libsystemd-dev libegl1-mesa-dev \
     libgles2-mesa-dev libglib2.0-dev libglm-dev libgtest-dev liblxc1 \
     libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
     pkg-config protobuf-compiler 

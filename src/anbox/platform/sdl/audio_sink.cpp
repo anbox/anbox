@@ -49,7 +49,7 @@ bool AudioSink::connect_audio() {
   spec_.freq = 44100;
   spec_.format = AUDIO_S16;
   spec_.channels = 2;
-  spec_.samples = 4096;
+  spec_.samples = 1024;
   spec_.callback = &AudioSink::on_data_requested;
   spec_.userdata = this;
 

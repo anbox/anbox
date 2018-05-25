@@ -19,24 +19,17 @@
 #define ANBOX_DBUS_SKELETON_APPLICATION_MANAGER_H_
 
 #include "anbox/application/manager.h"
+#include "anbox/dbus/bus.h"
 
-#include <core/dbus/bus.h>
-#include <core/dbus/object.h>
-#include <core/dbus/service.h>
-
-#include "anbox/dbus/interface.h"
+#include <memory>
 
 namespace anbox {
 namespace dbus {
 namespace stub {
 class ApplicationManager : public anbox::application::Manager {
  public:
-  static std::shared_ptr<ApplicationManager> create_for_bus(
-      const core::dbus::Bus::Ptr &bus);
+  static std::shared_ptr<ApplicationManager> create_for_bus(const BusPtr& bus);
 
-  ApplicationManager(const core::dbus::Bus::Ptr &bus,
-                     const core::dbus::Service::Ptr &service,
-                     const core::dbus::Object::Ptr &object);
   ~ApplicationManager();
 
   void launch(const android::Intent &intent,
@@ -45,14 +38,13 @@ class ApplicationManager : public anbox::application::Manager {
 
   core::Property<bool>& ready() override;
 
+  void update_properties();
+
  private:
-  core::dbus::Bus::Ptr bus_;
-  core::dbus::Service::Ptr service_;
-  core::dbus::Object::Ptr object_;
+  ApplicationManager(const BusPtr& bus);
+
+  BusPtr bus_;
   core::Property<bool> ready_;
-  struct {
-    std::shared_ptr<core::dbus::Property<anbox::dbus::interface::ApplicationManager::Properties::Ready>> ready;
-  } properties_;
 };
 }  // namespace stub
 }  // namespace dbus

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Exec=anbox.app-settings
+Terminal=false
+Type=Application
+Name=Android Settings
+GenericName=Android Settings

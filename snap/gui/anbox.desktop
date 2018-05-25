@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=Anbox
-GenericName=Android in a box
-Version=1.0
-Type=Application
-Icon=${SNAP}/meta/gui/icon.png
-Exec=anbox launch --package=org.anbox.appmgr --component=org.anbox.appmgr.AppViewActivity
-Terminal=false

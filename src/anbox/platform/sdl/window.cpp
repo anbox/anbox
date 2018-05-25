@@ -16,14 +16,23 @@
  */
 
 #include "anbox/platform/sdl/window.h"
-#include "anbox/logger.h"
 #include "anbox/wm/window_state.h"
+#include "anbox/graphics/density.h"
+#include "anbox/logger.h"
 
 #include <boost/throw_exception.hpp>
 
 #if defined(MIR_SUPPORT)
 #include <mir_toolkit/mir_client_library.h>
 #endif
+
+namespace {
+constexpr const int window_resize_border{30};
+constexpr const int top_drag_area{50};
+constexpr const int button_size{32};
+constexpr const int button_margin{5};
+constexpr const int button_padding{4};
+}
 
 namespace anbox {
 namespace platform {
@@ -50,7 +59,7 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
   // initializing GL here will cause a surface to be created and the
   // renderer will attempt to create one too which will not work as
   // only a single surface per EGLNativeWindowType is supported.
-  std::uint32_t flags = 0;
+  std::uint32_t flags = SDL_WINDOW_BORDERLESS;
   if (resizable)
     flags |= SDL_WINDOW_RESIZABLE;
 
@@ -62,6 +71,9 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
     const auto message = utils::string_format("Failed to create window: %s", SDL_GetError());
     BOOST_THROW_EXCEPTION(std::runtime_error(message));
   }
+
+  if (SDL_SetWindowHitTest(window_, &Window::on_window_hit, this) < 0)
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to register for window hit test"));
 
   SDL_SysWMinfo info;
   SDL_VERSION(&info.version);
@@ -91,6 +103,58 @@ Window::~Window() {
   if (window_) SDL_DestroyWindow(window_);
 }
 
+SDL_HitTestResult Window::on_window_hit(SDL_Window *window, const SDL_Point *pt, void *data) {
+  auto platform_window = reinterpret_cast<Window*>(data);
+
+  int w = 0, h = 0;
+  SDL_GetWindowSize(window, &w, &h);
+
+  const auto border_size = graphics::dp_to_pixel(window_resize_border);
+  const auto top_drag_area_height = graphics::dp_to_pixel(top_drag_area);
+  const auto button_area_width = graphics::dp_to_pixel(button_size + button_padding * 2 + button_margin * 2);
+
+  if (pt->y < top_drag_area_height) {
+    if (pt->x > w - button_area_width && pt->x < w) {
+      platform_window->close();
+      return SDL_HITTEST_NORMAL;
+    } else if (pt->x > w - button_area_width * 2 && pt->x < w - button_area_width) {
+      platform_window->switch_window_state();
+      return SDL_HITTEST_NORMAL;
+    }
+    return SDL_HITTEST_DRAGGABLE;
+  } else if (pt->x < border_size && pt->y < border_size)
+      return SDL_HITTEST_RESIZE_TOPLEFT;
+  else if (pt->x > window_resize_border && pt->x < w - border_size && pt->y < border_size)
+      return SDL_HITTEST_RESIZE_TOP;
+  else if (pt->x > w - border_size && pt->y < border_size)
+      return SDL_HITTEST_RESIZE_TOPRIGHT;
+  else if (pt->x > w - border_size && pt->y > border_size && pt->y < h - border_size)
+      return SDL_HITTEST_RESIZE_RIGHT;
+  else if (pt->x > w - border_size && pt->y > h - border_size)
+      return SDL_HITTEST_RESIZE_BOTTOMRIGHT;
+  else if (pt->x < w - border_size && pt->x > border_size && pt->y > h - border_size)
+      return SDL_HITTEST_RESIZE_BOTTOM;
+  else if (pt->x < border_size && pt->y > h - border_size)
+      return SDL_HITTEST_RESIZE_BOTTOMLEFT;
+  else if (pt->x < border_size && pt->y < h - border_size && pt->y > border_size)
+      return SDL_HITTEST_RESIZE_LEFT;
+
+  return SDL_HITTEST_NORMAL;
+}
+
+void Window::close() {
+  if (observer_)
+    observer_->window_deleted(id_);
+}
+
+void Window::switch_window_state() {
+  const auto flags = SDL_GetWindowFlags(window_);
+  if (flags & SDL_WINDOW_MAXIMIZED)
+    SDL_RestoreWindow(window_);
+  else
+    SDL_MaximizeWindow(window_);
+}
+
 void Window::process_event(const SDL_Event &event) {
   switch (event.window.event) {
     case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -113,7 +177,10 @@ void Window::process_event(const SDL_Event &event) {
     case SDL_WINDOWEVENT_HIDDEN:
       break;
     case SDL_WINDOWEVENT_CLOSE:
-      if (observer_) observer_->window_deleted(id_);
+      if (observer_)
+        observer_->window_deleted(id_);
+
+      close();
       break;
     default:
       break;

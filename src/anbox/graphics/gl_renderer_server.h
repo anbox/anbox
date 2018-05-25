@@ -35,7 +35,14 @@ class LayerComposer;
 class GLRendererServer {
  public:
   struct Config {
-    enum class Driver { Translator, Host };
+    enum class Driver {
+      // Use the GL driver provided by the host operating system
+      Host,
+
+      // Use a builtin software based GL driver implementation without any support
+      // for hardware acceleration.
+      Software,
+    };
     Driver driver;
     bool single_window;
   };

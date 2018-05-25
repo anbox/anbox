@@ -16,10 +16,10 @@
 
 #include "anbox/graphics/emugl/Renderable.h"
 
-Renderable::Renderable(const std::string &name, const std::uint32_t &buffer,
+Renderable::Renderable(const std::string &name, const std::uint32_t &buffer, float alpha,
                        const anbox::graphics::Rect &screen_position,
                        const anbox::graphics::Rect &crop,
-                       const glm::mat4 &transformation, const float &alpha)
+                       const glm::mat4 &transformation)
     : name_(name),
       buffer_(buffer),
       screen_position_(screen_position),

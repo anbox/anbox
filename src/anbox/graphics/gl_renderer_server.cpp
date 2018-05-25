@@ -30,6 +30,8 @@
 #include <cstdarg>
 #include <stdexcept>
 
+namespace fs = boost::filesystem;
+
 namespace {
 void logger_write(const emugl::LogLevel &level, const char *format, ...) {
   (void)level;
@@ -76,14 +78,18 @@ GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<w
 
   composer_ = std::make_shared<LayerComposer>(renderer_, composer_strategy);
 
-  auto gl_libs = emugl::default_gl_libraries(true);
+  auto gl_libs = emugl::default_gl_libraries();
+  if (config.driver == Config::Driver::Software) {
+    const auto snap_path = utils::get_env_value("SNAP");
+    if (snap_path.empty())
+      throw std::runtime_error("Software rendering is not available outside of a snap build");
 
-  if (config.driver == Config::Driver::Translator) {
-    DEBUG("Using GLES-to-GL translator for rendering");
-    boost::filesystem::path translator_dir = utils::prefix_dir_from_env(TRANSLATOR_INSTALL_DIR, "SNAP");
-    gl_libs.push_back(emugl::GLLibrary{emugl::GLLibrary::Type::EGL, (translator_dir / "libEGL_translator.so")});
-    gl_libs.push_back(emugl::GLLibrary{emugl::GLLibrary::Type::GLESv1, (translator_dir / "libGLES_CM_translator.so")});
-    gl_libs.push_back(emugl::GLLibrary{emugl::GLLibrary::Type::GLESv2, (translator_dir / "libGLES_V2_translator.so")});
+    auto swiftshader_path = fs::path(snap_path) / "lib" / "anbox" / "swiftshader";
+    gl_libs = std::vector<emugl::GLLibrary>{
+      {emugl::GLLibrary::Type::EGL, (swiftshader_path / "libEGL.so").string()},
+      {emugl::GLLibrary::Type::GLESv1, (swiftshader_path / "libGLES_CM.so").string()},
+      {emugl::GLLibrary::Type::GLESv2, (swiftshader_path / "libGLESv2.so").string()},
+    };
   }
 
   emugl_logger_struct log_funcs;

@@ -1,3 +1,9 @@
+anbox (10) bionic; urgency=medium
+
+  * Bump version
+
+ -- Simon Fels <morphis@gravedo.de>  Wed, 23 May 2018 11:05:05 +0200
+
 anbox (8) artful; urgency=medium
 
   * Drop upstart/systemctl session jobs
