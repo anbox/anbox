@@ -30,7 +30,7 @@
 namespace fs = boost::filesystem;
 
 namespace {
-constexpr const std::chrono::milliseconds default_rpc_call_timeout{5000};
+constexpr const std::chrono::milliseconds default_rpc_call_timeout{30000};
 } // namespace
 
 namespace anbox {

@@ -37,6 +37,8 @@ ManagementApiSkeleton::~ManagementApiSkeleton() {}
 void ManagementApiSkeleton::start_container(
     anbox::protobuf::container::StartContainer const *request,
     anbox::protobuf::rpc::Void *response, google::protobuf::Closure *done) {
+  DEBUG("");
+
   if (container_->state() == Container::State::running) {
     response->set_error("Container is already running");
     done->Run();

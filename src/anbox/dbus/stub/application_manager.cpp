@@ -15,44 +15,112 @@
  *
  */
 
-#include "anbox/dbus/stub/application_manager.h"
 #include "anbox/dbus/interface.h"
-#include "anbox/dbus/codecs.h"
+#include "anbox/dbus/stub/application_manager.h"
 #include "anbox/logger.h"
+
+#include <sstream>
 
 namespace anbox {
 namespace dbus {
 namespace stub {
-std::shared_ptr<ApplicationManager> ApplicationManager::create_for_bus(const core::dbus::Bus::Ptr &bus) {
-  auto service = core::dbus::Service::use_service_or_throw_if_not_available(bus, anbox::dbus::interface::Service::name());
-  auto object = service->object_for_path(anbox::dbus::interface::Service::path());
-  return std::make_shared<ApplicationManager>(bus, service, object);
+std::shared_ptr<ApplicationManager> ApplicationManager::create_for_bus(const BusPtr& bus) {
+  return std::shared_ptr<ApplicationManager>(new ApplicationManager(bus));
 }
 
-ApplicationManager::ApplicationManager(const core::dbus::Bus::Ptr &bus,
-                                       const core::dbus::Service::Ptr &service,
-                                       const core::dbus::Object::Ptr &object)
-    : bus_(bus), service_(service), object_(object),
-      properties_{ object_->get_property<anbox::dbus::interface::ApplicationManager::Properties::Ready>() } {
+ApplicationManager::ApplicationManager(const BusPtr& bus)
+    : bus_(bus) {
 
-  // Forward changes on the dbus property to our users
-  ready_.install([&]() { return properties_.ready->get(); });
-  properties_.ready->changed().connect([&](bool value) { ready_.set(value); });
+  if (!bus_->has_service_with_name(interface::Service::name()))
+    throw std::runtime_error("Application manager service is not running yet");
+
+  update_properties();
 }
 
 ApplicationManager::~ApplicationManager() {}
 
+void ApplicationManager::update_properties() {
+  bool ready = false;
+  const auto r = sd_bus_get_property_trivial(bus_->raw(),
+                                             interface::Service::name(),
+                                             interface::Service::path(),
+                                             interface::ApplicationManager::name(),
+                                             interface::ApplicationManager::Properties::Ready::name(),
+                                             nullptr,
+                                             'b',
+                                             &ready);
+  if (r < 0)
+    throw std::runtime_error("Failed to retrieve ready property from application manager");
+
+  ready_.set(ready);
+}
+
 void ApplicationManager::launch(const android::Intent &intent,
                                 const graphics::Rect &launch_bounds,
                                 const wm::Stack::Id &stack) {
-  auto result = object_->invoke_method_synchronously<
-      anbox::dbus::interface::ApplicationManager::Methods::Launch,
-      anbox::dbus::interface::ApplicationManager::Methods::Launch::ResultType>(
-      intent.action, intent.uri, intent.type, intent.flags, intent.package,
-      intent.component, launch_bounds.left(), launch_bounds.top(),
-      launch_bounds.right(), launch_bounds.bottom(), stack);
+  (void) launch_bounds;
 
-  if (result.is_error()) throw std::runtime_error(result.error().print());
+  sd_bus_message *m = nullptr;
+  auto r = sd_bus_message_new_method_call(bus_->raw(),
+                                          &m,
+                                          interface::Service::name(),
+                                          interface::Service::path(),
+                                          interface::ApplicationManager::name(),
+                                          interface::ApplicationManager::Methods::Launch::name());
+  if (r < 0)
+    throw std::runtime_error("Failed to construct DBus message");
+
+  r = sd_bus_message_open_container(m, 'a', "{sv}");
+  if (r < 0)
+    throw std::runtime_error("Failed to construct DBus message");
+
+  if (intent.package.length() > 0) {
+    r = sd_bus_message_append(m, "{sv}", "package", "s", intent.package.c_str());
+    if (r < 0)
+      throw std::runtime_error("Failed to construct DBus message");
+  }
+
+  if (intent.component.length() > 0) {
+    r = sd_bus_message_append(m, "{sv}", "component", "s", intent.component.c_str());
+    if (r < 0)
+      throw std::runtime_error("Failed to construct DBus message");
+  }
+
+  if (intent.action.length() > 0) {
+    r = sd_bus_message_append(m, "{sv}", "action", "s", intent.action.c_str());
+    if (r < 0)
+      throw std::runtime_error("Failed to construct DBus message");
+  }
+
+  if (intent.type.length() > 0) {
+    r = sd_bus_message_append(m, "{sv}", "type", "s", intent.type.c_str());
+    if (r < 0)
+      throw std::runtime_error("Failed to construct DBus message");
+  }
+
+  if (intent.uri.length() > 0) {
+    r = sd_bus_message_append(m, "{sv}", "uri", "s", intent.uri.c_str());
+    if (r < 0)
+      throw std::runtime_error("Failed to construct DBus message");
+  }
+
+  r = sd_bus_message_close_container(m);
+  if (r < 0)
+    throw std::runtime_error("Failed to construct DBus message");
+
+  std::ostringstream launch_stack;
+  launch_stack << stack;
+  r = sd_bus_message_append(m, "s", launch_stack.str().c_str());
+  if (r < 0)
+    throw std::runtime_error("Failed to construct DBus message");
+
+  sd_bus_error error = SD_BUS_ERROR_NULL;
+  r = sd_bus_call(bus_->raw(), m, 0, &error, nullptr);
+  if (r < 0) {
+    const auto msg = utils::string_format("%s", error.message);
+    sd_bus_error_free(&error);
+    throw std::runtime_error(msg);
+  }
 }
 
 core::Property<bool>& ApplicationManager::ready() {

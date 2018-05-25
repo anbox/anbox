@@ -28,7 +28,4 @@ override_dh_install:
 	install -d $(CURDIR)/debian/tmp/etc/modules-load.d
 	install -m 0644 kernel/anbox.conf $(CURDIR)/debian/tmp/etc/modules-load.d
 
-	install -d $(CURDIR)/debian/tmp/etc/X11/Xsession.d
-	install -m 0644 data/xsession.conf $(CURDIR)/debian/tmp/etc/X11/Xsession.d/68anbox
-
 	dh_install

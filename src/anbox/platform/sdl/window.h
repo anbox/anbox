@@ -62,6 +62,11 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
   std::uint32_t window_id() const;
 
  private:
+  static SDL_HitTestResult on_window_hit(SDL_Window *window, const SDL_Point *pt, void *data);
+
+  void close();
+  void switch_window_state();
+
   Id id_;
   std::shared_ptr<Observer> observer_;
   EGLNativeDisplayType native_display_;

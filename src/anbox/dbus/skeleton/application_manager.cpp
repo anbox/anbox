@@ -16,85 +16,168 @@
  */
 
 #include "anbox/dbus/skeleton/application_manager.h"
-#include "anbox/android/intent.h"
 #include "anbox/dbus/interface.h"
-#include "anbox/dbus/codecs.h"
+#include "anbox/dbus/sd_bus_helpers.h"
+#include "anbox/android/intent.h"
 #include "anbox/logger.h"
 
+#include <sstream>
+
 #include <core/property.h>
+
+namespace {
+int parse_string_from_message(sd_bus_message *m, std::string &str) {
+  const char *contents = nullptr;
+  auto r = sd_bus_message_enter_container(m, SD_BUS_TYPE_VARIANT, contents);
+  if (r < 0)
+    return r;
+
+  const char *value;
+  r = sd_bus_message_read(m, "s", &value);
+  if (r < 0)
+    return r;
+
+  str = value;
+
+  r = sd_bus_message_exit_container(m);
+  if (r < 0)
+    return r;
+
+  return 0;
+}
+} // namespace
 
 namespace anbox {
 namespace dbus {
 namespace skeleton {
-ApplicationManager::ApplicationManager(
-    const core::dbus::Bus::Ptr &bus, const core::dbus::Object::Ptr &object,
-    const std::shared_ptr<anbox::application::Manager> &impl)
-    : bus_(bus), object_(object), impl_(impl),
-      properties_{ object_->get_property<anbox::dbus::interface::ApplicationManager::Properties::Ready>() },
-      signals_{ object_->get_signal<core::dbus::interfaces::Properties::Signals::PropertiesChanged>() } {
+const sd_bus_vtable ApplicationManager::vtable[] = {
+  sdbus::vtable::start(0),
+  sdbus::vtable::method("Launch", "a{sv}s", "", ApplicationManager::method_launch, SD_BUS_VTABLE_UNPRIVILEGED),
+  sdbus::vtable::property("Ready", "b", ApplicationManager::property_ready_get, SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+  sdbus::vtable::end()
+};
 
-  object_->install_method_handler<anbox::dbus::interface::ApplicationManager::Methods::Launch>(
-      [this](const core::dbus::Message::Ptr &msg) {
-        auto reader = msg->reader();
+int ApplicationManager::method_launch(sd_bus_message *m, void *userdata, sd_bus_error *ret_error) {
+  auto r = sd_bus_message_enter_container(m, SD_BUS_TYPE_ARRAY, "{sv}");
+  if (r < 0)
+    return r;
 
-        android::Intent intent;
-        reader >> intent.action;
-        reader >> intent.uri;
-        reader >> intent.type;
-        reader >> intent.flags;
-        reader >> intent.package;
-        reader >> intent.component;
+  android::Intent intent;
 
-        std::int32_t left, top, right, bottom;
-        reader >> left;
-        reader >> top;
-        reader >> right;
-        reader >> bottom;
-        graphics::Rect launch_bounds{left, top, right, bottom};
+  while ((r = sd_bus_message_enter_container(m, SD_BUS_TYPE_DICT_ENTRY, "sv")) > 0) {
+    const char *key = nullptr;
 
-        wm::Stack::Id stack = wm::Stack::Id::Default;
-        reader >> stack;
+    r = sd_bus_message_read(m, "s", &key);
+    if (r < 0)
+      return r;
 
-        core::dbus::Message::Ptr reply;
+    if (strcmp(key, "package") == 0) {
+      r = parse_string_from_message(m, intent.package);
+      if (r < 0)
+        return r;
+    } else if (strcmp(key, "component") == 0) {
+      r = parse_string_from_message(m, intent.component);
+      if (r < 0)
+        return r;
+    } else if (strcmp(key, "action") == 0) {
+      r = parse_string_from_message(m, intent.action);
+      if (r < 0)
+        return r;
+    } else if (strcmp(key, "type") == 0) {
+      r = parse_string_from_message(m, intent.type);
+      if (r < 0)
+        return r;
+    } else if (strcmp(key, "uri") == 0) {
+      r = parse_string_from_message(m, intent.uri);
+      if (r < 0)
+        return r;
+    }
 
-        try {
-          launch(intent, launch_bounds, stack);
-          reply = core::dbus::Message::make_method_return(msg);
-        } catch (std::exception const &err) {
-          reply = core::dbus::Message::make_error(msg, "org.anbox.Error.Failed",
-                                                  err.what());
-        }
+    r = sd_bus_message_exit_container(m);
+    if (r < 0)
+      return r;
+  }
 
-        bus_->send(reply);
-      });
+  r = sd_bus_message_exit_container(m);
+  if (r < 0)
+    return r;
 
-  // Forward AndroidApi status to our dbus property
-  properties_.ready->install([&]() { return impl_->ready().get(); });
+  const char *stack = nullptr;
+  r = sd_bus_message_read(m, "s", &stack);
+  if (r <  0)
+    return r;
+
+  wm::Stack::Id launch_stack = wm::Stack::Id::Default;
+  if (stack && strlen(stack) > 0) {
+    auto s = std::string(stack);
+    std::istringstream i(s);
+    i >> launch_stack;
+  }
+
+  if (intent.package.length() == 0) {
+    sd_bus_error_set_const(ret_error, "org.anbox.InvalidArgument", "No package specified");
+    return -EINVAL;
+  }
+
+  auto thiz = static_cast<ApplicationManager*>(userdata);
+  try {
+    thiz->launch(intent, graphics::Rect::Invalid, launch_stack);
+  } catch (std::exception &err) {
+    ERROR("Failed to launch application: %s", err.what());
+    sd_bus_error_set_const(ret_error, "org.anbox.InternalError", err.what());
+    return -EIO;
+  }
+
+  return sd_bus_reply_method_return(m, "");
+}
+
+int ApplicationManager::property_ready_get(sd_bus *bus, const char *path, const char *interface,
+                                           const char *property, sd_bus_message *reply,
+                                           void *userdata, sd_bus_error *ret_error) {
+
+  (void) bus;
+  (void) path;
+  (void) interface;
+  (void) property;
+  (void) ret_error;
+
+  auto thiz = static_cast<ApplicationManager*>(userdata);
+
+  return sd_bus_message_append(reply, "b", thiz->impl_->ready().get());
+}
+
+ApplicationManager::ApplicationManager(const BusPtr& bus, const std::shared_ptr<anbox::application::Manager> &impl)
+    : bus_(bus), impl_(impl) {
+
+  const auto r = sd_bus_add_object_vtable(bus_->raw(),
+                                          &obj_slot_,
+                                          interface::Service::path(),
+                                          interface::ApplicationManager::name(),
+                                          vtable,
+                                          this);
+  if (r < 0)
+    std::runtime_error("Failed to setup application manager DBus service");
+
   impl_->ready().changed().connect([&](bool value) {
-    properties_.ready->set(value);
-    on_property_value_changed<anbox::dbus::interface::ApplicationManager::Properties::Ready>(value);
+    (void) value;
+
+    sd_bus_emit_properties_changed(bus_->raw(),
+                                   interface::Service::path(),
+                                   interface::ApplicationManager::name(),
+                                   interface::ApplicationManager::Properties::Ready::name(),
+                                   nullptr);
   });
 }
 
 ApplicationManager::~ApplicationManager() {}
 
-template<typename Property>
-void ApplicationManager::on_property_value_changed(const typename Property::ValueType& value)
-{
-  typedef std::map<std::string, core::dbus::types::Variant> Dictionary;
-
-  static const std::vector<std::string> the_empty_list_of_invalidated_properties;
-
-  Dictionary dict; dict[Property::name()] = core::dbus::types::Variant::encode(value);
-
-  signals_.properties_changed->emit(
-        std::make_tuple(core::dbus::traits::Service<anbox::dbus::interface::ApplicationManager>::interface_name(),
-                        dict, the_empty_list_of_invalidated_properties));
-}
-
 void ApplicationManager::launch(const android::Intent &intent,
                                 const graphics::Rect &launch_bounds,
                                 const wm::Stack::Id &stack) {
+  if (!impl_->ready())
+    throw std::runtime_error("Anbox not yet ready to launch applications");
+
+  DEBUG("Launching %s", intent);
   impl_->launch(intent, launch_bounds, stack);
 }
 

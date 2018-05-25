@@ -24,14 +24,17 @@
 
 #include <cstdint>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <glm/glm.hpp>
+#pragma GCC diagnostic pop
 
 class Renderable {
  public:
-  Renderable(const std::string &name, const std::uint32_t &buffer,
+  Renderable(const std::string &name, const std::uint32_t &buffer, float alpha,
              const anbox::graphics::Rect &screen_position,
              const anbox::graphics::Rect &crop = {},
-             const glm::mat4 &transformation = {}, const float &alpha = 1.0f);
+             const glm::mat4 &transformation = {});
   ~Renderable();
 
   std::string name() const;

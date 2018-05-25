@@ -19,22 +19,16 @@
 #define ANBOX_DBUS_SKELETON_APPLICATION_MANAGER_H_
 
 #include "anbox/application/manager.h"
+#include "anbox/dbus/bus.h"
 
-#include <core/dbus/bus.h>
-#include <core/dbus/object.h>
-#include <core/dbus/service.h>
-#include <core/dbus/property.h>
-
-#include "anbox/dbus/interface.h"
+#include <memory>
 
 namespace anbox {
 namespace dbus {
 namespace skeleton {
 class ApplicationManager : public anbox::application::Manager {
  public:
-  ApplicationManager(const core::dbus::Bus::Ptr &bus,
-                     const core::dbus::Object::Ptr &object,
-                     const std::shared_ptr<anbox::application::Manager> &impl);
+  ApplicationManager(const BusPtr& bus, const std::shared_ptr<anbox::application::Manager> &impl);
   ~ApplicationManager();
 
   void launch(const android::Intent &intent,
@@ -44,20 +38,15 @@ class ApplicationManager : public anbox::application::Manager {
   core::Property<bool>& ready() override;
 
  private:
-  template<typename Property>
-  void on_property_value_changed(const typename Property::ValueType& value);
+  static const sd_bus_vtable vtable[];
+  static int method_launch(sd_bus_message *m, void *userdata, sd_bus_error *ret_error);
+  static int property_ready_get(sd_bus *bus, const char *path, const char *interface,
+                                const char *property, sd_bus_message *reply, void *userdata,
+                                sd_bus_error *ret_error);
 
-  core::dbus::Bus::Ptr bus_;
-  core::dbus::Service::Ptr service_;
-  core::dbus::Object::Ptr object_;
+  BusPtr bus_;
   std::shared_ptr<anbox::application::Manager> impl_;
-  struct {
-    std::shared_ptr<core::dbus::Property<anbox::dbus::interface::ApplicationManager::Properties::Ready>> ready;
-  } properties_;
-  struct {
-    core::dbus::Signal<core::dbus::interfaces::Properties::Signals::PropertiesChanged,
-                       core::dbus::interfaces::Properties::Signals::PropertiesChanged::ArgumentType>::Ptr properties_changed;
-  } signals_;
+  sd_bus_slot *obj_slot_ = nullptr;
 };
 }  // namespace skeleton
 }  // namespace dbus

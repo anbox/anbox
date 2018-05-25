@@ -37,13 +37,9 @@ constexpr const char *default_glesv2_lib{"libGLESv2.so.2"};
 namespace anbox {
 namespace graphics {
 namespace emugl {
-std::vector<GLLibrary> default_gl_libraries(bool no_glesv1) {
+std::vector<GLLibrary> default_gl_libraries() {
   return std::vector<GLLibrary>{
     {GLLibrary::Type::EGL, default_egl_lib},
-    // If environment doesn't provide a GLESv1 .so file we use the GLESv2
-    // implementation instead. If our stack allows it we can try to get
-    // rid of GLESv1 completely at a later point.
-    {GLLibrary::Type::GLESv1, no_glesv1 ? default_glesv2_lib : default_glesv1_lib},
     {GLLibrary::Type::GLESv2, default_glesv2_lib},
   };
 }
@@ -75,7 +71,15 @@ bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct *log_fun
     }
   }
 
-  if (!s_egl.initialized || !s_gles1.initialized || !s_gles2.initialized)
+  // If we are not provided with a link to a OpenGL ES v1 implementation
+  // we assign dummy functions to all of the functions we would call.
+  // This allows us to still manage the major chunk of Android applications
+  // which are all >= GLESv2 until we have a proper GLESv1->GLESv2
+  // translation mechanism in place.
+  if (!s_gles1.initialized)
+    gles1_dispatch_init(nullptr, &s_gles1);
+
+  if (!s_egl.initialized || !s_gles2.initialized)
     return false;
 
   return true;

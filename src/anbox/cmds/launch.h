@@ -34,10 +34,11 @@ class Launch : public cli::CommandWithFlagsAndAction {
   Launch();
 
  private:
+  bool launch_session_manager();
   bool try_launch_activity(const std::shared_ptr<dbus::stub::ApplicationManager> &stub);
 
   android::Intent intent_;
-  wm::Stack::Id stack_;
+  wm::Stack::Id stack_ = wm::Stack::Id::Default;
   bool use_system_dbus_ = false;
 };
 }  // namespace cmds

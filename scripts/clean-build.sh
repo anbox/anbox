@@ -21,7 +21,6 @@ apt-get install -qq -y \
   libboost-test-dev \
   libboost-thread-dev \
   libcap-dev \
-  libdbus-1-dev \
   libdbus-cpp-dev \
   libegl1-mesa-dev \
   libgles2-mesa-dev \
@@ -33,6 +32,7 @@ apt-get install -qq -y \
   libprotobuf-dev \
   libsdl2-dev \
   libsdl2-image-dev \
+  libsystemd-dev \
   lxc-dev \
   pkg-config \
   protobuf-compiler

@@ -44,7 +44,7 @@ constexpr const char *default_container_ip_address{"192.168.250.2"};
 constexpr const std::uint32_t default_container_ip_prefix_length{24};
 constexpr const char *default_host_ip_address{"192.168.250.1"};
 constexpr const char *default_dns_server{"8.8.8.8"};
-}
+} // namespace
 
 namespace anbox {
 namespace container {
@@ -178,9 +178,9 @@ void LxcContainer::start(const Configuration &configuration) {
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create LXC container instance"));
 
     // If container is still running (for example after a crash) we stop it here
-    // to ensure
-    // its configuration is synchronized.
-    if (container_->is_running(container_)) container_->stop(container_);
+    // to ensure its configuration is synchronized.
+    if (container_->is_running(container_))
+      container_->stop(container_);
   }
 
   // We can mount proc/sys as rw here as we will run the container unprivileged
@@ -214,17 +214,7 @@ void LxcContainer::start(const Configuration &configuration) {
 
   setup_network();
 
-#if 0
-    // Android uses namespaces as well so we have to allow nested namespaces for LXC
-    // which are otherwise forbidden by AppArmor.
-    set_config_item("lxc.aa_profile", "lxc-container-default-with-nesting");
-#else
-  // FIXME: when using the nested profile we still get various denials from
-  // things Android tries to do but isn't allowed to. We need to look into
-  // those and see how we can switch back to a confined way of running the
-  // container.
-  set_config_item("lxc.aa_profile", "unconfined");
-#endif
+  set_config_item("lxc.aa_profile", "anbox-container");
 
   if (!privileged_)
     setup_id_maps();

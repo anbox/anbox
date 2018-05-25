@@ -44,7 +44,7 @@ typedef int (renderControl_APIENTRY *rcGetDisplayHeight_client_proc_t) (void * c
 typedef int (renderControl_APIENTRY *rcGetDisplayDpiX_client_proc_t) (void * ctx, uint32_t);
 typedef int (renderControl_APIENTRY *rcGetDisplayDpiY_client_proc_t) (void * ctx, uint32_t);
 typedef int (renderControl_APIENTRY *rcGetDisplayVsyncPeriod_client_proc_t) (void * ctx, uint32_t);
-typedef void (renderControl_APIENTRY *rcPostLayer_client_proc_t) (void * ctx, const char*, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
+typedef void (renderControl_APIENTRY *rcPostLayer_client_proc_t) (void * ctx, const char*, uint32_t, float, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 typedef void (renderControl_APIENTRY *rcPostAllLayersDone_client_proc_t) (void * ctx);
 
 
