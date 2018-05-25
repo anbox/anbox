@@ -70,6 +70,7 @@ Platform::Platform(
   }
 
   graphics::emugl::DisplayInfo::get()->set_resolution(display_frame.width(), display_frame.height());
+  display_frame_ = display_frame;
 
   pointer_ = input_manager->create_device();
   pointer_->set_name("anbox-pointer");
@@ -92,6 +93,28 @@ Platform::Platform(
   keyboard_->set_physical_location("none");
   keyboard_->set_key_bit(BTN_MISC);
   keyboard_->set_key_bit(KEY_OK);
+
+  touch_ = input_manager->create_device();
+  touch_->set_name("anbox-touch");
+  touch_->set_driver_version(1);
+  touch_->set_input_id({BUS_VIRTUAL, 4, 4, 4});
+  touch_->set_physical_location("none");
+  touch_->set_key_bit(BTN_TOUCH);
+  touch_->set_key_bit(BTN_TOOL_FINGER);
+
+  touch_->set_abs_bit(ABS_MT_SLOT);
+  touch_->set_abs_max(ABS_MT_SLOT, 10);
+  touch_->set_abs_bit(ABS_MT_TOUCH_MAJOR);
+  touch_->set_abs_max(ABS_MT_TOUCH_MAJOR, 127);
+  touch_->set_abs_bit(ABS_MT_TOUCH_MINOR);
+  touch_->set_abs_max(ABS_MT_TOUCH_MINOR, 127);
+  touch_->set_abs_bit(ABS_MT_POSITION_X);
+  touch_->set_abs_max(ABS_MT_POSITION_X, display_frame.width());
+  touch_->set_abs_bit(ABS_MT_POSITION_Y);
+  touch_->set_abs_max(ABS_MT_POSITION_Y, display_frame.height());
+  touch_->set_abs_bit(ABS_MT_TRACKING_ID);
+  touch_->set_abs_max(ABS_MT_TRACKING_ID, 10);
+  touch_->set_prop_bit(INPUT_PROP_DIRECT);
 
   event_thread_ = std::thread(&Platform::process_events, this);
 }
@@ -130,12 +153,18 @@ void Platform::process_events() {
             }
           }
           break;
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+          if (keyboard_)
+            process_input_event(event);
+          break;
         case SDL_MOUSEMOTION:
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
         case SDL_MOUSEWHEEL:
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
+        case SDL_FINGERDOWN:
+        case SDL_FINGERUP:
+        case SDL_FINGERMOTION:
           process_input_event(event);
           break;
         default:
@@ -148,12 +177,18 @@ void Platform::process_events() {
 void Platform::process_input_event(const SDL_Event &event) {
   std::vector<input::Event> mouse_events;
   std::vector<input::Event> keyboard_events;
+  std::vector<input::Event> touch_events;
 
   std::int32_t x = 0;
   std::int32_t y = 0;
+
+  std::int32_t rel_x = 0;
+  std::int32_t rel_y = 0;
+
   SDL_Window *window = nullptr;
 
   switch (event.type) {
+    // Mouse
     case SDL_MOUSEBUTTONDOWN:
       mouse_events.push_back({EV_KEY, BTN_LEFT, 1});
       mouse_events.push_back({EV_SYN, SYN_REPORT, 0});
@@ -196,6 +231,7 @@ void Platform::process_input_event(const SDL_Event &event) {
       mouse_events.push_back(
           {EV_REL, REL_WHEEL, static_cast<std::int32_t>(event.wheel.y)});
       break;
+    // Keyboard
     case SDL_KEYDOWN: {
       const auto code = KeycodeConverter::convert(event.key.keysym.scancode);
       if (code == KEY_RESERVED) break;
@@ -208,13 +244,105 @@ void Platform::process_input_event(const SDL_Event &event) {
       keyboard_events.push_back({EV_KEY, code, 0});
       break;
     }
+    // Touch screen
+    case SDL_FINGERDOWN: {
+      touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, static_cast<std::int32_t>(event.tfinger.fingerId)});
+      touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
+      touch_events.push_back({EV_KEY, BTN_TOUCH, 1});
+      touch_events.push_back({EV_KEY, BTN_TOOL_FINGER, 1});
+
+      window = SDL_GetWindowFromID(event.window.windowID);
+      if (window) {
+        SDL_GetWindowSize(window, &rel_x, &rel_y);
+        rel_x *= event.tfinger.x;
+        rel_y *= event.tfinger.y;
+      } else {
+        rel_x = display_frame_.width() * event.tfinger.x;
+        rel_y = display_frame_.height() * event.tfinger.y;
+      }
+
+      if (!single_window_) {
+        if (!window) {
+          break;
+        }
+        // As we get only absolute coordindates relative to our window we have to
+        // calculate the correct position based on the current focused window
+        SDL_GetWindowPosition(window, &x, &y);
+        x += rel_x;
+        y += rel_y;
+      } else {
+        // When running the whole Android system in a single window we don't
+        // need to reacalculate and the pointer position as they are already
+        // relative to our window.
+        x = rel_x;
+        y = rel_y;
+      }
+
+
+      touch_events.push_back({EV_ABS, ABS_MT_POSITION_X, x});
+      touch_events.push_back({EV_ABS, ABS_MT_POSITION_Y, y});
+
+      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MAJOR, 24});
+      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MINOR, 24});
+
+      touch_events.push_back({EV_SYN, SYN_REPORT, 0});
+      break;
+    }
+	  case SDL_FINGERUP: {
+      touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, -1});
+      touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
+      touch_events.push_back({EV_KEY, BTN_TOUCH, 0});
+      touch_events.push_back({EV_KEY, BTN_TOOL_FINGER, 0});
+      touch_events.push_back({EV_SYN, SYN_REPORT, 0});
+      break;
+    }
+	  case SDL_FINGERMOTION: {
+      touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
+
+      window = SDL_GetWindowFromID(event.window.windowID);
+      if (window) {
+        SDL_GetWindowSize(window, &rel_x, &rel_y);
+        rel_x *= event.tfinger.x;
+        rel_y *= event.tfinger.y;
+      } else {
+        rel_x = display_frame_.width() * event.tfinger.x;
+        rel_y = display_frame_.height() * event.tfinger.y;
+      }
+
+      if (!single_window_) {
+        if (!window) {
+          break;
+        }
+        // As we get only absolute coordindates relative to our window we have to
+        // calculate the correct position based on the current focused window
+        SDL_GetWindowPosition(window, &x, &y);
+        x += rel_x;
+        y += rel_y;
+      } else {
+        // When running the whole Android system in a single window we don't
+        // need to reacalculate and the pointer position as they are already
+        // relative to our window.
+        x = rel_x;
+        y = rel_y;
+      }
+
+
+      touch_events.push_back({EV_ABS, ABS_MT_POSITION_X, x});
+      touch_events.push_back({EV_ABS, ABS_MT_POSITION_Y, y});
+      DEBUG("ABS_MT_POSITION: x: %i y: %i", x,y);
+
+      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MAJOR, 24});
+      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MINOR, 24});
+      touch_events.push_back({EV_SYN, SYN_REPORT, 0});
+      break;
+    }
     default:
       break;
   }
 
   if (mouse_events.size() > 0) pointer_->send_events(mouse_events);
-
   if (keyboard_events.size() > 0) keyboard_->send_events(keyboard_events);
+  if (touch_events.size() > 0) touch_->send_events(touch_events);
 }
 
 Window::Id Platform::next_window_id() {
