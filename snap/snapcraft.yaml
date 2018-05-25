@@ -133,9 +133,10 @@ parts:
 
   swiftshader:
     plugin: cmake
-    source: https://github.com/google/swiftshader.git
+    source: https://swiftshader.googlesource.com/SwiftShader
     source-type: git
-    source-commit: cbb80f5f0078a9941f3ec43e83e52c3d15a43bea
+    # Points to latest head of branch android-emulator-current-release
+    source-commit: 79acc73de8a455f79fb7e458719adc86aa798f07
     override-build: |
       git submodule update --init
       snapcraftctl build
