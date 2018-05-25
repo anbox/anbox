@@ -13,6 +13,7 @@ description: |
   separate the Android system fully from the host.
 confinement: devmode
 grade: devel
+architectures: [amd64]
 
 slots:
   # Depending on in which environment we're running we either need
