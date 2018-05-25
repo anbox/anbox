@@ -201,7 +201,6 @@ parts:
       - libboost-thread-dev
       - libcap-dev
       - libdbus-1-dev
-      - libdbus-cpp-dev
       - libegl1-mesa-dev
       - libgles2-mesa-dev
       - libglib2.0-dev
@@ -210,6 +209,7 @@ parts:
       - libproperties-cpp-dev
       - libsdl2-dev
       - libsdl2-image-dev
+      - libsystemd-dev
       - pkg-config
       - protobuf-compiler
     stage-packages:
@@ -217,13 +217,13 @@ parts:
       - libboost-program-options1.58.0
       - libboost-thread1.58.0
       - libdb5.3
-      - libdbus-cpp5
       - libegl1-mesa
       - libgles2-mesa
       - libgl1-mesa-glx
       - libsdl2-2.0-0
       - libsdl2-gfx-1.0-0
       - libsdl2-image-2.0-0
+      - libsystemd0
     prime:
       - usr/bin/anbox
       - usr/share/anbox
