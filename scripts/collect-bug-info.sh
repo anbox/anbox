@@ -26,7 +26,7 @@ set -x
 cp /var/snap/anbox/common/data/system.log $TMPDIR || true
 cp /var/snap/anbox/containers/lxc-monitord.log $TMPDIR || true
 cp /var/snap/anbox/logs/container.log $TMPDIR || true
-anbox system-info > $TMPDIR/system-info.log 2>&1 || true
+$SNAP/command-anbox.wrapper system-info > $TMPDIR/system-info.log 2>&1 || true
 
 if [ -e /etc/systemd/system/snap.anbox.container-manager.service ]; then
 	sudo journalctl --no-pager -u snap.anbox.container-manager.service > $TMPDIR/container-manager.log 2>&1
