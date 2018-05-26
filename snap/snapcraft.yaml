@@ -37,6 +37,8 @@ apps:
     daemon: simple
   collect-bug-info:
     command: bin/collect-bug-info.sh
+  shell:
+    command: bin/anbox-shell.sh
   android-settings:
     command: desktop-launch $SNAP/bin/app-android-settings.sh
     desktop: desktop/android-settings.desktop
@@ -159,8 +161,10 @@ parts:
       collect-bug-info.sh: bin/collect-bug-info.sh
       app-android-settings.sh: bin/app-android-settings.sh
       app-appmgr.sh: bin/app-appmgr.sh
+      anbox-shell.sh: bin/anbox-shell.sh
     prime:
       - bin/anbox-bridge.sh
+      - bin/anbox-shell.sh
       - bin/anbox-wrapper.sh
       - bin/container-manager.sh
       - bin/collect-bug-info.sh
