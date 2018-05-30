@@ -2,7 +2,6 @@ build*/
 parts/
 stage/
 prime/
-snap/
 android-images/
 *.snap
 CMakeLists.txt.user
