@@ -81,7 +81,7 @@ system:
  * libsdl2
  * libprotobuf
  * protobuf-compiler
- * lxc
+ * lxc (>= 3.0)
 
 On an Ubuntu system you can install all build dependencies with the following
 command:
@@ -95,7 +95,7 @@ $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
     libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
     pkg-config protobuf-compiler 
 ```
-We recommend Ubuntu 16.04 (xenial) with **GCC 5.x** as your build environment.
+We recommend Ubuntu 18.04 (bionic) with **GCC 7.x** as your build environment.
 
 
 ### Build

@@ -21,7 +21,6 @@ apt-get install -qq -y \
   libboost-test-dev \
   libboost-thread-dev \
   libcap-dev \
-  libdbus-cpp-dev \
   libegl1-mesa-dev \
   libgles2-mesa-dev \
   libglib2.0-dev \
