@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ "$(snapctl get debug.enable)" = true ]; then
+    touch "$SNAP_COMMON"/.enable_debug
+else
+    rm -f "$SNAP_COMMON"/.enable_debug
+fi
+
+exit 0
