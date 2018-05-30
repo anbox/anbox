@@ -72,6 +72,7 @@ parts:
           x86_64)
             IMAGE_PATH="2018/05/23"
             IMAGE_NAME="android_amd64.img"
+            IMAGE_HASH="cbcb8c4740ed38dbc243122df2d8d87511a9c8dcc162781f2eabb5dc1ea079fe"
             ;;
           *)
             echo "ERROR: Unknown architecture $ARCH"
@@ -83,6 +84,10 @@ parts:
         # expects the downloaded file to be an archive it can extract.
         echo "Downloading image..."
         wget http://build.anbox.io/android-images/$IMAGE_PATH/$IMAGE_NAME
+
+        echo "$IMAGE_HASH $IMAGE_NAME" > image-hash
+        sha256sum -c image-hash
+
         mv $IMAGE_NAME $SNAPCRAFT_PART_INSTALL/android.img
 
       fi
