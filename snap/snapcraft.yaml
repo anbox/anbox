@@ -120,8 +120,8 @@ parts:
       - --disable-api-docs
       - --disable-bash
       - --disable-cgmanager
-      - --disable-apparmor
-      - --disable-seccomp
+      - --enable-apparmor
+      - --enable-seccomp
       - --enable-capabilities
       - --with-rootfs-path=/var/snap/anbox/common/lxc/
       - --libexecdir=/snap/anbox/current/libexec/
