@@ -104,3 +104,23 @@ a more stable and bug free experience.
 
 Once proper confinement for the Anbox snap exists we will also start using the
 candidate and stable channels.
+
+# Uninstall Anbox
+
+If you want to remove Anbox from your system you first have to remove the snap:
+
+**NOTE:** By removing the snap you remove all data you stored within the snap
+from your system. There is no way to bring it back.
+
+```
+ $ snap remove anbox
+```
+
+Once the snap is removed you have to remove the installed kernel modules as well:
+
+```
+ $ sudo apt install ppa-purge
+ $ sudo ppa-purge ppa:morphis/anbox-support
+```
+
+Once done Anbox is removed from your system.
