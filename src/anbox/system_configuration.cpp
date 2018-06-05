@@ -75,6 +75,10 @@ std::string anbox::SystemConfiguration::container_socket_path() const {
   return path;
 }
 
+std::string anbox::SystemConfiguration::container_devices_dir() const {
+  return (data_path / "devices").string();
+}
+
 std::string anbox::SystemConfiguration::socket_dir() const {
   static std::string dir = anbox::utils::string_format("%s/anbox/sockets", runtime_dir());
   return dir;

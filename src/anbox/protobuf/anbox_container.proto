@@ -8,6 +8,7 @@ message Configuration {
         required string target = 2;
     }
     repeated BindMount bind_mounts = 1;
+    repeated string devices = 2;
 }
 
 message StartContainer {

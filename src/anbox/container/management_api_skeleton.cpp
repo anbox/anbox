@@ -50,8 +50,12 @@ void ManagementApiSkeleton::start_container(
   const auto configuration = request->configuration();
   for (int n = 0; n < configuration.bind_mounts_size(); n++) {
     const auto bind_mount = configuration.bind_mounts(n);
-    container_configuration.bind_mounts.insert(
-        {bind_mount.source(), bind_mount.target()});
+    container_configuration.bind_mounts.insert({bind_mount.source(), bind_mount.target()});
+  }
+
+  for (int n = 0; n < configuration.devices_size(); n++) {
+    const auto device = configuration.devices(n);
+    container_configuration.devices.push_back(device);
   }
 
   try {
