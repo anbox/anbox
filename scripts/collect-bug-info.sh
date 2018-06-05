@@ -24,8 +24,8 @@ echo "Collecting anbox log files ... "
 set -x
 # Collect several things which are of interest for bug reports
 cp /var/snap/anbox/common/data/system.log $TMPDIR || true
-cp /var/snap/anbox/containers/lxc-monitord.log $TMPDIR || true
-cp /var/snap/anbox/logs/container.log $TMPDIR || true
+cp /var/snap/anbox/common/containers/lxc-monitord.log $TMPDIR || true
+cp /var/snap/anbox/common/logs/container.log $TMPDIR || true
 $SNAP/command-anbox.wrapper system-info > $TMPDIR/system-info.log 2>&1 || true
 
 if [ -e /etc/systemd/system/snap.anbox.container-manager.service ]; then
