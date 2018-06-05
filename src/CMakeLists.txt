@@ -53,6 +53,9 @@ add_library(anbox-protobuf
     ${GENERATED_PROTOBUF_RPC_HDRS}
     ${GENERATED_PROTOBUF_CONTAINER_SRCS}
     ${GENERATED_PROTOBUF_CONTAINER_HDRS}
+    anbox/protobuf/anbox_rpc.proto
+    anbox/protobuf/anbox_bridge.proto
+    anbox/protobuf/anbox_container.proto
     anbox/protobuf/google_protobuf_guard.cpp)
 target_link_libraries(anbox-protobuf
     ${PROTOBUF_LITE_LIBRARIES})
