@@ -18,13 +18,15 @@
 #ifndef ANBOX_CONTAINER_CONFIGURATION_H_
 #define ANBOX_CONTAINER_CONFIGURATION_H_
 
-#include <map>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace anbox {
 namespace container {
 struct Configuration {
-  std::map<std::string, std::string> bind_mounts;
+  std::unordered_map<std::string, std::string> bind_mounts;
+  std::vector<std::string> devices;
 };
 }  // namespace container
 }  // namespace anbox

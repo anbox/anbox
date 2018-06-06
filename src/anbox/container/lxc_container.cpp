@@ -44,6 +44,14 @@ constexpr const char *default_container_ip_address{"192.168.250.2"};
 constexpr const std::uint32_t default_container_ip_prefix_length{24};
 constexpr const char *default_host_ip_address{"192.168.250.1"};
 constexpr const char *default_dns_server{"8.8.8.8"};
+
+constexpr int device_major(__dev_t dev) {
+  return int(((dev >> 8) & 0xfff) | ((dev >> 32) & (0xfffff000)));
+}
+
+constexpr int device_minor(__dev_t dev) {
+  return int((dev & 0xff) | ((dev >> 12) & (0xffffff00)));
+}
 } // namespace
 
 namespace anbox {
@@ -157,9 +165,63 @@ void LxcContainer::setup_network() {
   }
 }
 
+void LxcContainer::add_device(const std::string& device) {
+  struct stat st;
+  int r = stat(device.c_str(), &st);
+  if (r < 0) {
+    const auto msg = utils::string_format("Failed to retrieve information about device %s", device);
+    throw std::runtime_error(msg);
+  }
+
+  const auto major = device_major(st.st_rdev);
+  const auto minor = device_minor(st.st_rdev);
+  const auto mode = st.st_mode;
+  const auto new_device_name = fs::basename(device);
+  const auto devices_path = fs::path(SystemConfiguration::instance().container_devices_dir());
+  const auto new_device_path = (devices_path / new_device_name).string();
+
+  const auto encoded_device_number = (minor & 0xff) | (major << 8) | ((minor & !0xff) << 12);
+  r = mknod(new_device_path.c_str(), mode, encoded_device_number);
+  if (r < 0) {
+    auto msg = utils::string_format("Failed to create node for device %s: %s",
+                                    device, strerror(errno));
+    throw std::runtime_error(msg);
+  }
+
+  auto base_uid = unprivileged_user_id;
+  if (privileged_)
+    base_uid = 0;
+
+  const auto shifted_uid = base_uid + st.st_uid;
+  const auto shifted_gid = base_uid + st.st_gid;
+  r = chown(new_device_path.c_str(), shifted_uid, shifted_gid);
+  if (r < 0) {
+    auto msg = utils::string_format("Failed to change ownership of new node for %s: %s",
+                                    device, strerror(errno));
+    throw std::runtime_error(msg);
+  }
+
+  // Needed as mknod respects the umask
+  r = chmod(new_device_path.c_str(), mode);
+  if (r < 0) {
+    auto msg = utils::string_format("Failed to change mode of new node for %s: %s",
+                                    device, strerror(errno));
+    throw::std::runtime_error(msg);
+  }
+
+  auto target_path = device;
+  // Strip a leading slash as LXC doesn't like that
+  if (utils::string_starts_with(device, "/"))
+    target_path = device.substr(1, device.length() - 1);
+
+  const auto entry = utils::string_format("%s %s none bind,create=file,optional 0 0",
+                                          new_device_path, target_path);
+  set_config_item("lxc.mount.entry", entry);
+}
+
 void LxcContainer::start(const Configuration &configuration) {
   if (getuid() != 0)
-    BOOST_THROW_EXCEPTION(std::runtime_error("You have to start the container as root"));
+    throw std::runtime_error("You have to start the container as root");
 
   if (container_ && container_->is_running(container_)) {
     WARNING("Container already started, stopping it now");
@@ -175,7 +237,7 @@ void LxcContainer::start(const Configuration &configuration) {
 
     container_ = lxc_container_new("default", container_config_dir.c_str());
     if (!container_)
-      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create LXC container instance"));
+      throw std::runtime_error("Failed to create LXC container instance");
 
     // If container is still running (for example after a crash) we stop it here
     // to ensure its configuration is synchronized.
@@ -220,20 +282,11 @@ void LxcContainer::start(const Configuration &configuration) {
     setup_id_maps();
 
   auto bind_mounts = configuration.bind_mounts;
-
-  // Extra bind-mounts for user-namespace setup
-  bind_mounts.insert({"/dev/console", "dev/console"});
-  bind_mounts.insert({"/dev/full", "dev/full"});
-  bind_mounts.insert({"/dev/null", "dev/null"});
-  bind_mounts.insert({"/dev/random", "dev/random"});
-  bind_mounts.insert({"/dev/tty", "dev/tty"});
-  bind_mounts.insert({"/dev/urandom", "dev/urandom"});
-  bind_mounts.insert({"/dev/zero", "dev/zero"});
-
   for (const auto &bind_mount : bind_mounts) {
     std::string create_type = "file";
 
-    if (fs::is_directory(bind_mount.first)) create_type = "dir";
+    if (fs::is_directory(bind_mount.first))
+      create_type = "dir";
 
     auto target_path = bind_mount.second;
     // The target path needs to be absolute and pointing to the right
@@ -243,18 +296,36 @@ void LxcContainer::start(const Configuration &configuration) {
       target_path = std::string("/") + target_path;
     target_path = rootfs_path + target_path;
 
-    set_config_item(
-        "lxc.mount.entry",
-        utils::string_format("%s %s none bind,create=%s,optional 0 0",
-                             bind_mount.first, target_path, create_type));
+    const auto entry = utils::string_format("%s %s none bind,create=%s,optional 0 0",
+                                            bind_mount.first, target_path, create_type);
+    set_config_item("lxc.mount.entry", entry);
   }
 
-  if (!container_->save_config(container_, nullptr))
-    BOOST_THROW_EXCEPTION(
-        std::runtime_error("Failed to save container configuration"));
+  auto devices = configuration.devices;
 
-  if (not container_->start(container_, 0, nullptr))
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to start container"));
+  // Additional devices we need in our container
+  devices.push_back("/dev/console");
+  devices.push_back("/dev/full");
+  devices.push_back("/dev/null");
+  devices.push_back("/dev/random");
+  devices.push_back("/dev/tty");
+  devices.push_back("/dev/urandom");
+  devices.push_back("/dev/zero");
+
+  // Remove all left over devices from last time first before
+  // creating any new ones
+  const auto devices_dir = SystemConfiguration::instance().container_devices_dir();
+  fs::remove_all(devices_dir);
+  fs::create_directories(devices_dir);
+
+  for (const auto& device : devices)
+    add_device(device);
+
+  if (!container_->save_config(container_, nullptr))
+    throw std::runtime_error("Failed to save container configuration");
+
+  if (!container_->start(container_, 0, nullptr))
+    throw std::runtime_error("Failed to start container");
 
   state_ = Container::State::running;
 
@@ -262,11 +333,11 @@ void LxcContainer::start(const Configuration &configuration) {
 }
 
 void LxcContainer::stop() {
-  if (not container_ || not container_->is_running(container_))
+  if (!container_ || !container_->is_running(container_))
     return;
 
-  if (not container_->stop(container_))
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to stop container"));
+  if (!container_->stop(container_))
+    throw std::runtime_error("Failed to stop container");
 
   state_ = Container::State::inactive;
 
@@ -275,8 +346,10 @@ void LxcContainer::stop() {
 
 void LxcContainer::set_config_item(const std::string &key,
                                    const std::string &value) {
-  if (!container_->set_config_item(container_, key.c_str(), value.c_str()))
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to configure LXC container"));
+  if (!container_->set_config_item(container_, key.c_str(), value.c_str())) {
+    const auto msg = utils::string_format("Failed to set config item %s", key);
+    throw std::runtime_error(msg);
+  }
 }
 
 Container::State LxcContainer::state() { return state_; }

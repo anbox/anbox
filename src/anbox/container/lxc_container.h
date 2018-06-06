@@ -40,6 +40,7 @@ class LxcContainer : public Container {
   void set_config_item(const std::string &key, const std::string &value);
   void setup_id_maps();
   void setup_network();
+  void add_device(const std::string& device);
 
   State state_;
   lxc_container *container_;

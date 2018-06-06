@@ -38,6 +38,7 @@ class SystemConfiguration {
   std::string socket_dir() const;
   std::string container_config_dir() const;
   std::string container_socket_path() const;
+  std::string container_devices_dir() const;
   std::string input_device_dir() const;
   std::string application_item_dir() const;
   std::string resource_dir() const;

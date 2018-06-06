@@ -47,6 +47,11 @@ void ManagementApiStub::start_container(const Configuration &configuration) {
 
   message.set_allocated_configuration(message_configuration);
 
+  for (const auto &device : configuration.devices) {
+    auto d = message_configuration->add_devices();
+    *d = device;
+  }
+
   {
     std::lock_guard<decltype(mutex_)> lock(mutex_);
     c->wh.expect_result();
