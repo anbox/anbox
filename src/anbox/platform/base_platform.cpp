@@ -32,7 +32,7 @@ std::shared_ptr<BasePlatform> create(const std::string &name,
   if (name == "sdl")
     return std::make_shared<sdl::Platform>(input_manager, display_frame, single_window);
 
-  WARNING("Unsupported platfrom '%s'", name);
+  WARNING("Unsupported platform '%s'", name);
 
   return nullptr;
 }

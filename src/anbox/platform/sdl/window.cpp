@@ -93,7 +93,7 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
 #endif
     default:
       ERROR("Unknown subsystem (%d)", info.subsystem);
-      BOOST_THROW_EXCEPTION(std::runtime_error("SDL subsystem not suported"));
+      BOOST_THROW_EXCEPTION(std::runtime_error("SDL subsystem not supported"));
   }
 
   SDL_ShowWindow(window_);
