@@ -43,6 +43,10 @@ start() {
 		$SNAP/sbin/apparmor_parser -r $SNAP/apparmor/anbox-container.aa
 	fi
 
+	if [ -e "$SNAP_COMMON"/.enable_debug ]; then
+		export ANBOX_LOG_LEVEL=debug
+	fi
+
 	exec $AA_EXEC $SNAP/bin/anbox-wrapper.sh container-manager \
 		--data-path=$DATA_PATH \
 		--android-image=$ANDROID_IMG \
