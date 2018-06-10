@@ -39,7 +39,7 @@
 namespace fs = boost::filesystem;
 
 namespace {
-constexpr unsigned int unprivileged_user_id{100000};
+constexpr unsigned int unprivileged_uid{100000};
 constexpr const char *default_container_ip_address{"192.168.250.2"};
 constexpr const std::uint32_t default_container_ip_prefix_length{24};
 constexpr const char *default_host_ip_address{"192.168.250.1"};
@@ -69,31 +69,25 @@ LxcContainer::~LxcContainer() {
   if (container_) lxc_container_put(container_);
 }
 
-void LxcContainer::setup_id_maps() {
-  const auto base_id = unprivileged_user_id;
+void LxcContainer::setup_id_map() {
+  const auto base_id = unprivileged_uid;
   const auto max_id = 65536;
 
-  set_config_item("lxc.id_map",
-                  utils::string_format("u 0 %d %d", base_id, creds_.uid() - 1));
-  set_config_item("lxc.id_map",
-                  utils::string_format("g 0 %d %d", base_id, creds_.gid() - 1));
+  set_config_item("lxc.id_map", utils::string_format("u 0 %d %d", base_id, creds_.uid() - 1));
+  set_config_item("lxc.id_map", utils::string_format("g 0 %d %d", base_id, creds_.gid() - 1));
 
   // We need to bind the user id for the one running the client side
   // process as he is the owner of various socket files we bind mount
   // into the container.
-  set_config_item("lxc.id_map",
-                  utils::string_format("u %d %d 1", creds_.uid(), creds_.uid()));
-  set_config_item("lxc.id_map",
-                  utils::string_format("g %d %d 1", creds_.gid(), creds_.gid()));
+  set_config_item("lxc.id_map", utils::string_format("u %d %d 1", creds_.uid(), creds_.uid()));
+  set_config_item("lxc.id_map", utils::string_format("g %d %d 1", creds_.gid(), creds_.gid()));
 
-  set_config_item("lxc.id_map",
-                  utils::string_format("u %d %d %d", creds_.uid() + 1,
-                                       base_id + creds_.uid() + 1,
-                                       max_id - creds_.uid() - 1));
-  set_config_item("lxc.id_map",
-                  utils::string_format("g %d %d %d", creds_.uid() + 1,
-                                       base_id + creds_.gid() + 1,
-                                       max_id - creds_.gid() - 1));
+  set_config_item("lxc.id_map", utils::string_format("u %d %d %d", creds_.uid() + 1,
+                                                     base_id + creds_.uid() + 1,
+                                                     max_id - creds_.uid() - 1));
+  set_config_item("lxc.id_map", utils::string_format("g %d %d %d", creds_.uid() + 1,
+                                                     base_id + creds_.gid() + 1,
+                                                     max_id - creds_.gid() - 1));
 }
 
 void LxcContainer::setup_network() {
@@ -148,7 +142,7 @@ void LxcContainer::setup_network() {
     if (st.st_uid != 0 && st.st_gid != 0)
       continue;
 
-    if (::chown(path.c_str(), unprivileged_user_id, unprivileged_user_id) < 0)
+    if (::chown(path.c_str(), unprivileged_uid, unprivileged_uid) < 0)
       WARNING("Failed to set owner for path '%s'", path);
   }
 
@@ -188,7 +182,7 @@ void LxcContainer::add_device(const std::string& device) {
     throw std::runtime_error(msg);
   }
 
-  auto base_uid = unprivileged_user_id;
+  auto base_uid = unprivileged_uid;
   if (privileged_)
     base_uid = 0;
 
@@ -279,7 +273,7 @@ void LxcContainer::start(const Configuration &configuration) {
   set_config_item("lxc.aa_profile", "anbox-container");
 
   if (!privileged_)
-    setup_id_maps();
+    setup_id_map();
 
   auto bind_mounts = configuration.bind_mounts;
   for (const auto &bind_mount : bind_mounts) {
