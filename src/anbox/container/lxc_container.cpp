@@ -40,6 +40,7 @@ namespace fs = boost::filesystem;
 
 namespace {
 constexpr unsigned int unprivileged_uid{100000};
+constexpr unsigned int android_system_uid{1000};
 constexpr const char *default_container_ip_address{"192.168.250.2"};
 constexpr const std::uint32_t default_container_ip_prefix_length{24};
 constexpr const char *default_host_ip_address{"192.168.250.1"};
@@ -79,14 +80,14 @@ void LxcContainer::setup_id_map() {
   // We need to bind the user id for the one running the client side
   // process as he is the owner of various socket files we bind mount
   // into the container.
-  set_config_item("lxc.id_map", utils::string_format("u %d %d 1", creds_.uid(), creds_.uid()));
-  set_config_item("lxc.id_map", utils::string_format("g %d %d 1", creds_.gid(), creds_.gid()));
+  set_config_item("lxc.id_map", utils::string_format("u %d %d 1", android_system_uid, creds_.uid()));
+  set_config_item("lxc.id_map", utils::string_format("g %d %d 1", android_system_uid, creds_.gid()));
 
-  set_config_item("lxc.id_map", utils::string_format("u %d %d %d", creds_.uid() + 1,
-                                                     base_id + creds_.uid() + 1,
+  set_config_item("lxc.id_map", utils::string_format("u %d %d %d", android_system_uid + 1,
+                                                     base_id + android_system_uid + 1,
                                                      max_id - creds_.uid() - 1));
-  set_config_item("lxc.id_map", utils::string_format("g %d %d %d", creds_.uid() + 1,
-                                                     base_id + creds_.gid() + 1,
+  set_config_item("lxc.id_map", utils::string_format("g %d %d %d", android_system_uid + 1,
+                                                     base_id + android_system_uid + 1,
                                                      max_id - creds_.gid() - 1));
 }
 
