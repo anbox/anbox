@@ -59,9 +59,3 @@ cmake ..
 VERBOSE=1 make -j10
 VERBOSE=1 make test
 cd ..
-
-cleanup
-
-apt-get install -y build-essential curl devscripts gdebi-core dkms dh-systemd
-apt-get install -y $(gdebi --quiet --apt-line ./debian/control)
-debuild -us -uc
