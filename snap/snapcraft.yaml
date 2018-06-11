@@ -224,6 +224,7 @@ parts:
       - protobuf-compiler
     stage-packages:
       - libboost-log1.58.0
+      - libboost-iostreams1.58.0
       - libboost-program-options1.58.0
       - libboost-thread1.58.0
       - libdb5.3
