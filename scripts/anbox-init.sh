@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+set -x
+
 function prepare_filesystem() {
 	# These dev files need to be adjusted everytime as they are
 	# bind mounted into the temporary rootfs
