@@ -182,6 +182,7 @@ parts:
       - glvnd
       - desktop
       - apparmor
+      - seccomp
 
   anbox:
     plugin: cmake
