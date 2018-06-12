@@ -70,9 +70,9 @@ parts:
 
         case "$ARCH" in
           x86_64)
-            IMAGE_PATH="2018/06/11"
+            IMAGE_PATH="2018/06/12"
             IMAGE_NAME="android_amd64.img"
-            IMAGE_HASH="0423700cb963fc64b2776a4e76cff886ef6648f0847f5b88b4ab0d61a7f1694f"
+            IMAGE_HASH="5c4b8f7caeaf604770e37a29b65c7711b26d009a548b4fac8dfb77585e56dc73"
             ;;
           *)
             echo "ERROR: Unknown architecture $ARCH"
@@ -102,7 +102,7 @@ parts:
   lxc:
     source: https://github.com/lxc/lxc
     source-type: git
-    source-tag: lxc-2.0.7
+    source-tag: lxc-3.0.0
     build-packages:
       - libapparmor-dev
       - libcap-dev
@@ -120,8 +120,8 @@ parts:
       - --disable-api-docs
       - --disable-bash
       - --disable-cgmanager
-      - --disable-apparmor
-      - --disable-seccomp
+      - --enable-apparmor
+      - --enable-seccomp
       - --enable-capabilities
       - --with-rootfs-path=/var/snap/anbox/common/lxc/
       - --libexecdir=/snap/anbox/current/libexec/
@@ -129,7 +129,7 @@ parts:
       snap/anbox/current/libexec: libexec
     prime:
       - lib/liblxc.so.1
-      - lib/liblxc.so.1.2.0
+      - lib/liblxc.so.1.4.0
       - libexec/lxc/lxc-monitord
       - bin/lxc-start
       - bin/lxc-stop
@@ -181,6 +181,8 @@ parts:
     prime:
       - glvnd
       - desktop
+      - apparmor
+      - seccomp
 
   anbox:
     plugin: cmake

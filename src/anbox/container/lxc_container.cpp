@@ -45,6 +45,7 @@ constexpr const char *default_container_ip_address{"192.168.250.2"};
 constexpr const std::uint32_t default_container_ip_prefix_length{24};
 constexpr const char *default_host_ip_address{"192.168.250.1"};
 constexpr const char *default_dns_server{"8.8.8.8"};
+constexpr const char *default_console_buffer_size{"256KB"};
 
 constexpr int device_major(__dev_t dev) {
   return int(((dev >> 8) & 0xfff) | ((dev >> 32) & (0xfffff000)));
@@ -74,19 +75,19 @@ void LxcContainer::setup_id_map() {
   const auto base_id = unprivileged_uid;
   const auto max_id = 65536;
 
-  set_config_item("lxc.id_map", utils::string_format("u 0 %d %d", base_id, creds_.uid() - 1));
-  set_config_item("lxc.id_map", utils::string_format("g 0 %d %d", base_id, creds_.gid() - 1));
+  set_config_item("lxc.idmap", utils::string_format("u 0 %d %d", base_id, creds_.uid() - 1));
+  set_config_item("lxc.idmap", utils::string_format("g 0 %d %d", base_id, creds_.gid() - 1));
 
   // We need to bind the user id for the one running the client side
   // process as he is the owner of various socket files we bind mount
   // into the container.
-  set_config_item("lxc.id_map", utils::string_format("u %d %d 1", android_system_uid, creds_.uid()));
-  set_config_item("lxc.id_map", utils::string_format("g %d %d 1", android_system_uid, creds_.gid()));
+  set_config_item("lxc.idmap", utils::string_format("u %d %d 1", android_system_uid, creds_.uid()));
+  set_config_item("lxc.idmap", utils::string_format("g %d %d 1", android_system_uid, creds_.gid()));
 
-  set_config_item("lxc.id_map", utils::string_format("u %d %d %d", android_system_uid + 1,
+  set_config_item("lxc.idmap", utils::string_format("u %d %d %d", android_system_uid + 1,
                                                      base_id + android_system_uid + 1,
                                                      max_id - creds_.uid() - 1));
-  set_config_item("lxc.id_map", utils::string_format("g %d %d %d", android_system_uid + 1,
+  set_config_item("lxc.idmap", utils::string_format("g %d %d %d", android_system_uid + 1,
                                                      base_id + android_system_uid + 1,
                                                      max_id - creds_.gid() - 1));
 }
@@ -97,9 +98,9 @@ void LxcContainer::setup_network() {
     return;
   }
 
-  set_config_item("lxc.network.type", "veth");
-  set_config_item("lxc.network.flags", "up");
-  set_config_item("lxc.network.link", "anbox0");
+  set_config_item("lxc.net.0.type", "veth");
+  set_config_item("lxc.net.0.flags", "up");
+  set_config_item("lxc.net.0.link", "anbox0");
 
   // Instead of relying on DHCP we will give Android a static IP configuration
   // for the virtual ethernet interface LXC creates for us. This will be bridged
@@ -245,33 +246,43 @@ void LxcContainer::start(const Configuration &configuration) {
   set_config_item("lxc.mount.auto", "proc:mixed sys:mixed cgroup:mixed");
 
   set_config_item("lxc.autodev", "1");
-  set_config_item("lxc.pts", "1024");
-  set_config_item("lxc.tty", "0");
-  set_config_item("lxc.utsname", "anbox");
+  set_config_item("lxc.pty.max", "1024");
+  set_config_item("lxc.tty.max", "0");
+  set_config_item("lxc.uts.name", "anbox");
 
   set_config_item("lxc.group.devices.deny", "");
   set_config_item("lxc.group.devices.allow", "");
 
   // We can't move bind-mounts, so don't use /dev/lxc/
-  set_config_item("lxc.devttydir", "");
+  set_config_item("lxc.tty.dir", "");
 
   set_config_item("lxc.environment",
                   "PATH=/system/bin:/system/sbin:/system/xbin");
 
-  set_config_item("lxc.init_cmd", "/anbox-init.sh");
-  set_config_item("lxc.rootfs.backend", "dir");
+  set_config_item("lxc.init.cmd", "/anbox-init.sh");
 
   const auto rootfs_path = SystemConfiguration::instance().rootfs_dir();
   DEBUG("Using rootfs path %s", rootfs_path);
-  set_config_item("lxc.rootfs", rootfs_path);
+  set_config_item("lxc.rootfs.path", rootfs_path);
 
-  set_config_item("lxc.loglevel", "0");
+  set_config_item("lxc.log.level", "0");
   const auto log_path = SystemConfiguration::instance().log_dir();
-  set_config_item("lxc.logfile", utils::string_format("%s/container.log", log_path).c_str());
+  set_config_item("lxc.log.file", utils::string_format("%s/container.log", log_path).c_str());
+
+  // Dump the console output to disk to have a chance to debug early boot problems
+  set_config_item("lxc.console.logfile", utils::string_format("%s/console.log", log_path).c_str());
+  set_config_item("lxc.console.rotate", "1");
 
   setup_network();
 
-  set_config_item("lxc.aa_profile", "anbox-container");
+#if 0
+  set_config_item("lxc.apparmor.profile", "anbox-container");
+
+  const auto seccomp_profile_path = fs::path(utils::get_env_value("SNAP", "/etc/anbox")) / "seccomp" / "anbox.sc";
+  set_config_item("lxc.seccomp.profile", seccomp_profile_path.string().c_str());
+#else
+  set_config_item("lxc.apparmor.profile", "unconfined");
+#endif
 
   if (!privileged_)
     setup_id_map();
