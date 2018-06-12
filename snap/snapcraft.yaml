@@ -181,6 +181,7 @@ parts:
     prime:
       - glvnd
       - desktop
+      - apparmor
 
   anbox:
     plugin: cmake
