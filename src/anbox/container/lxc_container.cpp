@@ -45,6 +45,7 @@ constexpr const char *default_container_ip_address{"192.168.250.2"};
 constexpr const std::uint32_t default_container_ip_prefix_length{24};
 constexpr const char *default_host_ip_address{"192.168.250.1"};
 constexpr const char *default_dns_server{"8.8.8.8"};
+constexpr const char *default_console_buffer_size{"256KB"};
 
 constexpr int device_major(__dev_t dev) {
   return int(((dev >> 8) & 0xfff) | ((dev >> 32) & (0xfffff000)));
@@ -267,6 +268,10 @@ void LxcContainer::start(const Configuration &configuration) {
   set_config_item("lxc.log.level", "0");
   const auto log_path = SystemConfiguration::instance().log_dir();
   set_config_item("lxc.log.file", utils::string_format("%s/container.log", log_path).c_str());
+
+  // Dump the console output to disk to have a chance to debug early boot problems
+  set_config_item("lxc.console.logfile", utils::string_format("%s/console.log", log_path).c_str());
+  set_config_item("lxc.console.rotate", "1");
 
   setup_network();
 
