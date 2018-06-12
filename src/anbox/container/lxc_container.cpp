@@ -275,7 +275,11 @@ void LxcContainer::start(const Configuration &configuration) {
 
   setup_network();
 
+#if 0
   set_config_item("lxc.apparmor.profile", "anbox-container");
+#else
+  set_config_item("lxc.apparmor.profile", "unconfined");
+#endif
 
   if (!privileged_)
     setup_id_map();
