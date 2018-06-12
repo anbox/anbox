@@ -277,6 +277,9 @@ void LxcContainer::start(const Configuration &configuration) {
 
 #if 0
   set_config_item("lxc.apparmor.profile", "anbox-container");
+
+  const auto seccomp_profile_path = fs::path(utils::get_env_value("SNAP", "/etc/anbox")) / "seccomp" / "anbox.sc";
+  set_config_item("lxc.seccomp.profile", seccomp_profile_path.string().c_str());
 #else
   set_config_item("lxc.apparmor.profile", "unconfined");
 #endif
