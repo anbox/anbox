@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 
 project(CpuFeatures VERSION 0.1.0)
 
+# ANBOX allow to build in our more strict build environment
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=switch-default")
+
 # Default Build Type to be Release
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
