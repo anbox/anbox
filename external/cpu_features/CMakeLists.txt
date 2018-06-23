@@ -89,6 +89,8 @@ add_executable(CpuFeature::list_cpu_features ALIAS list_cpu_features)
 #
 
 include(CTest)
+# ANBOX: disable building tests
+set(BUILD_TESTING OFF)
 if(BUILD_TESTING)
   # Automatically incorporate googletest into the CMake Project if target not
   # found.
