@@ -38,7 +38,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 # ANBOX: allow old-style casts
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=old-style-cast -Wno-error=switch-default")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=old-style-cast -Wno-error=switch-default -Wno-error=implicit-fallthrough")
 
 ###############################################################################
 # BACKWARD OBJECT
