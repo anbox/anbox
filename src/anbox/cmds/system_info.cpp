@@ -30,6 +30,9 @@
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
+#include "cpu_features_macros.h"
+#include "cpuinfo_x86.h"
+
 namespace fs = boost::filesystem;
 
 namespace {
@@ -44,6 +47,7 @@ constexpr const char *os_release_version{"VERSION"};
 class SystemInformation {
  public:
   SystemInformation() {
+    collect_cpu_info();
     collect_os_info();
     collect_kernel_info();
     collect_graphics_info();
@@ -61,6 +65,13 @@ class SystemInformation {
         << anbox::utils::get_env_value("SNAP_REVISION")
         << std::endl;
     }
+
+    s << "cpu:" << std::endl
+      << "  arch:  " << cpu_info_.arch << std::endl
+      << "  brand: " << cpu_info_.brand << std::endl
+      << "  features: " << std::endl;
+    for (const auto& feature : cpu_info_.features)
+      s << "    - " << feature << std::endl;
 
     s << "os:" << std::endl
       << "  name: " << os_info_.name << std::endl
@@ -101,6 +112,32 @@ class SystemInformation {
   }
 
  private:
+  void collect_cpu_info() {
+#if defined(CPU_FEATURES_ARCH_X86)
+  cpu_info_.arch = "x86";
+
+  const auto info = cpu_features::GetX86Info();
+  if (info.features.aes)
+    cpu_info_.features.push_back("aes");
+  if (info.features.ssse3)
+    cpu_info_.features.push_back("ssse3");
+  if (info.features.ssse3)
+    cpu_info_.features.push_back("sse4_1");
+  if (info.features.sse4_1)
+    cpu_info_.features.push_back("sse4_2");
+  if (info.features.sse4_2)
+    cpu_info_.features.push_back("avx");
+  if (info.features.avx)
+    cpu_info_.features.push_back("ssse3");
+  if (info.features.avx2)
+    cpu_info_.features.push_back("avx2");
+
+  char brand_string[49];
+  cpu_features::FillX86BrandString(brand_string);
+  cpu_info_.brand = brand_string;
+#endif
+  }
+
   void collect_os_info() {
     os_info_.snap_based = !anbox::utils::get_env_value("SNAP").empty();
     fs::path path = os_release_path;
@@ -172,6 +209,12 @@ class SystemInformation {
       }
     }
   }
+
+  struct {
+    std::string arch;
+    std::string brand;
+    std::vector<std::string> features;
+  } cpu_info_;
 
   struct {
     bool snap_based = false;
