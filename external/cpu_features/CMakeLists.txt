@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(CpuFeatures VERSION 0.1.0)
 
 # ANBOX allow to build in our more strict build environment
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=switch-default")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=switch-default -Wno-error=unused-parameter -Wno-error=overflow")
 
 # Default Build Type to be Release
 if(NOT CMAKE_BUILD_TYPE)
