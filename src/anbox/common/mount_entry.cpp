@@ -33,8 +33,12 @@ std::shared_ptr<MountEntry> MountEntry::create(const boost::filesystem::path &sr
   if (!data.empty())
     mount_data = reinterpret_cast<const void*>(data.c_str());
 
-  if (::mount(src.c_str(), target.c_str(), !fs_type.empty() ? fs_type.c_str() : nullptr, flags, mount_data) != 0)
+  DEBUG("Mounting %s on %s ...", src, target);
+
+  if (::mount(src.c_str(), target.c_str(), !fs_type.empty() ? fs_type.c_str() : nullptr, flags, mount_data) < 0) {
+    ERROR("Failed to mount %s: %s", target, strerror(errno));
     return nullptr;
+  }
 
   entry->active_ = true;
 

@@ -36,6 +36,7 @@ class ContainerManager : public cli::CommandWithFlagsAndAction {
 
  private:
   bool setup_mounts();
+  bool setup_rootfs_overlay();
 
   std::string android_img_path_;
   std::string data_path_;
@@ -43,6 +44,7 @@ class ContainerManager : public cli::CommandWithFlagsAndAction {
   std::vector<std::shared_ptr<common::MountEntry>> mounts_;
   bool privileged_ = false;
   bool daemon_ = false;
+  bool enable_rootfs_overlay_ = false;
 };
 }  // namespace cmds
 }  // namespace anbox

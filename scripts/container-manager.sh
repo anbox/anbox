@@ -10,6 +10,11 @@ DATA_PATH=$SNAP_COMMON/
 ROOTFS_PATH=$DATA_PATH/rootfs
 ANDROID_IMG=$SNAP/android.img
 
+if [ "$(id -u)" != 0 ]; then
+	echo "ERROR: You need to run the container manager as root"
+	exit 1
+fi
+
 if [ ! -e $ANDROID_IMG ]; then
 	echo "ERROR: android image does not exist"
 	exit 1
@@ -47,7 +52,14 @@ start() {
 		export ANBOX_LOG_LEVEL=debug
 	fi
 
+	EXTRA_ARGS=
+	enable_rootfs_overlay="$(snapctl get rootfs-overlay.enable)"
+	if [ "$enable_rootfs_overlay" = true ]; then
+		EXTRA_ARGS="$EXTRA_ARGS --use-rootfs-overlay"
+	fi
+
 	exec $AA_EXEC $SNAP/bin/anbox-wrapper.sh container-manager \
+		"$EXTRA_ARGS" \
 		--data-path=$DATA_PATH \
 		--android-image=$ANDROID_IMG \
 		--daemon
