@@ -1391,6 +1391,7 @@ private:
 					if (die_has_pc(die, pc)) {
 						return result;
 					}
+					/* fall through */
 				default:
 					bool declaration = false;
 					Dwarf_Attribute attr_mem;
