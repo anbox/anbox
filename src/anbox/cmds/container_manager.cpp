@@ -52,6 +52,9 @@ anbox::cmds::ContainerManager::ContainerManager()
   flag(cli::make_flag(cli::Name{"daemon"},
                       cli::Description{"Mark service as being started as systemd daemon"},
                       daemon_));
+  flag(cli::make_flag(cli::Name{"use-rootfs-overlay"},
+                      cli::Description{"Use an overlay for the Android rootfs"},
+                      enable_rootfs_overlay_));
 
   action([&](const cli::Command::Context&) {
     try {
@@ -87,7 +90,10 @@ anbox::cmds::ContainerManager::ContainerManager()
         return EXIT_FAILURE;
 
       auto rt = Runtime::create();
-      auto service = container::Service::create(rt, privileged_);
+      container::Service::Configuration config;
+      config.privileged = privileged_;
+      config.rootfs_overlay = enable_rootfs_overlay_;
+      auto service = container::Service::create(rt, config);
 
       rt->start();
       trap->run();
@@ -183,8 +189,17 @@ bool anbox::cmds::ContainerManager::setup_mounts() {
     return false;
   }
 
+  auto final_android_rootfs_dir = android_rootfs_dir;
+  if (enable_rootfs_overlay_) {
+    if (!setup_rootfs_overlay())
+      return false;
+
+    final_android_rootfs_dir = SystemConfiguration::instance().combined_rootfs_dir();
+  }
+
+
   for (const auto &dir_name : std::vector<std::string>{"cache", "data"}) {
-    auto target_dir_path = fs::path(android_rootfs_dir) / dir_name;
+    auto target_dir_path = fs::path(final_android_rootfs_dir) / dir_name;
     auto src_dir_path = SystemConfiguration::instance().data_dir() / dir_name;
 
     if (!fs::exists(src_dir_path)) {
@@ -212,5 +227,28 @@ bool anbox::cmds::ContainerManager::setup_mounts() {
   // Unmounting needs to happen in reverse order
   std::reverse(mounts_.begin(), mounts_.end());
 
+  return true;
+}
+
+bool anbox::cmds::ContainerManager::setup_rootfs_overlay() {
+  const auto combined_rootfs_path = SystemConfiguration::instance().combined_rootfs_dir();
+  if (!fs::exists(combined_rootfs_path))
+    fs::create_directories(combined_rootfs_path);
+
+  const auto overlay_path = SystemConfiguration::instance().overlay_dir();
+  if (!fs::exists(overlay_path))
+    fs::create_directories(overlay_path);
+
+  const auto rootfs_path = SystemConfiguration::instance().rootfs_dir();
+  const auto overlay_config = utils::string_format("lowerdir=%s:%s", rootfs_path, overlay_path);
+  auto m = common::MountEntry::create("overlay", combined_rootfs_path, "overlay", MS_RDONLY, overlay_config.c_str());
+  if (!m) {
+    ERROR("Failed to setup rootfs overlay");
+    mounts_.clear();
+    return false;
+  }
+  mounts_.push_back(m);
+
+  DEBUG("Successfully setup rootfs overlay");
   return true;
 }

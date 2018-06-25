@@ -30,12 +30,18 @@ namespace anbox {
 namespace container {
 class Service : public std::enable_shared_from_this<Service> {
  public:
-  static std::shared_ptr<Service> create(const std::shared_ptr<Runtime> &rt, bool privileged);
+  struct Configuration {
+    bool privileged = false;
+    bool rootfs_overlay = true;
+  };
+
+  static std::shared_ptr<Service> create(const std::shared_ptr<Runtime> &rt,
+                                         const Configuration &config);
 
   ~Service();
 
  private:
-  Service(const std::shared_ptr<Runtime> &rt, bool privileged);
+  Service(const std::shared_ptr<Runtime> &rt, const Configuration &config);
 
   int next_id();
   void new_client(std::shared_ptr<
@@ -46,7 +52,7 @@ class Service : public std::enable_shared_from_this<Service> {
   std::atomic<int> next_connection_id_;
   std::shared_ptr<network::Connections<network::SocketConnection>> connections_;
   std::shared_ptr<Container> backend_;
-  bool privileged_;
+  Configuration config_;
 };
 }  // namespace container
 }  // namespace anbox

@@ -58,8 +58,12 @@ constexpr int device_minor(__dev_t dev) {
 
 namespace anbox {
 namespace container {
-LxcContainer::LxcContainer(bool privileged, const network::Credentials &creds)
-    : state_(State::inactive), container_(nullptr),  privileged_(privileged), creds_(creds) {
+LxcContainer::LxcContainer(bool privileged, bool rootfs_overlay, const network::Credentials &creds)
+    : state_(State::inactive),
+      container_(nullptr),
+      privileged_(privileged),
+      rootfs_overlay_(rootfs_overlay),
+      creds_(creds) {
   utils::ensure_paths({
       SystemConfiguration::instance().container_config_dir(),
       SystemConfiguration::instance().log_dir(),
@@ -68,7 +72,8 @@ LxcContainer::LxcContainer(bool privileged, const network::Credentials &creds)
 
 LxcContainer::~LxcContainer() {
   stop();
-  if (container_) lxc_container_put(container_);
+  if (container_)
+    lxc_container_put(container_);
 }
 
 void LxcContainer::setup_id_map() {
@@ -261,7 +266,10 @@ void LxcContainer::start(const Configuration &configuration) {
 
   set_config_item("lxc.init.cmd", "/anbox-init.sh");
 
-  const auto rootfs_path = SystemConfiguration::instance().rootfs_dir();
+  auto rootfs_path = SystemConfiguration::instance().rootfs_dir();
+  if (rootfs_overlay_)
+    rootfs_path = SystemConfiguration::instance().combined_rootfs_dir();
+
   DEBUG("Using rootfs path %s", rootfs_path);
   set_config_item("lxc.rootfs.path", rootfs_path);
 
