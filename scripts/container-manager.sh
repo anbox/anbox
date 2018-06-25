@@ -58,6 +58,11 @@ start() {
 		EXTRA_ARGS="$EXTRA_ARGS --use-rootfs-overlay"
 	fi
 
+	privileged_container="$(snapctl get container.privileged)"
+	if [ "$privileged_container" = true ]; then
+		EXTRA_ARGS="$EXTRA_ARGS --privileged"
+	fi
+
 	exec $AA_EXEC $SNAP/bin/anbox-wrapper.sh container-manager \
 		"$EXTRA_ARGS" \
 		--data-path=$DATA_PATH \
