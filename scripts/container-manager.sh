@@ -20,6 +20,14 @@ if [ ! -e $ANDROID_IMG ]; then
 	exit 1
 fi
 
+if [ "$SNAP_ARCH" == "amd64" ]; then
+	ARCH="x86_64-linux-gnu"
+elif [ "$SNAP_ARCH" == "armhf" ]; then
+	ARCH="arm-linux-gnueabihf"
+else
+	ARCH="$SNAP_ARCH-linux-gnu"
+fi
+
 start() {
 	# Make sure our setup path for the container rootfs
 	# is present as lxc is statically configured for
@@ -41,7 +49,12 @@ start() {
 	fi
 
 	# liblxc.so.1 is in $SNAP/lib
-	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SNAP/lib
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SNAP/liblxc
+
+	# For unknown reason we got bug reports that the container manager failed to start
+	# because it cannot find libboost_log.so.1.58.0 To mitigate this we're adding the
+	# lib directory as explicit search target here.
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH
 
 	if [ -d /sys/kernel/security/apparmor ] ; then
 		# Load the profile for our Android container
