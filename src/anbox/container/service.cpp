@@ -34,8 +34,8 @@ namespace fs = boost::filesystem;
 
 namespace anbox {
 namespace container {
-std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt, bool privileged) {
-  auto sp = std::shared_ptr<Service>(new Service(rt, privileged));
+std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt, const Configuration &config) {
+  auto sp = std::shared_ptr<Service>(new Service(rt, config));
 
   auto wp = std::weak_ptr<Service>(sp);
   auto delegate_connector = std::make_shared<network::DelegateConnectionCreator<boost::asio::local::stream_protocol>>(
@@ -59,11 +59,11 @@ std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt, boo
   return sp;
 }
 
-Service::Service(const std::shared_ptr<Runtime> &rt, bool privileged)
+Service::Service(const std::shared_ptr<Runtime> &rt, const Configuration &config)
     : dispatcher_(anbox::common::create_dispatcher_for_runtime(rt)),
       next_connection_id_(0),
       connections_(std::make_shared<network::Connections<network::SocketConnection>>()),
-      privileged_(privileged) {
+      config_(config) {
 }
 
 Service::~Service() {
@@ -86,7 +86,7 @@ void Service::new_client(std::shared_ptr<boost::asio::local::stream_protocol::so
   auto pending_calls = std::make_shared<rpc::PendingCallCache>();
   auto rpc_channel = std::make_shared<rpc::Channel>(pending_calls, messenger);
   auto server = std::make_shared<container::ManagementApiSkeleton>(
-      pending_calls, std::make_shared<LxcContainer>(privileged_, messenger->creds()));
+      pending_calls, std::make_shared<LxcContainer>(config_.privileged, config_.rootfs_overlay, messenger->creds()));
   auto processor = std::make_shared<container::ManagementApiMessageProcessor>(
       messenger, pending_calls, server);
 
