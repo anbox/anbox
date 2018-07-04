@@ -172,8 +172,9 @@ anbox::cmds::SessionManager::SessionManager()
       using_single_window = true;
     }
 
+    const auto should_force_software_rendering = utils::get_env_value("ANBOX_FORCE_SOFTWARE_RENDERING", "false");
     auto gl_driver = graphics::GLRendererServer::Config::Driver::Host;
-    if (use_software_rendering_)
+    if (should_force_software_rendering == "true" || use_software_rendering_)
      gl_driver = graphics::GLRendererServer::Config::Driver::Software;
 
     graphics::GLRendererServer::Config renderer_config {
