@@ -57,6 +57,10 @@ static int redirect_to_null(int flags, int fd) {
 
 bool anbox::cmds::Launch::launch_session_manager() {
   std::vector<std::string> args = {"session-manager"};
+  const auto should_force_software_rendering = utils::get_env_value("ANBOX_FORCE_SOFTWARE_RENDERING", "false");
+  if (should_force_software_rendering == "true")
+    args.push_back("--software-rendering");
+
   std::map<std::string,std::string> env;
   core::posix::this_process::env::for_each([&](const std::string &name, const std::string &value) {
     env.insert({name, value});

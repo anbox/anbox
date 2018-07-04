@@ -33,4 +33,8 @@ if [ -e "$SNAP_COMMON"/.enable_debug ]; then
 	export ANBOX_LOG_LEVEL=debug
 fi
 
+if [ "$(snapctl get software-rendering.enable)" = true ]; then
+	export ANBOX_FORCE_SOFTWARE_RENDERING=true
+fi
+
 exec $SNAP/usr/bin/anbox $@
