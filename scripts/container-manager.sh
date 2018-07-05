@@ -76,10 +76,10 @@ start() {
 	fi
 
 	exec "$SNAP"/bin/anbox-wrapper.sh container-manager \
-		"$EXTRA_ARGS" \
 		--data-path="$DATA_PATH" \
 		--android-image="$ANDROID_IMG" \
-		--daemon
+		--daemon \
+		$EXTRA_ARGS
 }
 
 stop() {
