@@ -38,4 +38,4 @@ if [ "$(snapctl get software-rendering.enable)" = true ]; then
 	export ANBOX_FORCE_SOFTWARE_RENDERING=true
 fi
 
-exec $SNAP/usr/bin/anbox $@
+exec "$SNAP"/usr/bin/anbox "$@"
