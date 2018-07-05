@@ -1,9 +1,7 @@
 #!/bin/sh
 
-if [ "$(snapctl get debug.enable)" = true ]; then
-    touch "$SNAP_COMMON"/.enable_debug
-else
-    rm -f "$SNAP_COMMON"/.enable_debug
-fi
+# We need to have something for snapd in place in order to
+# allow configuration options for our snap even if the items
+# are read via snapctl elsewhere in the code.
 
 exit 0

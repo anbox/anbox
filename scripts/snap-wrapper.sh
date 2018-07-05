@@ -29,7 +29,8 @@ export XDG_DATA_HOME="$SNAP_USER_COMMON/app-data"
 # configured but the actual EGL implementation is missing.
 export __EGL_VENDOR_LIBRARY_DIRS="$SNAP/glvnd"
 
-if [ -e "$SNAP_COMMON"/.enable_debug ]; then
+enable_debug="$(snapctl get debug.enable)"
+if [ "$enable_debug" = true ]; then
 	export ANBOX_LOG_LEVEL=debug
 fi
 

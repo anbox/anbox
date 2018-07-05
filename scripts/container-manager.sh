@@ -61,8 +61,10 @@ start() {
 		$SNAP/sbin/apparmor_parser -r $SNAP/apparmor/anbox-container.aa
 	fi
 
-	if [ -e "$SNAP_COMMON"/.enable_debug ]; then
+	enable_debug="$(snapctl get debug.enable)"
+	if [ "$enable_debug" = true ]; then
 		export ANBOX_LOG_LEVEL=debug
+		export LD_DEBUG=libs
 	fi
 
 	EXTRA_ARGS=
@@ -71,8 +73,8 @@ start() {
 		EXTRA_ARGS="$EXTRA_ARGS --use-rootfs-overlay"
 	fi
 
-	privileged_container="$(snapctl get container.privileged)"
-	if [ "$privileged_container" = true ]; then
+	enable_privileged_container="$(snapctl get container.privileged)"
+	if [ "$enable_privileged_container" = true ]; then
 		EXTRA_ARGS="$EXTRA_ARGS --privileged"
 	fi
 
