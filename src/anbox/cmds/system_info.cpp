@@ -174,9 +174,18 @@ class SystemInformation {
     auto display = s_egl.eglGetDisplay(0);
     if (display != EGL_NO_DISPLAY) {
       s_egl.eglInitialize(display, nullptr, nullptr);
-      graphics_info_.egl_vendor = s_egl.eglQueryString(display, EGL_VENDOR);
-      graphics_info_.egl_version = s_egl.eglQueryString(display, EGL_VERSION);
-      graphics_info_.egl_extensions = anbox::utils::string_split(s_egl.eglQueryString(display, EGL_EXTENSIONS), ' ');
+
+      auto egl_safe_get_string = [](EGLint item) {
+        auto str = s_gles2.glGetString(item);
+        if (!str)
+          return std::string("n/a");
+        return std::string(reinterpret_cast<const char*>(str));
+      };
+
+      graphics_info_.egl_vendor = egl_safe_get_string(EGL_VENDOR);
+      graphics_info_.egl_version = egl_safe_get_string(EGL_VERSION);
+      const auto egl_extensions = egl_safe_get_string(EGL_EXTENSIONS);
+      graphics_info_.egl_extensions = anbox::utils::string_split(egl_extensions, ' ');
 
       GLint config_attribs[] = {EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
                                 EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
@@ -192,16 +201,17 @@ class SystemInformation {
           // glGetString will return null below which we handle correctly.
           s_egl.eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, context);
 
-          auto safe_get_string = [](GLint item) {
+          auto gl_safe_get_string = [](GLint item) {
             auto str = s_gles2.glGetString(item);
             if (!str)
               return std::string("n/a");
             return std::string(reinterpret_cast<const char*>(str));
           };
 
-          graphics_info_.gles2_vendor = safe_get_string(GL_VENDOR);
-          graphics_info_.gles2_version = safe_get_string(GL_VERSION);
-          graphics_info_.gles2_extensions = anbox::utils::string_split(safe_get_string(GL_EXTENSIONS), ' ');
+          graphics_info_.gles2_vendor = gl_safe_get_string(GL_VENDOR);
+          graphics_info_.gles2_version = gl_safe_get_string(GL_VERSION);
+          const auto gl_extensions = gl_safe_get_string(GL_EXTENSIONS);
+          graphics_info_.gles2_extensions = anbox::utils::string_split(gl_extensions, ' ');
 
           s_egl.eglMakeCurrent(display, nullptr, nullptr, nullptr);
           s_egl.eglDestroyContext(display, context);
