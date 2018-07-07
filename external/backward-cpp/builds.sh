@@ -27,7 +27,7 @@ function mkbuild() {
 	mkdir $builddir 2>/dev/null
 	(
 		cd "$builddir"
-		cmake -DCMAKE_BUILD_TYPE=$buildtype ..
+		cmake -DCMAKE_BUILD_TYPE=$buildtype -DBACKWARD_TESTS=ON ..
 	)
 }
 

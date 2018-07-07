@@ -22,4 +22,4 @@ install:
 
 script:
   - valgrind ctest .. --verbose
-  - cd ${TRAVIS_BUILD_DIR} && conan test_package --build=outdated
+  - cd ${TRAVIS_BUILD_DIR} && conan create . Manu343726/testing --build=outdated

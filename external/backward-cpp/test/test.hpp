@@ -37,8 +37,8 @@ namespace test {
 struct AssertFailedError: std::exception {
 	~AssertFailedError() throw() {}
 
-	AssertFailedError(const char* filename, int line, const char* errmsg):
-		basename(_basename(filename)), line(line), errmsg(errmsg) {}
+	AssertFailedError(const char* filename, int _line, const char* _errmsg):
+		basename(_basename(filename)), line(_line), errmsg(_errmsg) {}
 
 	const char* what() const throw() {
 		if (not _what.size()) {
