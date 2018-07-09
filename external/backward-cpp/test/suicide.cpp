@@ -1,5 +1,5 @@
 /*
- * test/segfault.cpp
+ * test/suicide.cpp
  * Copyright 2013 Google Inc. All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,28 +23,77 @@
 
 #include "backward.hpp"
 
-#include <stdio.h>
+#include <cstdio>
+#include <sys/resource.h>
 #include "test/test.hpp"
 
 using namespace backward;
 
-void badass_function() {
+void badass_function()
+{
 	char* ptr = (char*)42;
 	*ptr = 42;
 }
 
-TEST_SEGFAULT (pprint_sigsev) {
-	std::vector<int> signals;
-	signals.push_back(SIGSEGV);
-	SignalHandling sh(signals);
-	std::cout << std::boolalpha << "sh.loaded() == " << sh.loaded() << std::endl;
+TEST_SEGFAULT (invalid_write)
+{
 	badass_function();
 }
 
-TEST_SEGFAULT (wont_pprint) {
-	std::vector<int> signals;
-	signals.push_back(SIGABRT);
-	SignalHandling sh(signals);
-	std::cout << std::boolalpha << "sh.loaded() == " << sh.loaded() << std::endl;
-	badass_function();
+int you_shall_not_pass()
+{
+	char* ptr = (char*)42;
+	int v = *ptr;
+	return v;
 }
+
+TEST_SEGFAULT(invalid_read)
+{
+	int v = you_shall_not_pass();
+	std::cout << "v=" << v << std::endl;
+}
+
+void abort_abort_I_repeat_abort_abort()
+{
+	std::cout << "Jumping off the boat!" << std::endl;
+	abort();
+}
+
+TEST_ABORT (calling_abort)
+{
+	abort_abort_I_repeat_abort_abort();
+}
+
+// aarch64 does not trap Division by zero
+#ifndef __aarch64__
+volatile int zero = 0;
+
+int divide_by_zero()
+{
+	std::cout << "And the wild black hole appears..." << std::endl;
+	int v = 42 / zero;
+	return v;
+}
+
+TEST_DIVZERO (divide_by_zero)
+{
+	int v = divide_by_zero();
+	std::cout << "v=" << v << std::endl;
+}
+#endif
+
+// Darwin does not allow RLIMIT_STACK to be reduced
+#ifndef __APPLE__
+int bye_bye_stack(int i) {
+	return bye_bye_stack(i + 1) + bye_bye_stack(i * 2);
+}
+
+TEST_SEGFAULT(stackoverflow)
+{
+	struct rlimit limit;
+	limit.rlim_max = 8096;
+	setrlimit(RLIMIT_STACK, &limit);
+	int r = bye_bye_stack(42);
+	std::cout << "r=" << r << std::endl;
+}
+#endif
