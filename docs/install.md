@@ -70,7 +70,7 @@ Installing the Anbox snap is very simple:
  $ snap install --devmode --beta anbox
 ```
 
-If you didn't logged into the Ubuntu Store yet, the `snap` command will
+If you haven't logged into the Ubuntu Store yet, the `snap` command will
 ask you to use `sudo snap ...` in order to install the snap:
 
 ```

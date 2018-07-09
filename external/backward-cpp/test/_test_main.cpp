@@ -24,9 +24,34 @@
 #include "test.hpp"
 #include <cstdio>
 #include <cstdlib>
+#ifndef __APPLE__
 #include <error.h>
+#endif
 #include <unistd.h>
 #include <sys/wait.h>
+
+#ifdef __APPLE__
+#include <stdarg.h>
+
+void error(int status, int errnum, const char *format, ...) {
+	fflush(stdout);
+	fprintf(stderr, "%s: ", getprogname());
+
+	va_list args;
+	va_start(args, format);
+	vfprintf(stderr, format, args);
+	va_end(args);
+
+	if (errnum != 0) {
+		fprintf(stderr, ": %s\n", strerror(errnum));
+	} else {
+		fprintf(stderr, "\n");
+	}
+	if (status != 0) {
+		exit(status);
+	}
+}
+#endif
 
 test::test_registry_t test::test_registry;
 using namespace test;

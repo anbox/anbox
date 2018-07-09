@@ -25,20 +25,35 @@ project(backward CXX)
 
 include(BackwardConfig.cmake)
 
+# check if compiler is nvcc or nvcc_wrapper
+set(COMPILER_IS_NVCC false)
+get_filename_component(COMPILER_NAME ${CMAKE_CXX_COMPILER} NAME)
+if (COMPILER_NAME MATCHES "^nvcc")
+  set(COMPILER_IS_NVCC true)
+endif()
+
+# set CXX standard
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_STANDARD 11)
+if (${COMPILER_IS_NVCC})
+  # GNU CXX extensions are not supported by nvcc
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
 
 ###############################################################################
 # COMPILER FLAGS
 ###############################################################################
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic-errors")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+	if (NOT ${COMPILER_IS_NVCC})
+	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors")
+	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 endif()
 
-# ANBOX: allow old-style casts
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=old-style-cast -Wno-error=switch-default")
+# Anbox: allow old-style cast, unknown pragmas
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=old-style-cast -Wno-error=unknown-pragmas")
 
 ###############################################################################
 # BACKWARD OBJECT
