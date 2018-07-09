@@ -323,6 +323,7 @@ int GetX86FeaturesEnumValue(const X86Features* features,
     case X86_CX16:
       return features->cx16;
     case X86_LAST_:
+    default:
       break;
   }
   return false;
@@ -391,6 +392,7 @@ const char* GetX86FeaturesEnumName(X86FeaturesEnum value) {
     case X86_CX16:
       return "cx16";
     case X86_LAST_:
+    default:
       break;
   }
   return "unknown_feature";
@@ -442,6 +444,7 @@ const char* GetX86MicroarchitectureName(X86Microarchitecture uarch) {
       return "AMD_JAGUAR";
     case AMD_ZEN:
       return "AMD_ZEN";
+    default:
+      return "unknown microarchitecture";
   }
-  return "unknown microarchitecture";
 }

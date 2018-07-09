@@ -80,6 +80,7 @@ int GetMipsFeaturesEnumValue(const MipsFeatures* features,
     case MIPS_EVA:
       return features->eva;
     case MIPS_LAST_:
+    default:
       break;
   }
   return false;
@@ -92,6 +93,7 @@ const char* GetMipsFeaturesEnumName(MipsFeaturesEnum value) {
     case MIPS_EVA:
       return "eva";
     case MIPS_LAST_:
+    default:
       break;
   }
   return "unknown feature";
