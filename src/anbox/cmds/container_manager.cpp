@@ -240,7 +240,7 @@ bool anbox::cmds::ContainerManager::setup_rootfs_overlay() {
     fs::create_directories(overlay_path);
 
   const auto rootfs_path = SystemConfiguration::instance().rootfs_dir();
-  const auto overlay_config = utils::string_format("lowerdir=%s:%s", rootfs_path, overlay_path);
+  const auto overlay_config = utils::string_format("lowerdir=%s:%s", overlay_path, rootfs_path);
   auto m = common::MountEntry::create("overlay", combined_rootfs_path, "overlay", MS_RDONLY, overlay_config.c_str());
   if (!m) {
     ERROR("Failed to setup rootfs overlay");
