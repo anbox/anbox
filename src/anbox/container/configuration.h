@@ -20,13 +20,15 @@
 
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace anbox {
 namespace container {
+struct DeviceSpecification {
+    uint32_t permission;
+};
 struct Configuration {
   std::unordered_map<std::string, std::string> bind_mounts;
-  std::vector<std::string> devices;
+  std::unordered_map<std::string, DeviceSpecification> devices;
 };
 }  // namespace container
 }  // namespace anbox

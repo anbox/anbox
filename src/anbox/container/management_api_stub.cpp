@@ -45,12 +45,13 @@ void ManagementApiStub::start_container(const Configuration &configuration) {
     bind_mount_message->set_target(item.second);
   }
 
-  message.set_allocated_configuration(message_configuration);
-
-  for (const auto &device : configuration.devices) {
-    auto d = message_configuration->add_devices();
-    *d = device;
+  for (const auto &item: configuration.devices) {
+    auto device_message = message_configuration->add_devices();
+    device_message->set_path(item.first);
+    device_message->set_permission(item.second.permission);
   }
+
+  message.set_allocated_configuration(message_configuration);
 
   {
     std::lock_guard<decltype(mutex_)> lock(mutex_);

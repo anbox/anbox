@@ -166,7 +166,7 @@ void LxcContainer::setup_network() {
   }
 }
 
-void LxcContainer::add_device(const std::string& device) {
+void LxcContainer::add_device(const std::string& device, const DeviceSpecification& spec) {
   struct stat st;
   int r = stat(device.c_str(), &st);
   if (r < 0) {
@@ -176,7 +176,7 @@ void LxcContainer::add_device(const std::string& device) {
 
   const auto major = device_major(st.st_rdev);
   const auto minor = device_minor(st.st_rdev);
-  const auto mode = st.st_mode;
+  const auto mode = ((st.st_mode >> 9) << 9) | (spec.permission & ~(1 << 9));
   const auto new_device_name = fs::basename(device);
   const auto devices_path = fs::path(SystemConfiguration::instance().container_devices_dir());
   const auto new_device_path = (devices_path / new_device_name).string();
@@ -318,13 +318,13 @@ void LxcContainer::start(const Configuration &configuration) {
   auto devices = configuration.devices;
 
   // Additional devices we need in our container
-  devices.push_back("/dev/console");
-  devices.push_back("/dev/full");
-  devices.push_back("/dev/null");
-  devices.push_back("/dev/random");
-  devices.push_back("/dev/tty");
-  devices.push_back("/dev/urandom");
-  devices.push_back("/dev/zero");
+  devices.insert({"/dev/console", {0600}});
+  devices.insert({"/dev/full", {0666}});
+  devices.insert({"/dev/null", {0666}});
+  devices.insert({"/dev/random", {0666}});
+  devices.insert({"/dev/tty", {0666}});
+  devices.insert({"/dev/urandom", {0666}});
+  devices.insert({"/dev/zero", {0666}});
 
   // Remove all left over devices from last time first before
   // creating any new ones
@@ -333,7 +333,7 @@ void LxcContainer::start(const Configuration &configuration) {
   fs::create_directories(devices_dir);
 
   for (const auto& device : devices)
-    add_device(device);
+    add_device(device.first, device.second);
 
   if (!container_->save_config(container_, nullptr))
     throw std::runtime_error("Failed to save container configuration");

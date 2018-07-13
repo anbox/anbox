@@ -55,7 +55,7 @@ void ManagementApiSkeleton::start_container(
 
   for (int n = 0; n < configuration.devices_size(); n++) {
     const auto device = configuration.devices(n);
-    container_configuration.devices.push_back(device);
+    container_configuration.devices.insert({device.path(), {device.permission()}});
   }
 
   try {
