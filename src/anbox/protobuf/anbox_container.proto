@@ -7,8 +7,12 @@ message Configuration {
         required string source = 1;
         required string target = 2;
     }
+    message Devices {
+        required string path = 1;
+        required uint32 permission = 2;
+    }
     repeated BindMount bind_mounts = 1;
-    repeated string devices = 2;
+    repeated Devices devices = 2;
 }
 
 message StartContainer {

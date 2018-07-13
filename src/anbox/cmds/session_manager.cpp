@@ -249,9 +249,9 @@ anbox::cmds::SessionManager::SessionManager()
       };
 
       container_configuration.devices = {
-        {"/dev/binder"},
-        {"/dev/ashmem"},
-        {"/dev/fuse"},
+        {"/dev/binder", {0666}},
+        {"/dev/ashmem", {0666}},
+        {"/dev/fuse", {0666}},
       };
 
       dispatcher->dispatch([&]() {
