@@ -175,8 +175,8 @@ class SystemInformation {
     if (display != EGL_NO_DISPLAY) {
       s_egl.eglInitialize(display, nullptr, nullptr);
 
-      auto egl_safe_get_string = [](EGLint item) {
-        auto str = s_gles2.glGetString(item);
+      auto egl_safe_get_string = [display](EGLint item) {
+        auto str = s_egl.eglQueryString(display, item);
         if (!str)
           return std::string("n/a");
         return std::string(reinterpret_cast<const char*>(str));
