@@ -22,7 +22,7 @@ In order to support the mandatory kernel subsystems ashmem and binder for the
 Android container you have to install two
 [DKMS](https://en.wikipedia.org/wiki/Dynamic_Kernel_Module_Support)
 based kernel modules. The source for the kernel modules is maintained by the
-Anbox project [here](https://github.com/anbox/anbox/tree/master/kernel).
+Anbox project [here](https://github.com/anbox/anbox-modules).
 
 At the moment we only have packages prepared for Ubuntu in a PPA on Launchpad.
 If you want to help to get the packages in your favorite distribution please
