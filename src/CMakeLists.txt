@@ -100,6 +100,8 @@ set(SOURCES
     anbox/cmds/version.h
     anbox/cmds/wait_ready.cpp
     anbox/cmds/wait_ready.h
+    anbox/cmds/check_features.cpp
+    anbox/cmds/check_features.h
 
     anbox/common/binary_writer.cpp
     anbox/common/binary_writer.h
