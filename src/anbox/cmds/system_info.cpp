@@ -119,16 +119,12 @@ class SystemInformation {
   const auto info = cpu_features::GetX86Info();
   if (info.features.aes)
     cpu_info_.features.push_back("aes");
-  if (info.features.ssse3)
-    cpu_info_.features.push_back("ssse3");
-  if (info.features.ssse3)
-    cpu_info_.features.push_back("sse4_1");
   if (info.features.sse4_1)
-    cpu_info_.features.push_back("sse4_2");
+    cpu_info_.features.push_back("sse4_1");
   if (info.features.sse4_2)
-    cpu_info_.features.push_back("avx");
+    cpu_info_.features.push_back("sse4_2");
   if (info.features.avx)
-    cpu_info_.features.push_back("ssse3");
+    cpu_info_.features.push_back("avx");
   if (info.features.avx2)
     cpu_info_.features.push_back("avx2");
 
