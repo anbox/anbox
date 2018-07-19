@@ -70,9 +70,9 @@ parts:
 
         case "$ARCH" in
           x86_64)
-            IMAGE_PATH="2018/06/12"
+            IMAGE_PATH="2018/07/19"
             IMAGE_NAME="android_amd64.img"
-            IMAGE_HASH="5c4b8f7caeaf604770e37a29b65c7711b26d009a548b4fac8dfb77585e56dc73"
+            IMAGE_HASH="6b04cd33d157814deaf92dccf8a23da4dc00b05ca6ce982a03830381896a8cca"
             ;;
           *)
             echo "ERROR: Unknown architecture $ARCH"
