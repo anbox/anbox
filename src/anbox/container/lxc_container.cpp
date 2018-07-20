@@ -266,6 +266,11 @@ void LxcContainer::start(const Configuration &configuration) {
 
   set_config_item("lxc.init.cmd", "/anbox-init.sh");
 
+  // If we're running inside the snap environment snap-confine already created a
+  // cgroup for us we need to use as otherwise presevering a namespace wont help.
+  if (utils::is_env_set("SNAP"))
+    set_config_item("lxc.namespace.keep", "cgroup");
+
   auto rootfs_path = SystemConfiguration::instance().rootfs_dir();
   if (rootfs_overlay_)
     rootfs_path = SystemConfiguration::instance().combined_rootfs_dir();
