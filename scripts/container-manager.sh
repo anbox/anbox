@@ -53,11 +53,6 @@ start() {
 	# lib directory as explicit search target here.
 	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH"
 
-	if [ -d /sys/kernel/security/apparmor ] ; then
-		# Load the profile for our Android container
-		"$SNAP"/sbin/apparmor_parser -r "$SNAP"/apparmor/anbox-container.aa
-	fi
-
 	enable_debug="$(snapctl get debug.enable)"
 	if [ "$enable_debug" = true ]; then
 		export ANBOX_LOG_LEVEL=debug
