@@ -148,7 +148,7 @@ parts:
   lxc:
     source: https://github.com/lxc/lxc
     source-type: git
-    source-tag: lxc-3.0.0
+    source-tag: lxc-3.0.1
     build-packages:
       - libapparmor-dev
       - libcap-dev
