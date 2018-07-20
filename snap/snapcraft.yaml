@@ -171,6 +171,16 @@ parts:
       - --enable-capabilities
       - --with-rootfs-path=/var/snap/anbox/common/lxc/
       - --libexecdir=/snap/anbox/current/libexec/
+    override-build: |
+      set -ex
+      git config user.email "buildbot@anbox.io"
+      git config user.name "Anbox Buildbot"
+      git remote add anbox https://github.com/anbox/lxc
+      git fetch anbox
+      # apparmor: don't require a transition for Anbox child profiles
+      git cherry-pick 2f81fb7c91560b32e506bb874f8cd63e37985906
+      set +ex
+      snapcraftctl build
     organize:
       snap/anbox/current/libexec: libexec
     prime:
