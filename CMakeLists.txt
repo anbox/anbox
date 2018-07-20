@@ -119,6 +119,12 @@ if (NOT "${HOST_CMAKE_C_COMPILER}" STREQUAL "")
   message(STATUS "Host C compiler: ${HOST_CMAKE_CXX_COMPILER}")
 endif()
 
+option(SNAP_CONFINEMENT "Enable snap confinement support" OFF)
+if (SNAP_CONFINEMENT)
+  message(STATUS "Building with support for snap confinement")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_SNAP_CONFINEMENT")
+endif()
+
 install(FILES data/ui/loading-screen.png DESTINATION ${ANBOX_RESOURCE_DIR}/ui)
 
 # uninstall target
