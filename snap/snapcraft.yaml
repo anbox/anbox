@@ -49,7 +49,6 @@ apps:
     daemon: simple
     plugs:
       - firewall-control
-      - kernel-module-control
       - mount-observe
       - network-control
       - network-bind
