@@ -16,25 +16,44 @@ grade: devel
 architectures: [amd64]
 
 slots:
-  # Depending on in which environment we're running we either need
-  # to use the system or session DBus so we also need to have one
-  # slot for each.
-  dbus-session:
+  dbus-session-slot:
     interface: dbus
-    bus: system
+    bus: session
     name: org.anbox
-  dbus-system:
+
+plugs:
+  dbus-session-plug:
     interface: dbus
-    bus: system
+    bus: session
     name: org.anbox
 
 apps:
   anbox:
     command: desktop-launch $SNAP/bin/anbox-wrapper.sh
+    slots:
+      - dbus-session-slot
+    plugs:
+      - x11
+      - unity7
+      - network
+      - opengl
+      - wayland
+      - pulseaudio
+      - home
+      - process-control
+      - desktop
+
   container-manager:
     command: bin/container-manager.sh start
     stop-command: bin/container-manager.sh stop
     daemon: simple
+    plugs:
+      - firewall-control
+      - kernel-module-control
+      - mount-observe
+      - network-control
+      - network-bind
+
   collect-bug-info:
     command: bin/collect-bug-info.sh
   shell:
@@ -42,9 +61,36 @@ apps:
   android-settings:
     command: desktop-launch $SNAP/bin/app-android-settings.sh
     desktop: desktop/android-settings.desktop
+    slots:
+      - dbus-session-slot
+    plugs:
+      - dbus-session-plug
+      - x11
+      - unity7
+      - network
+      - opengl
+      - wayland
+      - pulseaudio
+      - home
+      - process-control
+      - desktop
+
   appmgr:
     command: desktop-launch $SNAP/bin/app-appmgr.sh
     desktop: desktop/appmgr.desktop
+    slots:
+      - dbus-session-slot
+    plugs:
+      - dbus-session-plug
+      - x11
+      - unity7
+      - network
+      - opengl
+      - wayland
+      - pulseaudio
+      - home
+      - process-control
+      - desktop
 
 parts:
   android:
