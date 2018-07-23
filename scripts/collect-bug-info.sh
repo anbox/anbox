@@ -48,12 +48,12 @@ fi
 
 echo "Generating archive with all log files in $PWD ..."
 CURDIR=$PWD
-(cd $TMPDIR; tar cJf $CURDIR/anbox-system-diagnostics-$(date --rfc-3339=date --utc).tar.xz *)
+(cd $TMPDIR; zip -r $CURDIR/anbox-system-diagnostics-$(date --rfc-3339=date --utc).zip *)
 rm -rf $TMPDIR
 echo "DONE!"
 
 echo
-echo "Now please take the tarball generate in your current directory and"
-echo "attach it to your bug report. Please don't hesitate to have a look"
-echo "into the tarball before you do so to verify you don't leak any"
+echo "Now please take the ZIP archive generated in your current directory"
+echo "and attach it to your bug report. Please don't hesitate to have a"
+echo "look into the archive before you do so to verify you don't leak any"
 echo "information you don't want!"
