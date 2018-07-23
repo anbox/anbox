@@ -39,8 +39,11 @@ anbox::cmds::CheckFeatures::CheckFeatures()
     CHECK_BOOL(info.features.ssse3, "SSSE 3");
 
     if (missing_features.size() > 0) {
-      std::cerr << "Your computer does not meet the requirements to run Anbox. You're missing" << std::endl
-                << "support for the following features: ";
+      char brand_string[49];
+      cpu_features::FillX86BrandString(brand_string);
+      std::cerr << "The CPU of your computer (" << brand_string << ") does not support all" << std::endl
+                << "features Anbox requires." << std::endl
+                << "It is missing support for the following features: ";
 
       for (size_t n = 0; n < missing_features.size(); n++) {
         const auto feature = missing_features[n];
@@ -49,6 +52,8 @@ anbox::cmds::CheckFeatures::CheckFeatures()
           std::cerr << ", ";
       }
       std::cerr << std::endl;
+      std::cerr << "You can for example find more information about SSE" << std::endl
+                << "here https://en.wikipedia.org/wiki/Streaming_SIMD_Extensions" << std::endl;
 
       return EXIT_FAILURE;
     }
