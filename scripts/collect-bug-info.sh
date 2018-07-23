@@ -7,9 +7,7 @@ if [ $(id -u) -ne 0 ] ; then
 	echo "         adding a few important file for bug diagnostics to the report."
 	echo "         If you want to have a look at the script before giving it root"
 	echo "         access, please have a look at $0."
-	echo
-	echo "Please press any key to continue"
-	read -r action
+	exit 0
 fi
 
 echo "This script will collect a few interesting things which developers will"
@@ -30,7 +28,7 @@ cp /var/snap/anbox/common/logs/console.log* $TMPDIR || true
 $SNAP/command-anbox.wrapper system-info > $TMPDIR/system-info.log 2>&1 || true
 
 if [ -e /etc/systemd/system/snap.anbox.container-manager.service ]; then
-	sudo journalctl --no-pager -u snap.anbox.container-manager.service > $TMPDIR/container-manager.log 2>&1
+	sudo journalctl --no-pager -u snap.anbox.container-manager.service > $TMPDIR/container-manager.log 2>&1 || true
 fi
 set +x
 
