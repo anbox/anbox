@@ -76,6 +76,8 @@ pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
 #   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
 # endif()
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMESA_EGL_NO_X11_HEADERS")
+
 #####################################################################
 # Enable code coverage calculation with gcov/gcovr/lcov
 # Usage:
