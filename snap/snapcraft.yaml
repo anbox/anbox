@@ -144,6 +144,13 @@ parts:
     stage-packages:
       - apparmor
 
+  zip:
+    plugin: nil
+    stage-packages:
+      - zip
+    prime:
+      - usr/bin/zip
+
   lxc:
     source: https://github.com/lxc/lxc
     source-type: git
