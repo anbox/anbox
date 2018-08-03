@@ -18,6 +18,10 @@
 
 varrun="/run/anbox"
 
+if [ -n "$SNAP_DATA" ]; then
+    varrun="$SNAP_DATA"/network
+fi
+
 BRIDGE="anbox0"
 
 # IPv4
