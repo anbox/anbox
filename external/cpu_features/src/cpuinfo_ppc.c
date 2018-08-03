@@ -261,6 +261,7 @@ int GetPPCFeaturesEnumValue(const PPCFeatures* features,
     case PPC_HTM_NO_SUSPEND:
       return features->htm_no_suspend;
     case PPC_LAST_:
+    default:
       break;
   }
   return false;
@@ -352,6 +353,7 @@ const char* GetPPCFeaturesEnumName(PPCFeaturesEnum value) {
     case PPC_HTM_NO_SUSPEND:
       return "htm-no-suspend";
     case PPC_LAST_:
+    default:
       break;
   }
   return "unknown_feature";

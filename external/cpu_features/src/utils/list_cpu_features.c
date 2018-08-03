@@ -36,6 +36,8 @@ static void PrintEscapedAscii(const char* str) {
       case '\r':
       case '\t':
         putchar('\\');
+        break;
+      default: break;
     }
     putchar(*str);
   }

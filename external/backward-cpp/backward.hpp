@@ -1321,7 +1321,7 @@ public:
 	ResolvedTrace resolve(ResolvedTrace trace) {
 		using namespace details;
 
-		Dwarf_Addr trace_addr = (Dwarf_Addr) trace.addr;
+		Dwarf_Addr trace_addr = reinterpret_cast<Dwarf_Addr>(trace.addr);
 
 		if (!_dwfl_handle_initialized) {
 			// initialize dwfl...
@@ -1489,6 +1489,7 @@ private:
 					break;
 
 				case DW_TAG_inlined_subroutine:
+				{
 					ResolvedTrace::SourceLoc sloc;
 					Dwarf_Attribute attr_mem;
 
@@ -1504,11 +1505,13 @@ private:
 								&attr_mem), &line);
 					dwarf_formudata(dwarf_attr(die, DW_AT_call_column,
 								&attr_mem), &col);
-					sloc.line = (unsigned)line;
-					sloc.col = (unsigned)col;
+					sloc.line = static_cast<unsigned>(line);
+					sloc.col = static_cast<unsigned>(col);
 
 					trace.inliners.push_back(sloc);
 					break;
+				}
+				default: break;
 			};
 		}
 		ResolvedTrace& trace;
@@ -1562,6 +1565,7 @@ private:
 					if (die_has_pc(die, pc)) {
 						return result;
 					}
+				default: break;
 			};
 			bool declaration = false;
 			Dwarf_Attribute attr_mem;

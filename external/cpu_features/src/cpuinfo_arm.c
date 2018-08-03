@@ -141,6 +141,7 @@ static void FixErrors(ArmInfo* const info,
       info->features.idiva = true;
       info->features.idivt = true;
       break;
+    default: break;
   }
 
   // Propagate cpu features.
@@ -219,6 +220,7 @@ int GetArmFeaturesEnumValue(const ArmFeatures* features,
     case ARM_CRC32:
       return features->crc32;
     case ARM_LAST_:
+    default:
       break;
   }
   return false;
@@ -253,6 +255,7 @@ const char* GetArmFeaturesEnumName(ArmFeaturesEnum value) {
     case ARM_CRC32:
       return "crc32";
     case ARM_LAST_:
+    default:
       break;
   }
   return "unknown feature";
