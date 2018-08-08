@@ -80,8 +80,8 @@ void LxcContainer::setup_id_map() {
   const auto base_id = unprivileged_uid;
   const auto max_id = 65536;
 
-  set_config_item("lxc.idmap", utils::string_format("u 0 %d %d", base_id, creds_.uid() - 1));
-  set_config_item("lxc.idmap", utils::string_format("g 0 %d %d", base_id, creds_.gid() - 1));
+  set_config_item("lxc.idmap", utils::string_format("u 0 %d %d", base_id, android_system_uid - 1));
+  set_config_item("lxc.idmap", utils::string_format("g 0 %d %d", base_id, android_system_uid - 1));
 
   // We need to bind the user id for the one running the client side
   // process as he is the owner of various socket files we bind mount
