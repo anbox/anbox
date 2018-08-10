@@ -32,7 +32,8 @@ Build-Depends: debhelper (>= 7),
                libsdl2-dev,
                libsdl2-image-dev,
                lxc-dev,
-               protobuf-compiler
+               protobuf-compiler,
+               libsystemd-dev
 Standards-Version: 3.9.7
 Homepage: http://anbox.io
 Vcs-Browser: https://github.com/anbox/anbox
