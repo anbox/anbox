@@ -16,6 +16,7 @@
  */
 
 #include "anbox/cmds/check_features.h"
+#include "anbox/utils.h"
 
 #include "cpu_features_macros.h"
 #include "cpuinfo_x86.h"
@@ -38,9 +39,11 @@ anbox::cmds::CheckFeatures::CheckFeatures()
     CHECK_BOOL(info.features.sse4_2, "SSE 4.2");
     CHECK_BOOL(info.features.ssse3, "SSSE 3");
 
-    if (missing_features.size() > 0) {
-      char brand_string[49];
-      cpu_features::FillX86BrandString(brand_string);
+    char brand_string[49];
+    cpu_features::FillX86BrandString(brand_string);
+    const auto is_qemu = utils::string_starts_with(brand_string, "QEMU");
+
+    if (missing_features.size() > 0 && !is_qemu) {
       std::cerr << "The CPU of your computer (" << brand_string << ") does not support all" << std::endl
                 << "features Anbox requires." << std::endl
                 << "It is missing support for the following features: ";
