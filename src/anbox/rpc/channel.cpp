@@ -74,6 +74,7 @@ void Channel::send_message(const std::uint8_t &type,
                            google::protobuf::MessageLite const &message) {
   const size_t size = message.ByteSize();
   const unsigned char header_bytes[header_size] = {
+      static_cast<unsigned char>((size >>16) & 0xff),
       static_cast<unsigned char>((size >> 8) & 0xff),
       static_cast<unsigned char>((size >> 0) & 0xff), type,
   };

@@ -30,6 +30,9 @@
 
 #include "OpenGLESDispatch/EGLDispatch.h"
 
+#include "cpu_features_macros.h"
+#include "cpuinfo_x86.h"
+
 namespace fs = boost::filesystem;
 
 namespace {
@@ -44,6 +47,7 @@ constexpr const char *os_release_version{"VERSION"};
 class SystemInformation {
  public:
   SystemInformation() {
+    collect_cpu_info();
     collect_os_info();
     collect_kernel_info();
     collect_graphics_info();
@@ -61,6 +65,13 @@ class SystemInformation {
         << anbox::utils::get_env_value("SNAP_REVISION")
         << std::endl;
     }
+
+    s << "cpu:" << std::endl
+      << "  arch:  " << cpu_info_.arch << std::endl
+      << "  brand: " << cpu_info_.brand << std::endl
+      << "  features: " << std::endl;
+    for (const auto& feature : cpu_info_.features)
+      s << "    - " << feature << std::endl;
 
     s << "os:" << std::endl
       << "  name: " << os_info_.name << std::endl
@@ -101,6 +112,28 @@ class SystemInformation {
   }
 
  private:
+  void collect_cpu_info() {
+#if defined(CPU_FEATURES_ARCH_X86)
+  cpu_info_.arch = "x86";
+
+  const auto info = cpu_features::GetX86Info();
+  if (info.features.aes)
+    cpu_info_.features.push_back("aes");
+  if (info.features.sse4_1)
+    cpu_info_.features.push_back("sse4_1");
+  if (info.features.sse4_2)
+    cpu_info_.features.push_back("sse4_2");
+  if (info.features.avx)
+    cpu_info_.features.push_back("avx");
+  if (info.features.avx2)
+    cpu_info_.features.push_back("avx2");
+
+  char brand_string[49];
+  cpu_features::FillX86BrandString(brand_string);
+  cpu_info_.brand = brand_string;
+#endif
+  }
+
   void collect_os_info() {
     os_info_.snap_based = !anbox::utils::get_env_value("SNAP").empty();
     fs::path path = os_release_path;
@@ -129,7 +162,7 @@ class SystemInformation {
   }
 
   void collect_graphics_info() {
-    auto gl_libs = anbox::graphics::emugl::default_gl_libraries(true);
+    auto gl_libs = anbox::graphics::emugl::default_gl_libraries();
     if (!anbox::graphics::emugl::initialize(gl_libs, nullptr, nullptr)) {
       return;
     }
@@ -137,9 +170,18 @@ class SystemInformation {
     auto display = s_egl.eglGetDisplay(0);
     if (display != EGL_NO_DISPLAY) {
       s_egl.eglInitialize(display, nullptr, nullptr);
-      graphics_info_.egl_vendor = s_egl.eglQueryString(display, EGL_VENDOR);
-      graphics_info_.egl_version = s_egl.eglQueryString(display, EGL_VERSION);
-      graphics_info_.egl_extensions = anbox::utils::string_split(s_egl.eglQueryString(display, EGL_EXTENSIONS), ' ');
+
+      auto egl_safe_get_string = [display](EGLint item) {
+        auto str = s_egl.eglQueryString(display, item);
+        if (!str)
+          return std::string("n/a");
+        return std::string(reinterpret_cast<const char*>(str));
+      };
+
+      graphics_info_.egl_vendor = egl_safe_get_string(EGL_VENDOR);
+      graphics_info_.egl_version = egl_safe_get_string(EGL_VERSION);
+      const auto egl_extensions = egl_safe_get_string(EGL_EXTENSIONS);
+      graphics_info_.egl_extensions = anbox::utils::string_split(egl_extensions, ' ');
 
       GLint config_attribs[] = {EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
                                 EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
@@ -148,23 +190,24 @@ class SystemInformation {
       EGLConfig config;
       int n;
       if (s_egl.eglChooseConfig(display, config_attribs, &config, 1, &n) && n > 0) {
-        GLint attribs[] = { EGL_CONTEXT_CLIENT_VERSION, 1, EGL_NONE};
+        GLint attribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
         auto context = s_egl.eglCreateContext(display, config, nullptr, attribs);
         if (context != EGL_NO_CONTEXT) {
           // We require surfaceless-context support here for now. If eglMakeCurrent fails
           // glGetString will return null below which we handle correctly.
           s_egl.eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, context);
 
-          auto safe_get_string = [](GLint item) {
+          auto gl_safe_get_string = [](GLint item) {
             auto str = s_gles2.glGetString(item);
             if (!str)
               return std::string("n/a");
             return std::string(reinterpret_cast<const char*>(str));
           };
 
-          graphics_info_.gles2_vendor = safe_get_string(GL_VENDOR);
-          graphics_info_.gles2_version = safe_get_string(GL_VERSION);
-          graphics_info_.gles2_extensions = anbox::utils::string_split(safe_get_string(GL_EXTENSIONS), ' ');
+          graphics_info_.gles2_vendor = gl_safe_get_string(GL_VENDOR);
+          graphics_info_.gles2_version = gl_safe_get_string(GL_VERSION);
+          const auto gl_extensions = gl_safe_get_string(GL_EXTENSIONS);
+          graphics_info_.gles2_extensions = anbox::utils::string_split(gl_extensions, ' ');
 
           s_egl.eglMakeCurrent(display, nullptr, nullptr, nullptr);
           s_egl.eglDestroyContext(display, context);
@@ -172,6 +215,12 @@ class SystemInformation {
       }
     }
   }
+
+  struct {
+    std::string arch;
+    std::string brand;
+    std::vector<std::string> features;
+  } cpu_info_;
 
   struct {
     bool snap_based = false;

@@ -48,6 +48,13 @@ Platform::Platform(
   auto sdl_init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS;
   if (rootless_)
     sdl_init_flags = SDL_INIT_AUDIO | SDL_INIT_EVENTS;
+
+  // Don't block the screensaver from kicking in. It will be blocked
+  // by the desktop shell already and we don't have to do this again.
+  // If we would leave this enabled it will prevent systems from
+  // suspending correctly.
+  SDL_SetHint(SDL_HINT_VIDEO_ALLOW_SCREENSAVER, "1");
+
   if (SDL_Init(sdl_init_flags) < 0) {
     const auto message = utils::string_format("Failed to initialize SDL: %s", SDL_GetError());
     BOOST_THROW_EXCEPTION(std::runtime_error(message));

@@ -48,6 +48,7 @@ void BootPropertiesMessageProcessor::list_properties() {
       // device
       // we're running on.
       utils::string_format("ro.sf.lcd_density=%d", density),
+//      utils::string_format("ro.sf.lcd_density=%d", static_cast<int>(graphics::current_density())),
   };
 
   for (const auto &prop : properties) {

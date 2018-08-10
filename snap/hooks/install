@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# If not all feature checks pass we fail the Anbox installation
+exec $SNAP/bin/desktop-launch $SNAP/bin/anbox-wrapper.sh check-features

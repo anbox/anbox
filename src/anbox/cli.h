@@ -71,7 +71,7 @@ std::ostream& operator<<(std::ostream& out,
 }
 
 // We are imposing size constraints to ensure a consistent CLI layout.
-typedef SizeConstrainedString<20> Name;
+typedef SizeConstrainedString<30> Name;
 typedef SizeConstrainedString<60> Usage;
 typedef SizeConstrainedString<100> Description;
 

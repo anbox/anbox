@@ -31,6 +31,9 @@ class GLExtensions {
   }
 
   bool support(char const* ext) const {
+    if (!ext)
+      throw std::invalid_argument("Invalid extension name");
+
     char const* ext_ptr = extensions;
     size_t const len = strlen(ext);
     while ((ext_ptr = strstr(ext_ptr, ext)) != nullptr) {
@@ -38,6 +41,7 @@ class GLExtensions {
         break;
       ext_ptr += len;
     }
+
     return ext_ptr != nullptr;
   }
 

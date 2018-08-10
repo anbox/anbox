@@ -1,39 +1,22 @@
 #!/bin/bash
 
-if [ "$SNAP_ARCH" == "amd64" ]; then
+if [ "$SNAP_ARCH" = "amd64" ]; then
 	ARCH="x86_64-linux-gnu"
-elif [ "$SNAP_ARCH" == "armhf" ]; then
+elif [ "$SNAP_ARCH" = "armhf" ]; then
 	ARCH="arm-linux-gnueabihf"
 else
 	ARCH="$SNAP_ARCH-linux-gnu"
 fi
 
-export LD_LIBRARY_PATH=$SNAP/usr/lib/$ARCH:$LD_LIBRARY_PATH
+# With recent builds on Ubuntu 16.04 the snap does not find the path to
+# libpulsecommon-8.0.so anymore so we have to teach the linker manually
+# where it can be found
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH/pulseaudio"
 
-# Mesa Libs
-export LD_LIBRARY_PATH=$SNAP/usr/lib/$ARCH/mesa:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$SNAP/usr/lib/$ARCH/mesa-egl:$LD_LIBRARY_PATH
+# liblxc.so.1 is in $SNAP/lib
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/lib"
 
-# XDG Config
-export XDG_CONFIG_DIRS=$SNAP/etc/xdg:$XDG_CONFIG_DIRS
-export XDG_CONFIG_DIRS=$SNAP/usr/xdg:$XDG_CONFIG_DIRS
-
-# Note: this doesn't seem to work, QML's LocalStorage either ignores
-# or fails to use $SNAP_USER_DATA if defined here
-export XDG_DATA_DIRS=$SNAP_USER_DATA:$XDG_DATA_DIRS
-export XDG_DATA_DIRS=$SNAP/usr/share:$XDG_DATA_DIRS
-
-# Tell libGL where to find the drivers
-export LIBGL_DRIVERS_PATH=$SNAP/usr/lib/$ARCH/dri
-
-# ensure the snappy gl libs win
-export LD_LIBRARY_PATH="$SNAP_LIBRARY_PATH:$LD_LIBRARY_PATH"
-
-# Workaround in snapd for proprietary nVidia drivers mounts the drivers in
-# /var/lib/snapd/lib/gl that needs to be in LD_LIBRARY_PATH
-# Without that OpenGL using apps do not work with the nVidia drivers.
-# Ref.: https://bugs.launchpad.net/snappy/+bug/1588192
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/var/lib/snapd/lib/gl
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH"
 
 # We set XDG_DATA_HOME to SNAP_USER_COMMON here as this will be the location we will
 # create all our application launchers in. The system application launcher will
@@ -41,4 +24,20 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/var/lib/snapd/lib/gl
 # launchers.
 export XDG_DATA_HOME="$SNAP_USER_COMMON/app-data"
 
-exec $SNAP/usr/bin/anbox $@
+# In order to support GLVND based systems we need to work around a bug in snapd
+# as it does not yet expose the EGL vendor configurations from the host to snaps.
+# As long as this isn't fixed we have to carry a set of configs on our own which
+# may map to the host. GLVND will handle situation properly where a vendor is
+# configured but the actual EGL implementation is missing.
+export __EGL_VENDOR_LIBRARY_DIRS="$SNAP/glvnd"
+
+enable_debug="$(snapctl get debug.enable)"
+if [ "$enable_debug" = true ]; then
+	export ANBOX_LOG_LEVEL=debug
+fi
+
+if [ "$(snapctl get software-rendering.enable)" = true ]; then
+	export ANBOX_FORCE_SOFTWARE_RENDERING=true
+fi
+
+exec "$SNAP"/usr/bin/anbox "$@"

@@ -16,28 +16,28 @@
  */
 
 #include "anbox/cmds/launch.h"
-#include "anbox/common/wait_handle.h"
 #include "anbox/dbus/stub/application_manager.h"
-#include "anbox/common/dispatcher.h"
+#include "anbox/dbus/interface.h"
 #include "anbox/ui/splash_screen.h"
 #include "anbox/system_configuration.h"
-#include "anbox/runtime.h"
 #include "anbox/logger.h"
-
-#include <core/dbus/asio/executor.h>
-
-#include <boost/filesystem.hpp>
 
 #include "core/posix/exec.h"
 #include "core/posix/fork.h"
 #include "core/posix/signal.h"
 
+#include <boost/filesystem.hpp>
+
+#include <fcntl.h>
+#include <sys/stat.h>
+
 namespace fs = boost::filesystem;
 
 namespace {
-const boost::posix_time::seconds max_wait_timeout{240};
-const int max_restart_attempts{3};
-const std::chrono::seconds restart_interval{5};
+constexpr unsigned int max_session_mgr_wait_attempts{10};
+const std::chrono::seconds session_mgr_wait_interval{5};
+constexpr unsigned int max_dbus_service_wait_attempts{10};
+const std::chrono::seconds dbus_service_wait_interval{5};
 
 static int redirect_to_null(int flags, int fd) {
   int fd2;
@@ -53,6 +53,73 @@ static int redirect_to_null(int flags, int fd) {
   close(fd2);
   return fd;
 }
+} // namespace
+
+bool anbox::cmds::Launch::launch_session_manager() {
+  std::vector<std::string> args = {"session-manager"};
+  const auto should_force_software_rendering = utils::get_env_value("ANBOX_FORCE_SOFTWARE_RENDERING", "false");
+  if (should_force_software_rendering == "true")
+    args.push_back("--software-rendering");
+
+  std::map<std::string,std::string> env;
+  core::posix::this_process::env::for_each([&](const std::string &name, const std::string &value) {
+    env.insert({name, value});
+  });
+
+  const auto exe_path = utils::process_get_exe_path(::getpid());
+  if (!fs::exists(exe_path)) {
+    ERROR("Can't find correct anbox executable to run. Found %s but does not exist", exe_path);
+    return false;
+  }
+
+  try {
+    auto flags = core::posix::StandardStream::empty;
+    auto child = core::posix::fork([&]() {
+
+      // We redirect all in/out/err to /dev/null as they can't be seen
+      // anywhere. All logging output will directly go to syslog as we
+      // will become a session leader below which will get us rid of a
+      // controlling terminal.
+      if (redirect_to_null(O_RDONLY, 0) < 0 ||
+          redirect_to_null(O_WRONLY, 1) < 0 ||
+          redirect_to_null(O_WRONLY, 2) < 0) {
+        ERROR("Failed to redirect stdout/stderr/stdin: %s", strerror(errno));
+        return core::posix::exit::Status::failure;
+      }
+
+      // As we forked one time already we're sure that our process is
+      // not the session leader anymore so we can safely become the
+      // new one and lead the process group.
+      if (setsid() < 0) {
+        ERROR("Failed to become new session leader: %s", strerror(errno));
+        return core::posix::exit::Status::failure;
+      }
+
+      umask(0077);
+
+      if (chdir("/") < 0) {
+        ERROR("Failed to change current directory: %s", strerror(errno));
+        return core::posix::exit::Status::failure;
+      }
+
+      auto grandchild = core::posix::exec(exe_path, args, env, flags);
+      grandchild.dont_kill_on_cleanup();
+      return core::posix::exit::Status::success;
+    }, flags);
+
+    // We don't wait for the grandchild but the child as we use double forking
+    // here to break through the process hierarchy and make the grandchild a
+    // direct child of the init process so it keeps running on its own and
+    // indepent of our short living process here.
+    child.wait_for(core::posix::wait::Flags::untraced);
+
+    DEBUG("Started session manager, will now try to connect ..");
+  }
+  catch (...) {
+    ERROR("Failed to start session manager instance");
+  }
+
+  return true;
 }
 
 bool anbox::cmds::Launch::try_launch_activity(const std::shared_ptr<dbus::stub::ApplicationManager> &stub) {
@@ -96,6 +163,7 @@ anbox::cmds::Launch::Launch()
                       cli::Description{"Use system instead of session DBus"},
                       use_system_dbus_));
 
+
   action([this](const cli::Command::Context&) {
     if (!intent_.valid()) {
       ERROR("The intent you provided is invalid. Please provide a correct launch intent.");
@@ -104,144 +172,54 @@ anbox::cmds::Launch::Launch()
       return EXIT_FAILURE;
     }
 
-    auto trap = core::posix::trap_signals_for_process({core::posix::Signal::sig_term, core::posix::Signal::sig_int});
-    trap->signal_raised().connect([trap](const core::posix::Signal& signal) {
-      INFO("Signal %i received. Good night.", static_cast<int>(signal));
-      trap->stop();
-    });
-
-    auto rt = Runtime::create();
-
-    auto bus_type = core::dbus::WellKnownBus::session;
+    auto bus_type = anbox::dbus::Bus::Type::Session;
     if (use_system_dbus_)
-        bus_type = core::dbus::WellKnownBus::system;
-
-    auto bus = std::make_shared<core::dbus::Bus>(bus_type);
-    bus->install_executor(core::dbus::asio::make_executor(bus, rt->service()));
+      bus_type = anbox::dbus::Bus::Type::System;
+    auto bus = std::make_shared<anbox::dbus::Bus>(bus_type);
 
     std::shared_ptr<ui::SplashScreen> ss;
+    if (!bus->has_service_with_name(dbus::interface::Service::name())) {
+      DEBUG("Session manager is not yet running, trying to start it");
 
-    // Instead of relying on the user session init system to start our
-    // session manager process we also attempt to start it on our own
-    // if not already running. This will help to mitigate problems with
-    // a crashing or a not yet started session manager instance.
-    std::shared_ptr<dbus::stub::ApplicationManager> stub;
-    for (auto n = 0; n < max_restart_attempts; n++) {
-      try {
-        stub = dbus::stub::ApplicationManager::create_for_bus(bus);
-        break;
-      } catch (std::exception &err) {
-        WARNING("Anbox session manager service isn't running, trying to start it.");
+      if (!launch_session_manager())
+        return EXIT_FAILURE;
 
-        // Give us a splash screen as long as we're trying to connect
-        // with the session manager so the user knows something is
-        // happening after he started Anbox.
-        if (!ss)
-          ss = std::make_shared<ui::SplashScreen>();
-
-        std::vector<std::string> args = {"session-manager"};
-
-        std::map<std::string,std::string> env;
-        core::posix::this_process::env::for_each([&](const std::string &name, const std::string &value) {
-          env.insert({name, value});
-        });
-
-        const auto exe_path = utils::process_get_exe_path(::getpid());
-        if (!fs::exists(exe_path)) {
-          ERROR("Can't find correct anbox executable to run. Found %s but does not exist", exe_path);
-          return EXIT_FAILURE;
-        }
-
-        try {
-          auto flags = core::posix::StandardStream::empty;
-          auto child = core::posix::fork([&]() {
-            // We redirect all in/out/err to /dev/null as they can't be seen
-            // anywhere. All logging output will directly go to syslog as we
-            // will become a session leader below which will get us rid of a
-            // controlling terminal.
-            if (redirect_to_null(O_RDONLY, 0) < 0 ||
-                redirect_to_null(O_WRONLY, 1) < 0 ||
-                redirect_to_null(O_WRONLY, 2) < 0) {
-              ERROR("Failed to redirect stdout/stderr/stdin: %s", strerror(errno));
-              return core::posix::exit::Status::failure;
-            }
-
-            // As we forked one time already we're sure that our process is
-            // not the session leader anymore so we can safely become the
-            // new one and lead the process group.
-            if (setsid() < 0) {
-              ERROR("Failed to become new session leader: %s", strerror(errno));
-              return core::posix::exit::Status::failure;
-            }
-
-            umask(0077);
-
-            if (chdir("/") < 0) {
-              ERROR("Failed to change current directory: %s", strerror(errno));
-              return core::posix::exit::Status::failure;
-            }
-
-            auto grandchild = core::posix::exec(exe_path, args, env, flags);
-            grandchild.dont_kill_on_cleanup();
-            return core::posix::exit::Status::success;
-          }, flags);
-
-          // We don't wait for the grandchild but the child as we use double forking
-          // here to break through the process hierarchy and make the grandchild a
-          // direct child of the init process so it keeps running on its own and
-          // indepent of our short living process here.
-          child.wait_for(core::posix::wait::Flags::untraced);
-
-          DEBUG("Started session manager, will now try to connect ..");
-        }
-        catch (...) {
-          ERROR("Failed to start session manager instance");
-        }
-
-        std::this_thread::sleep_for(restart_interval);
-      }
+      // Give us a splash screen as long as we're trying to connect
+      // with the session manager so the user knows something is
+      // happening after he started Anbox.
+      ss = std::make_shared<ui::SplashScreen>();
     }
 
-    if (!stub) {
-      ERROR("Couldn't get a connection with the session manager");
+    unsigned int n = 0;
+    while (n < max_dbus_service_wait_attempts) {
+      if (bus->has_service_with_name(dbus::interface::Service::name()))
+        break;
+
+      std::this_thread::sleep_for(dbus_service_wait_interval);
+      n++;
+    }
+
+    auto app_mgr = dbus::stub::ApplicationManager::create_for_bus(bus);
+    n = 0;
+    while (n < max_session_mgr_wait_attempts) {
+      app_mgr->update_properties();
+      if (app_mgr->ready().get())
+        break;
+
+      std::this_thread::sleep_for(session_mgr_wait_interval);
+      n++;
+    }
+
+    if (!app_mgr->ready()) {
+      ERROR("Session manager failed to become ready");
       return EXIT_FAILURE;
     }
 
-    bool success = false;
-    auto dispatcher = anbox::common::create_dispatcher_for_runtime(rt);
-    dispatcher->dispatch([&]() {
-      if (stub->ready()) {
-        ss.reset();
-        success = try_launch_activity(stub);
-        trap->stop();
-        return;
-      }
+    // If we have a splash screen now is the time to drop it as we're
+    // going to launch the real application now.
+    ss.reset();
 
-      DEBUG("Android hasn't fully booted yet. Waiting a bit ..");
-
-      stub->ready().changed().connect([&](bool ready) {
-        if (!ready)
-          return;
-        ss.reset();
-        success = try_launch_activity(stub);
-        trap->stop();
-      });
-    });
-
-    boost::asio::deadline_timer timer(rt->service());
-    timer.expires_from_now(max_wait_timeout);
-    timer.async_wait([&](const boost::system::error_code&) {
-      WARNING("Stopped waiting as we've already waited for too long. Something");
-      WARNING("is wrong with your setup or the container has failed to boot.");
-      WARNING("If you think you found a bug please don't hesitate to file on");
-      WARNING("at https://github.com/anbox/anbox/issues/new");
-      trap->stop();
-    });
-
-    rt->start();
-    trap->run();
-    rt->stop();
-
+    const auto success = try_launch_activity(app_mgr);
     return success ? EXIT_SUCCESS : EXIT_FAILURE;
   });
 }

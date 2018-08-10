@@ -29,7 +29,7 @@ namespace anbox {
 namespace container {
 class LxcContainer : public Container {
  public:
-  LxcContainer(bool privileged, const network::Credentials &creds);
+  LxcContainer(bool privileged, bool rootfs_overlay, const network::Credentials &creds);
   ~LxcContainer();
 
   void start(const Configuration &configuration) override;
@@ -38,12 +38,14 @@ class LxcContainer : public Container {
 
  private:
   void set_config_item(const std::string &key, const std::string &value);
-  void setup_id_maps();
+  void setup_id_map();
   void setup_network();
+  void add_device(const std::string& device, const DeviceSpecification& spec);
 
   State state_;
   lxc_container *container_;
   bool privileged_;
+  bool rootfs_overlay_;
   network::Credentials creds_;
 };
 }  // namespace container

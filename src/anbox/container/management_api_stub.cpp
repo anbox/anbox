@@ -24,6 +24,9 @@
 
 namespace anbox {
 namespace container {
+
+const std::chrono::milliseconds ManagementApiStub::stop_waiting_timeout{3000};
+
 ManagementApiStub::ManagementApiStub(
     const std::shared_ptr<rpc::Channel> &channel)
     : channel_(channel) {}
@@ -40,6 +43,12 @@ void ManagementApiStub::start_container(const Configuration &configuration) {
     auto bind_mount_message = message_configuration->add_bind_mounts();
     bind_mount_message->set_source(item.first);
     bind_mount_message->set_target(item.second);
+  }
+
+  for (const auto &item: configuration.devices) {
+    auto device_message = message_configuration->add_devices();
+    device_message->set_path(item.first);
+    device_message->set_permission(item.second.permission);
   }
 
   message.set_allocated_configuration(message_configuration);
@@ -75,7 +84,9 @@ void ManagementApiStub::stop_container() {
   channel_->call_method("stop_container", &message, c->response.get(),
       google::protobuf::NewCallback(this, &ManagementApiStub::container_stopped, c.get()));
 
-  c->wh.wait_for_all();
+  // If container manager dies before session manager, the session manager
+  // cannot exit if it waits for all, so just wait for 3 seconds.
+  c->wh.wait_for_pending(stop_waiting_timeout);
 
   if (c->response->has_error()) throw std::runtime_error(c->response->error());
 }

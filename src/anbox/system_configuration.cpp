@@ -30,9 +30,14 @@ namespace {
 static std::string runtime_dir() {
   static std::string path;
   if (path.empty()) {
-    path = anbox::utils::get_env_value("XDG_RUNTIME_DIR", "");
-    if (path.empty())
-      BOOST_THROW_EXCEPTION(std::runtime_error("No runtime directory specified"));
+    const auto snap_user_common = anbox::utils::get_env_value("SNAP_USER_COMMON");
+    if (!snap_user_common.empty())
+      path = (fs::path(snap_user_common) / "runtime").string();
+    else {
+      path = anbox::utils::get_env_value("XDG_RUNTIME_DIR");
+      if (path.empty())
+        BOOST_THROW_EXCEPTION(std::runtime_error("No runtime directory specified"));
+    }
   }
   return path;
 }
@@ -50,6 +55,14 @@ std::string anbox::SystemConfiguration::rootfs_dir() const {
   return (data_path / "rootfs").string();
 }
 
+std::string anbox::SystemConfiguration::overlay_dir() const {
+  return (data_path / "rootfs-overlay").string();
+}
+
+std::string anbox::SystemConfiguration::combined_rootfs_dir() const {
+  return (data_path / "combined-rootfs").string();
+}
+
 std::string anbox::SystemConfiguration::log_dir() const {
   return (data_path / "logs").string();
 }
@@ -59,7 +72,19 @@ std::string anbox::SystemConfiguration::container_config_dir() const {
 }
 
 std::string anbox::SystemConfiguration::container_socket_path() const {
-  return "/run/anbox-container.socket";
+  static std::string path;
+  if (path.empty()) {
+    const auto snap_common = anbox::utils::get_env_value("SNAP_COMMON");
+    if (!snap_common.empty())
+      path = (fs::path(snap_common) / "sockets" / "anbox-container.socket").string();
+    else
+      path = "/run/anbox-container.socket";
+  }
+  return path;
+}
+
+std::string anbox::SystemConfiguration::container_devices_dir() const {
+  return (data_path / "devices").string();
 }
 
 std::string anbox::SystemConfiguration::socket_dir() const {

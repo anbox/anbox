@@ -65,7 +65,7 @@ TEST(LayerComposer, FindsNoSuitableWindowForLayer) {
   // A single renderable which has a different task id then the window we know
   // about
   RenderableList renderables = {
-      {"org.anbox.surface.2", 0, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
+      {"org.anbox.surface.2", 0, 1.0f, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
   };
 
   // The renderer should not be called for a layer which doesn't exist
@@ -108,16 +108,16 @@ TEST(LayerComposer, MapsLayersToWindows) {
   // A single renderable which has a different task id then the window we know
   // about
   RenderableList renderables = {
-      {"org.anbox.surface.1", 0, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
-      {"org.anbox.surface.2", 1, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
+      {"org.anbox.surface.1", 0, 1.0f, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
+      {"org.anbox.surface.2", 1, 1.0f, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
   };
 
   RenderableList first_window_renderables{
-      {"org.anbox.surface.1", 0, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
+      {"org.anbox.surface.1", 0, 1.0f, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
   };
 
   RenderableList second_window_renderables{
-      {"org.anbox.surface.2", 1, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
+      {"org.anbox.surface.2", 1, 1.0f, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
   };
 
   EXPECT_CALL(*renderer, draw(_, Rect{0, 0, first_window.frame().width(),
@@ -160,13 +160,13 @@ TEST(LayerComposer, WindowPartiallyOffscreen) {
   // but the layer covering the whole window is placed with its top left
   // origin outside of the visible display area.
   RenderableList renderables = {
-    {"org.anbox.surface.1", 0, {-100, -100, 924, 668}, {0, 0, 1024, 768}},
-    {"org.anbox.surface.1", 1, {0, 0, 100, 200}, {0, 0, 100, 200}},
+    {"org.anbox.surface.1", 0, 1.0f, {-100, -100, 924, 668}, {0, 0, 1024, 768}},
+    {"org.anbox.surface.1", 1, 1.0f, {0, 0, 100, 200}, {0, 0, 100, 200}},
   };
 
   RenderableList expected_renderables{
-    {"org.anbox.surface.1", 0, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
-    {"org.anbox.surface.1", 1, {100, 100, 200, 300}, {0, 0, 100, 200}},
+    {"org.anbox.surface.1", 0, 1.0f, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
+    {"org.anbox.surface.1", 1, 1.0f, {100, 100, 200, 300}, {0, 0, 100, 200}},
   };
 
   EXPECT_CALL(*renderer, draw(_, Rect{0, 0,
@@ -208,13 +208,13 @@ TEST(LayerComposer, PopupShouldNotCauseWindowLayerOffset) {
   // out of the window area. In our case this is not possible as the area the
   // window has available is static.
   RenderableList renderables = {
-    {"org.anbox.surface.3", 0, {1120,270,2144,1038}, {0, 0, 1024, 768}},
-    {"org.anbox.surface.3", 1, {1904, 246, 2164, 406}, {0, 0, 260, 160}},
+    {"org.anbox.surface.3", 0, 1.0f, {1120,270,2144,1038}, {0, 0, 1024, 768}},
+    {"org.anbox.surface.3", 1, 1.0f, {1904, 246, 2164, 406}, {0, 0, 260, 160}},
   };
 
   RenderableList expected_renderables{
-    {"org.anbox.surface.3", 0, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
-    {"org.anbox.surface.3", 1, {784, -24, 1044, 136}, {0, 0, 260, 160}},
+    {"org.anbox.surface.3", 0, 1.0f, {0, 0, 1024, 768}, {0, 0, 1024, 768}},
+    {"org.anbox.surface.3", 1, 1.0f, {784, -24, 1044, 136}, {0, 0, 260, 160}},
   };
 
   EXPECT_CALL(*renderer, draw(_, Rect{0, 0,

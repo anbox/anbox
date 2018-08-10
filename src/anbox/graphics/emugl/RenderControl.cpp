@@ -26,9 +26,9 @@
 #include "external/android-emugl/shared/OpenglCodecCommon/ChecksumCalculatorThreadInfo.h"
 #include "external/android-emugl/host/include/OpenGLESDispatch/EGLDispatch.h"
 
-
 #include <map>
 #include <string>
+#include <sstream>
 
 static const GLint rendererVersion = 1;
 static std::shared_ptr<anbox::graphics::LayerComposer> composer;
@@ -55,53 +55,61 @@ static EGLint rcGetEGLVersion(EGLint *major, EGLint *minor) {
   return EGL_TRUE;
 }
 
-static EGLint rcQueryEGLString(EGLenum name, void *buffer, EGLint bufferSize) {
+static std::string filter_extensions(const std::string& extensions, const std::vector<std::string>& whitelist) {
+  std::stringstream approved_extensions;
+  auto extension_list = anbox::utils::string_split(extensions, ' ');
+  for (const auto& ext : extension_list) {
+    if (std::find(whitelist.begin(), whitelist.end(), ext) == whitelist.end())
+      continue;
+
+    if (approved_extensions.tellp() > 0)
+      approved_extensions << " ";
+
+    approved_extensions << ext;
+  }
+  return approved_extensions.str();
+}
+
+static EGLint rcQueryEGLString(EGLenum name, void* buffer, EGLint bufferSize) {
   if (!renderer)
     return 0;
 
-  auto result = s_egl.eglQueryString(renderer->getDisplay(), name);
-  if (!result)
+  std::string result = s_egl.eglQueryString(renderer->getDisplay(), name);
+  if (result.empty())
     return 0;
 
-  std::string approved_result = result;
-
-  // We need to drop a few extensions from the list reported by the driver
-  // as not all are well enough support by our EGL/GLES stack.
   if (name == EGL_EXTENSIONS) {
-    std::vector<std::string> common_unsupported_extensions = {
-      // Leads to crashes on the Android side when SurfaceFlinger initializes
-      // EGL/GLES and it queries surfaces for available attributes.
-      "EGL_EXT_buffer_age"
+    // We need to drop a few extensions from the list reported by the driver
+    // as not all are well enough support by our EGL implementation.
+    std::vector<std::string> whitelisted_extensions = {
+      "EGL_KHR_image_base",
+      "EGL_KHR_gl_texture_2D_image",
     };
-
-    for (const auto &extension : common_unsupported_extensions) {
-      size_t start_pos = approved_result.find(extension);
-      if (start_pos == std::string::npos) continue;
-      approved_result.replace(start_pos, extension.length(), "");
-    }
+    result = filter_extensions(result, whitelisted_extensions);
   }
 
-  int len = approved_result.length() + 1;
+  int len = result.length() + 1;
   if (!buffer || len > bufferSize) {
     return -len;
   }
 
-  strcpy(static_cast<char *>(buffer), approved_result.c_str());
+  strcpy(static_cast<char*>(buffer), result.c_str());
   return len;
 }
 
-static EGLint rcGetGLString(EGLenum name, void *buffer, EGLint bufferSize) {
-  RenderThreadInfo *tInfo = RenderThreadInfo::get();
+static EGLint rcGetGLString(EGLenum name, void* buffer, EGLint bufferSize) {
+  RenderThreadInfo* tInfo = RenderThreadInfo::get();
   std::string result;
 
   if (tInfo && tInfo->currContext) {
-    const char *str = nullptr;
+    const char* str = nullptr;
     if (tInfo->currContext->isGL2())
-      str = reinterpret_cast<const char *>(s_gles2.glGetString(name));
+      str = reinterpret_cast<const char*>(s_gles2.glGetString(name));
     else
-      str = reinterpret_cast<const char *>(s_gles1.glGetString(name));
+      str = reinterpret_cast<const char*>(s_gles1.glGetString(name));
 
-    if (str) result += str;
+    if (str)
+      result += str;
   }
 
   // We're forcing version 2.0 no matter what the host provides as
@@ -113,27 +121,37 @@ static EGLint rcGetGLString(EGLenum name, void *buffer, EGLint bufferSize) {
   if (name == GL_VERSION)
     result = "OpenGL ES 2.0";
   else if (name == GL_EXTENSIONS) {
-    std::string approved_extensions = result;
-    std::vector<std::string> unsupported_extensions = {
-        // Leaving this enabled gives crippeled text rendering when
-        // using the host mesa GLES drivers.
-        "GL_EXT_unpack_subimage",
+    // We need to drop a few extensions from the list reported by the driver
+    // as not all are well enough support by our GL implementation.
+    std::vector<std::string> whitelisted_extensions = {
+      "GL_OES_EGL_image",
+      "GL_OES_EGL_image_external",
+      "GL_OES_depth24",
+      "GL_OES_depth32",
+      "GL_OES_element_index_uint",
+      "GL_OES_texture_float",
+      "GL_OES_texture_float_linear",
+      "GL_OES_compressed_paletted_texture",
+      "GL_OES_compressed_ETC1_RGB8_texture",
+      "GL_OES_depth_texture",
+      "GL_OES_texture_half_float",
+      "GL_OES_texture_half_float_linear",
+      "GL_OES_packed_depth_stencil",
+      "GL_OES_vertex_half_float",
+      "GL_OES_standard_derivatives",
+      "GL_OES_texture_npot",
+      "GL_OES_rgb8_rgba8",
     };
 
-    for (const auto &extension : unsupported_extensions) {
-      size_t start_pos = approved_extensions.find(extension);
-      if (start_pos == std::string::npos) continue;
-      approved_extensions.replace(start_pos, extension.length(), "");
-    }
-
-    result = approved_extensions;
+    result = filter_extensions(result, whitelisted_extensions);
   }
 
   int nextBufferSize = result.size() + 1;
 
-  if (!buffer || nextBufferSize > bufferSize) return -nextBufferSize;
+  if (!buffer || nextBufferSize > bufferSize)
+    return -nextBufferSize;
 
-  snprintf(static_cast<char *>(buffer), nextBufferSize, "%s", result.c_str());
+  snprintf(static_cast<char*>(buffer), nextBufferSize, "%s", result.c_str());
   return nextBufferSize;
 }
 
@@ -396,7 +414,7 @@ bool is_layer_blacklisted(const std::string &name) {
   return std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end();
 }
 
-void rcPostLayer(const char *name, uint32_t color_buffer,
+void rcPostLayer(const char *name, uint32_t color_buffer, float alpha,
                  int32_t sourceCropLeft, int32_t sourceCropTop,
                  int32_t sourceCropRight, int32_t sourceCropBottom,
                  int32_t displayFrameLeft, int32_t displayFrameTop,
@@ -404,6 +422,7 @@ void rcPostLayer(const char *name, uint32_t color_buffer,
   Renderable r{
       name,
       color_buffer,
+      alpha,
       {displayFrameLeft, displayFrameTop, displayFrameRight, displayFrameBottom},
       {sourceCropLeft, sourceCropTop, sourceCropRight, sourceCropBottom}};
   frame_layers.push_back(r);

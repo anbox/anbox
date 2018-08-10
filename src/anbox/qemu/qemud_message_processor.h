@@ -40,7 +40,7 @@ class QemudMessageProcessor : public network::MessageProcessor {
   std::shared_ptr<network::SocketMessenger> messenger_;
 
  private:
-  void process_commands();
+  bool process_commands();
 
   std::vector<std::uint8_t> buffer_;
 };

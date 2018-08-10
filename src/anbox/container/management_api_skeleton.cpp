@@ -37,6 +37,8 @@ ManagementApiSkeleton::~ManagementApiSkeleton() {}
 void ManagementApiSkeleton::start_container(
     anbox::protobuf::container::StartContainer const *request,
     anbox::protobuf::rpc::Void *response, google::protobuf::Closure *done) {
+  DEBUG("");
+
   if (container_->state() == Container::State::running) {
     response->set_error("Container is already running");
     done->Run();
@@ -48,8 +50,12 @@ void ManagementApiSkeleton::start_container(
   const auto configuration = request->configuration();
   for (int n = 0; n < configuration.bind_mounts_size(); n++) {
     const auto bind_mount = configuration.bind_mounts(n);
-    container_configuration.bind_mounts.insert(
-        {bind_mount.source(), bind_mount.target()});
+    container_configuration.bind_mounts.insert({bind_mount.source(), bind_mount.target()});
+  }
+
+  for (int n = 0; n < configuration.devices_size(); n++) {
+    const auto device = configuration.devices(n);
+    container_configuration.devices.insert({device.path(), {device.permission()}});
   }
 
   try {

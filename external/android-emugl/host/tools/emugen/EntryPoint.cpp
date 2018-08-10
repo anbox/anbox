@@ -99,7 +99,7 @@ bool EntryPoint::parse(unsigned int lc, const std::string & str)
         std::string vartype, varname;
         if (!parseParameterDeclaration(field, &vartype, &varname, &error)) {
             fprintf(stderr,
-                    "line: %d: Parsing error in field <%s>\n",
+                    "line: %d: Parsing error in field <%s>, error: %s\n",
                     lc,
                     field.c_str(),
                     error.c_str());

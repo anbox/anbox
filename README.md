@@ -39,64 +39,21 @@ The used image is currently based on Android 7.1.1
 
 ## Installation
 
-The installation process currently consists of a few steps which will
-add additional components to your host system. These include
-
- * Out-of-tree kernel modules for binder and ashmem as no distribution kernel
-   ships both enabled.
- * A udev rule to set correct permissions for /dev/binder and /dev/ashmem
- * A upstart job which starts the Anbox session manager as part of
-   a user session.
-
-To make this process as easy as possible we have bundled the necessary
-steps in a snap (see https://snapcraft.io) called "anbox-installer". The
-installer will perform all necessary steps. You can install it on a system
-providing support for snaps by running
-
-```
-$ snap install --classic anbox-installer
-```
-
-Alternatively you can fetch the installer script via
-
-```
-$ wget https://raw.githubusercontent.com/anbox/anbox-installer/master/installer.sh -O anbox-installer
-```
-
-Please note that we don't support any possible Linux distribution out there
-yet. Please have a look at the following chapter to see a list of supported
-distributions.
-
-To proceed the installation process simply called
-
-```
-$ anbox-installer
-```
-
-This will guide you through the installation process.
-
-**NOTE:** Anbox is currently in a **pre-alpha development state**. Don't expect a
-fully working system for a production system with all features you need. You will
-for sure see bugs and crashes. If you do so, please don't hestitate and report them!
-
-**NOTE:** The Anbox snap currently comes **completely unconfined** and is because of
-this only available from the edge channel. Proper confinement is a thing we want
-to achieve in the future but due to the nature and complexity of Anbox this isn't
-a simple task.
+See our [installation instructions](docs/install.md) for details.
 
 ## Supported Linux Distributions
 
 At the moment we officially support the following Linux distributions:
 
  * Ubuntu 16.04 (xenial)
+ * Ubuntu 18.04 (bionic)
 
-Untested but likely to work:
-
- * Ubuntu 14.04 (trusty)
- * Ubuntu 16.10 (yakkety)
- * Ubuntu 17.04 (zesty)
+However all other distributions supporting snap packages should work as
+well as long as they provide the mandatory kernel modules (see kernel/).
 
 ## Install and Run Android Applications
+
+TBD
 
 ## Build from source
 
@@ -118,13 +75,13 @@ system:
  * libboost-test
  * libboost-thread
  * libcap
- * libdbus-cpp
+ * libsystemd
  * mesa (libegl1, libgles2)
  * glib-2.0
  * libsdl2
  * libprotobuf
  * protobuf-compiler
- * lxc
+ * lxc (>= 3.0)
 
 On an Ubuntu system you can install all build dependencies with the following
 command:
@@ -133,12 +90,12 @@ command:
 $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
     libboost-dev libboost-filesystem-dev libboost-log-dev libboost-iostreams-dev \
     libboost-program-options-dev libboost-system-dev libboost-test-dev \
-    libboost-thread-dev libcap-dev libdbus-1-dev libdbus-cpp-dev libegl1-mesa-dev \
+    libboost-thread-dev libcap-dev libsystemd-dev libegl1-mesa-dev \
     libgles2-mesa-dev libglib2.0-dev libglm-dev libgtest-dev liblxc1 \
     libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
     pkg-config protobuf-compiler 
 ```
-We recommend Ubuntu 16.04 (xenial) with **GCC 5.x** as your build environment.
+We recommend Ubuntu 18.04 (bionic) with **GCC 7.x** as your build environment.
 
 
 ### Build

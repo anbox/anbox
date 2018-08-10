@@ -15,29 +15,33 @@
  *
  */
 
-#include "anbox/dbus/skeleton/service.h"
 #include "anbox/dbus/interface.h"
+#include "anbox/dbus/skeleton/service.h"
 #include "anbox/dbus/skeleton/application_manager.h"
+#include "anbox/logger.h"
 
 namespace anbox {
 namespace dbus {
 namespace skeleton {
-std::shared_ptr<Service> Service::create_for_bus(
-    const core::dbus::Bus::Ptr &bus,
-    const std::shared_ptr<anbox::application::Manager> &application_manager) {
-  auto service = core::dbus::Service::add_service(bus, anbox::dbus::interface::Service::name());
-  auto object = service->add_object_for_path(anbox::dbus::interface::Service::path());
-  return std::make_shared<Service>(bus, service, object, application_manager);
+std::shared_ptr<Service> Service::create_for_bus(const BusPtr& bus, const std::shared_ptr<anbox::application::Manager> &impl) {
+  return std::shared_ptr<Service>(new Service(bus, impl));
 }
 
-Service::Service(
-    const core::dbus::Bus::Ptr &bus, const core::dbus::Service::Ptr &service,
-    const core::dbus::Object::Ptr &object,
-    const std::shared_ptr<anbox::application::Manager> &application_manager)
-    : bus_(bus),
-      service_(service),
-      object_(object),
-      application_manager_(std::make_shared<ApplicationManager>(bus_, object_, application_manager)) {}
+Service::Service(const BusPtr& bus, const std::shared_ptr<anbox::application::Manager> &impl)
+    : bus_{bus} {
+  if (!bus_)
+    throw std::invalid_argument("Missing bus object");
+
+  const auto r = sd_bus_request_name(bus_->raw(),
+                                     interface::Service::name(),
+                                     0);
+  if (r < 0)
+    throw std::runtime_error("Failed to request DBus service name");
+
+  DEBUG("Successfully acquired DBus service name");
+
+  application_manager_ = std::make_shared<ApplicationManager>(bus, impl);
+}
 
 Service::~Service() {}
 }  // namespace skeleton

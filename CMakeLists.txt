@@ -5,8 +5,8 @@ include(CTest)
 include(GNUInstallDirs)
 
 if (NOT CMAKE_BUILD_TYPE)
-    message(STATUS "No build type selected, default to release")
-    set(CMAKE_BUILD_TYPE "release")
+    message(STATUS "No build type selected, default to RelWithDebInfo")
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -27,7 +27,7 @@ set(EXTRA_CXX_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_AND_CXX_WARNINGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_WARNINGS}")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${C_AND_CXX_WARNINGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 ${C_AND_CXX_WARNINGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_C_WARNINGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_WARNINGS}")
 
@@ -65,7 +65,6 @@ find_package(Protobuf REQUIRED)
 
 pkg_check_modules(SDL2 sdl2 REQUIRED)
 pkg_check_modules(SDL2_IMAGE SDL2_image REQUIRED)
-pkg_check_modules(DBUS_CPP dbus-cpp REQUIRED)
 pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
@@ -74,6 +73,10 @@ pkg_check_modules(MIRCLIENT mirclient)
 if (MIRCLIENT_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
 endif()
+
+pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMESA_EGL_NO_X11_HEADERS")
 
 #####################################################################
 # Enable code coverage calculation with gcov/gcovr/lcov
@@ -94,8 +97,6 @@ find_package(GMock)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
 
-set(ANBOX_TRANSLATOR_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/anbox/translators)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTRANSLATOR_INSTALL_DIR=\\\"${CMAKE_INSTALL_PREFIX}/${ANBOX_TRANSLATOR_INSTALL_DIR}\\\"")
 
 if (NOT ANBOX_VERSION)
     exec_program("git" ${CMAKE_SOURCE_DIR} ARGS "rev-parse --short HEAD" OUTPUT_VARIABLE GIT_COMMIT_HASH)
@@ -118,6 +119,12 @@ add_subdirectory(android)
 if (NOT "${HOST_CMAKE_C_COMPILER}" STREQUAL "")
   message(STATUS "Host C compiler: ${HOST_CMAKE_C_COMPILER}")
   message(STATUS "Host C compiler: ${HOST_CMAKE_CXX_COMPILER}")
+endif()
+
+option(SNAP_CONFINEMENT "Enable snap confinement support" OFF)
+if (SNAP_CONFINEMENT)
+  message(STATUS "Building with support for snap confinement")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_SNAP_CONFINEMENT")
 endif()
 
 install(FILES data/ui/loading-screen.png DESTINATION ${ANBOX_RESOURCE_DIR}/ui)

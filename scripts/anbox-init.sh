@@ -13,11 +13,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+set -x
+
 function prepare_filesystem() {
 	# These dev files need to be adjusted everytime as they are
 	# bind mounted into the temporary rootfs
 	for f in qemu_pipe qemu_trace goldfish_pipe input/* ; do
-		if [ ! -e /dev/$f ] ; then
+		if [ ! -e "/dev/$f" ] ; then
 			continue
 		fi
 		chown system:system /dev/$f
@@ -29,9 +31,5 @@ prepare_filesystem &
 echo "Waiting for filesystem being prepared ..."
 wait $!
 
-ln -sf /dev/sockets/qemu_pipe /dev/qemu_pipe
-ln -sf /dev/sockets/qemud /dev/qemud
-ln -sf /dev/sockets/anbox_bridge /dev/anbox_bridge
-
 echo "Starting real init now ..."
-/init
+exec /init

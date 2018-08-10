@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
+#define GLM_ENABLE_EXPERIMENTAL
 #include "anbox/graphics/emugl/Renderer.h"
 #include "anbox/graphics/emugl/DispatchTables.h"
 #include "anbox/graphics/emugl/RenderThreadInfo.h"
@@ -28,9 +28,12 @@
 
 #include <stdio.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
+#pragma GCC diagnostic pop
 
 namespace {
 
@@ -115,9 +118,9 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
 
   // Create EGL context for framebuffer post rendering.
   GLint surfaceType = EGL_WINDOW_BIT | EGL_PBUFFER_BIT;
-  const GLint configAttribs[] = {EGL_RED_SIZE, 1,
-                                 EGL_GREEN_SIZE, 1,
-                                 EGL_BLUE_SIZE, 1,
+  const GLint configAttribs[] = {EGL_RED_SIZE, 8,
+                                 EGL_GREEN_SIZE, 8,
+                                 EGL_BLUE_SIZE, 8,
                                  EGL_SURFACE_TYPE, surfaceType,
                                  EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
                                  EGL_NONE};
@@ -255,7 +258,7 @@ Renderer::Program::Program(GLuint program_id) {
   position_attr = s_gles2.glGetAttribLocation(id, "position");
   texcoord_attr = s_gles2.glGetAttribLocation(id, "texcoord");
   tex_uniform = s_gles2.glGetUniformLocation(id, "tex");
-  center_uniform = s_gles2.glGetUniformLocation(id, "centre");
+  center_uniform = s_gles2.glGetUniformLocation(id, "center");
   display_transform_uniform =
       s_gles2.glGetUniformLocation(id, "display_transform");
   transform_uniform = s_gles2.glGetUniformLocation(id, "transform");

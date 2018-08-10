@@ -21,8 +21,6 @@ apt-get install -qq -y \
   libboost-test-dev \
   libboost-thread-dev \
   libcap-dev \
-  libdbus-1-dev \
-  libdbus-cpp-dev \
   libegl1-mesa-dev \
   libgles2-mesa-dev \
   libglib2.0-dev \
@@ -33,6 +31,7 @@ apt-get install -qq -y \
   libprotobuf-dev \
   libsdl2-dev \
   libsdl2-image-dev \
+  libsystemd-dev \
   lxc-dev \
   pkg-config \
   protobuf-compiler
@@ -56,12 +55,6 @@ cleanup
 mkdir build || rm -rf build/*
 cd build
 cmake ..
-make -j10
-make test
+VERBOSE=1 make -j10
+VERBOSE=1 make test
 cd ..
-
-cleanup
-
-apt-get install -y build-essential curl devscripts gdebi-core dkms dh-systemd
-apt-get install -y $(gdebi --quiet --apt-line ./debian/control)
-debuild -us -uc

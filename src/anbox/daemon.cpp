@@ -27,6 +27,8 @@
 #include "anbox/cmds/system_info.h"
 #include "anbox/cmds/launch.h"
 #include "anbox/cmds/version.h"
+#include "anbox/cmds/wait_ready.h"
+#include "anbox/cmds/check_features.h"
 
 #include <boost/filesystem.hpp>
 
@@ -40,8 +42,9 @@ Daemon::Daemon()
      .command(std::make_shared<cmds::SessionManager>())
      .command(std::make_shared<cmds::Launch>())
      .command(std::make_shared<cmds::ContainerManager>())
-     .command(std::make_shared<cmds::SystemInfo>());
-
+     .command(std::make_shared<cmds::SystemInfo>())
+     .command(std::make_shared<cmds::WaitReady>())
+     .command(std::make_shared<cmds::CheckFeatures>());
 
   Log().Init(anbox::Logger::Severity::kWarning);
 

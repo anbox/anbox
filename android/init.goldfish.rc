@@ -91,7 +91,8 @@ service qemud /system/bin/qemud
 # named by the androidboot.console kernel option
 # if not, is simply exits immediately
 
-service goldfish-logcat /system/bin/logcat -Q
+service goldfish-logcat /system/bin/logcat
+    console
     oneshot
 
 service fingerprintd /system/bin/fingerprintd
