@@ -212,7 +212,9 @@ void LxcContainer::add_device(const std::string& device, const DeviceSpecificati
 
   auto target_path = device;
   // Strip a leading slash as LXC doesn't like that
-  if (utils::string_starts_with(device, "/"))
+  if (!spec.target_path.empty())
+    target_path = spec.target_path;
+  else if (utils::string_starts_with(device, "/"))
     target_path = device.substr(1, device.length() - 1);
 
   const auto entry = utils::string_format("%s %s none bind,create=file,optional 0 0",
