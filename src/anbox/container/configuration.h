@@ -25,6 +25,7 @@ namespace anbox {
 namespace container {
 struct DeviceSpecification {
     uint32_t permission;
+    std::string target_path = "";
 };
 struct Configuration {
   std::unordered_map<std::string, std::string> bind_mounts;
