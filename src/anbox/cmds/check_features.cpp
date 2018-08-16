@@ -21,6 +21,18 @@
 #include "cpu_features_macros.h"
 #include "cpuinfo_x86.h"
 
+namespace {
+std::vector<std::string> cpu_whitelist = {
+  // QEMU does not necessarily expose correctly that it supports SSE and friends even
+  // when started with `-cpu qemu64,+ssse3,+sse4.1,+sse4.2,+x2apic`
+  "QEMU",
+
+  // Intel Core i7 M620 does not support AVX which causes cpu_features to not
+  // detect SSE and friends correctly
+  "M 620",
+};
+} // namespace
+
 anbox::cmds::CheckFeatures::CheckFeatures()
     : CommandWithFlagsAndAction{
           cli::Name{"check-features"}, cli::Usage{"check-features"},
@@ -41,9 +53,18 @@ anbox::cmds::CheckFeatures::CheckFeatures()
 
     char brand_string[49];
     cpu_features::FillX86BrandString(brand_string);
-    const auto is_qemu = utils::string_starts_with(brand_string, "QEMU");
+    std::string brand(brand_string);
 
-    if (missing_features.size() > 0 && !is_qemu) {
+    // Check if we have a CPU which's features we can't detect correctly
+    auto is_whitelisted = false;
+    for (const auto &entry : cpu_whitelist) {
+      if (brand.find(entry) != std::string::npos) {
+        is_whitelisted = true;
+        break;
+      }
+    }
+
+    if (missing_features.size() > 0 && !is_whitelisted) {
       std::cerr << "The CPU of your computer (" << brand_string << ") does not support all" << std::endl
                 << "features Anbox requires." << std::endl
                 << "It is missing support for the following features: ";
