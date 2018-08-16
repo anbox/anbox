@@ -68,6 +68,12 @@ pkg_check_modules(SDL2_IMAGE SDL2_image REQUIRED)
 pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
+
+option(ANBOX_ENABLE_WAYLAND "Enable wayland support" ON)
+if (ANBOX_ENABLE_WAYLAND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWAYLAND_SUPPORT")
+endif()
+
 pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
 # FIXME mir support is currently broken due to mir's API
 # being broken with recent landings in Ubuntu 16.04
@@ -140,4 +146,3 @@ option(TOUCH_INPUT "Enable touch input support" OFF)
 if (TOUCH_INPUT)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_TOUCH_INPUT")
 endif()
-
