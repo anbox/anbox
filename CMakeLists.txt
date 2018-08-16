@@ -68,18 +68,18 @@ pkg_check_modules(SDL2_IMAGE SDL2_image REQUIRED)
 pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
-
-pkg_check_modules(MIRCLIENT mirclient)
-if (MIRCLIENT_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
-endif()
+pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
 
 option(ANBOX_ENABLE_WAYLAND "Enable wayland support" ON)
 if (ANBOX_ENABLE_WAYLAND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWAYLAND_SUPPORT")
 endif()
 
-pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
+option(ANBOX_ENABLE_MIR "Enable mir support" OFF)
+if (ANBOX_ENABLE_MIR)
+  pkg_check_modules(MIRCLIENT mirclient REQUIRED)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
+endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMESA_EGL_NO_X11_HEADERS")
 
