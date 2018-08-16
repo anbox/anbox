@@ -24,6 +24,7 @@
 #include <map>
 #include <stdexcept>
 #include <fstream>
+#include <sstream>
 
 #include <boost/filesystem.hpp>
 #include <boost/throw_exception.hpp>
@@ -45,7 +46,36 @@ constexpr const char *default_container_ip_address{"192.168.250.2"};
 constexpr const std::uint32_t default_container_ip_prefix_length{24};
 constexpr const char *default_host_ip_address{"192.168.250.1"};
 constexpr const char *default_dns_server{"8.8.8.8"};
-constexpr const char *default_console_buffer_size{"256KB"};
+
+#ifdef ENABLE_LXC2_SUPPORT
+constexpr const char *lxc_config_idmap_key{"lxc.id_map"};
+constexpr const char *lxc_config_net_type_key{"lxc.network.type"};
+constexpr const char *lxc_config_net_flags_key{"lxc.network.flags"};
+constexpr const char *lxc_config_net_link_key{"lxc.network.link"};
+constexpr const char *lxc_config_pty_max_key{"lxc.pts"};
+constexpr const char *lxc_config_tty_max_key{"lxc.tty"};
+constexpr const char *lxc_config_uts_name_key{"lxc.utsname"};
+constexpr const char *lxc_config_tty_dir_key{"lxc.devttydir"};
+constexpr const char *lxc_config_init_cmd_key{"lxc.init_cmd"};
+constexpr const char *lxc_config_rootfs_path_key{"lxc.rootfs"};
+constexpr const char *lxc_config_log_level_key{"lxc.loglevel"};
+constexpr const char *lxc_config_log_file_key{"lxc.logfile"};
+constexpr const char *lxc_config_apparmor_profile_key{"lxc.aa_profile"};
+#else
+constexpr const char *lxc_config_idmap_key{"lxc.idmap"};
+constexpr const char *lxc_config_net_type_key{"lxc.net.0.type"};
+constexpr const char *lxc_config_net_flags_key{"lxc.net.0.flags"};
+constexpr const char *lxc_config_net_link_key{"lxc.net.0.link"};
+constexpr const char *lxc_config_pty_max_key{"lxc.pty.max"};
+constexpr const char *lxc_config_tty_max_key{"lxc.tty.max"};
+constexpr const char *lxc_config_uts_name_key{"lxc.uts.name"};
+constexpr const char *lxc_config_tty_dir_key{"lxc.tty.dir"};
+constexpr const char *lxc_config_init_cmd_key{"lxc.init.cmd"};
+constexpr const char *lxc_config_rootfs_path_key{"lxc.rootfs.path"};
+constexpr const char *lxc_config_log_level_key{"lxc.log.level"};
+constexpr const char *lxc_config_log_file_key{"lxc.log.file"};
+constexpr const char *lxc_config_apparmor_profile_key{"lxc.apparmor.profile"};
+#endif
 
 constexpr int device_major(__dev_t dev) {
   return int(((dev >> 8) & 0xfff) | ((dev >> 32) & (0xfffff000)));
@@ -80,19 +110,19 @@ void LxcContainer::setup_id_map() {
   const auto base_id = unprivileged_uid;
   const auto max_id = 65536;
 
-  set_config_item("lxc.idmap", utils::string_format("u 0 %d %d", base_id, android_system_uid - 1));
-  set_config_item("lxc.idmap", utils::string_format("g 0 %d %d", base_id, android_system_uid - 1));
+  set_config_item(lxc_config_idmap_key, utils::string_format("u 0 %d %d", base_id, android_system_uid - 1));
+  set_config_item(lxc_config_idmap_key, utils::string_format("g 0 %d %d", base_id, android_system_uid - 1));
 
   // We need to bind the user id for the one running the client side
   // process as he is the owner of various socket files we bind mount
   // into the container.
-  set_config_item("lxc.idmap", utils::string_format("u %d %d 1", android_system_uid, creds_.uid()));
-  set_config_item("lxc.idmap", utils::string_format("g %d %d 1", android_system_uid, creds_.gid()));
+  set_config_item(lxc_config_idmap_key, utils::string_format("u %d %d 1", android_system_uid, creds_.uid()));
+  set_config_item(lxc_config_idmap_key, utils::string_format("g %d %d 1", android_system_uid, creds_.gid()));
 
-  set_config_item("lxc.idmap", utils::string_format("u %d %d %d", android_system_uid + 1,
+  set_config_item(lxc_config_idmap_key, utils::string_format("u %d %d %d", android_system_uid + 1,
                                                      base_id + android_system_uid + 1,
                                                      max_id - creds_.uid() - 1));
-  set_config_item("lxc.idmap", utils::string_format("g %d %d %d", android_system_uid + 1,
+  set_config_item(lxc_config_idmap_key, utils::string_format("g %d %d %d", android_system_uid + 1,
                                                      base_id + android_system_uid + 1,
                                                      max_id - creds_.gid() - 1));
 }
@@ -103,9 +133,9 @@ void LxcContainer::setup_network() {
     return;
   }
 
-  set_config_item("lxc.net.0.type", "veth");
-  set_config_item("lxc.net.0.flags", "up");
-  set_config_item("lxc.net.0.link", "anbox0");
+  set_config_item(lxc_config_net_type_key, "veth");
+  set_config_item(lxc_config_net_flags_key, "up");
+  set_config_item(lxc_config_net_link_key, "anbox0");
 
   // Instead of relying on DHCP we will give Android a static IP configuration
   // for the virtual ethernet interface LXC creates for us. This will be bridged
@@ -251,22 +281,21 @@ void LxcContainer::start(const Configuration &configuration) {
   set_config_item("lxc.mount.auto", "proc:mixed sys:mixed cgroup:mixed");
 
   set_config_item("lxc.autodev", "1");
-  set_config_item("lxc.pty.max", "1024");
-  set_config_item("lxc.tty.max", "0");
-  set_config_item("lxc.uts.name", "anbox");
+  set_config_item(lxc_config_pty_max_key, "1024");
+  set_config_item(lxc_config_tty_max_key, "0");
+  set_config_item(lxc_config_uts_name_key, "anbox");
 
   set_config_item("lxc.group.devices.deny", "");
   set_config_item("lxc.group.devices.allow", "");
 
   // We can't move bind-mounts, so don't use /dev/lxc/
-  set_config_item("lxc.tty.dir", "");
+  set_config_item(lxc_config_tty_dir_key, "");
 
-  set_config_item("lxc.environment",
-                  "PATH=/system/bin:/system/sbin:/system/xbin");
+  set_config_item("lxc.environment", "PATH=/system/bin:/system/sbin:/system/xbin");
 
-  set_config_item("lxc.init.cmd", "/anbox-init.sh");
+  set_config_item(lxc_config_init_cmd_key, "/anbox-init.sh");
 
-#if ENABLE_SNAP_CONFINEMENT
+#ifdef ENABLE_SNAP_CONFINEMENT
   // If we're running inside the snap environment snap-confine already created a
   // cgroup for us we need to use as otherwise presevering a namespace wont help.
   if (utils::is_env_set("SNAP"))
@@ -278,25 +307,28 @@ void LxcContainer::start(const Configuration &configuration) {
     rootfs_path = SystemConfiguration::instance().combined_rootfs_dir();
 
   DEBUG("Using rootfs path %s", rootfs_path);
-  set_config_item("lxc.rootfs.path", rootfs_path);
+  set_config_item(lxc_config_rootfs_path_key, rootfs_path);
 
-  set_config_item("lxc.log.level", "0");
+  set_config_item(lxc_config_log_level_key, "0");
   const auto log_path = SystemConfiguration::instance().log_dir();
-  set_config_item("lxc.log.file", utils::string_format("%s/container.log", log_path).c_str());
+  set_config_item(lxc_config_log_file_key, utils::string_format("%s/container.log", log_path).c_str());
 
-  // Dump the console output to disk to have a chance to debug early boot problems
-  set_config_item("lxc.console.logfile", utils::string_format("%s/console.log", log_path).c_str());
-  set_config_item("lxc.console.rotate", "1");
+#ifndef ENABLE_LXC2_SUPPORT
+    // Dump the console output to disk to have a chance to debug early boot problems
+    set_config_item("lxc.console.logfile", utils::string_format("%s/console.log", log_path).c_str());
+    set_config_item("lxc.console.rotate", "1");
+#endif
+
 
   setup_network();
 
-#if ENABLE_SNAP_CONFINEMENT
+#ifdef ENABLE_SNAP_CONFINEMENT
   // We take the AppArmor profile snapd has defined for us as part of the
   // anbox-support interface. The container manager itself runs within a
   // child profile snap.anbox.container-manager//lxc too.
   set_config_item("lxc.apparmor.profile", "snap.anbox.container-manager//container");
 #else
-  set_config_item("lxc.apparmor.profile", "unconfined");
+  set_config_item(lxc_config_apparmor_profile_key, "unconfined");
 #endif
 
   if (!privileged_)

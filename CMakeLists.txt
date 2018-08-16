@@ -69,6 +69,12 @@ pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
 
+message(STATUS "LXC version: ${LXC_VERSION}")
+if (${LXC_VERSION} VERSION_LESS 3.0)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_LXC2_SUPPORT")
+  message(STATUS "Building with LXC 2.x compatibility support")
+endif()
+
 option(ANBOX_ENABLE_WAYLAND "Enable wayland support" ON)
 if (ANBOX_ENABLE_WAYLAND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWAYLAND_SUPPORT")
