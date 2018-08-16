@@ -51,6 +51,7 @@ class Database {
  private:
   std::shared_ptr<LauncherStorage> storage_;
   std::map<std::string,Item> items_;
+  bool done_reset = false;
 };
 }  // namespace application
 }  // namespace anbox
