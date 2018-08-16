@@ -99,6 +99,8 @@ std::string anbox::SystemConfiguration::input_device_dir() const {
 
 std::string anbox::SystemConfiguration::application_item_dir() const {
   static auto dir = xdg::data().home() / "applications" / "anbox";
+  if (anbox::utils::get_env_value("ANBOX_NO_DESKTOP_SUBDIR").length() > 0)
+    dir = xdg::data().home() / "applications";
   return dir.string();
 }
 

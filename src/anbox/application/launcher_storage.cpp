@@ -39,8 +39,15 @@ LauncherStorage::LauncherStorage(const fs::path &path) :
 LauncherStorage::~LauncherStorage() {}
 
 void LauncherStorage::reset() {
-  if (fs::exists(path_))
-    fs::remove_all(path_);
+  if (fs::exists(path_)) {
+    for(auto & p : boost::filesystem::directory_iterator(path_)) {
+        if (fs::is_regular_file(p)){
+          auto str = p.path().filename().string();
+          if (boost::starts_with(str, "anbox-"))
+            fs::remove(p);
+        }
+     }
+   }
 }
 
 std::string LauncherStorage::clean_package_name(const std::string &package_name) {
