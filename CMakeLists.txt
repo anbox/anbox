@@ -70,8 +70,8 @@ pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
 pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
 
-option(ANBOX_ENABLE_WAYLAND "Enable wayland support" ON)
-if (ANBOX_ENABLE_WAYLAND)
+option(ENABLE_WAYLAND "Enable wayland support" ON)
+if (ENABLE_WAYLAND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWAYLAND_SUPPORT")
 endif()
 
