@@ -26,7 +26,6 @@ set(EXTRA_CXX_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast")
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(EXTRA_CXX_WARNINGS "${EXTRA_CXX_WARNINGS} -Wno-error=unused-const-variable")
-  set(EXTRA_CXX_WARNINGS "${EXTRA_CXX_WARNINGS} -Wno-error=unused-lambda-capture")
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_AND_CXX_WARNINGS}")

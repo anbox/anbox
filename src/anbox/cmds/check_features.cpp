@@ -42,7 +42,7 @@ anbox::cmds::CheckFeatures::CheckFeatures()
           cli::Name{"check-features"}, cli::Usage{"check-features"},
           cli::Description{"Check that the host system supports all necessary features"}} {
 
-  action([this](const cli::Command::Context&) {
+  action([](const cli::Command::Context&) {
 #if defined(CPU_FEATURES_ARCH_X86)
     const auto info = cpu_features::GetX86Info();
     std::vector<std::string> missing_features;
