@@ -27,9 +27,13 @@ std::vector<std::string> cpu_whitelist = {
   // when started with `-cpu qemu64,+ssse3,+sse4.1,+sse4.2,+x2apic`
   "QEMU",
 
-  // Intel Core i7 M620 does not support AVX which causes cpu_features to not
-  // detect SSE and friends correctly
+  // The following CPUs do not support AVX and without it cpu_features can't detect
+  // if SSE & friends are supported. See https://github.com/google/cpu_features/issues/4
+
+  // Intel Core i7 M620
   "M 620",
+  // Intel Celeron N2840
+  "N2840",
 };
 } // namespace
 
