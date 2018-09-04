@@ -25,7 +25,6 @@ set(EXTRA_C_WARNINGS "-Wcast-align -Wcast-qual -Wformat -Wredundant-decls -Wswit
 set(EXTRA_CXX_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast")
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(EXTRA_CXX_WARNINGS "${EXTRA_CXX_WARNINGS} -Wno-error=unused-private-field")
   set(EXTRA_CXX_WARNINGS "${EXTRA_CXX_WARNINGS} -Wno-error=unused-const-variable")
   set(EXTRA_CXX_WARNINGS "${EXTRA_CXX_WARNINGS} -Wno-error=unused-lambda-capture")
 endif()
