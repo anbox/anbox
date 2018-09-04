@@ -72,9 +72,13 @@ Platform::Platform(
 
       // (mariogrip) FIXME, extremly hacky!
       // Hack for mir giving full size not "usable desktop area size"
-      if (utils::get_env_value("QT_QPA_PLATFORM", "") == "ubuntumirclient")
-        frame.resize(r.w, r.h - 40);
-
+      // minimizedPanelHeight: units.gu(3)
+      // qRound(value * m_gridUnit) / m_devicePixelRatio;
+      // (3 * GRIDUNIT_ENV) / 1
+      if (utils::get_env_value("QT_QPA_PLATFORM", "") == "ubuntumirclient") {
+        auto pix = std::stof(utils::get_env_value("GRID_UNIT_PX", "8"));
+        frame.resize(r.w, r.h - (3 * pix));
+      }
 
       if (display_frame == graphics::Rect::Invalid)
         display_frame = frame;
