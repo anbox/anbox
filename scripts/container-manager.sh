@@ -70,6 +70,21 @@ start() {
 		EXTRA_ARGS="$EXTRA_ARGS --privileged"
 	fi
 
+	container_network_address=$(snapctl get container.network.address)
+	if [ -n "$container_network_address" ]; then
+		EXTRA_ARGS="$EXTRA_ARGS --container-network-address=$container_network_address"
+	fi
+
+	container_network_gateway=$(snapctl get container.network.gateway)
+	if [ -n "$container_network_gateway" ]; then
+		EXTRA_ARGS="$EXTRA_ARGS --container-network-gateway=$container_network_gateway"
+	fi
+
+	container_network_dns=$(snapctl get container.network.dns)
+	if [ -n "$container_network_dns" ]; then
+		EXTRA_ARGS="$EXTRA_ARGS --container-network-dns-servers=$container_network_dns"
+	fi
+
 	exec "$SNAP"/bin/anbox-wrapper.sh container-manager \
 		--data-path="$DATA_PATH" \
 		--android-image="$ANDROID_IMG" \

@@ -68,6 +68,7 @@ pkg_check_modules(SDL2_IMAGE SDL2_image REQUIRED)
 pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
+pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
 
 message(STATUS "LXC version: ${LXC_VERSION}")
 if (${LXC_VERSION} VERSION_LESS 3.0)
@@ -75,18 +76,16 @@ if (${LXC_VERSION} VERSION_LESS 3.0)
   message(STATUS "Building with LXC 2.x compatibility support")
 endif()
 
-option(ANBOX_ENABLE_WAYLAND "Enable wayland support" ON)
-if (ANBOX_ENABLE_WAYLAND)
+option(ENABLE_WAYLAND "Enable wayland support" ON)
+if (ENABLE_WAYLAND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWAYLAND_SUPPORT")
 endif()
 
-pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
-# FIXME mir support is currently broken due to mir's API
-# being broken with recent landings in Ubuntu 16.04
-# pkg_check_modules(MIRCLIENT mirclient)
-# if (MIRCLIENT_FOUND)
-#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
-# endif()
+option(ENABLE_MIR "Enable mir support" OFF)
+if (ENABLE_MIR)
+  pkg_check_modules(MIRCLIENT mirclient REQUIRED)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
+endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMESA_EGL_NO_X11_HEADERS")
 
@@ -148,7 +147,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
 add_custom_target(uninstall "${CMAKE_COMMAND}"
                   -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
-option(TOUCH_INPUT "Enable touch input support" OFF)
-if (TOUCH_INPUT)
+option(ENABLE_TOUCH_INPUT "Enable touch input support" OFF)
+if (ENABLE_TOUCH_INPUT)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_TOUCH_INPUT")
 endif()
