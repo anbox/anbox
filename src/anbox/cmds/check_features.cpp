@@ -32,6 +32,8 @@ std::vector<std::string> cpu_whitelist = {
 
   // Intel Core i7 M620
   "M 620",
+  // Intel Core i5 M460
+  "M 460",
   // Intel Celeron N2840
   "N2840",
 };
