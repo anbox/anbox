@@ -114,7 +114,12 @@ void ApplicationManager::launch(const android::Intent &intent,
   if (r < 0)
     throw std::runtime_error("Failed to construct DBus message");
 
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic warning "-Wpragmas"
+  #pragma GCC diagnostic warning "-Wc99-extensions"
   sd_bus_error error = SD_BUS_ERROR_NULL;
+  #pragma GCC diagnostic pop
+
   r = sd_bus_call(bus_->raw(), m, 0, &error, nullptr);
   if (r < 0) {
     const auto msg = utils::string_format("%s", error.message);
