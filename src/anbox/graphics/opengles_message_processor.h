@@ -22,6 +22,8 @@
 #include "anbox/network/socket_connection.h"
 #include "anbox/network/socket_messenger.h"
 #include "anbox/runtime.h"
+#include "anbox/common/small_vector.h"
+#include "anbox/graphics/buffered_io_stream.h"
 
 #include <boost/asio.hpp>
 
@@ -41,7 +43,7 @@ class OpenGlesMessageProcessor : public network::MessageProcessor {
       const std::shared_ptr<network::SocketMessenger> &messenger);
   ~OpenGlesMessageProcessor();
 
-  bool process_data(const std::vector<std::uint8_t> &data) override;
+  bool process_data(Buffer &&data) override;
 
  private:
   static std::mutex global_lock;

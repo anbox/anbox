@@ -38,17 +38,17 @@ class SocketConnection {
       std::shared_ptr<Connections<SocketConnection>> const& connections,
       std::shared_ptr<MessageProcessor> const& processor);
 
-  ~SocketConnection() noexcept;
+  virtual ~SocketConnection() noexcept;
 
   void set_name(const std::string& name) { name_ = name; }
 
   int id() const { return id_; }
 
   void send(char const* data, size_t length);
-  void read_next_message();
+  virtual void read_next_message();
 
- private:
-  void on_read_size(const boost::system::error_code& ec,
+protected:
+  virtual void on_read_size(const boost::system::error_code& ec,
                     std::size_t bytes_read);
 
   std::shared_ptr<MessageReceiver> const message_receiver_;
