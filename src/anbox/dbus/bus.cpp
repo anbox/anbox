@@ -20,9 +20,7 @@
 
 namespace anbox {
 namespace dbus {
-Bus::Bus(Type type) :
-  type_{type} {
-
+Bus::Bus(Type type) {
   int ret = 0;
   switch (type) {
   case Type::Session:
