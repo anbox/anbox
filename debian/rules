@@ -14,7 +14,7 @@ include /usr/share/dpkg/default.mk
 
 override_dh_auto_configure:
 	# Enable debug builds
-	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Debug -DANBOX_ENABLE_WAYLAND=OFF
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Debug -DENABLE_WAYLAND=OFF -DENABLE_MIR=ON -DENABLE_TOUCH_INPUT=ON
 
 override_dh_install:
 	VERSION=$(shell dpkg-parsechangelog -SVersion)
