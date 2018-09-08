@@ -88,11 +88,19 @@ constexpr int device_minor(__dev_t dev) {
 
 namespace anbox {
 namespace container {
-LxcContainer::LxcContainer(bool privileged, bool rootfs_overlay, const network::Credentials &creds)
+LxcContainer::LxcContainer(bool privileged,
+                           bool rootfs_overlay,
+                           const std::string& container_network_address,
+                           const std::string &container_network_gateway,
+                           const std::vector<std::string> &container_network_dns_servers,
+                           const network::Credentials &creds)
     : state_(State::inactive),
       container_(nullptr),
       privileged_(privileged),
       rootfs_overlay_(rootfs_overlay),
+      container_network_address_(container_network_address),
+      container_network_gateway_(container_network_gateway),
+      container_network_dns_servers_(container_network_dns_servers),
       creds_(creds) {
   utils::ensure_paths({
       SystemConfiguration::instance().container_config_dir(),
@@ -145,9 +153,22 @@ void LxcContainer::setup_network() {
   android::IpConfigBuilder ip_conf;
   ip_conf.set_version(android::IpConfigBuilder::Version::Version2);
   ip_conf.set_assignment(android::IpConfigBuilder::Assignment::Static);
-  ip_conf.set_link_address(default_container_ip_address, default_container_ip_prefix_length);
+
+  std::string address = default_container_ip_address;
+  if (!container_network_address_.empty())
+    address = container_network_address_;
+  ip_conf.set_link_address(address, default_container_ip_prefix_length);
+
+  std::string gateway = default_host_ip_address;
+  if (!container_network_gateway_.empty())
+    gateway = container_network_gateway_;
   ip_conf.set_gateway(default_host_ip_address);
-  ip_conf.set_dns_servers({default_dns_server});
+
+  if (container_network_dns_servers_.size() > 0)
+    ip_conf.set_dns_servers(container_network_dns_servers_);
+  else
+    ip_conf.set_dns_servers({default_dns_server});
+
   ip_conf.set_id(0);
 
   std::vector<std::uint8_t> buffer(512);

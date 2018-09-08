@@ -120,6 +120,7 @@ Platform::Platform(
   keyboard_->set_key_bit(BTN_MISC);
   keyboard_->set_key_bit(KEY_OK);
 
+#ifdef ENABLE_TOUCH_INPUT
   touch_ = input_manager->create_device();
   touch_->set_name("anbox-touch");
   touch_->set_driver_version(1);
@@ -141,6 +142,7 @@ Platform::Platform(
   touch_->set_abs_bit(ABS_MT_TRACKING_ID);
   touch_->set_abs_max(ABS_MT_TRACKING_ID, 10);
   touch_->set_prop_bit(INPUT_PROP_DIRECT);
+#endif
 
   event_thread_ = std::thread(&Platform::process_events, this);
 }
@@ -211,8 +213,10 @@ void Platform::process_input_event(const SDL_Event &event) {
   std::int32_t x = 0;
   std::int32_t y = 0;
 
+#ifdef ENABLE_TOUCH_INPUT
   std::int32_t rel_x = 0;
   std::int32_t rel_y = 0;
+#endif
 
   SDL_Window *window = nullptr;
 
@@ -273,6 +277,7 @@ void Platform::process_input_event(const SDL_Event &event) {
       keyboard_events.push_back({EV_KEY, code, 0});
       break;
     }
+#ifdef ENABLE_TOUCH_INPUT
     // Touch screen
     case SDL_FINGERDOWN: {
       touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, static_cast<std::int32_t>(event.tfinger.fingerId)});
@@ -321,13 +326,21 @@ void Platform::process_input_event(const SDL_Event &event) {
       touch_events.push_back({EV_SYN, SYN_REPORT, 0});
       break;
     }
+#endif
     default:
       break;
   }
 
-  if (mouse_events.size() > 0) pointer_->send_events(mouse_events);
-  if (keyboard_events.size() > 0) keyboard_->send_events(keyboard_events);
-  if (touch_events.size() > 0) touch_->send_events(touch_events);
+  if (mouse_events.size() > 0)
+    pointer_->send_events(mouse_events);
+
+  if (keyboard_events.size() > 0)
+    keyboard_->send_events(keyboard_events);
+
+#ifdef ENABLE_TOUCH_INPUT
+  if (touch_events.size() > 0)
+    touch_->send_events(touch_events);
+#endif
 }
 
 Window::Id Platform::next_window_id() {

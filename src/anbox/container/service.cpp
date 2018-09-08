@@ -86,7 +86,12 @@ void Service::new_client(std::shared_ptr<boost::asio::local::stream_protocol::so
   auto pending_calls = std::make_shared<rpc::PendingCallCache>();
   auto rpc_channel = std::make_shared<rpc::Channel>(pending_calls, messenger);
   auto server = std::make_shared<container::ManagementApiSkeleton>(
-      pending_calls, std::make_shared<LxcContainer>(config_.privileged, config_.rootfs_overlay, messenger->creds()));
+      pending_calls, std::make_shared<LxcContainer>(config_.privileged,
+                                                    config_.rootfs_overlay,
+                                                    config_.container_network_address,
+                                                    config_.container_network_gateway,
+                                                    config_.container_network_dns_servers,
+                                                    messenger->creds()));
   auto processor = std::make_shared<container::ManagementApiMessageProcessor>(
       messenger, pending_calls, server);
 

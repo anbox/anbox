@@ -76,13 +76,13 @@ if (${LXC_VERSION} VERSION_LESS 3.0)
   message(STATUS "Building with LXC 2.x compatibility support")
 endif()
 
-option(ANBOX_ENABLE_WAYLAND "Enable wayland support" ON)
-if (ANBOX_ENABLE_WAYLAND)
+option(ENABLE_WAYLAND "Enable wayland support" ON)
+if (ENABLE_WAYLAND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWAYLAND_SUPPORT")
 endif()
 
-option(ANBOX_ENABLE_MIR "Enable mir support" OFF)
-if (ANBOX_ENABLE_MIR)
+option(ENABLE_MIR "Enable mir support" OFF)
+if (ENABLE_MIR)
   pkg_check_modules(MIRCLIENT mirclient REQUIRED)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
 endif()
@@ -146,3 +146,8 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
                IMMEDIATE @ONLY)
 add_custom_target(uninstall "${CMAKE_COMMAND}"
                   -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+
+option(ENABLE_TOUCH_INPUT "Enable touch input support" OFF)
+if (ENABLE_TOUCH_INPUT)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_TOUCH_INPUT")
+endif()
