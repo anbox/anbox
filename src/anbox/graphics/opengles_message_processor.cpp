@@ -16,8 +16,6 @@
  */
 
 #include "anbox/graphics/opengles_message_processor.h"
-#include "anbox/common/small_vector.h"
-#include "anbox/graphics/buffered_io_stream.h"
 #include "anbox/graphics/emugl/RenderThread.h"
 #include "anbox/logger.h"
 #include "anbox/network/connections.h"
@@ -55,10 +53,9 @@ OpenGlesMessageProcessor::~OpenGlesMessageProcessor() {
 }
 
 bool OpenGlesMessageProcessor::process_data(
-    const std::vector<std::uint8_t> &data) {
+    Buffer &&data) {
   auto stream = std::static_pointer_cast<BufferedIOStream>(stream_);
-  Buffer buffer{data.data(), data.data() + data.size()};
-  stream->post_data(std::move(buffer));
+  stream->post_data(std::move(data));
   return true;
 }
 }  // namespace graphics

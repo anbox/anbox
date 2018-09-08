@@ -18,6 +18,7 @@
 #include <string>
 
 #include "anbox/graphics/opengles_message_processor.h"
+#include "anbox/graphics/opengles_socket_connection.h"
 #include "anbox/logger.h"
 #include "anbox/network/local_socket_messenger.h"
 #include "anbox/qemu/adb_message_processor.h"
@@ -86,8 +87,14 @@ void PipeConnectionCreator::create_connection_for(
   if (!processor)
     BOOST_THROW_EXCEPTION(std::runtime_error("Unhandled client type"));
 
-  auto const &connection = std::make_shared<network::SocketConnection>(
-      messenger, messenger, next_id(), connections_, processor);
+  std::shared_ptr<network::SocketConnection> connection;
+  if (type == client_type::opengles)
+    connection = std::make_shared<graphics::OpenGlesSocketConnection>(
+        messenger, messenger, next_id(), connections_, processor);
+  else
+    connection = std::make_shared<network::SocketConnection>(
+        messenger, messenger, next_id(), connections_, processor);
+
   connection->set_name(client_type_to_string(type));
   connections_->add(connection);
   connection->read_next_message();
