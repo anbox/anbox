@@ -5,6 +5,10 @@ project(CpuFeatures VERSION 0.1.0)
 # ANBOX allow to build in our more strict build environment
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=switch-default -Wno-error=unused-parameter -Wno-error=overflow")
 
+if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=cast-align")
+endif()
+
 # Default Build Type to be Release
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING

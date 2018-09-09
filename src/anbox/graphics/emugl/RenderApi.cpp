@@ -30,7 +30,6 @@ GLESv1Dispatch s_gles1;
 
 namespace {
 constexpr const char *default_egl_lib{"libEGL.so.1"};
-constexpr const char *default_glesv1_lib{"libGLESv1_CM.so.1"};
 constexpr const char *default_glesv2_lib{"libGLESv2.so.2"};
 }
 
