@@ -81,6 +81,11 @@ if (ENABLE_MIR)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMIR_SUPPORT")
 endif()
 
+option(ENABLE_TOUCH_INPUT "Enable touch input support" OFF)
+if (ENABLE_TOUCH_INPUT)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_TOUCH_INPUT")
+endif()
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMESA_EGL_NO_X11_HEADERS")
 
 #####################################################################
@@ -140,8 +145,3 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
                IMMEDIATE @ONLY)
 add_custom_target(uninstall "${CMAKE_COMMAND}"
                   -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-
-option(ENABLE_TOUCH_INPUT "Enable touch input support" OFF)
-if (ENABLE_TOUCH_INPUT)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_TOUCH_INPUT")
-endif()
