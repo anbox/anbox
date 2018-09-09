@@ -131,17 +131,11 @@ anbox::cmds::SessionManager::SessionManager()
       return EXIT_FAILURE;
     }
 
-    auto binder = utils::get_env_value("ANBOX_BINDER", "/dev/binder");
-
-    // Ubuntu touch devices need to use binder1
-    if (fs::exists("/dev/binder1")) {
-      DEBUG("Using binder1");
-      binder = utils::get_env_value("ANBOX_BINDER", "/dev/binder1");
-    }
+    auto binder = "/dev/binder";
     // If available, use own binder to not cause problem with existing binder
     if (fs::exists("/dev/anbox-binder")) {
       DEBUG("Using anbox-binder");
-      binder = utils::get_env_value("ANBOX_BINDER", "/dev/anbox-binder");
+      binder = "/dev/anbox-binder";
     }
     if (!fs::exists(binder) || !fs::exists("/dev/ashmem")) {
       ERROR("Failed to start as either binder or ashmem kernel drivers are not loaded");

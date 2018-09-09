@@ -49,6 +49,7 @@ void ManagementApiStub::start_container(const Configuration &configuration) {
     auto device_message = message_configuration->add_devices();
     device_message->set_path(item.first);
     device_message->set_permission(item.second.permission);
+    device_message->set_target_path(item.second.target_path);
   }
 
   message.set_allocated_configuration(message_configuration);
