@@ -36,6 +36,12 @@ std::vector<std::string> cpu_whitelist = {
   "M 460",
   // Intel Celeron N2840
   "N2840",
+  // Intel Pentium T4500
+  "T4500", 
+  // Intel Core i7 Q720
+  "Q 720",
+  // Intel Xeon E5520
+  "E5520"
 };
 } // namespace
 
