@@ -45,6 +45,9 @@ PRODUCT_COPY_FILES += \
 	vendor/anbox/android/ueventd.goldfish.rc:root/ueventd.goldfish.rc \
 	vendor/anbox/android/media/media_profiles.xml:system/etc/media_profiles.xml \
 	vendor/anbox/android/media/media_codecs.xml:system/etc/media_codecs.xml \
+	vendor/anbox/android/media/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
+	vendor/anbox/android/media/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
+	vendor/anbox/android/media/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
 	hardware/libhardware_legacy/audio/audio_policy.conf:system/etc/audio_policy.conf
 
 PRODUCT_CHARACTERISTICS := emulator
