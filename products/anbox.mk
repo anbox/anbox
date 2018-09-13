@@ -43,8 +43,8 @@ PRODUCT_COPY_FILES += \
 	vendor/anbox/android/init.goldfish.rc:root/init.goldfish.rc \
 	vendor/anbox/android/init.goldfish.sh:system/etc/init.goldfish.sh \
 	vendor/anbox/android/ueventd.goldfish.rc:root/ueventd.goldfish.rc \
-	vendor/anbox/android/camera/media_profiles.xml:system/etc/media_profiles.xml \
-	vendor/anbox/android/camera/media_codecs.xml:system/etc/media_codecs.xml \
+	vendor/anbox/android/media/media_profiles.xml:system/etc/media_profiles.xml \
+	vendor/anbox/android/media/media_codecs.xml:system/etc/media_codecs.xml \
 	hardware/libhardware_legacy/audio/audio_policy.conf:system/etc/audio_policy.conf
 
 PRODUCT_CHARACTERISTICS := emulator
