@@ -15,6 +15,9 @@
 # Author: Marius Gripsgard <marius@ubports.com>
 ## Setup anbox on ubuntu touch
 
+echo "Deprecated, please use 'anbox-tool install'"
+exit
+
 SUPPORTED_DEVICES="turbo cooler frieza"
 USE_BINDER64="turbo cooler frieza"
 

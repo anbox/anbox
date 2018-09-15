@@ -46,5 +46,6 @@ override_dh_install:
 
 	install -d $(CURDIR)/debian/tmp/usr/bin
 	install -m 0644 data/ubuntu-touch-session/anbox-setup $(CURDIR)/debian/tmp/usr/bin/anbox-setup
+	install -m 0644 data/ubuntu-touch-session/anbox-tool $(CURDIR)/debian/tmp/usr/bin/anbox-tool
 
 	dh_install --fail-missing

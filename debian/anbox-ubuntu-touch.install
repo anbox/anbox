@@ -1,4 +1,5 @@
 etc/init/anbox-container.conf
 usr/share/applications/anbox.desktop
 usr/bin/anbox-setup
+usr/bin/anbox-tool
 usr/share/upstart/sessions/anbox-session.conf

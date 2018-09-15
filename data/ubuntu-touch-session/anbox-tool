@@ -1,0 +1,338 @@
+#!/usr/bin/python3
+# Copyright (c) 2018 The UBports project
+# Written by: Marius Gripsgard <marius@ubports.com>
+#
+# GNU GENERAL PUBLIC LICENSE
+#    Version 3, 29 June 2007
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Setup anbox on ubuntu touch
+
+import lxc
+import os
+import argparse
+import subprocess
+import sys
+import time
+import shutil
+import requests
+
+BASE_URL = "http://cdimage.ubports.com/anbox-images"
+DEVICES_URL = "%s/devices.json" % BASE_URL
+ANBOX_DATA = "/home/phablet/anbox-data"
+DESKTOP_FILES = "/home/phablet/.local/share/applications"
+DESKTOP_FILE = "%s/anbox-com-android-settings.desktop" % DESKTOP_FILES
+
+
+def die(m):
+    print(m)
+    sys.exit()
+
+
+def removeDesktopFiles():
+    files = os.listdir(dir)
+    for file in files:
+        if file.startswith("anbox-"):
+            os.remove(os.path.join(dir, file))
+
+
+def get_apps():
+    """Get list of anbox apps"""
+    apps = os.listdir(DESKTOP_FILES)
+    anboxApps = []
+    for app in apps:
+        if app.startswith("anbox-") and app.endswith(".desktop"):
+            with open(os.path.join(DESKTOP_FILES, app)) as f:
+                lines = f.readlines()
+                _app = {}
+                for line in lines:
+                    line = line.strip()
+                    if line.startswith("Name="):
+                        _app["name"] = line.split("=")[1]
+                    if line.startswith("Exec=") and "anbox launch" in line:
+                        _app["package"] = line.split(" ")[3].split("=")[1]
+                anboxApps.append(_app)
+    return anboxApps
+
+
+def find_app(app_str):
+    for app in get_apps():
+        if app["name"] == app_str or app["package"] == app_str:
+            return app
+    return False
+
+
+def is_app(app_str):
+    return True if find_app(app_str) else False
+
+
+class DeviceJson(object):
+    def __init__(self):
+        p = requests.get(DEVICES_URL).json()
+        self.obj = p
+        self.device = subprocess.check_output(
+            ["getprop", "ro.product.device"]).strip().decode("utf-8")
+
+    def check(self):
+        # Device check!
+        if self.device not in self.obj:
+            print("%s is not supported (yet)" % self.device)
+            sys.exit(1)
+
+    def get(self):
+        self.check()
+        return self.obj[self.device]
+
+
+class AnboxContainer(object):
+    """docstring for AnboxContainer."""
+
+    def __init__(self, name="default",
+                 config_path="/home/phablet/anbox-data/containers"):
+        self.name = name
+        self.config_path = config_path
+        self.container = lxc.Container(name, config_path=config_path)
+
+    @property
+    def running(self):
+        return self.container.running
+
+    def run(self, cmds):
+        cmd = [cmds]
+        self.container.attach_wait(
+            lxc.attach_run_command, cmd,
+            extra_env_vars=["PATH=/sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin"],
+            namespaces=0,
+            env_policy=lxc.LXC_ATTACH_CLEAR_ENV)
+
+    def install(self, app):
+        if not os.path.isfile(app):
+            print("File does not exist %s" % app)
+            return False
+        if not app.endswith(".apk"):
+            print("%s is not an apk file" % app)
+            return False
+        # This is pretty hacky! ¯\_(ツ)_/¯
+        tmpapk = "/home/phablet/anbox-data/data/app-to-install.apk"
+        shutil.copyfile(app, tmpapk)
+        self.run("pm install -drf /data/app-to-install.apk")
+        os.remove(tmpapk)
+        return True
+
+    def remove(self, app):
+        return self.run("pm uninstall %s" % app)
+
+    def list(self):
+        return self.run("pm list packages -f")
+
+
+def checkBinder():
+    return os.path.exists("/dev/anbox-binder")
+
+
+def androidImgExists():
+    return os.path.isfile(os.path.join(ANBOX_DATA, "android.img"))
+
+
+def enableExists():
+    return os.path.isfile(os.path.join(ANBOX_DATA, ".enable"))
+
+
+def touch(path):
+    with open(path, 'a'):
+        os.utime(path, None)
+
+
+def doCheck():
+    if not checkBinder():
+        die("Anbox kernel is not installed! Please flash this first!")
+        return False
+    return True
+
+
+def stopAnbox():
+    os.system("stop -q anbox-session || true")
+    os.system("sudo stop -q anbox-container || true")
+
+
+def startAnbox():
+    os.system("sudo start -q anbox-container || true")
+    os.system("start -q anbox-session || true")
+
+
+def waitForAnbox():
+    while not os.path.exists(DESKTOP_FILE):
+        time.sleep(1)
+
+
+def enable():
+    if not androidImgExists():
+        print("Anbox is not installed, please install first")
+        return
+    if enableExists():
+        print("Anbox is alredy enabled")
+        return
+    touch(os.path.join(ANBOX_DATA, ".enable"))
+    startAnbox()
+    waitForAnbox()
+    print("Anbox is now enabled")
+
+
+def disable():
+    if not enableExists():
+        print("Anbox is alredy disabled")
+        return
+    stopAnbox()
+    os.remove(os.path.join(ANBOX_DATA, ".enable"))
+    print("Anbox is now disabled")
+
+
+def updateAndroidImg(img):
+    if not os.path.exists(ANBOX_DATA):
+        os.makedirs(ANBOX_DATA)
+    os.system("wget -q --show-progress -O %s %s" %
+              (os.path.join(ANBOX_DATA, "android.img"), "%s/%s.img" %
+               (BASE_URL, img)))
+
+
+def upgrade():
+    doCheck()
+    if not androidImgExists():
+        print("Anbox is not installed, please install first")
+        return
+    stopAnbox()
+    os.remove(os.path.join(ANBOX_DATA, "android.img"))
+    device = DeviceJson()
+    updateAndroidImg(device.get())
+    if enableExists():
+        startAnbox()
+        waitForAnbox()
+        print("Update done!")
+        print("Anbox is ready to rock!")
+    else:
+        print("Anbox is updated, but not enabled")
+
+
+def install():
+    doCheck()
+    if androidImgExists():
+        print("Anbox alredy is installed, please use update function")
+        return
+    device = DeviceJson()
+    updateAndroidImg(device.get())
+    touch(os.path.join(ANBOX_DATA, ".enable"))
+    startAnbox()
+    waitForAnbox()
+    print("Install done!")
+    print("Anbox is ready to rock!")
+
+
+def status():
+    print("Kernel: {}".format("OK" if checkBinder() else "NOT OK"))
+    print("System: {}".format("OK" if androidImgExists() else "NOT FOUND"))
+    print("Enabled: {}".format("YES" if enableExists() else "NO"))
+    if os.path.exists("/home/phablet/anbox-data/containers"):
+        container = AnboxContainer()
+        print("Running: {}".format("YES" if container.running else "NO"))
+    else:
+        print("Running: NO")
+
+
+def app_install(app):
+    doCheck()
+    container = AnboxContainer()
+    if not container.running:
+        die("Anbox is not running!")
+    if container.install(app):
+        print("Successfully installed %s" % app)
+
+
+def app_remove(app):
+    doCheck()
+    app_obj = find_app(app)
+    if not app_obj:
+        print("Could not find app %s" % app)
+        app_obj = {}
+        app_obj["package"] = app
+        return
+    container = AnboxContainer()
+    if not container.running:
+        die("Anbox is not running!")
+    if container.remove(app_obj["package"]):
+        print("Successfully removed {}".format(app))
+    else:
+        print("Failed to remove {}".format(app))
+
+
+def app_find(app):
+    doCheck()
+    app_obj = find_app(app)
+    if not app_obj:
+        print("Could not find app %s" % app)
+    else:
+        print("Found app %s (%s)" % (app_obj["name"], app_obj["package"]))
+
+
+def app_list():
+    doCheck()
+    print("Anbox apps: \n")
+    for app in get_apps():
+        print("%s (%s)" % (app["name"], app["package"]))
+
+
+parser = argparse.ArgumentParser(prog='Anbox ubuntu touch tool')
+subparsers = parser.add_subparsers(dest='cmd', title="Commands")
+
+parser_install = subparsers.add_parser('install', help='Install anbox')
+parser_upgrade = subparsers.add_parser('upgrade', help='Upgrade anbox')
+parser_disable = subparsers.add_parser('disable', help='Disable anbox')
+parser_enable = subparsers.add_parser('enable', help='Enable anbox')
+parser_status = subparsers.add_parser('status', help='Anbox status')
+
+parser_app_install = subparsers.add_parser(
+    'app-install', help='Install a anbox app')
+parser_app_install.add_argument(
+    "apk_file", type=str, help="Apk file to install")
+parser_app_remove = subparsers.add_parser(
+    'app-remove', help='Remove a anbox app')
+parser_app_remove.add_argument(
+    "package", type=str, help="Name of app (package or name)")
+parser_app_list = subparsers.add_parser('app-list', help='List all anbox apps')
+parser_app_find = subparsers.add_parser('app-find', help='Find an anbox apps')
+parser_app_find.add_argument(
+    "package", type=str, help="Name of app (package or name)")
+
+args = parser.parse_args()
+
+if args.cmd == "install":
+    install()
+elif args.cmd == "upgrade":
+    upgrade()
+elif args.cmd == "disable":
+    disable()
+elif args.cmd == "enable":
+    enable()
+elif args.cmd == "status":
+    status()
+elif args.cmd == "app-install":
+    app_install(args.apk_file)
+elif args.cmd == "app-remove":
+    app_remove(args.package)
+elif args.cmd == "app-list":
+    app_list()
+elif args.cmd == "app-find":
+    app_find(args.package)
+else:
+    parser.print_help()
