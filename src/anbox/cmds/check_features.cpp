@@ -36,6 +36,14 @@ std::vector<std::string> cpu_whitelist = {
   "M 460",
   // Intel Celeron N2840
   "N2840",
+  // Intel Core i7 Q720
+  "Q 720",
+  // Intel Pentium T4500
+  "T4500", 
+  // Intel Core i7 Q720
+  "Q 720",
+  // Intel Xeon E5520
+  "E5520"
 };
 } // namespace
 
@@ -44,7 +52,7 @@ anbox::cmds::CheckFeatures::CheckFeatures()
           cli::Name{"check-features"}, cli::Usage{"check-features"},
           cli::Description{"Check that the host system supports all necessary features"}} {
 
-  action([](const cli::Command::Context&) {
+  action([this](const cli::Command::Context&) {
 #if defined(CPU_FEATURES_ARCH_X86)
     const auto info = cpu_features::GetX86Info();
     std::vector<std::string> missing_features;
@@ -70,7 +78,7 @@ anbox::cmds::CheckFeatures::CheckFeatures()
       }
     }
 
-    if (missing_features.size() > 0 && !is_whitelisted) {
+    if (missing_features.size() > 0 && !is_whitelisted && !sanity_check_for_features()) {
       std::cerr << "The CPU of your computer (" << brand_string << ") does not support all" << std::endl
                 << "features Anbox requires." << std::endl
                 << "It is missing support for the following features: ";
@@ -96,4 +104,33 @@ anbox::cmds::CheckFeatures::CheckFeatures()
     return EXIT_FAILURE;
 #endif
   });
+}
+
+// In case that the CPU supports AVX we take the decision as from our analysis
+// of the output from the cpu_features library. If it does not we have to check
+// further via the compiler builtins if we the CPU supports all mandatory features
+// or not. In case that any is missing we will fail the test.
+//
+// This uses the compiler builtin function __builtin_cpu_supports which allows us
+// to detect certain CPU features.
+// See https://gcc.gnu.org/onlinedocs/gcc/x86-Built-in-Functions.html
+bool anbox::cmds::CheckFeatures::sanity_check_for_features() {
+#if defined(CPU_FEATURES_ARCH_X86)
+  if (__builtin_cpu_supports("avx"))
+    return true;
+
+  std::vector<std::string> missing_features;
+
+#define CHECK_FEATURE(name) \
+  if (!__builtin_cpu_supports(name)) \
+    missing_features.push_back(name);
+
+  CHECK_FEATURE("sse4.1");
+  CHECK_FEATURE("sse4.2");
+  CHECK_FEATURE("ssse3");
+
+  return missing_features.empty();
+#else
+  return true;
+#endif
 }

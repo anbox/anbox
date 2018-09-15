@@ -29,6 +29,9 @@ namespace cmds {
 class CheckFeatures : public cli::CommandWithFlagsAndAction {
  public:
   CheckFeatures();
+
+ private:
+  bool sanity_check_for_features();
 };
 }  // namespace cmds
 }  // namespace anbox
