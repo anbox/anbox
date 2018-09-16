@@ -26,13 +26,22 @@ MultiWindowComposerStrategy::MultiWindowComposerStrategy(const std::shared_ptr<w
 std::map<std::shared_ptr<wm::Window>, RenderableList> MultiWindowComposerStrategy::process_layers(const RenderableList &renderables) {
   WindowRenderableList win_layers;
   for (const auto &renderable : renderables) {
-    // Ignore all surfaces which are not meant for a task
-    if (!utils::string_starts_with(renderable.name(), "org.anbox.surface."))
-      continue;
+     wm::Task::Id task_id = 0;
+     // Hack to allow render of InputMethod under same window as requester
+     // This uses last task id it got, this is a masive hack, but *should*
+     // render *mostly* on correct window
+    if (renderable.name() == "InputMethod" && last_task != 0)
+      task_id = last_task;
+    else {
+      // Ignore all surfaces which are not meant for a task
+      if (!utils::string_starts_with(renderable.name(), "org.anbox.surface."))
+        continue;
 
-    wm::Task::Id task_id = 0;
-    if (sscanf(renderable.name().c_str(), "org.anbox.surface.%d", &task_id) != 1 || !task_id)
-      continue;
+      if (sscanf(renderable.name().c_str(), "org.anbox.surface.%d", &task_id) != 1 || !task_id)
+        continue;
+
+      last_task = task_id;
+    }
 
     auto w = wm_->find_window_for_task(task_id);
     if (!w) continue;
