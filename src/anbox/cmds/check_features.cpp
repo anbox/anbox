@@ -43,7 +43,9 @@ std::vector<std::string> cpu_whitelist = {
   // Intel Core i7 Q720
   "Q 720",
   // Intel Xeon E5520
-  "E5520"
+  "E5520",
+  // Intel Core 2 Duo P7550
+  "P7550"
 };
 } // namespace
 
