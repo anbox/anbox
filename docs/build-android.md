@@ -41,10 +41,10 @@ Firstly initialize the environment with the ```envsetup.sh``` script.
 $ . build/envsetup.sh
 ```
 
-Then initialize the build using ```lunch```.
+Then initialize the build using ```launch```.
 
 ```
-$ lunch anbox_x86_64-userdebug
+$ launch anbox_x86_64-userdebug
 ```
 
 The complete list of supported build targets:
