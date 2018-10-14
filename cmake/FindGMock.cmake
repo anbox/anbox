@@ -77,7 +77,7 @@ target_link_libraries(gmock INTERFACE ${findgmock_gmock_lib} gtest)
 
 add_library(gmock_main INTERFACE)
 target_include_directories(gmock_main INTERFACE ${GMOCK_INCLUDE_DIRS})
-target_link_libraries(gmock_main INTERFACE ${findgmock_gmock_main_lib} gmock)
+target_link_libraries(gmock_main INTERFACE ${findgmock_gmock_main_lib} gmock gtest_main)
 
 set(GTEST_LIBRARIES gtest)
 set(GTEST_MAIN_LIBRARIES gtest_main)
