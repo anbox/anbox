@@ -80,11 +80,13 @@ GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<w
 
   auto gl_libs = emugl::default_gl_libraries();
   if (config.driver == Config::Driver::Software) {
+    auto swiftshader_path = fs::path(utils::get_env_value("SWIFTSHADER_PATH"));
     const auto snap_path = utils::get_env_value("SNAP");
-    if (snap_path.empty())
-      throw std::runtime_error("Software rendering is not available outside of a snap build");
+    if (!snap_path.empty())
+      swiftshader_path = fs::path(snap_path) / "lib" / "anbox" / "swiftshader";
+    if (!fs::exists(swiftshader_path))
+      throw std::runtime_error("Software rendering is enabled, but SwiftShader library directory is not found.");
 
-    auto swiftshader_path = fs::path(snap_path) / "lib" / "anbox" / "swiftshader";
     gl_libs = std::vector<emugl::GLLibrary>{
       {emugl::GLLibrary::Type::EGL, (swiftshader_path / "libEGL.so").string()},
       {emugl::GLLibrary::Type::GLESv1, (swiftshader_path / "libGLES_CM.so").string()},
