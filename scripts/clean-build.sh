@@ -23,7 +23,6 @@ apt-get install -qq -y \
   libcap-dev \
   libegl1-mesa-dev \
   libgles2-mesa-dev \
-  libglib2.0-dev \
   libglm-dev \
   libgtest-dev \
   liblxc1 \
