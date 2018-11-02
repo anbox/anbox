@@ -43,7 +43,7 @@ std::vector<std::string> cpu_whitelist = {
   // Intel Core i7 Q720
   "Q 720",
   // Intel Xeon E5520
-  "E5520"
+  "E5520",
   // Intel Core2 Duo T6500
   "T6500"
 };
