@@ -40,7 +40,7 @@ ApplicationManager::ApplicationManager(const BusPtr& bus)
 ApplicationManager::~ApplicationManager() {}
 
 void ApplicationManager::update_properties() {
-  bool ready = false;
+  int ready = 0;
   const auto r = sd_bus_get_property_trivial(bus_->raw(),
                                              interface::Service::name(),
                                              interface::Service::path(),
