@@ -46,6 +46,8 @@ std::vector<std::string> cpu_whitelist = {
   "E5520"
   // Intel Core2 Duo T6500
   "T6500"
+  // Intel Dual Core T2390
+  "T2390"
 };
 } // namespace
 
