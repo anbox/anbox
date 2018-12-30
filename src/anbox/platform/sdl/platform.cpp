@@ -49,6 +49,12 @@ Platform::Platform(
   // suspending correctly.
   SDL_SetHint(SDL_HINT_VIDEO_ALLOW_SCREENSAVER, "1");
 
+#ifdef SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR
+  // Don't disable compositing
+  // Available since SDL 2.0.8
+  SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
+#endif
+
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) {
     const auto message = utils::string_format("Failed to initialize SDL: %s", SDL_GetError());
     BOOST_THROW_EXCEPTION(std::runtime_error(message));
