@@ -247,6 +247,7 @@ void Platform::process_input_event(const SDL_Event &event) {
     case SDL_MOUSEWHEEL:
       mouse_events.push_back(
           {EV_REL, REL_WHEEL, static_cast<std::int32_t>(event.wheel.y)});
+      mouse_events.push_back({EV_SYN, SYN_REPORT, 0});      
       break;
     // Keyboard
     case SDL_KEYDOWN: {
