@@ -13,6 +13,7 @@ message Configuration {
     }
     repeated BindMount bind_mounts = 1;
     repeated Devices devices = 2;
+    repeated string extra_properties = 3;
 }
 
 message StartContainer {
