@@ -208,11 +208,9 @@ void Platform::process_input_event(const SDL_Event &event) {
     // Mouse
     case SDL_MOUSEBUTTONDOWN:
       mouse_events.push_back({EV_KEY, BTN_LEFT, 1});
-      mouse_events.push_back({EV_SYN, SYN_REPORT, 0});
       break;
     case SDL_MOUSEBUTTONUP:
       mouse_events.push_back({EV_KEY, BTN_LEFT, 0});
-      mouse_events.push_back({EV_SYN, SYN_REPORT, 0});
       break;
     case SDL_MOUSEMOTION:
       if (!single_window_) {
@@ -242,7 +240,6 @@ void Platform::process_input_event(const SDL_Event &event) {
       // was moved. They are not used to find out the exact position.
       mouse_events.push_back({EV_REL, REL_X, event.motion.xrel});
       mouse_events.push_back({EV_REL, REL_Y, event.motion.yrel});
-      mouse_events.push_back({EV_SYN, SYN_REPORT, 0});
       break;
     case SDL_MOUSEWHEEL:
       mouse_events.push_back(
@@ -359,8 +356,10 @@ void Platform::process_input_event(const SDL_Event &event) {
       break;
   }
 
-  if (mouse_events.size() > 0)
+  if (mouse_events.size() > 0) {
+    mouse_events.push_back({EV_SYN, SYN_REPORT, 0});      
     pointer_->send_events(mouse_events);
+  }
 
   if (keyboard_events.size() > 0)
     keyboard_->send_events(keyboard_events);
