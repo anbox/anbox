@@ -104,6 +104,7 @@ LxcContainer::LxcContainer(bool privileged,
       creds_(creds) {
   utils::ensure_paths({
       SystemConfiguration::instance().container_config_dir(),
+      SystemConfiguration::instance().container_state_dir(),
       SystemConfiguration::instance().log_dir(),
   });
 }
@@ -394,6 +395,33 @@ void LxcContainer::start(const Configuration &configuration) {
 
   for (const auto& device : devices)
     add_device(device.first, device.second);
+
+  // If we have any additional properties we add them at the top of default.prop
+  // within the Android rootfs which we overlay with a bind mount.
+  if (configuration.extra_properties.size() > 0) {
+    const auto container_state_dir = SystemConfiguration::instance().container_state_dir();
+    auto old_default_prop_path = fs::path(rootfs_path) / "default.prop";
+    auto new_default_prop_path = fs::path(container_state_dir) / "default.prop";
+    auto default_prop_content = utils::read_file_if_exists_or_throw(old_default_prop_path.string());
+
+    std::ofstream default_props;
+    default_props.open(new_default_prop_path.string(), std::ios_base::out);
+    if (!default_props.is_open())
+      throw std::runtime_error("Failed to open new default properties file");
+
+    default_props << "# Properties added by Anbox" << std::endl;
+    for (const auto& prop : configuration.extra_properties)
+      default_props << prop << std::endl;
+
+    default_props << std::endl
+                  << default_prop_content << std::endl;
+
+    default_props.close();
+
+    set_config_item("lxc.mount.entry",
+                    utils::string_format("%s %s/default.prop none bind,optional,ro 0 0",
+                                         new_default_prop_path.string(), rootfs_path));
+  }
 
   if (!container_->save_config(container_, nullptr))
     throw std::runtime_error("Failed to save container configuration");

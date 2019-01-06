@@ -45,11 +45,14 @@ void ManagementApiStub::start_container(const Configuration &configuration) {
     bind_mount_message->set_target(item.second);
   }
 
-  for (const auto &item: configuration.devices) {
+  for (const auto &item : configuration.devices) {
     auto device_message = message_configuration->add_devices();
     device_message->set_path(item.first);
     device_message->set_permission(item.second.permission);
   }
+
+  for (const auto &prop : configuration.extra_properties)
+    message_configuration->add_extra_properties(prop);
 
   message.set_allocated_configuration(message_configuration);
 
