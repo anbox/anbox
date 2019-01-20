@@ -31,7 +31,7 @@ class NullPlatform : public BasePlatform {
       const std::string &title) override;
   void set_clipboard_data(const ClipboardData &data) override;
   ClipboardData get_clipboard_data() override;
-  std::shared_ptr<audio::Sink> create_audio_sink() override;
+  std::shared_ptr<audio::Sink> create_audio_sink(const std::shared_ptr<network::LocalSocketMessenger> &messenger) override;
   std::shared_ptr<audio::Source> create_audio_source() override;
   void set_renderer(const std::shared_ptr<Renderer> &renderer) override;
   void set_window_manager(const std::shared_ptr<wm::Manager> &window_manager) override;

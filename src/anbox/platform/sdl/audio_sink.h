@@ -21,6 +21,7 @@
 #include "anbox/audio/sink.h"
 #include "anbox/graphics/buffer_queue.h"
 #include "anbox/platform/sdl/sdl_wrapper.h"
+#include "anbox/network/local_socket_messenger.h"
 
 #include <thread>
 
@@ -29,7 +30,7 @@ namespace platform {
 namespace sdl {
 class AudioSink : public audio::Sink {
  public:
-  AudioSink();
+  AudioSink(const std::shared_ptr<network::LocalSocketMessenger> &messenger);
   ~AudioSink();
 
   void write_data(const std::vector<std::uint8_t> &data) override;
@@ -40,7 +41,8 @@ class AudioSink : public audio::Sink {
   void read_data(std::uint8_t *buffer, int size);
 
   static void on_data_requested(void *user_data, std::uint8_t *buffer, int size);
-
+  
+  std::shared_ptr<anbox::network::LocalSocketMessenger> messenger_;
   std::mutex lock_;
   SDL_AudioSpec spec_;
   SDL_AudioDeviceID device_id_;

@@ -29,7 +29,8 @@ const constexpr size_t max_queue_size{16};
 namespace anbox {
 namespace platform {
 namespace sdl {
-AudioSink::AudioSink() :
+AudioSink::AudioSink(const std::shared_ptr<network::LocalSocketMessenger> &messenger) :
+  messenger_(messenger),
   device_id_(0),
   queue_(max_queue_size) {
 }

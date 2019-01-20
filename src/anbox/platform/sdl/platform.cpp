@@ -491,8 +491,8 @@ Platform::ClipboardData Platform::get_clipboard_data() {
   return data;
 }
 
-std::shared_ptr<audio::Sink> Platform::create_audio_sink() {
-  return std::make_shared<AudioSink>();
+std::shared_ptr<audio::Sink> Platform::create_audio_sink(const std::shared_ptr<network::LocalSocketMessenger> &messenger) {
+  return std::make_shared<AudioSink>(messenger);
 }
 
 std::shared_ptr<audio::Source> Platform::create_audio_source() {

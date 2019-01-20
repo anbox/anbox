@@ -48,7 +48,8 @@ NullPlatform::ClipboardData NullPlatform::get_clipboard_data() {
   return ClipboardData{};
 }
 
-std::shared_ptr<audio::Sink> NullPlatform::create_audio_sink() {
+std::shared_ptr<audio::Sink> NullPlatform::create_audio_sink(const std::shared_ptr<network::LocalSocketMessenger> &messenger) {
+  (void) messenger;
   ERROR("Not implemented");
   return nullptr;
 }
