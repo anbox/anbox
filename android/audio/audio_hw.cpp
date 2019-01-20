@@ -180,6 +180,14 @@ static ssize_t out_write(struct audio_stream_out *stream, const void *buffer,
   pthread_mutex_lock(&adev->lock);
   if (out->fd >= 0)
     bytes = write(out->fd, buffer, bytes);
+
+  // wait until session writes the data we sent,
+  // this will block if sink queue is full,
+  // acting as synchronization to time audio
+  int64_t arrived_us;
+  read(out->fd, &arrived_us, sizeof(arrived_us));
+  (void) arrived_us;
+
   pthread_mutex_unlock(&adev->lock);
   return bytes;
 }

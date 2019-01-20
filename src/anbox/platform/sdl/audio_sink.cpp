@@ -19,11 +19,12 @@
 #include "anbox/logger.h"
 
 #include <stdexcept>
+#include <time.h>
 
 #include <boost/throw_exception.hpp>
 
 namespace {
-const constexpr size_t max_queue_size{16};
+const constexpr size_t max_queue_size{1};
 }
 
 namespace anbox {
@@ -114,6 +115,20 @@ void AudioSink::write_data(const std::vector<std::uint8_t> &data) {
   }
   graphics::Buffer buffer{data.data(), data.data() + data.size()};
   queue_.push_locked(std::move(buffer), l);
+
+  // Android side is waiting for "confirmation" that data arrived,
+  // if sink queue is full, Android audio thread will be blocked 
+  // untill there's space available in the queue
+  // 
+  // this acts as sychronization to time audio
+  //
+  // at the time of implementation, 
+  // the data we send to Android is not actually used
+  timespec t;
+  clock_gettime(CLOCK_MONOTONIC, &t);
+  int64_t now_us = (t.tv_sec * 1000000000LL + t.tv_nsec) / 1000;
+
+  messenger_->send(reinterpret_cast<char*>(&now_us), sizeof(now_us));
 }
 } // namespace sdl
 } // namespace platform
