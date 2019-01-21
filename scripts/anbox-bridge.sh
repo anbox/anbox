@@ -28,12 +28,14 @@ BRIDGE="anbox0"
 IPV4_ADDR="192.168.250.1"
 IPV4_NETMASK="255.255.255.0"
 IPV4_NETWORK="192.168.250.1/24"
+IPV4_BROADCAST="192.168.250.255"
 IPV4_NAT="true"
 
 if [ -n "$SNAP" ]; then
     snap_ipv4_address=$(snapctl get bridge.address)
     snap_ipv4_netmask=$(snapctl get bridge.netmask)
     snap_ipv4_network=$(snapctl get bridge.network)
+    snap_ipv4_broadcast=$(snapctl get bridge.broadcast)
     snap_enable_nat=$(snapctl get bridge.nat.enable)
     if [ -n "$snap_ipv4_address" ]; then
         IPV4_ADDR="$snap_ipv4_address"
@@ -43,6 +45,9 @@ if [ -n "$SNAP" ]; then
     fi
     if [ -n "$snap_ipv4_network" ]; then
         IPV4_NETWORK="$snap_ipv4_network"
+    fi
+    if [ -n "$snap_ipv4_network" ]; then
+        IPV4_BROADCAST="$snap_ipv4_broadcast"
     fi
     if [ "$snap_enable_nat" = false ]; then
         IPV4_NAT="false"
@@ -71,6 +76,7 @@ ifup() {
         MASK=$(_netmask2cidr ${IPV4_NETMASK})
         CIDR_ADDR="${IPV4_ADDR}/${MASK}"
         ip addr add "${CIDR_ADDR}" dev "${1}"
+    ip addr add "${CIDR_ADDR}" broadcast "${IPV4_BROADCAST}" dev "${1}"
     fi
     ip link set dev "${1}" up
 }
