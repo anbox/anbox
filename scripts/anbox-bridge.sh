@@ -28,7 +28,7 @@ BRIDGE="anbox0"
 IPV4_ADDR="192.168.250.1"
 IPV4_NETMASK="255.255.255.0"
 IPV4_NETWORK="192.168.250.1/24"
-IPV4_BROADCAST="192.168.250.255"
+IPV4_BROADCAST="0.0.0.0"
 IPV4_NAT="true"
 
 if [ -n "$SNAP" ]; then
@@ -46,7 +46,7 @@ if [ -n "$SNAP" ]; then
     if [ -n "$snap_ipv4_network" ]; then
         IPV4_NETWORK="$snap_ipv4_network"
     fi
-    if [ -n "$snap_ipv4_network" ]; then
+    if [ -n "$snap_ipv4_broadcast" ]; then
         IPV4_BROADCAST="$snap_ipv4_broadcast"
     fi
     if [ "$snap_enable_nat" = false ]; then
