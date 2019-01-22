@@ -75,8 +75,7 @@ ifup() {
     if [ -n "${IPV4_NETMASK}" ] && [ -n "${IPV4_ADDR}" ]; then
         MASK=$(_netmask2cidr ${IPV4_NETMASK})
         CIDR_ADDR="${IPV4_ADDR}/${MASK}"
-        ip addr add "${CIDR_ADDR}" dev "${1}"
-    ip addr add "${CIDR_ADDR}" broadcast "${IPV4_BROADCAST}" dev "${1}"
+	ip addr add "${CIDR_ADDR}" broadcast "${IPV4_BROADCAST}" dev "${1}"
     fi
     ip link set dev "${1}" up
 }
