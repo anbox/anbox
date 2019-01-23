@@ -216,7 +216,7 @@ void Platform::process_input_event(const SDL_Event &event) {
       if (!single_window_) {
         // As we get only absolute coordindates relative to our window we have to
         // calculate the correct position based on the current focused window
-        window = SDL_GetWindowFromID(event.window.windowID);
+        window = SDL_GetWindowFromID(focused_sdl_window_id);
         if (!window) break;
 
         SDL_GetWindowPosition(window, &x, &y);
@@ -266,7 +266,7 @@ void Platform::process_input_event(const SDL_Event &event) {
       touch_events.push_back({EV_KEY, BTN_TOUCH, 1});
       touch_events.push_back({EV_KEY, BTN_TOOL_FINGER, 1});
 
-      window = SDL_GetWindowFromID(event.window.windowID);
+      window = SDL_GetWindowFromID(focused_sdl_window_id);
       // before SDL 2.0.7 on X11 tfinger coordinates are not normalized
       if (!SDL_VERSION_ATLEAST(2,0,7) && (event.tfinger.x>1 || event.tfinger.y>1)) {
         rel_x = event.tfinger.x;
@@ -320,7 +320,7 @@ void Platform::process_input_event(const SDL_Event &event) {
 	  case SDL_FINGERMOTION: {
       touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
 
-      window = SDL_GetWindowFromID(event.window.windowID);
+      window = SDL_GetWindowFromID(focused_sdl_window_id);
       // before SDL 2.0.7 on X11 tfinger coordinates are not normalized
       if (!SDL_VERSION_ATLEAST(2,0,7) && (event.tfinger.x>1 || event.tfinger.y>1)) {
         rel_x = event.tfinger.x;
@@ -396,6 +396,7 @@ std::shared_ptr<wm::Window> Platform::create_window(
 
   auto id = next_window_id();
   auto w = std::make_shared<Window>(renderer_, id, task, shared_from_this(), frame, title, !window_size_immutable_);
+  focused_sdl_window_id = w->window_id();
   windows_.insert({id, w});
   return w;
 }
@@ -415,8 +416,10 @@ void Platform::window_wants_focus(const Window::Id &id) {
   auto w = windows_.find(id);
   if (w == windows_.end()) return;
 
-  if (auto window = w->second.lock())
+  if (auto window = w->second.lock()) {
+    focused_sdl_window_id = window->window_id();
     window_manager_->set_focused_task(window->task());
+  }
 }
 
 void Platform::window_moved(const Window::Id &id, const std::int32_t &x,

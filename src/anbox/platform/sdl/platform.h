@@ -91,6 +91,7 @@ class Platform : public std::enable_shared_from_this<Platform>,
   graphics::Rect display_frame_;
   bool window_size_immutable_ = false;
   bool single_window_ = false;
+  std::uint32_t focused_sdl_window_id = 0;
 };
 } // namespace sdl
 } // namespace platform
