@@ -267,13 +267,19 @@ void Platform::process_input_event(const SDL_Event &event) {
       touch_events.push_back({EV_KEY, BTN_TOOL_FINGER, 1});
 
       window = SDL_GetWindowFromID(event.window.windowID);
-      if (window) {
-        SDL_GetWindowSize(window, &rel_x, &rel_y);
-        rel_x *= event.tfinger.x;
-        rel_y *= event.tfinger.y;
+      // before SDL 2.0.7 on X11 tfinger coordinates are not normalized
+      if (!SDL_VERSION_ATLEAST(2,0,7) && (event.tfinger.x>1 || event.tfinger.y>1)) {
+        rel_x = event.tfinger.x;
+        rel_y = event.tfinger.y;
       } else {
-        rel_x = display_frame_.width() * event.tfinger.x;
-        rel_y = display_frame_.height() * event.tfinger.y;
+        if (window) {
+          SDL_GetWindowSize(window, &rel_x, &rel_y);
+          rel_x *= event.tfinger.x;
+          rel_y *= event.tfinger.y;
+        } else {
+          rel_x = display_frame_.width() * event.tfinger.x;
+          rel_y = display_frame_.height() * event.tfinger.y;
+        }
       }
 
       if (!single_window_) {
@@ -315,13 +321,19 @@ void Platform::process_input_event(const SDL_Event &event) {
       touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
 
       window = SDL_GetWindowFromID(event.window.windowID);
-      if (window) {
-        SDL_GetWindowSize(window, &rel_x, &rel_y);
-        rel_x *= event.tfinger.x;
-        rel_y *= event.tfinger.y;
+      // before SDL 2.0.7 on X11 tfinger coordinates are not normalized
+      if (!SDL_VERSION_ATLEAST(2,0,7) && (event.tfinger.x>1 || event.tfinger.y>1)) {
+        rel_x = event.tfinger.x;
+        rel_y = event.tfinger.y;
       } else {
-        rel_x = display_frame_.width() * event.tfinger.x;
-        rel_y = display_frame_.height() * event.tfinger.y;
+        if (window) {
+          SDL_GetWindowSize(window, &rel_x, &rel_y);
+          rel_x *= event.tfinger.x;
+          rel_y *= event.tfinger.y;
+        } else {
+          rel_x = display_frame_.width() * event.tfinger.x;
+          rel_y = display_frame_.height() * event.tfinger.y;
+        }
       }
 
       if (!single_window_) {
