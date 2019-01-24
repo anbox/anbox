@@ -211,7 +211,7 @@ void Platform::process_input_event(const SDL_Event &event) {
       if (!single_window_) {
         // As we get only absolute coordindates relative to our window we have to
         // calculate the correct position based on the current focused window
-        window = SDL_GetWindowFromID(focused_sdl_window_id);
+        window = SDL_GetWindowFromID(focused_sdl_window_id_);
         if (!window) break;
 
         SDL_GetWindowPosition(window, &x, &y);
@@ -323,7 +323,7 @@ bool Platform::calculate_touch_coordinates(const SDL_Event &event,
 
   SDL_Window *window = nullptr;
 
-  window = SDL_GetWindowFromID(focused_sdl_window_id);
+  window = SDL_GetWindowFromID(focused_sdl_window_id_);
   // before SDL 2.0.7 on X11 tfinger coordinates are not normalized
   if (!SDL_VERSION_ATLEAST(2,0,7) && (event.tfinger.x > 1 || event.tfinger.y > 1)) {
     rel_x = event.tfinger.x;
@@ -372,7 +372,7 @@ std::shared_ptr<wm::Window> Platform::create_window(
 
   auto id = next_window_id();
   auto w = std::make_shared<Window>(renderer_, id, task, shared_from_this(), frame, title, !window_size_immutable_);
-  focused_sdl_window_id = w->window_id();
+  focused_sdl_window_id_ = w->window_id();
   windows_.insert({id, w});
   return w;
 }
@@ -393,7 +393,7 @@ void Platform::window_wants_focus(const Window::Id &id) {
   if (w == windows_.end()) return;
 
   if (auto window = w->second.lock()) {
-    focused_sdl_window_id = window->window_id();
+    focused_sdl_window_id_ = window->window_id();
     window_manager_->set_focused_task(window->task());
   }
 }
