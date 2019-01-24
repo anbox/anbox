@@ -74,6 +74,9 @@ class Platform : public std::enable_shared_from_this<Platform>,
   void process_events();
   void process_input_event(const SDL_Event &event);
 
+  bool calculate_touch_coordinates(const SDL_Event &event, std::int32_t &x,
+                                   std::int32_t &y);
+
   static Window::Id next_window_id();
 
   std::shared_ptr<Renderer> renderer_;
