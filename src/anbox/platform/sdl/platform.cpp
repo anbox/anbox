@@ -316,8 +316,8 @@ void Platform::process_input_event(const SDL_Event &event) {
 }
 
 bool Platform::calculate_touch_coordinates(const SDL_Event &event,
-                                                 std::int32_t &x,
-                                                 std::int32_t &y) {
+                                           std::int32_t &x,
+                                           std::int32_t &y) {
   std::int32_t rel_x = 0;
   std::int32_t rel_y = 0;
 
