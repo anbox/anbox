@@ -38,7 +38,9 @@ In order to add the PPA to your Ubuntu system please run the following commands:
 ```
  $ sudo add-apt-repository ppa:morphis/anbox-support
  $ sudo apt update
- $ sudo apt install anbox-modules-dkms
+ $ sudo apt install anbox-modules-dkms 
+# BUG: results in Err:9 http://ppa.launchpad.net/morphis/anbox-support/ubuntu disco Release
+# 404  Not Found [IP: XXX.XXX.XXX.XXX]
 ```
 
 These will add the PPA to your system and install the `anbox-modules-dkms`
