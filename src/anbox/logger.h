@@ -52,7 +52,6 @@ class Logger : public DoNotCopyOrMove {
   bool SetSeverityFromString(const std::string &severity);
   virtual void SetSeverity(const Severity& severity) = 0;
   virtual Severity GetSeverity() = 0;
-  virtual void SetLogFile(const std::string& filename){log_file_name = filename;};
 
   virtual void Log(Severity severity, const std::string& message,
                    const boost::optional<Location>& location) = 0;
@@ -114,7 +113,6 @@ class Logger : public DoNotCopyOrMove {
 
  protected:
   Logger() = default;
-  std::string log_file_name;
 };
 
 // operator<< inserts severity into out.

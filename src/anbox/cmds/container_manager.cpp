@@ -54,7 +54,6 @@ anbox::cmds::ContainerManager::ContainerManager()
                       daemon_));
 
   action([&](const cli::Command::Context&) {
-
     try {
       if (!daemon_) {
         WARNING("You are running the container manager manually which is most likely not");
@@ -70,15 +69,6 @@ anbox::cmds::ContainerManager::ContainerManager()
         ERROR("as it is started by the init system of your operating system.");
         return EXIT_FAILURE;
       }
-
-      std::string log_dir = "/var/log/anbox";
-      if (!fs::exists(log_dir)) {
-        fs::create_directories(log_dir);
-        ::chmod(log_dir.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH);
-      }
-
-      Log().SetLogFile("/var/log/anbox/container.txt");
-      INFO("======================Container Manager Log======================");
 
       auto trap = core::posix::trap_signals_for_process(
           {core::posix::Signal::sig_term, core::posix::Signal::sig_int});

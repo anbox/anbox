@@ -39,7 +39,6 @@ const boost::posix_time::seconds max_wait_timeout{240};
 const int max_restart_attempts{3};
 const std::chrono::seconds restart_interval{5};
 
-#ifdef DIRECT_LOG_TO_NULL
 static int redirect_to_null(int flags, int fd) {
   int fd2;
   if ((fd2 = open("/dev/null", flags)) < 0)
@@ -54,7 +53,6 @@ static int redirect_to_null(int flags, int fd) {
   close(fd2);
   return fd;
 }
-#endif //DIRECT_LOG_TO_NULL
 }
 
 bool anbox::cmds::Launch::try_launch_activity(const std::shared_ptr<dbus::stub::ApplicationManager> &stub) {
@@ -99,10 +97,6 @@ anbox::cmds::Launch::Launch()
                       use_system_dbus_));
 
   action([this](const cli::Command::Context&) {
-
-    Log().SetLogFile("/var/log/anbox/launch.txt");
-    INFO("======================Launch Log======================");
-
     if (!intent_.valid()) {
       ERROR("The intent you provided is invalid. Please provide a correct launch intent.");
       ERROR("For example to launch the application manager, run:");
@@ -161,7 +155,6 @@ anbox::cmds::Launch::Launch()
         try {
           auto flags = core::posix::StandardStream::empty;
           auto child = core::posix::fork([&]() {
-#ifdef DIRECT_LOG_TO_NULL
             // We redirect all in/out/err to /dev/null as they can't be seen
             // anywhere. All logging output will directly go to syslog as we
             // will become a session leader below which will get us rid of a
@@ -172,7 +165,6 @@ anbox::cmds::Launch::Launch()
               ERROR("Failed to redirect stdout/stderr/stdin: %s", strerror(errno));
               return core::posix::exit::Status::failure;
             }
-#endif //DIRECT_LOG_TO_NULL
 
             // As we forked one time already we're sure that our process is
             // not the session leader anymore so we can safely become the
