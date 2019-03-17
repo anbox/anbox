@@ -62,7 +62,8 @@ class BasePlatform {
 std::shared_ptr<BasePlatform> create(const std::string &name = "",
                                      const std::shared_ptr<input::Manager> &input_manager = nullptr,
                                      const graphics::Rect &display_frame = graphics::Rect::Invalid,
-                                     bool single_window = false);
+                                     bool single_window = false,
+                                     bool no_touch_emulation = false);
 }  // namespace platform
 }  // namespace anbox
 

@@ -50,6 +50,7 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
   bool experimental_ = false;
   bool use_system_dbus_ = false;
   bool use_software_rendering_ = false;
+  bool no_touch_emulation_ = false;
 };
 }  // namespace cmds
 }  // namespace anbox

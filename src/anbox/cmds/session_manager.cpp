@@ -112,6 +112,9 @@ anbox::cmds::SessionManager::SessionManager()
   flag(cli::make_flag(cli::Name{"software-rendering"},
                       cli::Description{"Use software rendering instead of hardware accelerated GL rendering"},
                       use_software_rendering_));
+  flag(cli::make_flag(cli::Name{"no-touch-emulation"},
+                      cli::Description{"Disable touch emulation applied on mouse inputs"},
+                      no_touch_emulation_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -157,7 +160,8 @@ anbox::cmds::SessionManager::SessionManager()
     auto platform = platform::create(utils::get_env_value("ANBOX_PLATFORM", "sdl"),
                                      input_manager,
                                      display_frame,
-                                     single_window_);
+                                     single_window_,
+                                     no_touch_emulation_);
     if (!platform) 
       return EXIT_FAILURE;
 

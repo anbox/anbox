@@ -38,10 +38,12 @@ namespace sdl {
 Platform::Platform(
     const std::shared_ptr<input::Manager> &input_manager,
     const graphics::Rect &static_display_frame,
-    bool single_window)
+    bool single_window,
+    bool no_touch_emulation)
     : input_manager_(input_manager),
       event_thread_running_(false),
-      single_window_(single_window) {
+      single_window_(single_window),
+      no_touch_emulation_(no_touch_emulation) {
 
   // Don't block the screensaver from kicking in. It will be blocked
   // by the desktop shell already and we don't have to do this again.
@@ -198,53 +200,76 @@ void Platform::process_input_event(const SDL_Event &event) {
   switch (event.type) {
     // Mouse
     case SDL_MOUSEBUTTONDOWN:
-      touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, static_cast<std::int32_t>(emulated_touch_id_)});
-      touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
-      touch_events.push_back({EV_KEY, BTN_TOUCH, 1});
-      touch_events.push_back({EV_KEY, BTN_TOOL_FINGER, 1});
+      if (no_touch_emulation_) {
+        mouse_events.push_back({EV_KEY, BTN_LEFT, 1});
+      } else {
+        x = event.button.x;
+        y = event.button.y;
+        if (!adjust_coordinates(x, y))
+          break;
 
-      x = event.button.x;
-      y = event.button.y;
-      if (!adjust_coordinates(x, y))
-        break;
+        touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, static_cast<std::int32_t>(emulated_touch_id_)});
+        touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
+        touch_events.push_back({EV_KEY, BTN_TOUCH, 1});
+        touch_events.push_back({EV_KEY, BTN_TOOL_FINGER, 1});
 
-      touch_events.push_back({EV_ABS, ABS_MT_POSITION_X, x});
-      touch_events.push_back({EV_ABS, ABS_MT_POSITION_Y, y});
+        touch_events.push_back({EV_ABS, ABS_MT_POSITION_X, x});
+        touch_events.push_back({EV_ABS, ABS_MT_POSITION_Y, y});
 
-      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MAJOR, 24});
-      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MINOR, 24});
+        touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MAJOR, 24});
+        touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MINOR, 24});
 
-      touch_events.push_back({EV_SYN, SYN_REPORT, 0});
+        touch_events.push_back({EV_SYN, SYN_REPORT, 0});
+      }
       break;
     case SDL_MOUSEBUTTONUP:
-      touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, -1});
-      touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
-      touch_events.push_back({EV_KEY, BTN_TOUCH, 0});
-      touch_events.push_back({EV_KEY, BTN_TOOL_FINGER, 0});
-      touch_events.push_back({EV_SYN, SYN_REPORT, 0});
+      if (no_touch_emulation_) {
+        mouse_events.push_back({EV_KEY, BTN_LEFT, 0});
+      } else {
+        touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, -1});
+        touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
+        touch_events.push_back({EV_KEY, BTN_TOUCH, 0});
+        touch_events.push_back({EV_KEY, BTN_TOOL_FINGER, 0});
+        touch_events.push_back({EV_SYN, SYN_REPORT, 0});
+      }
       break;
     case SDL_MOUSEMOTION:
-      touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
-
       x = event.motion.x;
       y = event.motion.y;
       if (!adjust_coordinates(x, y))
         break;
 
-      touch_events.push_back({EV_ABS, ABS_MT_POSITION_X, x});
-      touch_events.push_back({EV_ABS, ABS_MT_POSITION_Y, y});
+      if (no_touch_emulation_) {
+        // NOTE: Sending relative move events doesn't really work and we have
+        // changes in libinputflinger to take ABS_X/ABS_Y instead for absolute
+        // position events.
+        mouse_events.push_back({EV_ABS, ABS_X, x});
+        mouse_events.push_back({EV_ABS, ABS_Y, y});
+        // We're sending relative position updates here too but they will be only
+        // used by the Android side EventHub/InputReader to determine if the cursor
+        // was moved. They are not used to find out the exact position.
+        mouse_events.push_back({EV_REL, REL_X, event.motion.xrel});
+        mouse_events.push_back({EV_REL, REL_Y, event.motion.yrel});
+      } else {
+        touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
 
-      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MAJOR, 24});
-      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MINOR, 24});
-      touch_events.push_back({EV_SYN, SYN_REPORT, 0});
+        touch_events.push_back({EV_ABS, ABS_MT_POSITION_X, x});
+        touch_events.push_back({EV_ABS, ABS_MT_POSITION_Y, y});
+
+        touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MAJOR, 24});
+        touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MINOR, 24});
+        touch_events.push_back({EV_SYN, SYN_REPORT, 0});
+      }
       break;
     case SDL_MOUSEWHEEL:
-      SDL_GetMouseState(&x, &y);
-      if (!adjust_coordinates(x, y))
-        break;
+      if (!no_touch_emulation_) {
+        SDL_GetMouseState(&x, &y);
+        if (!adjust_coordinates(x, y))
+          break;
 
-      mouse_events.push_back({EV_ABS, ABS_X, x});
-      mouse_events.push_back({EV_ABS, ABS_Y, y});
+        mouse_events.push_back({EV_ABS, ABS_X, x});
+        mouse_events.push_back({EV_ABS, ABS_Y, y});
+      }
       mouse_events.push_back(
           {EV_REL, REL_WHEEL, static_cast<std::int32_t>(event.wheel.y)});
       break;
