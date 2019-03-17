@@ -74,10 +74,13 @@ class Platform : public std::enable_shared_from_this<Platform>,
   void process_events();
   void process_input_event(const SDL_Event &event);
 
+  bool adjust_coordinates(std::int32_t &x, std::int32_t &y);
+  bool adjust_coordinates(SDL_Window *window, std::int32_t &x, std::int32_t &y);
   bool calculate_touch_coordinates(const SDL_Event &event, std::int32_t &x,
                                    std::int32_t &y);
 
   static Window::Id next_window_id();
+  static constexpr std::uint32_t emulated_touch_id_ = 0;
 
   std::shared_ptr<Renderer> renderer_;
   std::shared_ptr<input::Manager> input_manager_;

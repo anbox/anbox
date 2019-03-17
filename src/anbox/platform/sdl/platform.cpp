@@ -195,46 +195,56 @@ void Platform::process_input_event(const SDL_Event &event) {
   std::int32_t x = 0;
   std::int32_t y = 0;
 
-  SDL_Window *window = nullptr;
-
   switch (event.type) {
     // Mouse
     case SDL_MOUSEBUTTONDOWN:
-      mouse_events.push_back({EV_KEY, BTN_LEFT, 1});
+      touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, static_cast<std::int32_t>(emulated_touch_id_)});
+      touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
+      touch_events.push_back({EV_KEY, BTN_TOUCH, 1});
+      touch_events.push_back({EV_KEY, BTN_TOOL_FINGER, 1});
+
+      x = event.button.x;
+      y = event.button.y;
+      if (!adjust_coordinates(x, y))
+        break;
+
+      touch_events.push_back({EV_ABS, ABS_MT_POSITION_X, x});
+      touch_events.push_back({EV_ABS, ABS_MT_POSITION_Y, y});
+
+      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MAJOR, 24});
+      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MINOR, 24});
+
+      touch_events.push_back({EV_SYN, SYN_REPORT, 0});
       break;
     case SDL_MOUSEBUTTONUP:
-      mouse_events.push_back({EV_KEY, BTN_LEFT, 0});
+      touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, -1});
+      touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
+      touch_events.push_back({EV_KEY, BTN_TOUCH, 0});
+      touch_events.push_back({EV_KEY, BTN_TOOL_FINGER, 0});
+      touch_events.push_back({EV_SYN, SYN_REPORT, 0});
       break;
     case SDL_MOUSEMOTION:
-      if (!single_window_) {
-        // As we get only absolute coordindates relative to our window we have to
-        // calculate the correct position based on the current focused window
-        window = SDL_GetWindowFromID(focused_sdl_window_id_);
-        if (!window) break;
+      touch_events.push_back({EV_ABS, ABS_MT_SLOT, 0});
 
-        SDL_GetWindowPosition(window, &x, &y);
-        x += event.motion.x;
-        y += event.motion.y;
-      } else {
-        // When running the whole Android system in a single window we don't
-        // need to reacalculate and the pointer position as they are already
-        // relative to our window.
-        x = event.motion.x;
-        y = event.motion.y;
-      }
+      x = event.motion.x;
+      y = event.motion.y;
+      if (!adjust_coordinates(x, y))
+        break;
 
-      // NOTE: Sending relative move events doesn't really work and we have
-      // changes in libinputflinger to take ABS_X/ABS_Y instead for absolute
-      // position events.
-      mouse_events.push_back({EV_ABS, ABS_X, x});
-      mouse_events.push_back({EV_ABS, ABS_Y, y});
-      // We're sending relative position updates here too but they will be only
-      // used by the Android side EventHub/InputReader to determine if the cursor
-      // was moved. They are not used to find out the exact position.
-      mouse_events.push_back({EV_REL, REL_X, event.motion.xrel});
-      mouse_events.push_back({EV_REL, REL_Y, event.motion.yrel});
+      touch_events.push_back({EV_ABS, ABS_MT_POSITION_X, x});
+      touch_events.push_back({EV_ABS, ABS_MT_POSITION_Y, y});
+
+      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MAJOR, 24});
+      touch_events.push_back({EV_ABS, ABS_MT_TOUCH_MINOR, 24});
+      touch_events.push_back({EV_SYN, SYN_REPORT, 0});
       break;
     case SDL_MOUSEWHEEL:
+      SDL_GetMouseState(&x, &y);
+      if (!adjust_coordinates(x, y))
+        break;
+
+      mouse_events.push_back({EV_ABS, ABS_X, x});
+      mouse_events.push_back({EV_ABS, ABS_Y, y});
       mouse_events.push_back(
           {EV_REL, REL_WHEEL, static_cast<std::int32_t>(event.wheel.y)});
       break;
@@ -309,47 +319,64 @@ void Platform::process_input_event(const SDL_Event &event) {
     touch_->send_events(touch_events);
 }
 
-bool Platform::calculate_touch_coordinates(const SDL_Event &event,
-                                           std::int32_t &x,
-                                           std::int32_t &y) {
+bool Platform::adjust_coordinates(std::int32_t &x, std::int32_t &y) {
+  SDL_Window *window = nullptr;
+
+  if (!single_window_) {
+    window = SDL_GetWindowFromID(focused_sdl_window_id_);
+    return adjust_coordinates(window, x, y);
+  } else {
+    // When running the whole Android system in a single window we don't
+    // need to reacalculate and the pointer position as they are already
+    // relative to our window.
+    return true;
+  }
+}
+
+bool Platform::adjust_coordinates(SDL_Window *window, std::int32_t &x, std::int32_t &y) {
   std::int32_t rel_x = 0;
   std::int32_t rel_y = 0;
 
+  if (!window) {
+    return false;
+  }
+  // As we get only absolute coordindates relative to our window we have to
+  // calculate the correct position based on the current focused window
+  SDL_GetWindowPosition(window, &rel_x, &rel_y);
+  x += rel_x;
+  y += rel_y;
+  return true;
+}
+
+bool Platform::calculate_touch_coordinates(const SDL_Event &event,
+                                           std::int32_t &x,
+                                           std::int32_t &y) {
   SDL_Window *window = nullptr;
 
   window = SDL_GetWindowFromID(focused_sdl_window_id_);
   // before SDL 2.0.7 on X11 tfinger coordinates are not normalized
   if (!SDL_VERSION_ATLEAST(2,0,7) && (event.tfinger.x > 1 || event.tfinger.y > 1)) {
-    rel_x = event.tfinger.x;
-    rel_y = event.tfinger.y;
+    x = event.tfinger.x;
+    y = event.tfinger.y;
   } else {
     if (window) {
-      SDL_GetWindowSize(window, &rel_x, &rel_y);
-      rel_x *= event.tfinger.x;
-      rel_y *= event.tfinger.y;
+      SDL_GetWindowSize(window, &x, &y);
+      x *= event.tfinger.x;
+      y *= event.tfinger.y;
     } else {
-      rel_x = display_frame_.width() * event.tfinger.x;
-      rel_y = display_frame_.height() * event.tfinger.y;
+      x = display_frame_.width() * event.tfinger.x;
+      y = display_frame_.height() * event.tfinger.y;
     }
   }
 
-  if (!single_window_) {
-    if (!window) {
-      return false;
-    }
-    // As we get only absolute coordindates relative to our window we have to
-    // calculate the correct position based on the current focused window
-    SDL_GetWindowPosition(window, &x, &y);
-    x += rel_x;
-    y += rel_y;
-  } else {
+  if (single_window_) {
     // When running the whole Android system in a single window we don't
     // need to reacalculate and the pointer position as they are already
     // relative to our window.
-    x = rel_x;
-    y = rel_y;
+    return true;
+  } else {
+    return adjust_coordinates(window, x, y);
   }
-  return true;
 }
 
 Window::Id Platform::next_window_id() {
