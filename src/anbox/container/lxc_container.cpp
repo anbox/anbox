@@ -386,6 +386,7 @@ void LxcContainer::start(const Configuration &configuration) {
   devices.insert({"/dev/tty", {0666}});
   devices.insert({"/dev/urandom", {0666}});
   devices.insert({"/dev/zero", {0666}});
+  devices.insert({"/dev/net/tun", {0660}});
 
   // Remove all left over devices from last time first before
   // creating any new ones
