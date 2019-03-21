@@ -117,7 +117,7 @@ LxcContainer::~LxcContainer() {
 
 void LxcContainer::setup_id_map() {
   const auto base_id = unprivileged_uid;
-  const auto max_id = 65536;
+  const auto max_id = 100000;
 
   set_config_item(lxc_config_idmap_key, utils::string_format("u 0 %d %d", base_id, android_system_uid - 1));
   set_config_item(lxc_config_idmap_key, utils::string_format("g 0 %d %d", base_id, android_system_uid - 1));
