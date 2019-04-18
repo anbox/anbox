@@ -688,7 +688,7 @@ static int gralloc_lock(gralloc_module_t const* module,
         if (sw_read) {
             D("gralloc_lock read back color buffer %d %d\n", cb->width, cb->height);
             rcEnc->rcReadColorBuffer(rcEnc, cb->hostHandle,
-                    0, 0, cb->width, cb->height, GL_RGBA, GL_UNSIGNED_BYTE, cpu_addr);
+                    0, 0, cb->width, cb->height, cb->glFormat, cb->glType, cpu_addr);
         }
     }
 
