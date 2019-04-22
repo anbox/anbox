@@ -1,13 +1,15 @@
-set(GENERATED_SOURCES
+set(CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/GLESv1_dec)
+
+PREPEND(GENERATED_SOURCES ${CURRENT_BINARY_DIR}/
     renderControl_dec.cpp
     renderControl_server_context.cpp)
 
 add_custom_command(
     OUTPUT ${GENERATED_SOURCES}
     POST_BUILD
-    COMMAND ${CMAKE_BINARY_DIR}/external/android-emugl/host/tools/emugen/emugen
-            -D ${CMAKE_CURRENT_BINARY_DIR} renderControl
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND mkdir -p ${CURRENT_BINARY_DIR} && ${CMAKE_BINARY_DIR}/external/android-emugl/host/tools/emugen/emugen
+            -D ${CURRENT_BINARY_DIR} renderControl
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     DEPENDS emugen)
 
 if ("${cmake_build_type_lower}" STREQUAL "trace")
