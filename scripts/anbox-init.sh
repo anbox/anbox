@@ -25,6 +25,11 @@ function prepare_filesystem() {
 		chown system:system /dev/$f
 		chmod 0666 /dev/$f
 	done
+
+	if [ -e "/dev/tun" ] ; then
+		chown system:vpn /dev/tun
+		chmod 0660 /dev/tun
+	fi
 }
 
 prepare_filesystem &
