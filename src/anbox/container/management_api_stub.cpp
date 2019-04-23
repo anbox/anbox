@@ -22,6 +22,10 @@
 #include "anbox_container.pb.h"
 #include "anbox_rpc.pb.h"
 
+#ifdef USE_PROTOBUF_CALLBACK_HEADER
+#include <google/protobuf/stubs/callback.h>
+#endif
+
 namespace anbox {
 namespace container {
 

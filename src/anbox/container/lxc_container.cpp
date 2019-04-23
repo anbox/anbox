@@ -156,14 +156,20 @@ void LxcContainer::setup_network() {
   ip_conf.set_assignment(android::IpConfigBuilder::Assignment::Static);
 
   std::string address = default_container_ip_address;
-  if (!container_network_address_.empty())
-    address = container_network_address_;
-  ip_conf.set_link_address(address, default_container_ip_prefix_length);
+  std::uint32_t ip_prefix_length = default_container_ip_prefix_length;
+  if (!container_network_address_.empty()) {
+    auto tokens = utils::string_split(container_network_address_, '/');
+    if (tokens.size() == 1 || tokens.size() == 2)
+      address = tokens[0];
+    if (tokens.size() == 2)
+      ip_prefix_length = atoi(tokens[1].c_str());
+  }
+  ip_conf.set_link_address(address, ip_prefix_length);
 
   std::string gateway = default_host_ip_address;
   if (!container_network_gateway_.empty())
     gateway = container_network_gateway_;
-  ip_conf.set_gateway(default_host_ip_address);
+  ip_conf.set_gateway(gateway);
 
   if (container_network_dns_servers_.size() > 0)
     ip_conf.set_dns_servers(container_network_dns_servers_);
