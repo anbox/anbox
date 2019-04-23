@@ -31,6 +31,9 @@ export XDG_DATA_HOME="$SNAP_USER_COMMON/app-data"
 # configured but the actual EGL implementation is missing.
 export __EGL_VENDOR_LIBRARY_DIRS="$SNAP/glvnd"
 
+# Suppress "libEGL warning: FIXME: egl/x11 doesn't support front buffer rendering." spam
+export EGL_LOG_LEVEL="fatal"
+
 enable_debug="$(snapctl get debug.enable)"
 if [ "$enable_debug" = true ]; then
 	export ANBOX_LOG_LEVEL=debug
