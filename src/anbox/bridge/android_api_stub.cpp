@@ -26,6 +26,10 @@
 #include "anbox_rpc.pb.h"
 
 #include <boost/filesystem.hpp>
+#ifdef USE_PROTOBUF_CALLBACK_HEADER
+#include <google/protobuf/stubs/callback.h>
+#endif
+
 
 namespace fs = boost::filesystem;
 

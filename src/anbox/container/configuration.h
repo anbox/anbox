@@ -26,6 +26,7 @@ namespace anbox {
 namespace container {
 struct DeviceSpecification {
   uint32_t permission;
+  std::string old_device_name = "";
 };
 
 struct Configuration {

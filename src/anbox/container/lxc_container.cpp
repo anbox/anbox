@@ -117,7 +117,7 @@ LxcContainer::~LxcContainer() {
 
 void LxcContainer::setup_id_map() {
   const auto base_id = unprivileged_uid;
-  const auto max_id = 65536;
+  const auto max_id = 100000;
 
   set_config_item(lxc_config_idmap_key, utils::string_format("u 0 %d %d", base_id, android_system_uid - 1));
   set_config_item(lxc_config_idmap_key, utils::string_format("g 0 %d %d", base_id, android_system_uid - 1));
@@ -156,14 +156,20 @@ void LxcContainer::setup_network() {
   ip_conf.set_assignment(android::IpConfigBuilder::Assignment::Static);
 
   std::string address = default_container_ip_address;
-  if (!container_network_address_.empty())
-    address = container_network_address_;
-  ip_conf.set_link_address(address, default_container_ip_prefix_length);
+  std::uint32_t ip_prefix_length = default_container_ip_prefix_length;
+  if (!container_network_address_.empty()) {
+    auto tokens = utils::string_split(container_network_address_, '/');
+    if (tokens.size() == 1 || tokens.size() == 2)
+      address = tokens[0];
+    if (tokens.size() == 2)
+      ip_prefix_length = atoi(tokens[1].c_str());
+  }
+  ip_conf.set_link_address(address, ip_prefix_length);
 
   std::string gateway = default_host_ip_address;
   if (!container_network_gateway_.empty())
     gateway = container_network_gateway_;
-  ip_conf.set_gateway(default_host_ip_address);
+  ip_conf.set_gateway(gateway);
 
   if (container_network_dns_servers_.size() > 0)
     ip_conf.set_dns_servers(container_network_dns_servers_);
@@ -220,7 +226,12 @@ void LxcContainer::setup_network() {
 
 void LxcContainer::add_device(const std::string& device, const DeviceSpecification& spec) {
   struct stat st;
-  int r = stat(device.c_str(), &st);
+  const std::string *old_device_name;
+  if (!spec.old_device_name.empty())
+    old_device_name = &spec.old_device_name;
+  else
+    old_device_name = &device;
+  int r = stat(old_device_name->c_str(), &st);
   if (r < 0) {
     const auto msg = utils::string_format("Failed to retrieve information about device %s", device);
     throw std::runtime_error(msg);
@@ -386,6 +397,7 @@ void LxcContainer::start(const Configuration &configuration) {
   devices.insert({"/dev/tty", {0666}});
   devices.insert({"/dev/urandom", {0666}});
   devices.insert({"/dev/zero", {0666}});
+  devices.insert({"/dev/tun", {0660, "/dev/net/tun"}});
 
   // Remove all left over devices from last time first before
   // creating any new ones
