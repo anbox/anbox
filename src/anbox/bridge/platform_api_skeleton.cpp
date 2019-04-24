@@ -28,6 +28,10 @@
 
 #include "anbox_bridge.pb.h"
 
+#ifdef USE_PROTOBUF_CALLBACK_HEADER
+#include <google/protobuf/stubs/callback.h>
+#endif
+
 namespace anbox {
 namespace bridge {
 PlatformApiSkeleton::PlatformApiSkeleton(
