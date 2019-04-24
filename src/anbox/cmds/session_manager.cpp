@@ -157,12 +157,15 @@ anbox::cmds::SessionManager::SessionManager()
     if (single_window_)
       display_frame = window_size_;
 
+    platform::Configuration platform_config;
+    platform_config.single_window = single_window_;
+    platform_config.no_touch_emulation = no_touch_emulation_;
+    platform_config.display_frame = display_frame;
+
     auto platform = platform::create(utils::get_env_value("ANBOX_PLATFORM", "sdl"),
                                      input_manager,
-                                     display_frame,
-                                     single_window_,
-                                     no_touch_emulation_);
-    if (!platform) 
+                                     platform_config);
+    if (!platform)
       return EXIT_FAILURE;
 
     auto app_db = std::make_shared<application::Database>();

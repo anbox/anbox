@@ -43,9 +43,7 @@ class Platform : public std::enable_shared_from_this<Platform>,
                        public Window::Observer {
  public:
   Platform(const std::shared_ptr<input::Manager> &input_manager,
-                 const graphics::Rect &static_display_frame = graphics::Rect::Invalid,
-                 bool single_window = false,
-                 bool no_touch_emulation = false);
+           const Configuration &config);
   ~Platform();
 
   std::shared_ptr<wm::Window> create_window(
@@ -97,9 +95,8 @@ class Platform : public std::enable_shared_from_this<Platform>,
   std::shared_ptr<input::Device> touch_;
   graphics::Rect display_frame_;
   bool window_size_immutable_ = false;
-  bool single_window_ = false;
-  bool no_touch_emulation_ = false;
   std::uint32_t focused_sdl_window_id_ = 0;
+  Configuration config_;
 };
 } // namespace sdl
 } // namespace platform

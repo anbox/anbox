@@ -43,9 +43,10 @@ namespace graphics {
 TEST(LayerComposer, FindsNoSuitableWindowForLayer) {
   auto renderer = std::make_shared<MockRenderer>();
 
+  platform::Configuration config;
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform = platform::create();
+  auto platform = platform::create(std::string(), nullptr, config);
   auto app_db = std::make_shared<application::Database>();
   auto wm = std::make_shared<wm::MultiWindowManager>(platform, nullptr, app_db);
 
@@ -77,9 +78,10 @@ TEST(LayerComposer, FindsNoSuitableWindowForLayer) {
 TEST(LayerComposer, MapsLayersToWindows) {
   auto renderer = std::make_shared<MockRenderer>();
 
+  platform::Configuration config;
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform = platform::create();
+  auto platform = platform::create(std::string(), nullptr, config);
   auto app_db = std::make_shared<application::Database>();
   auto wm = std::make_shared<wm::MultiWindowManager>(platform, nullptr, app_db);
 
@@ -137,9 +139,10 @@ TEST(LayerComposer, MapsLayersToWindows) {
 TEST(LayerComposer, WindowPartiallyOffscreen) {
   auto renderer = std::make_shared<MockRenderer>();
 
+  platform::Configuration config;
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform = platform::create();
+  auto platform = platform::create(std::string(), nullptr, config);
   auto app_db = std::make_shared<application::Database>();
   auto wm = std::make_shared<wm::MultiWindowManager>(platform, nullptr, app_db);
 
@@ -182,9 +185,10 @@ TEST(LayerComposer, WindowPartiallyOffscreen) {
 TEST(LayerComposer, PopupShouldNotCauseWindowLayerOffset) {
   auto renderer = std::make_shared<MockRenderer>();
 
+  platform::Configuration config;
   // The default policy will create a dumb window instance when requested
   // from the manager.
-  auto platform = platform::create();
+  auto platform = platform::create(std::string(), nullptr, config);
   auto app_db = std::make_shared<application::Database>();
   auto wm = std::make_shared<wm::MultiWindowManager>(platform, nullptr, app_db);
 

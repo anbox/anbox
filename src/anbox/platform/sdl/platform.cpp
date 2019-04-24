@@ -37,13 +37,10 @@ namespace platform {
 namespace sdl {
 Platform::Platform(
     const std::shared_ptr<input::Manager> &input_manager,
-    const graphics::Rect &static_display_frame,
-    bool single_window,
-    bool no_touch_emulation)
+    const Configuration &config)
     : input_manager_(input_manager),
       event_thread_running_(false),
-      single_window_(single_window),
-      no_touch_emulation_(no_touch_emulation) {
+      config_(config) {
 
   // Don't block the screensaver from kicking in. It will be blocked
   // by the desktop shell already and we don't have to do this again.
@@ -63,7 +60,7 @@ Platform::Platform(
   }
 
   auto display_frame = graphics::Rect::Invalid;
-  if (static_display_frame == graphics::Rect::Invalid) {
+  if (config_.display_frame == graphics::Rect::Invalid) {
     for (auto n = 0; n < SDL_GetNumVideoDisplays(); n++) {
       SDL_Rect r;
       if (SDL_GetDisplayBounds(n, &r) != 0) continue;
@@ -80,7 +77,7 @@ Platform::Platform(
       BOOST_THROW_EXCEPTION(
           std::runtime_error("No valid display configuration found"));
   } else {
-    display_frame = static_display_frame;
+    display_frame = config_.display_frame;
     window_size_immutable_ = true;
   }
 
@@ -200,7 +197,7 @@ void Platform::process_input_event(const SDL_Event &event) {
   switch (event.type) {
     // Mouse
     case SDL_MOUSEBUTTONDOWN:
-      if (no_touch_emulation_) {
+      if (config_.no_touch_emulation) {
         mouse_events.push_back({EV_KEY, BTN_LEFT, 1});
       } else {
         x = event.button.x;
@@ -223,7 +220,7 @@ void Platform::process_input_event(const SDL_Event &event) {
       }
       break;
     case SDL_MOUSEBUTTONUP:
-      if (no_touch_emulation_) {
+      if (config_.no_touch_emulation) {
         mouse_events.push_back({EV_KEY, BTN_LEFT, 0});
       } else {
         touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, -1});
@@ -239,7 +236,7 @@ void Platform::process_input_event(const SDL_Event &event) {
       if (!adjust_coordinates(x, y))
         break;
 
-      if (no_touch_emulation_) {
+      if (config_.no_touch_emulation) {
         // NOTE: Sending relative move events doesn't really work and we have
         // changes in libinputflinger to take ABS_X/ABS_Y instead for absolute
         // position events.
@@ -262,7 +259,7 @@ void Platform::process_input_event(const SDL_Event &event) {
       }
       break;
     case SDL_MOUSEWHEEL:
-      if (!no_touch_emulation_) {
+      if (!config_.no_touch_emulation) {
         SDL_GetMouseState(&x, &y);
         if (!adjust_coordinates(x, y))
           break;
@@ -347,7 +344,7 @@ void Platform::process_input_event(const SDL_Event &event) {
 bool Platform::adjust_coordinates(std::int32_t &x, std::int32_t &y) {
   SDL_Window *window = nullptr;
 
-  if (!single_window_) {
+  if (!config_.single_window) {
     window = SDL_GetWindowFromID(focused_sdl_window_id_);
     return adjust_coordinates(window, x, y);
   } else {
@@ -394,7 +391,7 @@ bool Platform::calculate_touch_coordinates(const SDL_Event &event,
     }
   }
 
-  if (single_window_) {
+  if (config_.single_window) {
     // When running the whole Android system in a single window we don't
     // need to reacalculate and the pointer position as they are already
     // relative to our window.
