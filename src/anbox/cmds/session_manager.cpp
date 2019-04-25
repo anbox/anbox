@@ -157,6 +157,10 @@ anbox::cmds::SessionManager::SessionManager()
     if (single_window_)
       display_frame = window_size_;
 
+    const auto should_enable_touch_emulation = utils::get_env_value("ANBOX_ENABLE_TOUCH_EMULATION", "true");
+    if (should_enable_touch_emulation == "false" || no_touch_emulation_)
+      no_touch_emulation_ = true;
+
     platform::Configuration platform_config;
     platform_config.single_window = single_window_;
     platform_config.no_touch_emulation = no_touch_emulation_;
