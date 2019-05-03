@@ -43,4 +43,8 @@ if [ "$(snapctl get software-rendering.enable)" = true ]; then
 	export ANBOX_FORCE_SOFTWARE_RENDERING=true
 fi
 
+if [ "$(snapctl get touch-emulation.enable)" = false ]; then
+	export ANBOX_ENABLE_TOUCH_EMULATION=false
+fi
+
 exec "$SNAP"/usr/bin/anbox "$@"

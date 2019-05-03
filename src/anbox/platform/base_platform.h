@@ -59,10 +59,16 @@ class BasePlatform {
 
   virtual bool supports_multi_window() const = 0;
 };
-std::shared_ptr<BasePlatform> create(const std::string &name = "",
-                                     const std::shared_ptr<input::Manager> &input_manager = nullptr,
-                                     const graphics::Rect &display_frame = graphics::Rect::Invalid,
-                                     bool single_window = false);
+
+struct Configuration {
+  graphics::Rect display_frame = graphics::Rect::Invalid;
+  bool single_window = false;
+  bool no_touch_emulation = false;
+};
+
+std::shared_ptr<BasePlatform> create(const std::string &name,
+                                     const std::shared_ptr<input::Manager> &input_manager,
+                                     const Configuration &config);
 }  // namespace platform
 }  // namespace anbox
 

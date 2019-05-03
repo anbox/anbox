@@ -24,13 +24,12 @@ namespace anbox {
 namespace platform {
 std::shared_ptr<BasePlatform> create(const std::string &name,
                                      const std::shared_ptr<input::Manager> &input_manager,
-                                     const graphics::Rect &display_frame,
-                                     bool single_window) {
+                                     const Configuration &config) {
   if (name.empty())
     return std::make_shared<NullPlatform>();
 
   if (name == "sdl")
-    return std::make_shared<sdl::Platform>(input_manager, display_frame, single_window);
+    return std::make_shared<sdl::Platform>(input_manager, config);
 
   WARNING("Unsupported platform '%s'", name);
 
