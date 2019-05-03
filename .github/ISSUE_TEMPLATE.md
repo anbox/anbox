@@ -7,9 +7,13 @@
 `sudo /snap/bin/anbox.collect-bug-info `
 
 6. ** Please paste the result of `anbox system-info` below:**
+<details>
+<summary>anbox system-info output</summary>
+
 ```
 [please paste printout of `anbox system-info` here]
 ```
+</details>
 
 **Please describe your problem:**
 
