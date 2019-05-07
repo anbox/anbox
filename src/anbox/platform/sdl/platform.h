@@ -22,6 +22,7 @@
 #include "anbox/platform/sdl/sdl_wrapper.h"
 #include "anbox/platform/base_platform.h"
 #include "anbox/graphics/emugl/DisplayManager.h"
+#include "anbox/input/device.h"
 
 #include <map>
 #include <thread>
@@ -97,6 +98,16 @@ class Platform : public std::enable_shared_from_this<Platform>,
   bool window_size_immutable_ = false;
   std::uint32_t focused_sdl_window_id_ = 0;
   Configuration config_;
+
+  enum{MAX_FINGERS = 10};
+  enum{MAX_TRACKING_ID = 10};
+  int touch_slots[MAX_FINGERS];
+  int last_slot = -1;
+  int find_touch_slot(int id);
+  void push_slot(std::vector<input::Event> &touch_events, int slot);
+  void push_finger_down(int x, int y, int finger_id, std::vector<input::Event> &touch_events);
+  void push_finger_up(int finger_id, std::vector<input::Event> &touch_events);
+  void push_finger_motion(int x, int y, int finger_id, std::vector<input::Event> &touch_events);
 };
 } // namespace sdl
 } // namespace platform
