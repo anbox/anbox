@@ -125,7 +125,8 @@ Platform::Platform(
   touch_->set_abs_max(ABS_MT_TRACKING_ID, MAX_TRACKING_ID);
   touch_->set_prop_bit(INPUT_PROP_DIRECT);
 
-  for(int i = 0; i < MAX_FINGERS ; i++)touch_slots[i] = -1;
+  for (int i = 0; i < MAX_FINGERS; i++)
+      touch_slots[i] = -1;
 
   event_thread_ = std::thread(&Platform::process_events, this);
 }
@@ -210,7 +211,7 @@ void Platform::process_input_event(const SDL_Event &event) {
       if (config_.no_touch_emulation) {
         mouse_events.push_back({EV_KEY, BTN_LEFT, 0});
       } else {
-        push_finger_up(emulated_touch_id_,touch_events);
+        push_finger_up(emulated_touch_id_, touch_events);
       }
       break;
     case SDL_MOUSEMOTION:
@@ -231,7 +232,7 @@ void Platform::process_input_event(const SDL_Event &event) {
         mouse_events.push_back({EV_REL, REL_X, event.motion.xrel});
         mouse_events.push_back({EV_REL, REL_Y, event.motion.yrel});
       } else {
-        push_finger_motion(x,y,emulated_touch_id_,touch_events);
+        push_finger_motion(x, y, emulated_touch_id_, touch_events);
       }
       break;
     case SDL_MOUSEWHEEL:
@@ -263,12 +264,12 @@ void Platform::process_input_event(const SDL_Event &event) {
     case SDL_FINGERDOWN: {
       if (!calculate_touch_coordinates(event, x, y))
         break;
-      push_finger_down(x,y,event.tfinger.fingerId,touch_events);
+      push_finger_down(x, y, event.tfinger.fingerId, touch_events);
 
       break;
     }
     case SDL_FINGERUP: {
-      push_finger_up(event.tfinger.fingerId,touch_events);
+      push_finger_up(event.tfinger.fingerId, touch_events);
       break;
     }
 	case SDL_FINGERMOTION: {
@@ -311,7 +312,7 @@ void Platform::push_slot(std::vector<input::Event> &touch_events, int slot){
 void Platform::push_finger_down(int x, int y, int finger_id, std::vector<input::Event> &touch_events){
     int slot = find_touch_slot(-1);
     if(slot == -1){
-        DEBUG("no free slot!\n");
+        DEBUG("no free slot!");
         return;
     }
     touch_slots[slot] = finger_id;
