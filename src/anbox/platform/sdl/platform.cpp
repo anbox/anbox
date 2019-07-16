@@ -204,7 +204,7 @@ void Platform::process_input_event(const SDL_Event &event) {
         y = event.button.y;
         if (!adjust_coordinates(x, y))
           break;
-        push_finger_down(x,y,emulated_touch_id_,touch_events);
+        push_finger_down(x, y, emulated_touch_id_, touch_events);
       }
       break;
     case SDL_MOUSEBUTTONUP:
@@ -276,7 +276,7 @@ void Platform::process_input_event(const SDL_Event &event) {
 
       if (!calculate_touch_coordinates(event, x, y))
         break;
-      push_finger_motion(x,y,event.tfinger.fingerId,touch_events);
+      push_finger_motion(x, y, event.tfinger.fingerId, touch_events);
       break;
     }
     default:
