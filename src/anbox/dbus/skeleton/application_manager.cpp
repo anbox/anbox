@@ -17,7 +17,7 @@
 
 #include "anbox/dbus/skeleton/application_manager.h"
 #include "anbox/dbus/interface.h"
-#include "anbox/dbus/sd_bus_helpers.h"
+#include "anbox/dbus/sd_bus_helpers.hpp"
 #include "anbox/android/intent.h"
 #include "anbox/logger.h"
 
@@ -51,10 +51,10 @@ namespace anbox {
 namespace dbus {
 namespace skeleton {
 const sd_bus_vtable ApplicationManager::vtable[] = {
-  sdbus::vtable::start(0),
-  sdbus::vtable::method("Launch", "a{sv}s", "", ApplicationManager::method_launch, SD_BUS_VTABLE_UNPRIVILEGED),
-  sdbus::vtable::property("Ready", "b", ApplicationManager::property_ready_get, SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
-  sdbus::vtable::end()
+  sdbus_vtable_create_start(0),
+  sdbus_vtable_create_method("Launch", "a{sv}s", "", ApplicationManager::method_launch, SD_BUS_VTABLE_UNPRIVILEGED),
+  sdbus_vtable_create_property("Ready", "b", ApplicationManager::property_ready_get, SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+  sdbus_vtable_create_end()
 };
 
 int ApplicationManager::method_launch(sd_bus_message *m, void *userdata, sd_bus_error *ret_error) {
