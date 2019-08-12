@@ -99,10 +99,11 @@ class Platform : public std::enable_shared_from_this<Platform>,
   std::uint32_t focused_sdl_window_id_ = 0;
   Configuration config_;
 
-  enum{MAX_FINGERS = 10};
-  enum{MAX_TRACKING_ID = 10};
+  static const int MAX_FINGERS = 10;
+  static const int MAX_TRACKING_ID = 10;
   int touch_slots[MAX_FINGERS];
   int last_slot = -1;
+
   int find_touch_slot(int id);
   void push_slot(std::vector<input::Event> &touch_events, int slot);
   void push_finger_down(int x, int y, int finger_id, std::vector<input::Event> &touch_events);

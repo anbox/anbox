@@ -296,14 +296,15 @@ void Platform::process_input_event(const SDL_Event &event) {
 }
 
 int Platform::find_touch_slot(int id){
-    for(int i = 0; i < MAX_FINGERS; i++){
-        if(touch_slots[i] == id)return i;
+    for (int i = 0; i < MAX_FINGERS; i++) {
+        if (touch_slots[i] == id)
+          return i;
     }
     return -1;
 }
 
 void Platform::push_slot(std::vector<input::Event> &touch_events, int slot){
-    if(last_slot != slot){
+    if (last_slot != slot) {
         touch_events.push_back({EV_ABS, ABS_MT_SLOT, slot});
         last_slot = slot;
     }
@@ -311,7 +312,7 @@ void Platform::push_slot(std::vector<input::Event> &touch_events, int slot){
 
 void Platform::push_finger_down(int x, int y, int finger_id, std::vector<input::Event> &touch_events){
     int slot = find_touch_slot(-1);
-    if(slot == -1){
+    if (slot == -1) {
         DEBUG("no free slot!");
         return;
     }
@@ -325,7 +326,8 @@ void Platform::push_finger_down(int x, int y, int finger_id, std::vector<input::
 
 void Platform::push_finger_up(int finger_id, std::vector<input::Event> &touch_events){
     int slot = find_touch_slot(finger_id);
-    if(slot == -1)return;
+    if (slot == -1) 
+      return;
     push_slot(touch_events, slot);
     touch_events.push_back({EV_ABS, ABS_MT_TRACKING_ID, -1});
     touch_events.push_back({EV_SYN, SYN_REPORT, 0});
@@ -334,7 +336,8 @@ void Platform::push_finger_up(int finger_id, std::vector<input::Event> &touch_ev
 
 void Platform::push_finger_motion(int x, int y, int finger_id, std::vector<input::Event> &touch_events){
     int slot = find_touch_slot(finger_id);
-    if(slot == -1)return;
+    if (slot == -1) 
+      return;
     push_slot(touch_events, slot);
     touch_events.push_back({EV_ABS, ABS_MT_POSITION_X, x});
     touch_events.push_back({EV_ABS, ABS_MT_POSITION_Y, y});
