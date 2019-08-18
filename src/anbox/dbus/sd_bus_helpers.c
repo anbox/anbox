@@ -15,40 +15,63 @@
  *
  */
 
-#ifndef ANBOX_DBUS_SD_BUS_HELPERS_H_
-#define ANBOX_DBUS_SD_BUS_HELPERS_H_
+#include "sd_bus_helpers.h"
 
-#include <systemd/sd-bus-vtable.h>
+sd_bus_vtable sdbus_vtable_create_start(uint64_t flags) {
+  const sd_bus_vtable start = SD_BUS_VTABLE_START(flags);
+  return start;
+}
 
-sd_bus_vtable sdbus_vtable_create_start(uint64_t flags);
-
-sd_bus_vtable sdbus_vtable_create_end();
+sd_bus_vtable sdbus_vtable_create_end() {
+  const sd_bus_vtable end = SD_BUS_VTABLE_END;
+  return end;
+}
 
 sd_bus_vtable sdbus_vtable_create_method_o(const char* member, const char* signature,
                                            const char* result,
                                            sd_bus_message_handler_t handler, size_t offset,
-                                           uint64_t flags);
+                                           uint64_t flags) {
+  const sd_bus_vtable method_o = SD_BUS_METHOD_WITH_OFFSET(
+      member, signature, result, handler, offset, flags);
+  return method_o;
+}
 
 sd_bus_vtable sdbus_vtable_create_method(const char* member, const char* signature,
                                          const char* result, sd_bus_message_handler_t handler,
-                                         uint64_t flags);
+                                         uint64_t flags) {
+  return sdbus_vtable_create_method_o(member, signature, result, handler, 0, flags);
+}
 
-sd_bus_vtable sdbus_vtable_create_signal(const char* member, const char* signature, uint64_t flags);
+sd_bus_vtable sdbus_vtable_create_signal(const char* member, const char* signature, uint64_t flags) {
+  const sd_bus_vtable signal = SD_BUS_SIGNAL(member, signature, flags);
+  return signal;
+}
 
 sd_bus_vtable sdbus_vtable_create_property(const char* member, const char* signature,
                                            sd_bus_property_get_t get,
-                                           uint64_t flags);
+                                           uint64_t flags) {
+  const sd_bus_vtable property = SD_BUS_PROPERTY(member, signature, get, 0, flags);
+  return property;
+}
 
 sd_bus_vtable sdbus_vtable_create_property_set(const char* member, const char* signature,
                                                sd_bus_property_get_t get,
                                                sd_bus_property_set_t set,
-                                               uint64_t flags);
+                                               uint64_t flags) {
+  const sd_bus_vtable property = SD_BUS_WRITABLE_PROPERTY(member, signature, get, set, 0, flags);
+  return property;
+}
 
 sd_bus_vtable sdbus_vtable_create_property_o(const char* member, const char* signature,
-                                             size_t offset, uint64_t flags);
+                                             size_t offset, uint64_t flags) {
+  const sd_bus_vtable property_o = SD_BUS_PROPERTY(member, signature, NULL, offset, flags);
+  return property_o;
+}
 
 sd_bus_vtable sdbus_vtable_create_property_o_set(const char* member, const char* signature,
                                                  sd_bus_property_set_t set, size_t offset,
-                                                 uint64_t flags);
-
-#endif
+                                                 uint64_t flags) {
+  const sd_bus_vtable property_o = SD_BUS_WRITABLE_PROPERTY(
+      member, signature, NULL, set, offset, flags);
+  return property_o;
+}
