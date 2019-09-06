@@ -17,6 +17,7 @@
 <permissions>
     <feature name="android.software.freeform_window_management" />
     <feature name="android.hardware.ethernet" />
+    <feature name="android.hardware.wifi" />
 
     <!-- Disallow device admin and profile owner on Anbox-->
     <unavailable-feature name="android.software.device_admin" />
@@ -25,7 +26,6 @@
     <!-- Disable support for hardware we don't support -->
     <unavailable-feature name="android.hardware.usb.accessory" />
     <unavailable-feature name="android.hardware.usb.host" />
-    <unavailable-feature name="android.hardware.wifi" />
     <unavailable-feature name="android.hardware.bluetooth" />
     <unavailable-feature name="android.hardware.bluetooth_le" />
     <unavailable-feature name="android.hardware.sensor.compass" />

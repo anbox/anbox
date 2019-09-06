@@ -28,6 +28,7 @@ sudo $workdir/uidmapshift -b $rootfs 0 100000 65536
 
 # FIXME
 sudo chmod +x $rootfs/anbox-init.sh
+sudo chmod +x $rootfs/system/etc/wifi/regenerate_if_name.sh
 
 sudo mksquashfs $rootfs android.img -comp xz -no-xattrs
 sudo chown $USER:$USER android.img

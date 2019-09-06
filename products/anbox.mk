@@ -36,7 +36,10 @@ PRODUCT_PACKAGES += \
 	audio.primary.goldfish \
 	vibrator.goldfish \
 	power.goldfish \
-	fingerprintd
+	fingerprintd \
+	dhcpcd-6.8.2 \
+	wpa_supplicant \
+	wpa_supplicant.conf
 
 PRODUCT_COPY_FILES += \
 	vendor/anbox/android/fstab.goldfish:root/fstab.goldfish \
@@ -49,7 +52,9 @@ PRODUCT_COPY_FILES += \
 	vendor/anbox/android/media/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
 	vendor/anbox/android/media/media_codecs_google_tv.xml:system/etc/media_codecs_google_tv.xml \
 	vendor/anbox/android/media/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
-	hardware/libhardware_legacy/audio/audio_policy.conf:system/etc/audio_policy.conf
+	hardware/libhardware_legacy/audio/audio_policy.conf:system/etc/audio_policy.conf \
+	vendor/anbox/android/wifi/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf \
+	vendor/anbox/android/wifi/regenerate_if_name.sh:system/etc/wifi/regenerate_if_name.sh
 
 PRODUCT_CHARACTERISTICS := emulator
 

@@ -33,6 +33,9 @@ class Service : public std::enable_shared_from_this<Service> {
   struct Configuration {
     bool privileged = false;
     bool rootfs_overlay = true;
+    bool use_phys = false;
+    std::string container_phys_link;
+    std::string container_hw_addr;
     std::string container_network_address;
     std::string container_network_gateway;
     std::vector<std::string> container_network_dns_servers;

@@ -70,14 +70,27 @@ start() {
 		EXTRA_ARGS="$EXTRA_ARGS --privileged"
 	fi
 
-	container_network_address=$(snapctl get container.network.address)
-	if [ -n "$container_network_address" ]; then
-		EXTRA_ARGS="$EXTRA_ARGS --container-network-address=$container_network_address"
-	fi
+	container_phys_link=$(snapctl get container.phys.wifi)
+	if [ -n "$container_phys_link" ] && [ "$container_phys_link" != "none" ] && [ -e /sys/class/net/$container_phys_link ]; then
+		read HWADDR </sys/class/net/$container_phys_link/address
+		EXTRA_ARGS="$EXTRA_ARGS --container-physical-link=$container_phys_link"
+		EXTRA_ARGS="$EXTRA_ARGS --container-hardware-address=$HWADDR"
+		#Store old iface name for later. It will be renamed to wlan0 in the container
+		echo $container_phys_link > $SNAP_COMMON/.backup_iface_name.txt
+	else
+		if [ -n "$container_phys_link" ]; then
+			echo "WARNING: Physical interface $container_phys_link does not exist on this machine. Falling back to classic bridged mode!"
+		fi
 
-	container_network_gateway=$(snapctl get container.network.gateway)
-	if [ -n "$container_network_gateway" ]; then
-		EXTRA_ARGS="$EXTRA_ARGS --container-network-gateway=$container_network_gateway"
+		container_network_address=$(snapctl get container.network.address)
+		if [ -n "$container_network_address" ]; then
+			EXTRA_ARGS="$EXTRA_ARGS --container-network-address=$container_network_address"
+		fi
+
+		container_network_gateway=$(snapctl get container.network.gateway)
+		if [ -n "$container_network_gateway" ]; then
+			EXTRA_ARGS="$EXTRA_ARGS --container-network-gateway=$container_network_gateway"
+		fi
 	fi
 
 	container_network_dns=$(snapctl get container.network.dns)

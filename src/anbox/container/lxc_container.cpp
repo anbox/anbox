@@ -55,6 +55,8 @@ constexpr const char *lxc_config_idmap_key{"lxc.id_map"};
 constexpr const char *lxc_config_net_type_key{"lxc.network.type"};
 constexpr const char *lxc_config_net_flags_key{"lxc.network.flags"};
 constexpr const char *lxc_config_net_link_key{"lxc.network.link"};
+constexpr const char *lxc_config_net_hwaddr_key{"lxc.network.hwaddr"};
+constexpr const char *lxc_config_net_name_key{"lxc.network.name"};
 constexpr const char *lxc_config_pty_max_key{"lxc.pts"};
 constexpr const char *lxc_config_tty_max_key{"lxc.tty"};
 constexpr const char *lxc_config_uts_name_key{"lxc.utsname"};
@@ -69,6 +71,8 @@ constexpr const char *lxc_config_idmap_key{"lxc.idmap"};
 constexpr const char *lxc_config_net_type_key{"lxc.net.0.type"};
 constexpr const char *lxc_config_net_flags_key{"lxc.net.0.flags"};
 constexpr const char *lxc_config_net_link_key{"lxc.net.0.link"};
+constexpr const char *lxc_config_net_hwaddr_key{"lxc.net.0.hwaddr"};
+constexpr const char *lxc_config_net_name_key{"lxc.net.0.name"};
 constexpr const char *lxc_config_pty_max_key{"lxc.pty.max"};
 constexpr const char *lxc_config_tty_max_key{"lxc.tty.max"};
 constexpr const char *lxc_config_uts_name_key{"lxc.uts.name"};
@@ -93,7 +97,10 @@ namespace anbox {
 namespace container {
 LxcContainer::LxcContainer(bool privileged,
                            bool rootfs_overlay,
-                           const std::string& container_network_address,
+                           bool use_phys,
+                           const std::string &container_phys_link,
+                           const std::string &container_hw_addr,
+                           const std::string &container_network_address,
                            const std::string &container_network_gateway,
                            const std::vector<std::string> &container_network_dns_servers,
                            const network::Credentials &creds)
@@ -101,6 +108,9 @@ LxcContainer::LxcContainer(bool privileged,
       container_(nullptr),
       privileged_(privileged),
       rootfs_overlay_(rootfs_overlay),
+      use_phys_(use_phys),
+      container_phys_link_(container_phys_link),
+      container_hw_addr_(container_hw_addr),
       container_network_address_(container_network_address),
       container_network_gateway_(container_network_gateway),
       container_network_dns_servers_(container_network_dns_servers),
@@ -140,14 +150,18 @@ void LxcContainer::setup_id_map() {
 }
 
 void LxcContainer::setup_network() {
-  if (!fs::exists("/sys/class/net/anbox0")) {
+  if (!use_phys_ && !fs::exists("/sys/class/net/anbox0")) {
     WARNING("Anbox bridge interface 'anbox0' doesn't exist. Network functionality will not be available");
     return;
   }
 
-  set_config_item(lxc_config_net_type_key, "veth");
+  set_config_item(lxc_config_net_type_key, use_phys_?"phys":"veth");
   set_config_item(lxc_config_net_flags_key, "up");
-  set_config_item(lxc_config_net_link_key, "anbox0");
+  set_config_item(lxc_config_net_link_key, use_phys_?container_phys_link_:"anbox0");
+  if(use_phys_){
+    set_config_item(lxc_config_net_hwaddr_key, container_hw_addr_);
+    set_config_item(lxc_config_net_name_key, "wlan0");
+  }
 
   // Instead of relying on DHCP we will give Android a static IP configuration
   // for the virtual ethernet interface LXC creates for us. This will be bridged
@@ -299,6 +313,25 @@ bool LxcContainer::create_binder_devices(unsigned int device_count, std::vector<
   }
 
   return true;
+}
+
+// LXC 3.0.1's renaming of physical interfaces is not undone on
+// stop of the container due to a bug. This function takes care of it
+// in the container.
+void LxcContainer::regenerate_if_name(){
+  const auto backup_file = SystemConfiguration::instance().data_dir() / ".backup_iface_name.txt";
+  if(fs::exists(backup_file)){
+    std::ifstream f(backup_file.string());
+    if (f.is_open()) {
+      std::string name;
+      getline(f, name);
+      f.close();
+      fs::remove(backup_file); 
+      //last argument needs to be NULL for execvp
+      const char* argv[3] = {"/system/etc/wifi/regenerate_if_name.sh",name.c_str(), NULL};
+      container_->attach_run_wait(container_, NULL, argv[0], argv);
+    }
+  }
 }
 
 void LxcContainer::start(const Configuration &configuration) {
@@ -483,6 +516,8 @@ void LxcContainer::start(const Configuration &configuration) {
 void LxcContainer::stop() {
   if (!container_ || !container_->is_running(container_))
     return;
+
+  regenerate_if_name();
 
   if (!container_->stop(container_))
     throw std::runtime_error("Failed to stop container");

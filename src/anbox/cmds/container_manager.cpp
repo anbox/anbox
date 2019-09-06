@@ -55,6 +55,12 @@ anbox::cmds::ContainerManager::ContainerManager()
   flag(cli::make_flag(cli::Name{"use-rootfs-overlay"},
                       cli::Description{"Use an overlay for the Android rootfs"},
                       enable_rootfs_overlay_));
+  flag(cli::make_flag(cli::Name{"container-hardware-address"},
+                      cli::Description{"Assign the specified hardware address to the Android container"},
+                      container_hw_addr_));
+  flag(cli::make_flag(cli::Name{"container-physical-link"},
+                      cli::Description{"Use the specified physical link instead of the network bridge"},
+                      container_phys_link_));
   flag(cli::make_flag(cli::Name{"container-network-address"},
                       cli::Description{"Assign the specified network address to the Android container"},
                       container_network_address_));
@@ -102,6 +108,9 @@ anbox::cmds::ContainerManager::ContainerManager()
       container::Service::Configuration config;
       config.privileged = privileged_;
       config.rootfs_overlay = enable_rootfs_overlay_;
+      config.use_phys = !container_phys_link_.empty(),
+      config.container_phys_link = container_phys_link_,
+      config.container_hw_addr = container_hw_addr_,
       config.container_network_address = container_network_address_;
       config.container_network_gateway = container_network_gateway_;
 

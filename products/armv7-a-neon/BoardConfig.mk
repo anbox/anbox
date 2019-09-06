@@ -37,3 +37,11 @@ BOARD_FLASH_BLOCK_SIZE := 512
 TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
 
 BOARD_SEPOLICY_DIRS += build/target/board/generic/sepolicy
+
+# Wifi.
+BOARD_WLAN_DEVICE           := emulator
+BOARD_WPA_SUPPLICANT_DRIVER := NL80211
+WPA_SUPPLICANT_VERSION      := VER_0_8_X
+WIFI_DRIVER_FW_PATH_PARAM   := "/dev/null"
+WIFI_DRIVER_FW_PATH_STA     := "/dev/null"
+WIFI_DRIVER_FW_PATH_AP      := "/dev/null"

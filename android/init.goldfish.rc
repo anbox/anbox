@@ -98,3 +98,24 @@ service goldfish-logcat /system/bin/logcat
 service fingerprintd /system/bin/fingerprintd
     class late_start
     user system
+
+#Copy wpa_supplicant.conf to "data", because "etc" is read only
+on post-fs-data
+    copy /system/etc/wifi/wpa_supplicant.conf /data/misc/wifi/wpa_supplicant.conf
+    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
+    chown wifi wifi /data/misc/wifi/wpa_supplicant.conf
+    setprop wifi.interface "wlan0"
+    setprop wlan.driver.status "ok" 
+
+#Init the wpa_supplicant as Android private socket
+service wpa_supplicant /system/bin/wpa_supplicant -dt -Dnl80211 -iwlan0 -c/data/misc/wifi/wpa_supplicant.conf -Gwifi -g@android:wpa_wlan0
+    group system wifi inet net_admin net_raw
+    socket wpa_wlan0 dgram 660 wifi wifi
+    disabled
+    oneshot
+
+#Dhcp for physical network
+service dhcpcd_wlan0 /system/bin/dhcpcd-6.8.2 -ABKL
+    group system dhcp wifi
+    disabled
+    oneshot
