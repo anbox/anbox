@@ -22,6 +22,7 @@
 #include <stdexcept>
 
 #include <boost/endian/buffers.hpp>
+#include <boost/endian/conversion.hpp>
 
 namespace {
 bool is_little_endian() {
