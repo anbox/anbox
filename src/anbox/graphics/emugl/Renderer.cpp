@@ -126,8 +126,8 @@ bool Renderer::initialize(EGLNativeDisplayType nativeDisplay) {
                                  EGL_NONE};
 
   int n;
-  if (!s_egl.eglChooseConfig(m_eglDisplay, configAttribs, &m_eglConfig,
-                             1, &n)) {
+  if ((s_egl.eglChooseConfig(m_eglDisplay, configAttribs, &m_eglConfig,
+                             1, &n) == EGL_FALSE) || n == 0) {
     ERROR("Failed to select EGL configuration");
     return false;
   }
