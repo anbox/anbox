@@ -76,6 +76,11 @@ if (${LXC_VERSION} VERSION_LESS 3.0)
   message(STATUS "Building with LXC 2.x compatibility support")
 endif()
 
+option(ENABLE_X11 "Enable X11 support" ON)
+if (ENABLE_X11)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DX11_SUPPORT")
+endif()
+
 option(ENABLE_WAYLAND "Enable wayland support" ON)
 if (ENABLE_WAYLAND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWAYLAND_SUPPORT")
