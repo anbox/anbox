@@ -17,7 +17,9 @@
 
 #include <thread>
 
+#ifndef BOOST_LOG_DYN_LINK
 #define BOOST_LOG_DYN_LINK
+#endif
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/log/expressions.hpp>
