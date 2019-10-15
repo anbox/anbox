@@ -88,7 +88,7 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
 #endif
 #if defined(WAYLAND_SUPPORT)
     case SDL_SYSWM_WAYLAND:
-      native_display_ = static_cast<EGLNativeDisplayType>(info.info.wl.display);
+      native_display_ = reinterpret_cast<EGLNativeDisplayType>(info.info.wl.display);
       native_window_ = reinterpret_cast<EGLNativeWindowType>(info.info.wl.surface);
       break;
 #endif
