@@ -257,6 +257,7 @@ parts:
       # that is fixed we can avoid using a prefix here.
       - -DCMAKE_INSTALL_PREFIX:PATH=/usr
       - -DANBOX_VERSION=$SNAPCRAFT_PROJECT_VERSION
+      - -DBINDERFS_PATH=/var/snap/anbox/common/binderfs
       # FIXME: Once we have everything in place for full snap confinement we
       # can securely enable this.
       # - -DSNAP_CONFINEMENT=ON
