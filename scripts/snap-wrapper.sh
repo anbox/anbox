@@ -47,4 +47,10 @@ if [ "$(snapctl get touch-emulation.enable)" = false ]; then
 	export ANBOX_ENABLE_TOUCH_EMULATION=false
 fi
 
-exec "$SNAP"/usr/bin/anbox "$@"
+# Use custom Anbox binary for debugging purposes if available
+ANBOX="$SNAP"/usr/bin/anbox
+if [ -e "$SNAP_COMMON"/anbox.debug ]; then
+	ANBOX="$SNAP_COMMON"/anbox.debug
+fi
+
+exec "$ANBOX" "$@"
