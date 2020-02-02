@@ -27,11 +27,11 @@
 #endif
 
 namespace {
-constexpr const int window_resize_border{30};
-constexpr const int top_drag_area{50};
+constexpr const int window_resize_border{10};
+constexpr const int top_drag_area{42};
 constexpr const int button_size{32};
 constexpr const int button_margin{5};
-constexpr const int button_padding{4};
+constexpr const int button_padding{0};
 }
 
 namespace anbox {
@@ -127,7 +127,7 @@ SDL_HitTestResult Window::on_window_hit(SDL_Window *window, const SDL_Point *pt,
       return SDL_HITTEST_NORMAL;
 
   if (!(flags & SDL_WINDOW_RESIZABLE)) {
-    if (pt->y < 10)
+    if (pt->y < border_size)
       return SDL_HITTEST_DRAGGABLE;
     else
       return SDL_HITTEST_NORMAL;
