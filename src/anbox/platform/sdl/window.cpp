@@ -121,6 +121,17 @@ SDL_HitTestResult Window::on_window_hit(SDL_Window *window, const SDL_Point *pt,
   const auto border_size = graphics::dp_to_pixel(window_resize_border);
   const auto top_drag_area_height = graphics::dp_to_pixel(top_drag_area);
   const auto button_area_width = graphics::dp_to_pixel(button_size + button_padding * 2 + button_margin * 2);
+  const auto flags = SDL_GetWindowFlags(window);
+
+  if (flags & SDL_WINDOW_FULLSCREEN)
+      return SDL_HITTEST_NORMAL;
+
+  if (!(flags & SDL_WINDOW_RESIZABLE)) {
+    if (pt->y < 10)
+      return SDL_HITTEST_DRAGGABLE;
+    else
+      return SDL_HITTEST_NORMAL;
+  }
 
   if (pt->y < top_drag_area_height) {
     if (pt->x > w - button_area_width && pt->x < w) {
@@ -131,9 +142,14 @@ SDL_HitTestResult Window::on_window_hit(SDL_Window *window, const SDL_Point *pt,
       return SDL_HITTEST_NORMAL;
     }
     return SDL_HITTEST_DRAGGABLE;
-  } else if (pt->x < border_size && pt->y < border_size)
+  }
+
+  if (flags & SDL_WINDOW_MAXIMIZED)
+    return SDL_HITTEST_NORMAL;
+
+  if (pt->x < border_size && pt->y < border_size)
       return SDL_HITTEST_RESIZE_TOPLEFT;
-  else if (pt->x > window_resize_border && pt->x < w - border_size && pt->y < border_size)
+  else if (pt->x > border_size && pt->x < w - border_size && pt->y < border_size)
       return SDL_HITTEST_RESIZE_TOP;
   else if (pt->x > w - border_size && pt->y < border_size)
       return SDL_HITTEST_RESIZE_TOPRIGHT;
