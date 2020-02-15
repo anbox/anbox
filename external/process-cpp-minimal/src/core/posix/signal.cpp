@@ -155,7 +155,7 @@ public:
             {
                 auto result = ::read(scope.signal_fd, signal_info, sizeof(signal_info));
 
-                for (uint i = 0; i < result / sizeof(signalfd_siginfo); i++)
+                for (unsigned int i = 0; i < result / sizeof(signalfd_siginfo); i++)
                 {
                     if (has(static_cast<core::posix::Signal>(signal_info[i].ssi_signo)))
                     {

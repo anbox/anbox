@@ -80,11 +80,11 @@ constexpr const char *lxc_config_log_file_key{"lxc.log.file"};
 constexpr const char *lxc_config_apparmor_profile_key{"lxc.apparmor.profile"};
 #endif
 
-constexpr int device_major(__dev_t dev) {
+constexpr int device_major(dev_t dev) {
   return int(((dev >> 8) & 0xfff) | ((dev >> 32) & (0xfffff000)));
 }
 
-constexpr int device_minor(__dev_t dev) {
+constexpr int device_minor(dev_t dev) {
   return int((dev & 0xff) | ((dev >> 12) & (0xffffff00)));
 }
 } // namespace
