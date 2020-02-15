@@ -192,7 +192,7 @@ std::ostream& operator<<(std::ostream& strm, anbox::Logger::Severity severity) {
     case anbox::Logger::Severity::kFatal:
       return strm << "FF";
     default:
-      return strm << static_cast<uint>(severity);
+      return strm << static_cast<unsigned int>(severity);
   }
 }
 
