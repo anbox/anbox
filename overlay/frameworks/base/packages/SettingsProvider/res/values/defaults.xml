@@ -1,0 +1,3 @@
+<resources>
+    <bool name="def_wifi_on">true</bool>
+</resources>

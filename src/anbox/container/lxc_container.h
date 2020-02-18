@@ -35,9 +35,9 @@ class LxcContainer : public Container {
  public:
   LxcContainer(bool privileged,
                bool rootfs_overlay,
-               bool use_phys,
                const std::string &container_phys_link,
                const std::string &container_hw_addr,
+               const std::string &android_wpa_driver,
                const std::string &container_network_address,
                const std::string &container_network_gateway,
                const std::vector<std::string> &container_network_dns_servers,
@@ -54,6 +54,7 @@ class LxcContainer : public Container {
   void setup_network();
   void add_device(const std::string& device, const DeviceSpecification& spec);
   bool create_binder_devices(unsigned int device_count, std::vector<std::unique_ptr<common::BinderDevice>>& devices);
+  void store_network_info(const std::string& driver, const std::string& name);
   void regenerate_if_name();
 
   State state_;
@@ -63,6 +64,7 @@ class LxcContainer : public Container {
   bool use_phys_;
   std::string container_phys_link_;
   std::string container_hw_addr_;
+  std::string android_wpa_driver_;
   std::string container_network_address_;
   std::string container_network_gateway_;
   std::vector<std::string> container_network_dns_servers_;

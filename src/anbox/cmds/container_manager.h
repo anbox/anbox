@@ -47,6 +47,7 @@ class ContainerManager : public cli::CommandWithFlagsAndAction {
   bool enable_rootfs_overlay_ = false;
   std::string container_hw_addr_;
   std::string container_phys_link_;
+  std::string android_wpa_driver_;
   std::string container_network_address_;
   std::string container_network_gateway_;
   std::string container_network_dns_servers_;

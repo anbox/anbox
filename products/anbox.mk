@@ -53,8 +53,11 @@ PRODUCT_COPY_FILES += \
 	vendor/anbox/android/media/media_codecs_google_tv.xml:system/etc/media_codecs_google_tv.xml \
 	vendor/anbox/android/media/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
 	hardware/libhardware_legacy/audio/audio_policy.conf:system/etc/audio_policy.conf \
-	vendor/anbox/android/wifi/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf \
-	vendor/anbox/android/wifi/regenerate_if_name.sh:system/etc/wifi/regenerate_if_name.sh
+	vendor/anbox/android/phys_networking/wpa_supplicant_wifi.conf:system/etc/wifi/wpa_supplicant_wifi.conf \
+	vendor/anbox/android/phys_networking/wpa_supplicant_eth.conf:system/etc/wifi/wpa_supplicant_eth.conf \
+	vendor/anbox/android/phys_networking/regenerate_if_name.sh:system/etc/wifi/regenerate_if_name.sh
+
+PRODUCT_PACKAGE_OVERLAYS := vendor/anbox/overlay
 
 PRODUCT_CHARACTERISTICS := emulator
 

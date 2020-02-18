@@ -110,5 +110,18 @@ void IpConfigBuilder::set_dns_servers(const std::vector<std::string> &dns_server
 void IpConfigBuilder::set_id(uint32_t id) {
   id_ = id;
 }
+
+//Android uses the hash of the configKey as id for its
+//configured networks in ipconfig.txt, This method recreates
+//Java's String.hashCode() to be applied to the given configKey
+void IpConfigBuilder::set_id(const std::string& configKey) {
+  uint32_t h = 0;
+  const char* val = configKey.c_str();
+    for (unsigned i = 0; i < configKey.length(); i++) {
+      h = 31 * h + val[i];
+    }
+  id_ = h;
+}
+
 }  // namespace android
 }  // namespace anbox

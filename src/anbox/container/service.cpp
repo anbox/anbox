@@ -88,9 +88,9 @@ void Service::new_client(std::shared_ptr<boost::asio::local::stream_protocol::so
   auto server = std::make_shared<container::ManagementApiSkeleton>(
       pending_calls, std::make_shared<LxcContainer>(config_.privileged,
                                                     config_.rootfs_overlay,
-                                                    config_.use_phys,
                                                     config_.container_phys_link,
                                                     config_.container_hw_addr,
+                                                    config_.android_wpa_driver,
                                                     config_.container_network_address,
                                                     config_.container_network_gateway,
                                                     config_.container_network_dns_servers,

@@ -1,11 +1,27 @@
 #!/system/bin/sh
 
+#.host_network_info is created from the snap environment
+if_name=$(tail -n 1 /data/.host_network_info)
+driver=$(head -n 1 /data/.host_network_info)
+#Setting Android variable for use in init.goldfish.rc
+setprop wifi.wpa.driver $driver
+
 # Setup networking when boot starts
-ifconfig eth0 10.0.2.15 netmask 255.255.255.0 up
-route add default gw 10.0.2.2 dev eth0
-if [ -e /sys/class/net/wlan0 ]; then
-    ifconfig wlan0 up
+if [ "$driver" = "wired" ]; then
+    link_type="eth"
+else
+    link_type="wifi"
 fi
+
+#Check if Link type has changed and only then rewrite wpa conf
+#otherwise user would loose saved wifi networks on every boot
+if ! [ -e /data/misc/wifi/.old_link_type ] || ! [ $(head -n 1 /data/misc/wifi/.old_link_type) = ${link_type} ]; then
+    cp /system/etc/wifi/wpa_supplicant_${link_type}.conf /data/misc/wifi/wpa_supplicant.conf
+fi
+echo ${link_type} > /data/misc/wifi/.old_link_type
+
+chmod 0660 /data/misc/wifi/wpa_supplicant.conf
+chown wifi:wifi /data/misc/wifi/wpa_supplicant.conf
 
 # ro.kernel.android.qemud is normally set when we
 # want the RIL (radio interface layer) to talk to

@@ -39,9 +39,13 @@ TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
 BOARD_SEPOLICY_DIRS += build/target/board/generic/sepolicy
 
 # Wifi.
+#Additional wpa drivers can be added with
+#CONFIG_DRIVER_<x> := y
 BOARD_WLAN_DEVICE           := emulator
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
-WPA_SUPPLICANT_VERSION      := VER_0_8_X
+CONFIG_DRIVER_WIRED         := y
+CONFIG_DRIVER_WEXT          := y
+WPA_SUPPLICANT_VERSION      := VER_0_8_X VER_2_1_DEVEL
 WIFI_DRIVER_FW_PATH_PARAM   := "/dev/null"
 WIFI_DRIVER_FW_PATH_STA     := "/dev/null"
 WIFI_DRIVER_FW_PATH_AP      := "/dev/null"

@@ -43,6 +43,7 @@ namespace fs = boost::filesystem;
 
 namespace {
 constexpr unsigned int unprivileged_uid{100000};
+constexpr unsigned int wifi_uid{101010};
 constexpr unsigned int android_system_uid{1000};
 constexpr const char *default_container_ip_address{"192.168.250.2"};
 constexpr const std::uint32_t default_container_ip_prefix_length{24};
@@ -97,9 +98,9 @@ namespace anbox {
 namespace container {
 LxcContainer::LxcContainer(bool privileged,
                            bool rootfs_overlay,
-                           bool use_phys,
                            const std::string &container_phys_link,
                            const std::string &container_hw_addr,
+                           const std::string &android_wpa_driver,
                            const std::string &container_network_address,
                            const std::string &container_network_gateway,
                            const std::vector<std::string> &container_network_dns_servers,
@@ -108,9 +109,10 @@ LxcContainer::LxcContainer(bool privileged,
       container_(nullptr),
       privileged_(privileged),
       rootfs_overlay_(rootfs_overlay),
-      use_phys_(use_phys),
+      use_phys_(!container_phys_link.empty()),
       container_phys_link_(container_phys_link),
       container_hw_addr_(container_hw_addr),
+      android_wpa_driver_(android_wpa_driver),
       container_network_address_(container_network_address),
       container_network_gateway_(container_network_gateway),
       container_network_dns_servers_(container_network_dns_servers),
@@ -158,10 +160,12 @@ void LxcContainer::setup_network() {
   set_config_item(lxc_config_net_type_key, use_phys_?"phys":"veth");
   set_config_item(lxc_config_net_flags_key, "up");
   set_config_item(lxc_config_net_link_key, use_phys_?container_phys_link_:"anbox0");
+  set_config_item(lxc_config_net_name_key, "wlan0");
   if(use_phys_){
     set_config_item(lxc_config_net_hwaddr_key, container_hw_addr_);
-    set_config_item(lxc_config_net_name_key, "wlan0");
   }
+
+  store_network_info(android_wpa_driver_,container_phys_link_);
 
   // Instead of relying on DHCP we will give Android a static IP configuration
   // for the virtual ethernet interface LXC creates for us. This will be bridged
@@ -170,37 +174,44 @@ void LxcContainer::setup_network() {
 
   android::IpConfigBuilder ip_conf;
   ip_conf.set_version(android::IpConfigBuilder::Version::Version2);
-  ip_conf.set_assignment(android::IpConfigBuilder::Assignment::Static);
+  if(!use_phys_ || !container_network_address_.empty()){
 
-  std::string address = default_container_ip_address;
-  std::uint32_t ip_prefix_length = default_container_ip_prefix_length;
-  if (!container_network_address_.empty()) {
-    auto tokens = utils::string_split(container_network_address_, '/');
-    if (tokens.size() == 1 || tokens.size() == 2)
-      address = tokens[0];
-    if (tokens.size() == 2)
-      ip_prefix_length = atoi(tokens[1].c_str());
+    ip_conf.set_assignment(android::IpConfigBuilder::Assignment::Static);
+
+    std::string address = default_container_ip_address;
+    std::uint32_t ip_prefix_length = default_container_ip_prefix_length;
+    if (!container_network_address_.empty()) {
+      auto tokens = utils::string_split(container_network_address_, '/');
+      if (tokens.size() == 1 || tokens.size() == 2)
+        address = tokens[0];
+      if (tokens.size() == 2)
+        ip_prefix_length = atoi(tokens[1].c_str());
+    }
+    ip_conf.set_link_address(address, ip_prefix_length);
+
+    std::string gateway = default_host_ip_address;
+    if (!container_network_gateway_.empty())
+      gateway = container_network_gateway_;
+    ip_conf.set_gateway(gateway);
+
+    if (container_network_dns_servers_.size() > 0)
+      ip_conf.set_dns_servers(container_network_dns_servers_);
+    else
+      ip_conf.set_dns_servers({default_dns_server});
+
+  } else {
+    ip_conf.set_assignment(android::IpConfigBuilder::Assignment::DHCP);
   }
-  ip_conf.set_link_address(address, ip_prefix_length);
 
-  std::string gateway = default_host_ip_address;
-  if (!container_network_gateway_.empty())
-    gateway = container_network_gateway_;
-  ip_conf.set_gateway(gateway);
-
-  if (container_network_dns_servers_.size() > 0)
-    ip_conf.set_dns_servers(container_network_dns_servers_);
-  else
-    ip_conf.set_dns_servers({default_dns_server});
-
-  ip_conf.set_id(0);
+  if(!use_phys_)
+    ip_conf.set_id("\"VirtualEthernet\"NONE");
 
   std::vector<std::uint8_t> buffer(512);
   common::BinaryWriter writer(buffer.begin(), buffer.end());
   const auto size = ip_conf.write(writer);
 
-  const auto data_ethernet_path = fs::path("data") / "misc" / "ethernet";
-  const auto ip_conf_dir = SystemConfiguration::instance().data_dir() / data_ethernet_path;
+  const auto data_wifi_path = fs::path("data") / "misc" / "wifi";
+  const auto ip_conf_dir = SystemConfiguration::instance().data_dir() / data_wifi_path;
   if (!fs::exists(ip_conf_dir))
     fs::create_directories(ip_conf_dir);
 
@@ -212,7 +223,7 @@ void LxcContainer::setup_network() {
   // every startup if those directories are still owned by root and
   // if they are we move them over to the unprivileged user.
   auto path = SystemConfiguration::instance().data_dir();
-  for (auto iter = data_ethernet_path.begin(); iter != data_ethernet_path.end(); iter++) {
+  for (auto iter = data_wifi_path.begin(); iter != data_wifi_path.end(); iter++) {
     path /= *iter;
 
     struct stat st;
@@ -236,10 +247,15 @@ void LxcContainer::setup_network() {
   if (f.is_open()) {
     f.write(reinterpret_cast<const char*>(buffer.data()), size);
     f.close();
-  } else {
-    ERROR("Failed to write IP configuration. Network functionality will not be available.");
+    if (chown(ip_conf_path.c_str(), wifi_uid, wifi_uid) < 0)
+      WARNING("Failed to set owner for path '%s'", ip_conf_path);
+    if (chmod(ip_conf_path.c_str(), 0660) < 0)
+      WARNING("Failed to set access for path '%s'", ip_conf_path);
+    } else {
+      ERROR("Failed to write IP configuration. Network functionality will not be available.");
   }
 }
+
 
 void LxcContainer::add_device(const std::string& device, const DeviceSpecification& spec) {
   struct stat st;
@@ -315,21 +331,37 @@ bool LxcContainer::create_binder_devices(unsigned int device_count, std::vector<
   return true;
 }
 
+// Store network info
+void LxcContainer::store_network_info(const std::string& driver, const std::string& name){
+  const auto backup_file = SystemConfiguration::instance().data_dir() / "data" / ".host_network_info";
+  if (fs::exists(backup_file))
+    fs::remove(backup_file);
+  std::ofstream f(backup_file.string());
+  if (f.is_open()) {
+    f << driver << std::endl << name << std::endl;
+    f.close();
+  }
+}
+
 // LXC 3.0.1's renaming of physical interfaces is not undone on
 // stop of the container due to a bug. This function takes care of it
 // in the container.
 void LxcContainer::regenerate_if_name(){
-  const auto backup_file = SystemConfiguration::instance().data_dir() / ".backup_iface_name.txt";
+  const auto backup_file = SystemConfiguration::instance().data_dir() / "data" / ".host_network_info";
   if(fs::exists(backup_file)){
     std::ifstream f(backup_file.string());
     if (f.is_open()) {
       std::string name;
+      //skip first line
       getline(f, name);
+      getline(f, name);
+      if(name.compare("none")){
+          //last argument needs to be NULL for execvp
+          const char* argv[3] = {"/system/etc/wifi/regenerate_if_name.sh",name.c_str(), NULL};
+          container_->attach_run_wait(container_, NULL, argv[0], argv);
+      }
       f.close();
-      fs::remove(backup_file); 
-      //last argument needs to be NULL for execvp
-      const char* argv[3] = {"/system/etc/wifi/regenerate_if_name.sh",name.c_str(), NULL};
-      container_->attach_run_wait(container_, NULL, argv[0], argv);
+      fs::remove(backup_file);
     }
   }
 }

@@ -48,6 +48,7 @@ class IpConfigBuilder {
   void set_gateway(const std::string &gateway);
   void set_dns_servers(const std::vector<std::string> &dns_servers);
   void set_id(std::uint32_t id);
+  void set_id(const std::string& configKey);
 
  private:
   Version version_;

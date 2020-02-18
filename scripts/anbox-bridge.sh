@@ -40,7 +40,7 @@ if [ -n "$SNAP" ]; then
     snap_ipv4_network=$(snapctl get bridge.network)
     snap_ipv4_broadcast=$(snapctl get bridge.broadcast)
     snap_enable_nat=$(snapctl get bridge.nat.enable)
-    container_phys_link=$(snapctl get container.phys.wifi)
+    container_phys_link=$(snapctl get container.phys.link)
     if [ -n "$snap_ipv4_address" ]; then
         IPV4_ADDR="$snap_ipv4_address"
     fi

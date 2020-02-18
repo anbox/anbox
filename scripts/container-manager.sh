@@ -70,17 +70,20 @@ start() {
 		EXTRA_ARGS="$EXTRA_ARGS --privileged"
 	fi
 
-	container_phys_link=$(snapctl get container.phys.wifi)
-	if [ -n "$container_phys_link" ] && [ "$container_phys_link" != "none" ] && [ -e /sys/class/net/$container_phys_link ]; then
+	container_phys_link="$(snapctl get container.phys.link)"
+	if [ -n "$container_phys_link" ] && [ -e /sys/class/net/$container_phys_link ]; then
+		android_wpa_driver=$(snapctl get android.wpa.driver)
+		if [ -z "$android_wpa_driver" ]; then
+			android_wpa_driver="nl80211"
+		fi
 		read HWADDR </sys/class/net/$container_phys_link/address
 		EXTRA_ARGS="$EXTRA_ARGS --container-physical-link=$container_phys_link"
 		EXTRA_ARGS="$EXTRA_ARGS --container-hardware-address=$HWADDR"
-		#Store old iface name for later. It will be renamed to wlan0 in the container
-		echo $container_phys_link > $SNAP_COMMON/.backup_iface_name.txt
 	else
-		if [ -n "$container_phys_link" ]; then
+		if [ ! -e /sys/class/net/$container_phys_link ]; then
 			echo "WARNING: Physical interface $container_phys_link does not exist on this machine. Falling back to classic bridged mode!"
 		fi
+		android_wpa_driver="wired"
 
 		container_network_address=$(snapctl get container.network.address)
 		if [ -n "$container_network_address" ]; then
@@ -92,6 +95,8 @@ start() {
 			EXTRA_ARGS="$EXTRA_ARGS --container-network-gateway=$container_network_gateway"
 		fi
 	fi
+
+	EXTRA_ARGS="$EXTRA_ARGS --android-wpa-driver=$android_wpa_driver"
 
 	container_network_dns=$(snapctl get container.network.dns)
 	if [ -n "$container_network_dns" ]; then
