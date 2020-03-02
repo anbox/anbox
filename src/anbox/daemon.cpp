@@ -55,7 +55,7 @@ Daemon::Daemon()
 
 int Daemon::Run(const std::vector<std::string> &arguments) try {
   auto argv = arguments;
-  if (arguments.size() == 0) argv = {"run"};
+  if (arguments.size() == 0) argv = {"help"};
   return cmd.run({std::cin, std::cout, argv});
 } catch (std::exception &err) {
   ERROR("%s", err.what());

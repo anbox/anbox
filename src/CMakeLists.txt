@@ -29,6 +29,8 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/external/cpu_features/include
 )
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBINDERFS_PATH=\"\\\"${BINDERFS_PATH}\\\"\"")
+
 protobuf_generate_cpp(
     GENERATED_PROTOBUF_RPC_SRCS GENERATED_PROTOBUF_RPC_HDRS
     anbox/protobuf/anbox_rpc.proto)
@@ -121,6 +123,11 @@ set(SOURCES
     anbox/common/variable_length_array.h
     anbox/common/wait_handle.cpp
     anbox/common/wait_handle.h
+    anbox/common/binderfs.h
+    anbox/common/binder_device.cpp
+    anbox/common/binder_device.h
+    anbox/common/binder_device_allocator.cpp
+    anbox/common/binder_device_allocator.h
 
     anbox/container/client.cpp
     anbox/container/client.h

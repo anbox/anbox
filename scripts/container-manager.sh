@@ -85,6 +85,20 @@ start() {
 		EXTRA_ARGS="$EXTRA_ARGS --container-network-dns-servers=$container_network_dns"
 	fi
 
+	# Load all relevant kernel modules
+	modprobe binder_linux
+	modprobe ashmem_linux
+
+	# Ensure we have binderfs mounted when our kernel supports it
+	if cat /proc/filesystems | grep -q binder ; then
+		mkdir -p "$SNAP_COMMON"/binderfs
+		# Remove old mounts so that we start fresh without any devices allocated
+		if cat /proc/mounts | grep -q "binder $SNAP_COMMON/binderfs" ; then
+			umount "$SNAP_COMMON"/binderfs
+		fi
+		mount -t binder none "$SNAP_COMMON"/binderfs
+	fi
+
 	exec "$SNAP"/bin/anbox-wrapper.sh container-manager \
 		--data-path="$DATA_PATH" \
 		--android-image="$ANDROID_IMG" \

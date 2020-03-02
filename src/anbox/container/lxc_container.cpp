@@ -16,6 +16,8 @@
  */
 
 #include "anbox/android/ip_config_builder.h"
+#include "anbox/common/binder_device_allocator.h"
+#include "anbox/common/binder_device.h"
 #include "anbox/container/lxc_container.h"
 #include "anbox/system_configuration.h"
 #include "anbox/logger.h"
@@ -46,6 +48,7 @@ constexpr const char *default_container_ip_address{"192.168.250.2"};
 constexpr const std::uint32_t default_container_ip_prefix_length{24};
 constexpr const char *default_host_ip_address{"192.168.250.1"};
 constexpr const char *default_dns_server{"8.8.8.8"};
+constexpr int num_needed_binders{1};
 
 #ifdef ENABLE_LXC2_SUPPORT
 constexpr const char *lxc_config_idmap_key{"lxc.id_map"};
@@ -77,11 +80,11 @@ constexpr const char *lxc_config_log_file_key{"lxc.log.file"};
 constexpr const char *lxc_config_apparmor_profile_key{"lxc.apparmor.profile"};
 #endif
 
-constexpr int device_major(__dev_t dev) {
+constexpr int device_major(dev_t dev) {
   return int(((dev >> 8) & 0xfff) | ((dev >> 32) & (0xfffff000)));
 }
 
-constexpr int device_minor(__dev_t dev) {
+constexpr int device_minor(dev_t dev) {
   return int((dev & 0xff) | ((dev >> 12) & (0xffffff00)));
 }
 } // namespace
@@ -283,6 +286,21 @@ void LxcContainer::add_device(const std::string& device, const DeviceSpecificati
   set_config_item("lxc.mount.entry", entry);
 }
 
+bool LxcContainer::create_binder_devices(unsigned int device_count, std::vector<std::unique_ptr<common::BinderDevice>>& devices) {
+  // We will always allocate a static set of binders devices even if the container
+  // doesn't use all of them
+  for (unsigned int n = 0; n < device_count; n++) {
+    auto device = common::BinderDeviceAllocator::new_device();
+    if (!device)
+      return false;
+
+    DEBUG("Allocated binder device %s", device->path());
+    devices.push_back(std::move(device));
+  }
+
+  return true;
+}
+
 void LxcContainer::start(const Configuration &configuration) {
   if (getuid() != 0)
     throw std::runtime_error("You have to start the container as root");
@@ -352,7 +370,6 @@ void LxcContainer::start(const Configuration &configuration) {
     set_config_item("lxc.console.rotate", "1");
 #endif
 
-
   setup_network();
 
 #ifdef ENABLE_SNAP_CONFINEMENT
@@ -368,6 +385,24 @@ void LxcContainer::start(const Configuration &configuration) {
     setup_id_map();
 
   auto bind_mounts = configuration.bind_mounts;
+  auto devices = configuration.devices;
+
+  // If we have binderfs support we can dynamically allocate all our devices
+  if (common::BinderDeviceAllocator::is_supported()) {
+    DEBUG("Using binderfs to allocate our own binder nodes");
+
+    std::vector<std::unique_ptr<common::BinderDevice>> binder_devices;
+    if (!create_binder_devices(num_needed_binders, binder_devices) ||
+        binder_devices.size() != num_needed_binders)
+      throw std::runtime_error("Failed to allocate necessary binder devices");
+
+    bind_mounts.insert({binder_devices[0]->path().string(), "/dev/binder"});
+    binder_devices_ = std::move(binder_devices);
+  } else {
+    DEBUG("Using static binder device /dev/binder");
+    devices.insert({"/dev/binder", { 0666 }});
+  }
+
   for (const auto &bind_mount : bind_mounts) {
     std::string create_type = "file";
 
@@ -387,8 +422,6 @@ void LxcContainer::start(const Configuration &configuration) {
     set_config_item("lxc.mount.entry", entry);
   }
 
-  auto devices = configuration.devices;
-
   // Additional devices we need in our container
   devices.insert({"/dev/console", {0600}});
   devices.insert({"/dev/full", {0666}});
@@ -398,6 +431,7 @@ void LxcContainer::start(const Configuration &configuration) {
   devices.insert({"/dev/urandom", {0666}});
   devices.insert({"/dev/zero", {0666}});
   devices.insert({"/dev/tun", {0660, "/dev/net/tun"}});
+  devices.insert({"/dev/ashmem", {0666}});
 
   // Remove all left over devices from last time first before
   // creating any new ones
@@ -454,6 +488,7 @@ void LxcContainer::stop() {
     throw std::runtime_error("Failed to stop container");
 
   state_ = Container::State::inactive;
+  binder_devices_.clear();
 
   DEBUG("Container successfully stopped");
 }

@@ -129,7 +129,7 @@ anbox::cmds::SessionManager::SessionManager()
       return EXIT_FAILURE;
     }
 
-    if (!fs::exists("/dev/binder") || !fs::exists("/dev/ashmem")) {
+    if ((!fs::exists("/dev/binder") && !fs::exists(BINDERFS_PATH)) || !fs::exists("/dev/ashmem")) {
       ERROR("Failed to start as either binder or ashmem kernel drivers are not loaded");
       return EXIT_FAILURE;
     }
@@ -269,8 +269,6 @@ anbox::cmds::SessionManager::SessionManager()
       };
 
       container_configuration.devices = {
-        {"/dev/binder", {0666}},
-        {"/dev/ashmem", {0666}},
         {"/dev/fuse", {0666}},
       };
 
