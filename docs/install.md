@@ -3,7 +3,7 @@
 To install Anbox your system need to support [snaps](https://snapcraft.io). We
 do not officially support any other distribution method of Anbox at the moment
 but there are community made packages for various distributions (e.g. Arch Linux).
-However please keep in mind that the Anbox project can give not support them
+However please keep in mind that the Anbox project can not give support to them
 and its solely in the responsibility of the community packager to keep up with
 upstream development and update the packaging to any new changes. Please feel
 free to report still any bugs you encounter as they may not be related to the
