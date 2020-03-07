@@ -39,7 +39,8 @@ PRODUCT_PACKAGES += \
 	fingerprintd \
 	dhcpcd-6.8.2 \
 	wpa_supplicant \
-	wpa_supplicant.conf
+	wpa_supplicant.conf \
+	wifi-service-anbox
 
 PRODUCT_COPY_FILES += \
 	vendor/anbox/android/fstab.goldfish:root/fstab.goldfish \
