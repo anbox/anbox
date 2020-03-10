@@ -16,20 +16,25 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#if defined(_MSC_VER)
+#if defined(CPU_FEATURES_MOCK_FILESYSTEM)
+// Implementation will be provided by test/filesystem_for_testing.cc.
+#elif defined(_MSC_VER)
 #include <io.h>
 int CpuFeatures_OpenFile(const char* filename) {
-  return _open(filename, _O_RDONLY);
+  int fd = -1;
+  _sopen_s(&fd, filename, _O_RDONLY, _SH_DENYWR, _S_IREAD);
+  return fd;
 }
 
 void CpuFeatures_CloseFile(int file_descriptor) { _close(file_descriptor); }
 
 int CpuFeatures_ReadFile(int file_descriptor, void* buffer,
                          size_t buffer_size) {
-  return _read(file_descriptor, buffer, buffer_size);
+  return _read(file_descriptor, buffer, (unsigned int)buffer_size);
 }
 
 #else

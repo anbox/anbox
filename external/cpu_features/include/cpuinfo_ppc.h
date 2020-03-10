@@ -16,6 +16,7 @@
 #define CPU_FEATURES_INCLUDE_CPUINFO_PPC_H_
 
 #include "cpu_features_macros.h"
+#include "cpu_features_cache_info.h"
 #include "internal/hwcaps.h"
 
 CPU_FEATURES_START_CPP_NAMESPACE
@@ -137,5 +138,9 @@ int GetPPCFeaturesEnumValue(const PPCFeatures* features, PPCFeaturesEnum value);
 const char* GetPPCFeaturesEnumName(PPCFeaturesEnum);
 
 CPU_FEATURES_END_CPP_NAMESPACE
+
+#if !defined(CPU_FEATURES_ARCH_PPC)
+#error "Including cpuinfo_ppc.h from a non-ppc target."
+#endif
 
 #endif  // CPU_FEATURES_INCLUDE_CPUINFO_PPC_H_

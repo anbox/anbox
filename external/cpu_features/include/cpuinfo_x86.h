@@ -15,20 +15,36 @@
 #ifndef CPU_FEATURES_INCLUDE_CPUINFO_X86_H_
 #define CPU_FEATURES_INCLUDE_CPUINFO_X86_H_
 
+#include "cpu_features_cache_info.h"
 #include "cpu_features_macros.h"
 
 CPU_FEATURES_START_CPP_NAMESPACE
 
 // See https://en.wikipedia.org/wiki/CPUID for a list of x86 cpu features.
+// The field names are based on the short name provided in the wikipedia tables.
 typedef struct {
+  int fpu : 1;
+  int tsc : 1;
+  int cx8 : 1;
+  int clfsh : 1;
+  int mmx : 1;
   int aes : 1;
   int erms : 1;
   int f16c : 1;
   int fma3 : 1;
+  int vaes : 1;
   int vpclmulqdq : 1;
   int bmi1 : 1;
+  int hle : 1;
   int bmi2 : 1;
+  int rtm : 1;
+  int rdseed : 1;
+  int clflushopt : 1;
+  int clwb : 1;
 
+  int sse : 1;
+  int sse2 : 1;
+  int sse3 : 1;
   int ssse3 : 1;
   int sse4_1 : 1;
   int sse4_2 : 1;
@@ -52,10 +68,17 @@ typedef struct {
   int avx512_4vnniw : 1;
   int avx512_4vbmi2 : 1;
 
+  int pclmulqdq : 1;
   int smx : 1;
   int sgx : 1;
   int cx16 : 1;  // aka. CMPXCHG16B
+  int sha : 1;
+  int popcnt : 1;
+  int movbe : 1;
+  int rdrnd : 1;
 
+  int dca : 1;
+  int ss : 1;
   // Make sure to update X86FeaturesEnum below if you add a field here.
 } X86Features;
 
@@ -70,6 +93,12 @@ typedef struct {
 // Calls cpuid and returns an initialized X86info.
 // This function is guaranteed to be malloc, memset and memcpy free.
 X86Info GetX86Info(void);
+
+// Returns cache hierarchy informations.
+// Can call cpuid multiple times.
+// Only works on Intel CPU at the moment.
+// This function is guaranteed to be malloc, memset and memcpy free.
+CacheInfo GetX86CacheInfo(void);
 
 typedef enum {
   X86_UNKNOWN,
@@ -87,7 +116,9 @@ typedef enum {
   INTEL_ATOM_GMT,  // GOLDMONT
   INTEL_KBL,       // KABY LAKE
   INTEL_CFL,       // COFFEE LAKE
+  INTEL_WHL,       // WHISKEY LAKE
   INTEL_CNL,       // CANNON LAKE
+  INTEL_ICL,       // ICE LAKE
   AMD_HAMMER,      // K8
   AMD_K10,         // K10
   AMD_BOBCAT,      // K14
@@ -110,13 +141,27 @@ void FillX86BrandString(char brand_string[49]);
 // Introspection functions
 
 typedef enum {
+  X86_FPU,
+  X86_TSC,
+  X86_CX8,
+  X86_CLFSH,
+  X86_MMX,
   X86_AES,
   X86_ERMS,
   X86_F16C,
   X86_FMA3,
+  X86_VAES,
   X86_VPCLMULQDQ,
   X86_BMI1,
+  X86_HLE,
   X86_BMI2,
+  X86_RTM,
+  X86_RDSEED,
+  X86_CLFLUSHOPT,
+  X86_CLWB,
+  X86_SSE,
+  X86_SSE2,
+  X86_SSE3,
   X86_SSSE3,
   X86_SSE4_1,
   X86_SSE4_2,
@@ -137,9 +182,16 @@ typedef enum {
   X86_AVX512VPOPCNTDQ,
   X86_AVX512_4VNNIW,
   X86_AVX512_4VBMI2,
+  X86_PCLMULQDQ,
   X86_SMX,
   X86_SGX,
   X86_CX16,
+  X86_SHA,
+  X86_POPCNT,
+  X86_MOVBE,
+  X86_RDRND,
+  X86_DCA,
+  X86_SS,
   X86_LAST_,
 } X86FeaturesEnum;
 
@@ -150,5 +202,9 @@ const char* GetX86FeaturesEnumName(X86FeaturesEnum);
 const char* GetX86MicroarchitectureName(X86Microarchitecture);
 
 CPU_FEATURES_END_CPP_NAMESPACE
+
+#if !defined(CPU_FEATURES_ARCH_X86)
+#error "Including cpuinfo_x86.h from a non-x86 target."
+#endif
 
 #endif  // CPU_FEATURES_INCLUDE_CPUINFO_X86_H_

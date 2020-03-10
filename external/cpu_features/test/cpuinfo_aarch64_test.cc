@@ -29,11 +29,36 @@ TEST(CpuinfoAarch64Test, FromHardwareCap) {
   const auto info = GetAarch64Info();
   EXPECT_TRUE(info.features.fp);
   EXPECT_FALSE(info.features.asimd);
+  EXPECT_FALSE(info.features.evtstrm);
   EXPECT_TRUE(info.features.aes);
   EXPECT_FALSE(info.features.pmull);
   EXPECT_FALSE(info.features.sha1);
   EXPECT_FALSE(info.features.sha2);
   EXPECT_FALSE(info.features.crc32);
+  EXPECT_FALSE(info.features.atomics);
+  EXPECT_FALSE(info.features.fphp);
+  EXPECT_FALSE(info.features.asimdhp);
+  EXPECT_FALSE(info.features.cpuid);
+  EXPECT_FALSE(info.features.asimdrdm);
+  EXPECT_FALSE(info.features.jscvt);
+  EXPECT_FALSE(info.features.fcma);
+  EXPECT_FALSE(info.features.lrcpc);
+  EXPECT_FALSE(info.features.dcpop);
+  EXPECT_FALSE(info.features.sha3);
+  EXPECT_FALSE(info.features.sm3);
+  EXPECT_FALSE(info.features.sm4);
+  EXPECT_FALSE(info.features.asimddp);
+  EXPECT_FALSE(info.features.sha512);
+  EXPECT_FALSE(info.features.sve);
+  EXPECT_FALSE(info.features.asimdfhm);
+  EXPECT_FALSE(info.features.dit);
+  EXPECT_FALSE(info.features.uscat);
+  EXPECT_FALSE(info.features.ilrcpc);
+  EXPECT_FALSE(info.features.flagm);
+  EXPECT_FALSE(info.features.ssbs);
+  EXPECT_FALSE(info.features.sb);
+  EXPECT_FALSE(info.features.paca);
+  EXPECT_FALSE(info.features.pacg);
 }
 
 TEST(CpuinfoAarch64Test, ARMCortexA53) {
@@ -63,11 +88,37 @@ CPU revision    : 3)");
 
   EXPECT_TRUE(info.features.fp);
   EXPECT_TRUE(info.features.asimd);
+  EXPECT_TRUE(info.features.evtstrm);
   EXPECT_TRUE(info.features.aes);
   EXPECT_TRUE(info.features.pmull);
   EXPECT_TRUE(info.features.sha1);
   EXPECT_TRUE(info.features.sha2);
   EXPECT_TRUE(info.features.crc32);
+
+  EXPECT_FALSE(info.features.atomics);
+  EXPECT_FALSE(info.features.fphp);
+  EXPECT_FALSE(info.features.asimdhp);
+  EXPECT_FALSE(info.features.cpuid);
+  EXPECT_FALSE(info.features.asimdrdm);
+  EXPECT_FALSE(info.features.jscvt);
+  EXPECT_FALSE(info.features.fcma);
+  EXPECT_FALSE(info.features.lrcpc);
+  EXPECT_FALSE(info.features.dcpop);
+  EXPECT_FALSE(info.features.sha3);
+  EXPECT_FALSE(info.features.sm3);
+  EXPECT_FALSE(info.features.sm4);
+  EXPECT_FALSE(info.features.asimddp);
+  EXPECT_FALSE(info.features.sha512);
+  EXPECT_FALSE(info.features.sve);
+  EXPECT_FALSE(info.features.asimdfhm);
+  EXPECT_FALSE(info.features.dit);
+  EXPECT_FALSE(info.features.uscat);
+  EXPECT_FALSE(info.features.ilrcpc);
+  EXPECT_FALSE(info.features.flagm);
+  EXPECT_FALSE(info.features.ssbs);
+  EXPECT_FALSE(info.features.sb);
+  EXPECT_FALSE(info.features.paca);
+  EXPECT_FALSE(info.features.pacg);
 }
 
 }  // namespace

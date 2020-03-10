@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "internal/linux_features_aggregator.h"
+#include "internal/unix_features_aggregator.h"
 #include "internal/string_view.h"
 
 void CpuFeatures_SetFromFlags(const size_t configs_size,
@@ -28,12 +28,13 @@ void CpuFeatures_SetFromFlags(const size_t configs_size,
 }
 
 static bool IsSet(const uint32_t mask, const uint32_t value) {
+  if (mask == 0) return false;
   return (value & mask) == mask;
 }
 
 static bool IsHwCapsSet(const HardwareCapabilities hwcaps_mask,
                         const HardwareCapabilities hwcaps) {
-  return IsSet(hwcaps_mask.hwcaps, hwcaps.hwcaps) &&
+  return IsSet(hwcaps_mask.hwcaps, hwcaps.hwcaps) ||
          IsSet(hwcaps_mask.hwcaps2, hwcaps.hwcaps2);
 }
 

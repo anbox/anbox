@@ -3,41 +3,52 @@ language: c
 sudo: false
 
 cache:
+  timeout: 1000
   directories:
     - $HOME/cpu_features_archives
+
+addons:
+  apt:
+    packages:
+    - ninja-build
+
+env:
+  global:
+    TOOLCHAIN=NATIVE
+    CMAKE_GENERATOR=Ninja
 
 matrix:
   include:
   - os: linux
     compiler: gcc
     env:
-      TOOLCHAIN=NATIVE
-      TARGET=native
+      TARGET=x86_64-linux-gnu
   - os: linux
     compiler: clang
     env:
-      TOOLCHAIN=NATIVE
-      TARGET=native
+      TARGET=x86_64-linux-gnu
   - os: osx
     compiler: gcc
     env:
-      TOOLCHAIN=NATIVE
-      TARGET=native
+      TARGET=x86_64-osx
+      CMAKE_GENERATOR="Unix Makefiles"
   - os: osx
     compiler: clang
     env:
-      TOOLCHAIN=NATIVE
-      TARGET=native
+      TARGET=x86_64-osx
+      CMAKE_GENERATOR="Unix Makefiles"
+  - os: windows
+    env:
+      TARGET=x86_64-windows
+      CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
   - os: linux-ppc64le
     compiler: gcc
     env:
-      TOOLCHAIN=NATIVE
-      TARGET=native
+      TARGET=ppc64le-linux-gnu
   - os: linux-ppc64le
     compiler: clang
     env:
-      TOOLCHAIN=NATIVE
-      TARGET=native
+      TARGET=ppc64le-linux-gnu
   # Toolchains for little-endian, 64-bit ARMv8 for GNU/Linux systems
   - os: linux
     env:
@@ -83,8 +94,23 @@ matrix:
   - os: linux
     env:
       TOOLCHAIN=CODESCAPE
-      TARGET=mips-mti-linux-gnu
-      QEMU_ARCH=DISABLED
+      TARGET=mips32
+      QEMU_ARCH=mips
+  - os: linux
+    env:
+      TOOLCHAIN=CODESCAPE
+      TARGET=mips32el
+      QEMU_ARCH=mipsel
+  - os: linux
+    env:
+      TOOLCHAIN=CODESCAPE
+      TARGET=mips64
+      QEMU_ARCH=mips64
+  - os: linux
+    env:
+      TOOLCHAIN=CODESCAPE
+      TARGET=mips64el
+      QEMU_ARCH=mips64el
 
 script:
   - cmake --version

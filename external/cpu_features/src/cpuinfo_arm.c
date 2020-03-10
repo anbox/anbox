@@ -17,40 +17,69 @@
 #include "internal/bit_utils.h"
 #include "internal/filesystem.h"
 #include "internal/hwcaps.h"
-#include "internal/linux_features_aggregator.h"
 #include "internal/stack_line_reader.h"
 #include "internal/string_view.h"
+#include "internal/unix_features_aggregator.h"
 
+#include <assert.h>
 #include <ctype.h>
 
-DECLARE_SETTER(ArmFeatures, vfp)
-DECLARE_SETTER(ArmFeatures, iwmmxt)
-DECLARE_SETTER(ArmFeatures, neon)
-DECLARE_SETTER(ArmFeatures, vfpv3)
-DECLARE_SETTER(ArmFeatures, vfpv3d16)
-DECLARE_SETTER(ArmFeatures, vfpv4)
-DECLARE_SETTER(ArmFeatures, idiva)
-DECLARE_SETTER(ArmFeatures, idivt)
-DECLARE_SETTER(ArmFeatures, aes)
-DECLARE_SETTER(ArmFeatures, pmull)
-DECLARE_SETTER(ArmFeatures, sha1)
-DECLARE_SETTER(ArmFeatures, sha2)
-DECLARE_SETTER(ArmFeatures, crc32)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, swp)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, half)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, thumb)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, _26bit)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, fastmult)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, fpa)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, vfp)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, edsp)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, java)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, iwmmxt)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, crunch)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, thumbee)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, neon)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, vfpv3)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, vfpv3d16)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, tls)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, vfpv4)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, idiva)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, idivt)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, vfpd32)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, lpae)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, evtstrm)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, aes)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, pmull)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, sha1)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, sha2)
+DECLARE_SETTER_AND_GETTER(ArmFeatures, crc32)
 
 static const CapabilityConfig kConfigs[] = {
-    {{ARM_HWCAP_VFP, 0}, "vfp", &set_vfp},                 //
-    {{ARM_HWCAP_IWMMXT, 0}, "iwmmxt", &set_iwmmxt},        //
-    {{ARM_HWCAP_NEON, 0}, "neon", &set_neon},              //
-    {{ARM_HWCAP_VFPV3, 0}, "vfpv3", &set_vfpv3},           //
-    {{ARM_HWCAP_VFPV3D16, 0}, "vfpv3d16", &set_vfpv3d16},  //
-    {{ARM_HWCAP_VFPV4, 0}, "vfpv4", &set_vfpv4},           //
-    {{ARM_HWCAP_IDIVA, 0}, "idiva", &set_idiva},           //
-    {{ARM_HWCAP_IDIVT, 0}, "idivt", &set_idivt},           //
-    {{0, ARM_HWCAP2_AES}, "aes", &set_aes},                //
-    {{0, ARM_HWCAP2_PMULL}, "pmull", &set_pmull},          //
-    {{0, ARM_HWCAP2_SHA1}, "sha1", &set_sha1},             //
-    {{0, ARM_HWCAP2_SHA2}, "sha2", &set_sha2},             //
-    {{0, ARM_HWCAP2_CRC32}, "crc32", &set_crc32},          //
+  [ARM_SWP] = {{ARM_HWCAP_SWP, 0}, "swp", &set_swp, &get_swp},                           //
+  [ARM_HALF] = {{ARM_HWCAP_HALF, 0}, "half", &set_half, &get_half},                      //
+  [ARM_THUMB] = {{ARM_HWCAP_THUMB, 0}, "thumb", &set_thumb, &get_thumb},                 //
+  [ARM_26BIT] = {{ARM_HWCAP_26BIT, 0}, "26bit", &set__26bit, &get__26bit},               //
+  [ARM_FASTMULT] = {{ARM_HWCAP_FAST_MULT, 0}, "fastmult", &set_fastmult, &get_fastmult}, //
+  [ARM_FPA] = {{ARM_HWCAP_FPA, 0}, "fpa", &set_fpa, &get_fpa},                           //
+  [ARM_VFP] = {{ARM_HWCAP_VFP, 0}, "vfp", &set_vfp, &get_vfp},                           //
+  [ARM_EDSP] = {{ARM_HWCAP_EDSP, 0}, "edsp", &set_edsp, &get_edsp},                      //
+  [ARM_JAVA] = {{ARM_HWCAP_JAVA, 0}, "java", &set_java, &get_java},                      //
+  [ARM_IWMMXT] = {{ARM_HWCAP_IWMMXT, 0}, "iwmmxt", &set_iwmmxt, &get_iwmmxt},            //
+  [ARM_CRUNCH] = {{ARM_HWCAP_CRUNCH, 0}, "crunch", &set_crunch, &get_crunch},            //
+  [ARM_THUMBEE] = {{ARM_HWCAP_THUMBEE, 0}, "thumbee", &set_thumbee, &get_thumbee},       //
+  [ARM_NEON] = {{ARM_HWCAP_NEON, 0}, "neon", &set_neon, &get_neon},                      //
+  [ARM_VFPV3] = {{ARM_HWCAP_VFPV3, 0}, "vfpv3", &set_vfpv3, &get_vfpv3},                 //
+  [ARM_VFPV3D16] = {{ARM_HWCAP_VFPV3D16, 0}, "vfpv3d16", &set_vfpv3d16, &get_vfpv3d16},  //
+  [ARM_TLS] = {{ARM_HWCAP_TLS, 0}, "tls", &set_tls, &get_tls},                           //
+  [ARM_VFPV4] = {{ARM_HWCAP_VFPV4, 0}, "vfpv4", &set_vfpv4, &get_vfpv4},                 //
+  [ARM_IDIVA] = {{ARM_HWCAP_IDIVA, 0}, "idiva", &set_idiva, &get_idiva},                 //
+  [ARM_IDIVT] = {{ARM_HWCAP_IDIVT, 0}, "idivt", &set_idivt, &get_idivt},                 //
+  [ARM_VFPD32] = {{ARM_HWCAP_VFPD32, 0}, "vfpd32", &set_vfpd32, &get_vfpd32},            //
+  [ARM_LPAE] = {{ARM_HWCAP_LPAE, 0}, "lpae", &set_lpae, &get_lpae},                      //
+  [ARM_EVTSTRM] = {{ARM_HWCAP_EVTSTRM, 0}, "evtstrm", &set_evtstrm, &get_evtstrm},       //
+  [ARM_AES] = {{0, ARM_HWCAP2_AES}, "aes", &set_aes, &get_aes},                          //
+  [ARM_PMULL] = {{0, ARM_HWCAP2_PMULL}, "pmull", &set_pmull, &get_pmull},                //
+  [ARM_SHA1] = {{0, ARM_HWCAP2_SHA1}, "sha1", &set_sha1, &get_sha1},                     //
+  [ARM_SHA2] = {{0, ARM_HWCAP2_SHA2}, "sha2", &set_sha2, &get_sha2},                     //
+  [ARM_CRC32] = {{0, ARM_HWCAP2_CRC32}, "crc32", &set_crc32, &get_crc32},                //
 };
 
 static const size_t kConfigsSize = sizeof(kConfigs) / sizeof(CapabilityConfig);
@@ -90,7 +119,11 @@ static bool HandleArmLine(const LineResult result, ArmInfo* const info,
       const StringView digits =
           CpuFeatures_StringView_KeepFront(value, IndexOfNonDigit(value));
       info->architecture = CpuFeatures_StringView_ParsePositiveNumber(digits);
-    } else if (CpuFeatures_StringView_IsEquals(key, str("Processor"))) {
+    } else if (CpuFeatures_StringView_IsEquals(key, str("Processor"))
+               || CpuFeatures_StringView_IsEquals(key, str("model name")) ) {
+      // Android reports this in a non-Linux standard "Processor" but sometimes
+      // also in "model name", Linux reports it only in "model name"
+      // see RaspberryPiZero (Linux) vs InvalidArmv7 (Android) test-cases
       proc_info->processor_reports_armv6 =
           CpuFeatures_StringView_IndexOf(value, str("(v6l)")) >= 0;
     } else if (CpuFeatures_StringView_IsEquals(key, str("Hardware"))) {
@@ -101,7 +134,7 @@ static bool HandleArmLine(const LineResult result, ArmInfo* const info,
   return !result.eof;
 }
 
-static uint32_t GetCpuId(const ArmInfo* const info) {
+uint32_t GetArmCpuId(const ArmInfo* const info) {
   return (ExtractBitRange(info->implementer, 7, 0) << 24) |
          (ExtractBitRange(info->variant, 3, 0) << 20) |
          (ExtractBitRange(info->part, 11, 0) << 4) |
@@ -118,7 +151,7 @@ static void FixErrors(ArmInfo* const info,
 
   // Handle kernel configuration bugs that prevent the correct reporting of CPU
   // features.
-  switch (GetCpuId(info)) {
+  switch (GetArmCpuId(info)) {
     case 0x4100C080:
       // Special case: The emulator-specific Android 4.2 kernel fails to report
       // support for the 32-bit ARM IDIV instruction. Technically, this is a
@@ -191,69 +224,13 @@ ArmInfo GetArmInfo(void) {
 
 int GetArmFeaturesEnumValue(const ArmFeatures* features,
                             ArmFeaturesEnum value) {
-  switch (value) {
-    case ARM_VFP:
-      return features->vfp;
-    case ARM_IWMMXT:
-      return features->iwmmxt;
-    case ARM_NEON:
-      return features->neon;
-    case ARM_VFPV3:
-      return features->vfpv3;
-    case ARM_VFPV3D16:
-      return features->vfpv3d16;
-    case ARM_VFPV4:
-      return features->vfpv4;
-    case ARM_IDIVA:
-      return features->idiva;
-    case ARM_IDIVT:
-      return features->idivt;
-    case ARM_AES:
-      return features->aes;
-    case ARM_PMULL:
-      return features->pmull;
-    case ARM_SHA1:
-      return features->sha1;
-    case ARM_SHA2:
-      return features->sha2;
-    case ARM_CRC32:
-      return features->crc32;
-    case ARM_LAST_:
-      break;
-  }
-  return false;
+  if(value >= kConfigsSize)
+    return false;
+  return kConfigs[value].get_bit((ArmFeatures*)features);
 }
 
 const char* GetArmFeaturesEnumName(ArmFeaturesEnum value) {
-  switch (value) {
-    case ARM_VFP:
-      return "vfp";
-    case ARM_IWMMXT:
-      return "iwmmxt";
-    case ARM_NEON:
-      return "neon";
-    case ARM_VFPV3:
-      return "vfpv3";
-    case ARM_VFPV3D16:
-      return "vfpv3d16";
-    case ARM_VFPV4:
-      return "vfpv4";
-    case ARM_IDIVA:
-      return "idiva";
-    case ARM_IDIVT:
-      return "idivt";
-    case ARM_AES:
-      return "aes";
-    case ARM_PMULL:
-      return "pmull";
-    case ARM_SHA1:
-      return "sha1";
-    case ARM_SHA2:
-      return "sha2";
-    case ARM_CRC32:
-      return "crc32";
-    case ARM_LAST_:
-      break;
-  }
-  return "unknown feature";
+  if(value >= kConfigsSize)
+    return "unknown feature";
+  return kConfigs[value].proc_cpuinfo_flag;
 }

@@ -9,6 +9,7 @@ instructions) at runtime.
 - [Code samples](#codesample)
 - [Running sample code](#usagesample)
 - [What's supported](#support)
+- [Android NDK's drop in replacement](#ndk)
 - [License](#license)
 - [Build with cmake](#cmake)
 
@@ -132,7 +133,7 @@ flags           : aes,avx,cx16,smx,sse4_1,sse4_2,ssse3
 <a name="support"></a>
 ## What's supported
 
-|         | x86³ |   ARM   | AArch64 | MIPSel |  POWER  |
+|         | x86³ |   ARM   | AArch64 |  MIPS⁴ |  POWER  |
 |---------|:----:|:-------:|:-------:|:------:|:-------:|
 | Android | yes² |   yes¹  |   yes¹  |  yes¹  |   N/A   |
 | iOS     |  N/A | not yet | not yet |   N/A  |   N/A   |
@@ -151,7 +152,15 @@ flags           : aes,avx,cx16,smx,sse4_1,sse4_2,ssse3
 3.  **Microarchitecture detection.** On x86 some features are not always
     implemented efficiently in hardware (e.g. AVX on Sandybridge). Exposing the
     microarchitecture allows the client to reject particular microarchitectures.
+4.  All flavors of Mips are supported, little and big endian as well as 32/64
+    bits.
 
+<a name="ndk"></a>
+## Android NDK's drop in replacement
+
+[cpu_features](https://github.com/google/cpu_features) is now officially
+supporting Android and offers a drop in replacement of for the NDK's [cpu-features.h](https://android.googlesource.com/platform/ndk/+/master/sources/android/cpufeatures/cpu-features.h)
+, see [ndk_compat](ndk_compat) folder for details.
 
 <a name="license"></a>
 ## License

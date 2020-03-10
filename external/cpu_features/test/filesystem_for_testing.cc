@@ -45,7 +45,7 @@ int FakeFile::Read(int fd, void* buf, size_t count) {
   memcpy(buf, content_.data() + head_index_, read);
   head_index_ += read;
   assert(read < INT_MAX);
-  return read;
+  return (int)read;
 }
 
 void FakeFilesystem::Reset() { files_.clear(); }

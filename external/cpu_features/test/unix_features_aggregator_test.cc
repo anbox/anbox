@@ -14,7 +14,7 @@
 
 #include <array>
 
-#include "internal/linux_features_aggregator.h"
+#include "internal/unix_features_aggregator.h"
 
 #include "gtest/gtest.h"
 
@@ -28,16 +28,23 @@ struct Features {
   bool c = false;
 };
 
-DECLARE_SETTER(Features, a)
-DECLARE_SETTER(Features, b)
-DECLARE_SETTER(Features, c)
+enum eFeatures {
+  TEST_a,
+  TEST_b,
+  TEST_c
+};
+
+DECLARE_SETTER_AND_GETTER(Features, a)
+DECLARE_SETTER_AND_GETTER(Features, b)
+DECLARE_SETTER_AND_GETTER(Features, c)
 
 class LinuxFeatureAggregatorTest : public testing::Test {
  public:
-  const std::array<CapabilityConfig, 3> kConfigs = {
-      {{{0b0001, 0b0000}, "a", &set_a},
-       {{0b0010, 0b0000}, "b", &set_b},
-       {{0b0000, 0b1100}, "c", &set_c}}};
+  const std::array<CapabilityConfig, 3> kConfigs = {{
+    {{0b0001, 0b0000}, "a", &set_a, &get_a},
+    {{0b0010, 0b0000}, "b", &set_b, &get_b},
+    {{0b0000, 0b1100}, "c", &set_c, &get_c}
+  }};
 };
 
 TEST_F(LinuxFeatureAggregatorTest, FromFlagsEmpty) {
@@ -47,6 +54,8 @@ TEST_F(LinuxFeatureAggregatorTest, FromFlagsEmpty) {
   EXPECT_FALSE(features.a);
   EXPECT_FALSE(features.b);
   EXPECT_FALSE(features.c);
+
+  EXPECT_FALSE(kConfigs[TEST_a].get_bit(&features));
 }
 
 TEST_F(LinuxFeatureAggregatorTest, FromFlagsAllSet) {
@@ -56,6 +65,8 @@ TEST_F(LinuxFeatureAggregatorTest, FromFlagsAllSet) {
   EXPECT_TRUE(features.a);
   EXPECT_TRUE(features.b);
   EXPECT_TRUE(features.c);
+
+  EXPECT_TRUE(kConfigs[TEST_a].get_bit(&features));
 }
 
 TEST_F(LinuxFeatureAggregatorTest, FromFlagsOnlyA) {
@@ -65,6 +76,10 @@ TEST_F(LinuxFeatureAggregatorTest, FromFlagsOnlyA) {
   EXPECT_TRUE(features.a);
   EXPECT_FALSE(features.b);
   EXPECT_FALSE(features.c);
+
+  EXPECT_TRUE(kConfigs[TEST_a].get_bit(&features));
+  EXPECT_FALSE(kConfigs[TEST_b].get_bit(&features));
+  EXPECT_FALSE(kConfigs[TEST_c].get_bit(&features));
 }
 
 TEST_F(LinuxFeatureAggregatorTest, FromHwcapsNone) {

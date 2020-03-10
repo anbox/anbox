@@ -22,7 +22,7 @@ int CpuFeatures_StringView_IndexOfChar(const StringView view, char c) {
   if (view.ptr && view.size) {
     const char* const found = (const char*)memchr(view.ptr, c, view.size);
     if (found) {
-      return found - view.ptr;
+      return (int)(found - view.ptr);
     }
   }
   return -1;
@@ -38,7 +38,7 @@ int CpuFeatures_StringView_IndexOf(const StringView view,
       if (found_index < 0) break;
       remainder = CpuFeatures_StringView_PopFront(remainder, found_index);
       if (CpuFeatures_StringView_StartsWith(remainder, sub_view)) {
-        return remainder.ptr - view.ptr;
+        return (int)(remainder.ptr - view.ptr);
       }
       remainder = CpuFeatures_StringView_PopFront(remainder, 1);
     }

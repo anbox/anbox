@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 readonly SCRIPT_FOLDER=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 readonly PROJECT_FOLDER="${SCRIPT_FOLDER}/.."
@@ -27,12 +27,13 @@ function unpackifnotexists() {
     local ARCHIVE_NAME=$(echo ${URL} | sed 's/.*\///')
     test -f "${ARCHIVE_NAME}" || wget -q "${URL}"
     extract "${ARCHIVE_NAME}"
+    rm -f "${ARCHIVE_NAME}"
   fi
 }
 
 function installqemuifneeded() {
   local VERSION=${QEMU_VERSION:=2.11.1}
-  local ARCHES=${QEMU_ARCHES:=arm aarch64 i386 x86_64 mips mipsel}
+  local ARCHES=${QEMU_ARCHES:=arm aarch64 i386 x86_64 mips mipsel mips64 mips64el}
   local TARGETS=${QEMU_TARGETS:=$(echo "$ARCHES" | sed 's#$# #;s#\([^ ]*\) #\1-linux-user #g')}
 
   if echo "${VERSION} ${TARGETS}" | cmp --silent ${QEMU_INSTALL}/.build -; then
@@ -75,24 +76,37 @@ function assert_defined(){
 }
 
 function integrate() {
-  cd "${PROJECT_FOLDER}" || exit
-  cmake -H. -B"${BUILD_DIR}" ${DEFAULT_CMAKE_ARGS} ${CMAKE_ADDITIONAL_ARGS}
-  cmake --build "${BUILD_DIR}" --target all
+  cd "${PROJECT_FOLDER}"
+  case "${OS}" in
+   "Windows_NT") CMAKE_BUILD_ARGS="--config Debug --target ALL_BUILD"
+                 CMAKE_TEST_FILES="${BUILD_DIR}/test/Debug/*_test.exe"
+                 DEMO=${BUILD_DIR}/Debug/list_cpu_features.exe
+                 ;;
+   *)            CMAKE_BUILD_ARGS="--target all"
+                 CMAKE_TEST_FILES="${BUILD_DIR}/test/*_test"
+                 DEMO=${BUILD_DIR}/list_cpu_features
+                 ;;
+  esac
 
-  if [[ -n "${QEMU_ARCH}" ]]; then
-    if [[ "${QEMU_ARCH}" == "DISABLED" ]]; then
-      QEMU="true || "
-    else
-      installqemuifneeded
-      QEMU="${QEMU_INSTALL}/bin/qemu-${QEMU_ARCH} ${QEMU_ARGS}"
-    fi
-  else
-    QEMU=""
+  # Generating CMake configuration
+  cmake -H. -B"${BUILD_DIR}" ${DEFAULT_CMAKE_ARGS} "${CMAKE_ADDITIONAL_ARGS[@]}" -G"${CMAKE_GENERATOR:-Unix Makefiles}"
+
+  # Building
+  cmake --build "${BUILD_DIR}" ${CMAKE_BUILD_ARGS}
+
+  # Running tests if needed
+  if [[ "${QEMU_ARCH}" == "DISABLED" ]]; then
+    return
   fi
-  # Run tests
-  for test_binary in ${BUILD_DIR}/test/*_test; do ${QEMU} ${test_binary}; done
-  # Run demo program
-  ${QEMU} "${BUILD_DIR}/list_cpu_features"
+  RUN_CMD=""
+  if [[ -n "${QEMU_ARCH}" ]]; then
+    installqemuifneeded
+    RUN_CMD="${QEMU_INSTALL}/bin/qemu-${QEMU_ARCH} ${QEMU_ARGS[@]}"
+  fi
+  for test_binary in ${CMAKE_TEST_FILES}; do
+    ${RUN_CMD} ${test_binary}
+  done
+  ${RUN_CMD} ${DEMO}
 }
 
 function expand_linaro_config() {
@@ -110,40 +124,63 @@ function expand_linaro_config() {
   local SYSROOT_FOLDER=${ARCHIVE_FOLDER}/${SYSROOT_RELATIVE_FOLDER}
   local GCC_FOLDER=${ARCHIVE_FOLDER}/${GCC_RELATIVE_FOLDER}
 
-  CMAKE_ADDITIONAL_ARGS+=" -DCMAKE_SYSROOT=${SYSROOT_FOLDER}"
-  CMAKE_ADDITIONAL_ARGS+=" -DCMAKE_C_COMPILER=${GCC_FOLDER}/bin/${TARGET}-gcc"
-  CMAKE_ADDITIONAL_ARGS+=" -DCMAKE_CXX_COMPILER=${GCC_FOLDER}/bin/${TARGET}-g++"
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_SYSTEM_NAME=Linux)
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_SYSTEM_PROCESSOR=${TARGET})
 
-  CMAKE_ADDITIONAL_ARGS+=" -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"
-  CMAKE_ADDITIONAL_ARGS+=" -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"
-  CMAKE_ADDITIONAL_ARGS+=" -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY"
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_SYSROOT=${SYSROOT_FOLDER})
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_C_COMPILER=${GCC_FOLDER}/bin/${TARGET}-gcc)
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_CXX_COMPILER=${GCC_FOLDER}/bin/${TARGET}-g++)
 
-  QEMU_ARGS+=" -L ${SYSROOT_FOLDER}"
-  QEMU_ARGS+=" -E LD_LIBRARY_PATH=/lib"
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER)
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY)
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY)
+
+  QEMU_ARGS+=(-L ${SYSROOT_FOLDER})
+  QEMU_ARGS+=(-E LD_LIBRARY_PATH=/lib)
 }
 
 function expand_codescape_config() {
   assert_defined TARGET
-  local FLAVOUR=${QEMU_ARCH}-r2-hard
-  local DATE=2016.05-03
-  local CODESCAPE_URL=http://codescape-mips-sdk.imgtec.com/components/toolchain/${DATE}/Codescape.GNU.Tools.Package.${DATE}.for.MIPS.MTI.Linux.CentOS-5.x86_64.tar.gz
+  local DATE=2017.10-08
+  local CODESCAPE_URL=https://codescape.mips.com/components/toolchain/${DATE}/Codescape.GNU.Tools.Package.${DATE}.for.MIPS.MTI.Linux.CentOS-5.x86_64.tar.gz
   local GCC_URL=${CODESCAPE_URL}
-  local GCC_RELATIVE_FOLDER=${TARGET}/${DATE}
+  local GCC_RELATIVE_FOLDER="mips-mti-linux-gnu/${DATE}"
   unpackifnotexists "${GCC_URL}" "${GCC_RELATIVE_FOLDER}"
 
-  local SYSROOT_URL=${CODESCAPE_URL}
-  local SYSROOT_FOLDER=${ARCHIVE_FOLDER}/${GCC_RELATIVE_FOLDER}/sysroot/${FLAVOUR}
-  unpackifnotexists "${SYSROOT_URL}" "${SYSROOT_RELATIVE_FOLDER}"
+  local GCC_FOLDER=${ARCHIVE_FOLDER}/${GCC_RELATIVE_FOLDER}
+  local MIPS_FLAGS=""
+  local LIBC_FOLDER_SUFFIX=""
+  local FLAVOUR=""
+  case "${TARGET}" in
+    "mips32")    MIPS_FLAGS="-EB -mabi=32"; FLAVOUR="mips-r2-hard"; LIBC_FOLDER_SUFFIX="lib" ;;
+    "mips32el")  MIPS_FLAGS="-EL -mabi=32"; FLAVOUR="mipsel-r2-hard"; LIBC_FOLDER_SUFFIX="lib" ;;
+    "mips64")    MIPS_FLAGS="-EB -mabi=64"; FLAVOUR="mips-r2-hard"; LIBC_FOLDER_SUFFIX="lib64" ;;
+    "mips64el")  MIPS_FLAGS="-EL -mabi=64"; FLAVOUR="mipsel-r2-hard"; LIBC_FOLDER_SUFFIX="lib64" ;;
+    *)           echo 'unknown mips platform'; exit 1;;
+  esac
 
-  CMAKE_ADDITIONAL_ARGS+=" -DENABLE_MSA=1"
-  CMAKE_ADDITIONAL_ARGS+=" -DMIPS_CPU=p5600"
-  CMAKE_ADDITIONAL_ARGS+=" -DCMAKE_TOOLCHAIN_FILE=cmake/mips32-linux-gcc.cmake"
-  CMAKE_ADDITIONAL_ARGS+=" -DCROSS=${TARGET}-"
-  CMAKE_ADDITIONAL_ARGS+=" -DCMAKE_FIND_ROOT_PATH=${ARCHIVE_FOLDER}/${GCC_RELATIVE_FOLDER}"
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_FIND_ROOT_PATH=${GCC_FOLDER})
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_SYSTEM_NAME=Linux)
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_SYSTEM_PROCESSOR=${TARGET})
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_C_COMPILER=mips-mti-linux-gnu-gcc)
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_CXX_COMPILER=mips-mti-linux-gnu-g++)
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_C_COMPILER_ARG1="${MIPS_FLAGS}")
+  CMAKE_ADDITIONAL_ARGS+=(-DCMAKE_CXX_COMPILER_ARG1="${MIPS_FLAGS}")
 
-  QEMU_ARGS+=" -L ${SYSROOT_FOLDER}"
-  QEMU_ARGS+=" -E LD_LIBRARY_PATH=/lib"
-  QEMU_ARGS+=" -cpu P5600"
+  local SYSROOT_FOLDER=${GCC_FOLDER}/sysroot/${FLAVOUR}
+
+  # Keeping only the sysroot of interest to save on travis cache.
+  if [[ "${CONTINUOUS_INTEGRATION}" = "true" ]]; then
+    for folder in ${GCC_FOLDER}/sysroot/*; do
+      if [[ "${folder}" != "${SYSROOT_FOLDER}" ]]; then
+        rm -rf ${folder}
+      fi
+    done
+  fi
+
+  local LIBC_FOLDER=${GCC_FOLDER}/mips-mti-linux-gnu/lib/${FLAVOUR}/${LIBC_FOLDER_SUFFIX}
+  QEMU_ARGS+=(-L ${SYSROOT_FOLDER})
+  QEMU_ARGS+=(-E LD_PRELOAD=${LIBC_FOLDER}/libstdc++.so.6:${LIBC_FOLDER}/libgcc_s.so.1)
 }
 
 function expand_environment_and_integrate() {
@@ -153,16 +190,15 @@ function expand_environment_and_integrate() {
   BUILD_DIR="${PROJECT_FOLDER}/cmake_build/${TARGET}"
   mkdir -p "${BUILD_DIR}"
 
-  CMAKE_ADDITIONAL_ARGS=""
-  QEMU_ARGS=""
+  declare -a CONFIG_NAMES=()
+  declare -a QEMU_ARGS=()
+  declare -a CMAKE_ADDITIONAL_ARGS=()
 
   case ${TOOLCHAIN} in
     LINARO)    expand_linaro_config     ;;
     CODESCAPE) expand_codescape_config  ;;
     NATIVE)    QEMU_ARCH=""             ;;
-    *)
-              echo "Unknown toolchain '${TOOLCHAIN}'..."
-              exit 1
+    *)         echo "Unknown toolchain '${TOOLCHAIN}'..."; exit 1;;
   esac
   integrate
 }

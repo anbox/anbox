@@ -26,8 +26,7 @@ typedef struct {
   uint32_t eax, ebx, ecx, edx;
 } Leaf;
 
-// Retrieves the leaf for a particular cpuid.
-Leaf CpuId(uint32_t leaf_id);
+Leaf CpuIdEx(uint32_t leaf_id, int ecx);
 
 // Returns the eax value of the XCR0 register.
 uint32_t GetXCR0Eax(void);

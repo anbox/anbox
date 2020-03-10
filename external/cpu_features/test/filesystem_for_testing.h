@@ -50,7 +50,7 @@ class FakeFilesystem {
   FakeFile* FindFileOrNull(const std::string& filename) const;
 
  private:
-  size_t next_file_descriptor_ = 0;
+  int next_file_descriptor_ = 0;
   std::unordered_map<std::string, std::unique_ptr<FakeFile>> files_;
 };
 

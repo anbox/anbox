@@ -35,12 +35,20 @@ TEST(CpuinfoArmTest, FromHardwareCap) {
 
   EXPECT_FALSE(info.features.vfpv4);
   EXPECT_FALSE(info.features.iwmmxt);
+  EXPECT_FALSE(info.features.crunch);
+  EXPECT_FALSE(info.features.thumbee);
   EXPECT_FALSE(info.features.vfpv3d16);
   EXPECT_FALSE(info.features.idiva);
   EXPECT_FALSE(info.features.idivt);
   EXPECT_FALSE(info.features.pmull);
   EXPECT_FALSE(info.features.sha1);
   EXPECT_FALSE(info.features.sha2);
+
+  // check some random features with EnumValue():
+  EXPECT_TRUE(GetArmFeaturesEnumValue(&info.features, ARM_VFP));
+  EXPECT_FALSE(GetArmFeaturesEnumValue(&info.features, ARM_VFPV4));
+  // out of bound EnumValue() check
+  EXPECT_FALSE(GetArmFeaturesEnumValue(&info.features, (ArmFeaturesEnum)~0x0));
 }
 
 TEST(CpuinfoArmTest, ODroidFromCpuInfo) {
@@ -62,14 +70,28 @@ CPU revision    : 3)");
   EXPECT_EQ(info.revision, 3);
   EXPECT_EQ(info.architecture, 7);
 
+  EXPECT_FALSE(info.features.swp);
+  EXPECT_TRUE(info.features.half);
+  EXPECT_TRUE(info.features.thumb);
+  EXPECT_FALSE(info.features._26bit);
+  EXPECT_TRUE(info.features.fastmult);
+  EXPECT_FALSE(info.features.fpa);
   EXPECT_TRUE(info.features.vfp);
+  EXPECT_TRUE(info.features.edsp);
+  EXPECT_FALSE(info.features.java);
   EXPECT_FALSE(info.features.iwmmxt);
+  EXPECT_FALSE(info.features.crunch);
+  EXPECT_FALSE(info.features.thumbee);
   EXPECT_TRUE(info.features.neon);
   EXPECT_TRUE(info.features.vfpv3);
   EXPECT_FALSE(info.features.vfpv3d16);
+  EXPECT_TRUE(info.features.tls);
   EXPECT_TRUE(info.features.vfpv4);
   EXPECT_TRUE(info.features.idiva);
   EXPECT_TRUE(info.features.idivt);
+  EXPECT_TRUE(info.features.vfpd32);
+  EXPECT_TRUE(info.features.lpae);
+  EXPECT_FALSE(info.features.evtstrm);
   EXPECT_FALSE(info.features.aes);
   EXPECT_FALSE(info.features.pmull);
   EXPECT_FALSE(info.features.sha1);
@@ -77,27 +99,172 @@ CPU revision    : 3)");
   EXPECT_FALSE(info.features.crc32);
 }
 
+// Linux test-case
+TEST(CpuinfoArmTest, RaspberryPiZeroFromCpuInfo) {
+  DisableHardwareCapabilities();
+  auto& fs = GetEmptyFilesystem();
+  fs.CreateFile("/proc/cpuinfo", R"(processor       : 0
+model name      : ARMv6-compatible processor rev 7 (v6l)
+BogoMIPS        : 697.95
+Features        : half thumb fastmult vfp edsp java tls
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x0
+CPU part        : 0xb76
+CPU revision    : 7
+
+Hardware        : BCM2835
+Revision        : 9000c1
+Serial          : 000000006cd946f3)");
+  const auto info = GetArmInfo();
+  EXPECT_EQ(info.implementer, 0x41);
+  EXPECT_EQ(info.variant, 0x0);
+  EXPECT_EQ(info.part, 0xb76);
+  EXPECT_EQ(info.revision, 7);
+  EXPECT_EQ(info.architecture, 6);
+
+  EXPECT_FALSE(info.features.swp);
+  EXPECT_TRUE(info.features.half);
+  EXPECT_TRUE(info.features.thumb);
+  EXPECT_FALSE(info.features._26bit);
+  EXPECT_TRUE(info.features.fastmult);
+  EXPECT_FALSE(info.features.fpa);
+  EXPECT_TRUE(info.features.vfp);
+  EXPECT_TRUE(info.features.edsp);
+  EXPECT_TRUE(info.features.java);
+  EXPECT_FALSE(info.features.iwmmxt);
+  EXPECT_FALSE(info.features.crunch);
+  EXPECT_FALSE(info.features.thumbee);
+  EXPECT_FALSE(info.features.neon);
+  EXPECT_FALSE(info.features.vfpv3);
+  EXPECT_FALSE(info.features.vfpv3d16);
+  EXPECT_TRUE(info.features.tls);
+  EXPECT_FALSE(info.features.vfpv4);
+  EXPECT_FALSE(info.features.idiva);
+  EXPECT_FALSE(info.features.idivt);
+  EXPECT_FALSE(info.features.vfpd32);
+  EXPECT_FALSE(info.features.lpae);
+  EXPECT_FALSE(info.features.evtstrm);
+  EXPECT_FALSE(info.features.aes);
+  EXPECT_FALSE(info.features.pmull);
+  EXPECT_FALSE(info.features.sha1);
+  EXPECT_FALSE(info.features.sha2);
+  EXPECT_FALSE(info.features.crc32);
+}
+
+TEST(CpuinfoArmTest, MarvellArmadaFromCpuInfo) {
+  DisableHardwareCapabilities();
+  auto& fs = GetEmptyFilesystem();
+  fs.CreateFile("/proc/cpuinfo", R"(processor       : 0
+model name      : ARMv7 Processor rev 1 (v7l)
+BogoMIPS        : 50.00
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpd32
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x4
+CPU part        : 0xc09
+CPU revision    : 1
+
+processor       : 1
+model name      : ARMv7 Processor rev 1 (v7l)
+BogoMIPS        : 50.00
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpd32
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x4
+CPU part        : 0xc09
+CPU revision    : 1
+
+Hardware        : Marvell Armada 380/385 (Device Tree)
+Revision        : 0000
+Serial          : 0000000000000000)");
+  const auto info = GetArmInfo();
+  EXPECT_EQ(info.implementer, 0x41);
+  EXPECT_EQ(info.variant, 0x4);
+  EXPECT_EQ(info.part, 0xc09);
+  EXPECT_EQ(info.revision, 1);
+  EXPECT_EQ(info.architecture, 7);
+
+  EXPECT_FALSE(info.features.swp);
+  EXPECT_TRUE(info.features.half);
+  EXPECT_TRUE(info.features.thumb);
+  EXPECT_FALSE(info.features._26bit);
+  EXPECT_TRUE(info.features.fastmult);
+  EXPECT_FALSE(info.features.fpa);
+  EXPECT_TRUE(info.features.vfp);
+  EXPECT_TRUE(info.features.edsp);
+  EXPECT_FALSE(info.features.java);
+  EXPECT_FALSE(info.features.iwmmxt);
+  EXPECT_FALSE(info.features.crunch);
+  EXPECT_FALSE(info.features.thumbee);
+  EXPECT_TRUE(info.features.neon);
+  EXPECT_TRUE(info.features.vfpv3);
+  EXPECT_FALSE(info.features.vfpv3d16);
+  EXPECT_TRUE(info.features.tls);
+  EXPECT_FALSE(info.features.vfpv4);
+  EXPECT_FALSE(info.features.idiva);
+  EXPECT_FALSE(info.features.idivt);
+  EXPECT_TRUE(info.features.vfpd32);
+  EXPECT_FALSE(info.features.lpae);
+  EXPECT_FALSE(info.features.evtstrm);
+  EXPECT_FALSE(info.features.aes);
+  EXPECT_FALSE(info.features.pmull);
+  EXPECT_FALSE(info.features.sha1);
+  EXPECT_FALSE(info.features.sha2);
+  EXPECT_FALSE(info.features.crc32);
+}
+
+// Android test-case
 // http://code.google.com/p/android/issues/detail?id=10812
 TEST(CpuinfoArmTest, InvalidArmv7) {
   DisableHardwareCapabilities();
   auto& fs = GetEmptyFilesystem();
   fs.CreateFile("/proc/cpuinfo",
-                R"(Processor       : ARMv6-compatible processor rev 6 (v6l) 
-BogoMIPS        : 199.47 
-Features        : swp half thumb fastmult vfp edsp java 
-CPU implementer : 0x41 
-CPU architecture: 7 
-CPU variant     : 0x0 
-CPU part        : 0xb76 
-CPU revision    : 6 
+                R"(Processor       : ARMv6-compatible processor rev 6 (v6l)
+BogoMIPS        : 199.47
+Features        : swp half thumb fastmult vfp edsp java
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x0
+CPU part        : 0xb76
+CPU revision    : 6
 
-Hardware        : SPICA 
-Revision        : 0020 
+Hardware        : SPICA
+Revision        : 0020
 Serial          : 33323613546d00ec )");
   const auto info = GetArmInfo();
   EXPECT_EQ(info.architecture, 6);
+
+  EXPECT_TRUE(info.features.swp);
+  EXPECT_TRUE(info.features.half);
+  EXPECT_TRUE(info.features.thumb);
+  EXPECT_FALSE(info.features._26bit);
+  EXPECT_TRUE(info.features.fastmult);
+  EXPECT_FALSE(info.features.fpa);
+  EXPECT_TRUE(info.features.vfp);
+  EXPECT_TRUE(info.features.edsp);
+  EXPECT_TRUE(info.features.java);
+  EXPECT_FALSE(info.features.iwmmxt);
+  EXPECT_FALSE(info.features.crunch);
+  EXPECT_FALSE(info.features.thumbee);
+  EXPECT_FALSE(info.features.neon);
+  EXPECT_FALSE(info.features.vfpv3);
+  EXPECT_FALSE(info.features.vfpv3d16);
+  EXPECT_FALSE(info.features.tls);
+  EXPECT_FALSE(info.features.vfpv4);
+  EXPECT_FALSE(info.features.idiva);
+  EXPECT_FALSE(info.features.idivt);
+  EXPECT_FALSE(info.features.vfpd32);
+  EXPECT_FALSE(info.features.lpae);
+  EXPECT_FALSE(info.features.evtstrm);
+  EXPECT_FALSE(info.features.aes);
+  EXPECT_FALSE(info.features.pmull);
+  EXPECT_FALSE(info.features.sha1);
+  EXPECT_FALSE(info.features.sha2);
+  EXPECT_FALSE(info.features.crc32);
 }
 
+// Android test-case
 // https://crbug.com/341598.
 TEST(CpuinfoArmTest, InvalidNeon) {
   auto& fs = GetEmptyFilesystem();
@@ -120,6 +287,7 @@ Hardware: SAMSUNG M2
 Revision: 0010
 Serial: 00001e030000354e)");
   const auto info = GetArmInfo();
+  EXPECT_TRUE(info.features.swp);
   EXPECT_FALSE(info.features.neon);
 }
 
@@ -137,6 +305,8 @@ CPU revision	: 2)");
   const auto info = GetArmInfo();
   EXPECT_TRUE(info.features.idiva);
   EXPECT_TRUE(info.features.idivt);
+
+  EXPECT_EQ(GetArmCpuId(&info), 0x510006f2);
 }
 
 // The Nexus 4 (Qualcomm Krait) kernel configuration forgets to report IDIV
@@ -153,6 +323,8 @@ CPU revision	: 3)");
   const auto info = GetArmInfo();
   EXPECT_TRUE(info.features.idiva);
   EXPECT_TRUE(info.features.idivt);
+
+  EXPECT_EQ(GetArmCpuId(&info), 0x510006f3);
 }
 
 // The emulator-specific Android 4.2 kernel fails to report support for the
