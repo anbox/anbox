@@ -13,6 +13,8 @@ TARGET_CPU_VARIANT := generic
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
 
+TARGET_USES_64_BIT_BINDER := true
+
 SMALLER_FONT_FOOTPRINT := true
 MINIMAL_FONT_FOOTPRINT := true
 # Some framework code requires this to enable BT
