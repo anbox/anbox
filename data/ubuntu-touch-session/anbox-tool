@@ -83,7 +83,7 @@ class DeviceJson(object):
         p = requests.get(DEVICES_URL).json()
         self.obj = p
         self.device = subprocess.check_output(
-            ["getprop", "ro.product.device"]).strip().decode("utf-8")
+            ["getprop", "ro.product.device"]).strip().decode("utf-8").lower()
 
     def check(self):
         # Device check!
