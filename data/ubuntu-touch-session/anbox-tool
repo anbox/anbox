@@ -82,6 +82,9 @@ class DeviceJson(object):
     def __init__(self):
         p = requests.get(DEVICES_URL).json()
         self.obj = p
+        for key in self.obj.keys():
+            if(key.lower()!=key):
+                self.obj[key.lower()]=self.obj.pop(key)
         self.device = subprocess.check_output(
             ["getprop", "ro.product.device"]).strip().decode("utf-8").lower()
 
