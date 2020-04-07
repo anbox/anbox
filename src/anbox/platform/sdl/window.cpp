@@ -202,9 +202,6 @@ void Window::process_event(const SDL_Event &event) {
     case SDL_WINDOWEVENT_HIDDEN:
       break;
     case SDL_WINDOWEVENT_CLOSE:
-      if (observer_)
-        observer_->window_deleted(id_);
-
       close();
       break;
     default:
