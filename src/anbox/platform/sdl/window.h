@@ -52,7 +52,8 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
          const std::shared_ptr<Observer> &observer,
          const graphics::Rect &frame,
          const std::string &title,
-         bool resizable);
+         bool resizable,
+         bool borderless);
   ~Window();
 
   void process_event(const SDL_Event &event);

@@ -46,7 +46,8 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
                const std::shared_ptr<Observer> &observer,
                const graphics::Rect &frame,
                const std::string &title,
-               bool resizable)
+               bool resizable,
+               bool borderless)
     : wm::Window(renderer, task, frame, title),
       id_(id),
       observer_(observer),
@@ -59,7 +60,9 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
   // initializing GL here will cause a surface to be created and the
   // renderer will attempt to create one too which will not work as
   // only a single surface per EGLNativeWindowType is supported.
-  std::uint32_t flags = SDL_WINDOW_BORDERLESS;
+  std::uint32_t flags = 0;
+  if (borderless)
+    flags |= SDL_WINDOW_BORDERLESS;
   if (resizable)
     flags |= SDL_WINDOW_RESIZABLE;
 
@@ -72,7 +75,10 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
     BOOST_THROW_EXCEPTION(std::runtime_error(message));
   }
 
-  if (utils::get_env_value("ANBOX_NO_SDL_WINDOW_HIT_TEST", "false") == "false")
+  // If we create a window with border (server-side decoration), We
+  // should not set hit test handler beacuse we don't need to simulate
+  // the behavior of the title bar and resize area.
+  if (borderless && utils::get_env_value("ANBOX_NO_SDL_WINDOW_HIT_TEST", "false") == "false")
     if (SDL_SetWindowHitTest(window_, &Window::on_window_hit, this) < 0)
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to register for window hit test"));
 
