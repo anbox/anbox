@@ -30,7 +30,13 @@ sudo $workdir/uidmapshift -b $rootfs 0 100000 65536
 # FIXME
 sudo chmod +x $rootfs/anbox-init.sh
 
-sudo mksquashfs $rootfs $image -comp xz -no-xattrs
+reproducible_args=""
+if [ -n "$SOURCE_DATE_EPOCH" ]; then
+	reproducible_args="-fstime $SOURCE_DATE_EPOCH"
+	find $rootfs -newermt "@$SOURCE_DATE_EPOCH" -print0 |
+		xargs -0r touch --no-dereference --date="@$SOURCE_DATE_EPOCH"
+fi
+sudo mksquashfs $rootfs $image -comp xz -no-xattrs $reproducible_args
 sudo chown $USER:$USER $image
 
 sudo rm -rf $workdir
