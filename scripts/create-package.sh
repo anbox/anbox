@@ -4,9 +4,10 @@ set -ex
 
 ramdisk=$1
 system=$2
+image=${3:-android.img}
 
 if [ -z "$ramdisk" ] || [ -z "$system" ]; then
-	echo "Usage: $0 <ramdisk> <system image>"
+	echo "Usage: $0 <ramdisk> <system image> [<output anbox image>]"
 	exit 1
 fi
 
@@ -30,7 +31,7 @@ sudo $workdir/uidmapshift -b $rootfs 0 100000 65536
 sudo chmod +x $rootfs/anbox-init.sh
 sudo chmod +x $rootfs/system/etc/wifi/regenerate_if_name.sh
 
-sudo mksquashfs $rootfs android.img -comp xz -no-xattrs
-sudo chown $USER:$USER android.img
+sudo mksquashfs $rootfs $image -comp xz -no-xattrs
+sudo chown $USER:$USER $image
 
 sudo rm -rf $workdir

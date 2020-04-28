@@ -69,6 +69,7 @@ pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
 pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
+pkg_check_modules(LIBCAP libcap REQUIRED)
 
 message(STATUS "LXC version: ${LXC_VERSION}")
 if (${LXC_VERSION} VERSION_LESS 3.0)

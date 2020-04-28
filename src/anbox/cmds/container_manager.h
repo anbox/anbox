@@ -45,6 +45,7 @@ class ContainerManager : public cli::CommandWithFlagsAndAction {
   bool privileged_ = false;
   bool daemon_ = false;
   bool enable_rootfs_overlay_ = false;
+  bool enable_squashfuse_ = false;
   std::string container_hw_addr_;
   std::string container_phys_link_;
   std::string android_wpa_driver_;
