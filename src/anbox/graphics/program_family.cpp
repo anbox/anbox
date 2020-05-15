@@ -20,6 +20,9 @@
 
 #include "anbox/graphics/emugl/DispatchTables.h"
 
+#include <string>
+#include <stdexcept>
+
 namespace anbox {
 namespace graphics {
 void ProgramFamily::Shader::init(GLenum type, const GLchar* src) {
