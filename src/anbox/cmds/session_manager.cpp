@@ -115,6 +115,9 @@ anbox::cmds::SessionManager::SessionManager()
   flag(cli::make_flag(cli::Name{"no-touch-emulation"},
                       cli::Description{"Disable touch emulation applied on mouse inputs"},
                       no_touch_emulation_));
+  flag(cli::make_flag(cli::Name{"server-side-decoration"},
+                      cli::Description{"Prefer to use server-side decoration instead of client-side decoration"},
+                      server_side_decoration_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -161,10 +164,15 @@ anbox::cmds::SessionManager::SessionManager()
     if (should_enable_touch_emulation == "false" || no_touch_emulation_)
       no_touch_emulation_ = true;
 
+    const auto should_force_server_side_decoration = utils::get_env_value("ANBOX_FORCE_SERVER_SIDE_DECORATION", "false");
+    if (should_force_server_side_decoration == "true")
+      server_side_decoration_ = true;
+
     platform::Configuration platform_config;
     platform_config.single_window = single_window_;
     platform_config.no_touch_emulation = no_touch_emulation_;
     platform_config.display_frame = display_frame;
+    platform_config.server_side_decoration = server_side_decoration_;
 
     auto platform = platform::create(utils::get_env_value("ANBOX_PLATFORM", "sdl"),
                                      input_manager,
@@ -258,6 +266,9 @@ anbox::cmds::SessionManager::SessionManager()
     //
     // See https://github.com/anbox/anbox/issues/780 for further details.
     container_configuration.extra_properties.push_back("ro.boot.fake_battery=1");
+
+    if (server_side_decoration_)
+        container_configuration.extra_properties.push_back("ro.anbox.no_decorations=1");
 
     if (!standalone_) {
       container_configuration.bind_mounts = {
