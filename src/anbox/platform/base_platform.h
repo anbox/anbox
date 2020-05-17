@@ -64,6 +64,7 @@ struct Configuration {
   graphics::Rect display_frame = graphics::Rect::Invalid;
   bool single_window = false;
   bool no_touch_emulation = false;
+  bool server_side_decoration = false;
 };
 
 std::shared_ptr<BasePlatform> create(const std::string &name,

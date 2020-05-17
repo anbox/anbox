@@ -418,7 +418,8 @@ std::shared_ptr<wm::Window> Platform::create_window(
   }
 
   auto id = next_window_id();
-  auto w = std::make_shared<Window>(renderer_, id, task, shared_from_this(), frame, title, !window_size_immutable_);
+  auto w = std::make_shared<Window>(renderer_, id, task, shared_from_this(), frame, title,
+		  !window_size_immutable_, !config_.server_side_decoration);
   focused_sdl_window_id_ = w->window_id();
   windows_.insert({id, w});
   return w;
