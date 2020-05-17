@@ -55,6 +55,9 @@ anbox::cmds::ContainerManager::ContainerManager()
   flag(cli::make_flag(cli::Name{"use-rootfs-overlay"},
                       cli::Description{"Use an overlay for the Android rootfs"},
                       enable_rootfs_overlay_));
+  flag(cli::make_flag(cli::Name{"force-squashfuse"},
+                      cli::Description{"Force using squashfuse for mounting the Android rootfs"},
+                      enable_squashfuse_));
   flag(cli::make_flag(cli::Name{"container-network-address"},
                       cli::Description{"Assign the specified network address to the Android container"},
                       container_network_address_));
@@ -147,7 +150,11 @@ bool anbox::cmds::ContainerManager::setup_mounts() {
   // for some cases (unprivileged containers) where no loop support
   // is available we do the mount instead via squashfuse which will
   // work entirely in userspace.
-  if (fs::exists("/dev/loop-control")) {
+  if (!fs::exists("/dev/loop-control") && !enable_squashfuse_) {
+      WARNING("/dev/loop-control not found. Falling back to squashfuse.");
+      enable_squashfuse_ = true;
+  }
+  if (!enable_squashfuse_) {
     std::shared_ptr<common::LoopDevice> loop_device;
 
     try {

@@ -38,6 +38,10 @@ std::shared_ptr<Device> Device::create(
   sp->connector_ = std::make_shared<network::PublishedSocketConnector>(
       path, runtime, delegate_connector);
 
+  // The socket is created with user permissions (e.g. rwx------),
+  // which prevents the container from accessing it. Make sure it is writable.
+  ::chmod(path.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+
   return sp;
 }
 

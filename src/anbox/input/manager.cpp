@@ -26,7 +26,12 @@
 namespace anbox {
 namespace input {
 Manager::Manager(const std::shared_ptr<Runtime> &runtime) : runtime_(runtime) {
-  utils::ensure_paths({SystemConfiguration::instance().input_device_dir()});
+  const auto dir = SystemConfiguration::instance().input_device_dir();
+  utils::ensure_paths({dir});
+
+  // The directory is bind-mounted into the container but might have user
+  // permissions only (rwx------). Make sure it is accessible.
+  ::chmod(dir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
 Manager::~Manager() {}
