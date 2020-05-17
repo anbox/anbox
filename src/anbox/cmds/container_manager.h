@@ -45,6 +45,7 @@ class ContainerManager : public cli::CommandWithFlagsAndAction {
   bool privileged_ = false;
   bool daemon_ = false;
   bool enable_rootfs_overlay_ = false;
+  bool enable_squashfuse_ = false;
   std::string container_network_address_;
   std::string container_network_gateway_;
   std::string container_network_dns_servers_;
