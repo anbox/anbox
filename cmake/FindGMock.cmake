@@ -89,7 +89,6 @@ if (NOT (GTEST_FOUND AND GTEST_MAIN_FOUND AND GMOCK_FOUND AND GMOCK_MAIN_FOUND))
     set(GTEST_LIBRARIES gtest)
     set(GTEST_MAIN_LIBRARIES gtest_main)
     set(GMOCK_LIBRARIES gmock gmock_main)
-    set(GTEST_BOTH_LIBRARIES ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
 
     unset(findgmock_cxx_flags)
     unset(findgmock_bin_dir)
@@ -99,3 +98,5 @@ if (NOT (GTEST_FOUND AND GTEST_MAIN_FOUND AND GMOCK_FOUND AND GMOCK_MAIN_FOUND))
     unset(findgmock_gmock_main_lib)
 
 endif()
+
+set(GTEST_BOTH_LIBRARIES ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
