@@ -24,7 +24,7 @@
 anbox::cmds::Version::Version()
     : CommandWithFlagsAndAction{
           cli::Name{"version"}, cli::Usage{"version"},
-          cli::Description{"print the version of the daemon"}} {
+          cli::Description{"Print the version of the daemon"}} {
   action([](const cli::Command::Context& ctxt) {
     ctxt.cout << "anbox " << build::version << std::endl;
     return 0;
