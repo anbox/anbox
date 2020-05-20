@@ -4,3 +4,6 @@
 [submodule "external/sdbus-cpp"]
 	path = external/sdbus-cpp
 	url = https://github.com/Kistler-Group/sdbus-cpp.git
+[submodule "external/backward-cpp"]
+	path = external/backward-cpp
+	url = https://github.com/bombela/backward-cpp.git
