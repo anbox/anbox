@@ -17,6 +17,7 @@
 #ifndef ANBOX_GRAPHICS_EMUGL_RENDERABLE_H_
 #define ANBOX_GRAPHICS_EMUGL_RENDERABLE_H_
 
+#define GLM_FORCE_CTOR_INIT
 #include "anbox/graphics/rect.h"
 
 #include <string>
