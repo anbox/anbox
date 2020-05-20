@@ -17,7 +17,6 @@
 #ifndef ANBOX_GRAPHICS_EMUGL_RENDERABLE_H_
 #define ANBOX_GRAPHICS_EMUGL_RENDERABLE_H_
 
-#define GLM_FORCE_CTOR_INIT
 #include "anbox/graphics/rect.h"
 
 #include <string>
@@ -35,7 +34,7 @@ class Renderable {
   Renderable(const std::string &name, const std::uint32_t &buffer, float alpha,
              const anbox::graphics::Rect &screen_position,
              const anbox::graphics::Rect &crop = {},
-             const glm::mat4 &transformation = {});
+             const glm::mat4 &transformation = glm::mat4(1.0f));
   ~Renderable();
 
   std::string name() const;
