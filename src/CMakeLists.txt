@@ -26,7 +26,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/renderControl_dec
   ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/renderControl_dec
   ${CMAKE_SOURCE_DIR}/external/glm
-  ${CMAKE_SOURCE_DIR}/external/cpu_features/include
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBINDERFS_PATH=\"\\\"${BINDERFS_PATH}\\\"\"")
