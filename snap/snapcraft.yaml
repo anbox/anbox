@@ -131,7 +131,7 @@ parts:
         wget http://build.anbox.io/android-images/$IMAGE_PATH/$IMAGE_NAME
 
         echo "$IMAGE_HASH $IMAGE_NAME" > image-hash
-        sha256sum -c image-hash
+        sha256sum -c image-hash || exit 1
 
         mv $IMAGE_NAME $SNAPCRAFT_PART_INSTALL/android.img
 
