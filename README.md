@@ -77,6 +77,7 @@ system:
  * libcap
  * libsystemd
  * mesa (libegl1, libgles2)
+ * libglm
  * libsdl2
  * libprotobuf
  * protobuf-compiler
