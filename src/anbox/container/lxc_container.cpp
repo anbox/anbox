@@ -133,10 +133,10 @@ void LxcContainer::setup_id_map() {
 
   set_config_item(lxc_config_idmap_key, utils::string_format("u %d %d %d", android_system_uid + 1,
                                                      base_id + android_system_uid + 1,
-                                                     max_id - creds_.uid() - 1));
+                                                     max_id - android_system_uid));
   set_config_item(lxc_config_idmap_key, utils::string_format("g %d %d %d", android_system_uid + 1,
                                                      base_id + android_system_uid + 1,
-                                                     max_id - creds_.gid() - 1));
+                                                     max_id - android_system_uid));
 }
 
 void LxcContainer::setup_network() {
