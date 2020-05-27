@@ -118,25 +118,33 @@ LxcContainer::~LxcContainer() {
     lxc_container_put(container_);
 }
 
-void LxcContainer::setup_id_map() {
+std::vector<std::string> get_id_map(uid_t uid, gid_t gid) {
   const auto base_id = unprivileged_uid;
   const auto max_id = 100000;
+  std::vector<std::string> config;
 
-  set_config_item(lxc_config_idmap_key, utils::string_format("u 0 %d %d", base_id, android_system_uid - 1));
-  set_config_item(lxc_config_idmap_key, utils::string_format("g 0 %d %d", base_id, android_system_uid - 1));
+  config.push_back(utils::string_format("u 0 %d %d", base_id, android_system_uid - 1));
+  config.push_back(utils::string_format("g 0 %d %d", base_id, android_system_uid - 1));
 
   // We need to bind the user id for the one running the client side
   // process as he is the owner of various socket files we bind mount
   // into the container.
-  set_config_item(lxc_config_idmap_key, utils::string_format("u %d %d 1", android_system_uid, creds_.uid()));
-  set_config_item(lxc_config_idmap_key, utils::string_format("g %d %d 1", android_system_uid, creds_.gid()));
+  config.push_back(utils::string_format("u %d %d 1", android_system_uid, uid));
+  config.push_back(utils::string_format("g %d %d 1", android_system_uid, gid));
 
-  set_config_item(lxc_config_idmap_key, utils::string_format("u %d %d %d", android_system_uid + 1,
+  config.push_back(utils::string_format("u %d %d %d", android_system_uid + 1,
                                                      base_id + android_system_uid + 1,
                                                      max_id - android_system_uid));
-  set_config_item(lxc_config_idmap_key, utils::string_format("g %d %d %d", android_system_uid + 1,
+  config.push_back(utils::string_format("g %d %d %d", android_system_uid + 1,
                                                      base_id + android_system_uid + 1,
                                                      max_id - android_system_uid));
+  return config;
+}
+
+void LxcContainer::setup_id_map() {
+  auto config = get_id_map(creds_.uid(), creds_.gid());
+  for (std::string val : config)
+    set_config_item(lxc_config_idmap_key, val);
 }
 
 void LxcContainer::setup_network() {
