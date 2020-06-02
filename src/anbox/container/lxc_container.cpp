@@ -346,6 +346,9 @@ void LxcContainer::start(const Configuration &configuration) {
 
   set_config_item(lxc_config_init_cmd_key, "/anbox-init.sh");
 
+  // forbid android from waking up the system (https://github.com/anbox/anbox/issues/1436)
+  set_config_item("lxc.cap.drop", "wake_alarm");
+
 #ifdef ENABLE_SNAP_CONFINEMENT
   // If we're running inside the snap environment snap-confine already created a
   // cgroup for us we need to use as otherwise presevering a namespace wont help.
