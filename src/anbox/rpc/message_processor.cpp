@@ -87,7 +87,7 @@ bool MessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
 void MessageProcessor::send_response(::google::protobuf::uint32 id,
                                      google::protobuf::MessageLite *response) {
   VariableLengthArray<serialization_buffer_size> send_response_buffer(
-      static_cast<size_t>(response->ByteSize()));
+      response->ByteSizeLong());
 
   response->SerializeWithCachedSizesToArray(send_response_buffer.data());
 
@@ -96,7 +96,7 @@ void MessageProcessor::send_response(::google::protobuf::uint32 id,
   send_response_result.set_response(send_response_buffer.data(),
                                     send_response_buffer.size());
 
-  send_response_buffer.resize(send_response_result.ByteSize());
+  send_response_buffer.resize(send_response_result.ByteSizeLong());
   send_response_result.SerializeWithCachedSizesToArray(
       send_response_buffer.data());
 

@@ -42,7 +42,7 @@ void Channel::call_method(std::string const &method_name,
 }
 
 void Channel::send_event(google::protobuf::MessageLite const &event) {
-  VariableLengthArray<2048> buffer{static_cast<size_t>(event.ByteSize())};
+  VariableLengthArray<2048> buffer{event.ByteSizeLong()};
   event.SerializeWithCachedSizesToArray(buffer.data());
 
   anbox::protobuf::rpc::Result response;
@@ -54,8 +54,7 @@ void Channel::send_event(google::protobuf::MessageLite const &event) {
 protobuf::rpc::Invocation Channel::invocation_for(
     std::string const &method_name,
     google::protobuf::MessageLite const *request) {
-  anbox::VariableLengthArray<2048> buffer{
-      static_cast<size_t>(request->ByteSize())};
+  anbox::VariableLengthArray<2048> buffer{request->ByteSizeLong()};
 
   request->SerializeWithCachedSizesToArray(buffer.data());
 
@@ -71,7 +70,7 @@ protobuf::rpc::Invocation Channel::invocation_for(
 
 void Channel::send_message(const std::uint8_t &type,
                            google::protobuf::MessageLite const &message) {
-  const size_t size = message.ByteSize();
+  const size_t size = message.ByteSizeLong();
   const unsigned char header_bytes[header_size] = {
       static_cast<unsigned char>((size >>16) & 0xff),
       static_cast<unsigned char>((size >> 8) & 0xff),
