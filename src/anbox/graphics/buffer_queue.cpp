@@ -47,17 +47,6 @@ int BufferQueue::push_locked(
   return try_push_locked(std::move(buffer));
 }
 
-int BufferQueue::wait_until_not_empty_locked(std::unique_lock<std::mutex> &lock) {
-  while (count_ == 0) {
-    if (closed_)
-      // Closed queue is empty.
-      return -EIO;
-    can_pop_.wait(lock);
-  }
-
-  return 0;
-}
-
 int BufferQueue::try_pop_locked(Buffer *buffer) {
   if (count_ == 0)
     return closed_ ? -EIO : -EAGAIN;
