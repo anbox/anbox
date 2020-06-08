@@ -62,6 +62,9 @@ class LxcContainer : public Container {
   network::Credentials creds_;
   std::vector<std::unique_ptr<common::BinderDevice>> binder_devices_;
 };
+
+// get_id_map() is published for unit testing
+std::vector<std::string> get_id_map(uid_t uid, gid_t gid);
 }  // namespace container
 }  // namespace anbox
 
