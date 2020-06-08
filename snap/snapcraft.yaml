@@ -204,7 +204,9 @@ parts:
     plugin: cmake
     source: https://swiftshader.googlesource.com/SwiftShader
     source-type: git
-    source-commit: b6e8c3f0f4830887d69ba765a922ac3c40e81dd9
+    # Last upstream version which doesn't make use of newer cmake features we can't
+    # support on 16.04
+    source-commit: 1f456938b36f02404830c2e831e328d8ba8d30cd
     override-build: |
       git submodule update --init
       snapcraftctl build
