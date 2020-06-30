@@ -49,6 +49,9 @@ These will add the PPA to your system and install the `anbox-modules-dkms`
 package which contains the ashmem and binder kernel modules. They will be
 automatically rebuild everytime the kernel packages on your system update.
 
+> On system with UEFI the Secure Boot should be disabled, see
+> https://wiki.ubuntu.com/UEFI/SecureBoot/DKMS
+
 After you installed the `anbox-modules-dkms` package you have to manually
 load the kernel modules. The next time your system starts they will be
 automatically loaded.
