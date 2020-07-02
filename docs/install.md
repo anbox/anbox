@@ -69,6 +69,11 @@ Now you should have two new nodes in your systems `/dev` directory:
  /dev/binder
 ```
 
+> In Ubuntu 19.10 the binder driver doesn't create /dev/binder when loaded. That is intentional. 
+> Instead it provides support for binderfs (see https://brauner.github.io/2019/01/09/android-binderfs.html) 
+> which is instead since PR anbox/anbox#1309
+
+
 ## Install the Anbox snap
 
 Installing the Anbox snap is very simple:
