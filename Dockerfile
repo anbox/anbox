@@ -22,6 +22,7 @@ RUN apt-get update && \
   libboost-thread-dev \
   libcap-dev \
   libegl1-mesa-dev \
+  libexpat1-dev \
   libgles2-mesa-dev \
   libglm-dev \
   libgtest-dev \
