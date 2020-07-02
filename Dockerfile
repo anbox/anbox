@@ -4,6 +4,7 @@ FROM ubuntu:20.04
 RUN apt-get update && \
   DEBIAN_FRONTEND="noninteractive" apt-get install -qq -y --no-install-recommends \
   build-essential \
+  ca-certificates \
   cmake \
   cmake-data \
   cmake-extras \
