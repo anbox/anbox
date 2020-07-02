@@ -288,14 +288,12 @@ anbox::cmds::SessionManager::SessionManager()
       });
     }
 
-    auto bus_type = anbox::dbus::Bus::Type::Session;
-    if (use_system_dbus_)
-      bus_type = anbox::dbus::Bus::Type::System;
-    auto bus = std::make_shared<anbox::dbus::Bus>(bus_type);
-
-    auto skeleton = anbox::dbus::skeleton::Service::create_for_bus(bus, app_manager);
-
-    bus->run_async();
+    auto serviceName = "org.anbox";
+    auto connection = use_system_dbus_
+                          ? sdbus::createSystemBusConnection(serviceName)
+                          : sdbus::createSessionBusConnection(serviceName);
+    ApplicationManagerServer appManagerServer(*connection, "/org/anbox", app_manager);
+    connection->enterEventLoopAsync();
 
     rt->start();
     trap->run();
