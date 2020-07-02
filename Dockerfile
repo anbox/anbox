@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 
 # hadolint ignore=DL3008
 RUN apt-get update && \
-  apt-get install -qq -y --no-install-recommends \
+  DEBIAN_FRONTEND="noninteractive" apt-get install -qq -y --no-install-recommends \
   build-essential \
   cmake \
   cmake-data \
