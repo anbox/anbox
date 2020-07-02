@@ -25,6 +25,8 @@ include_directories(
   ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/GLESv2_dec
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/renderControl_dec
   ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/renderControl_dec
+  ${CMAKE_SOURCE_DIR}/external/cpu_features/include
+  ${CMAKE_SOURCE_DIR}/external/sdbus-cpp/include
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBINDERFS_PATH=\"\\\"${BINDERFS_PATH}\\\"\"")
@@ -56,6 +58,34 @@ add_library(anbox-protobuf
     anbox/protobuf/google_protobuf_guard.cpp)
 target_link_libraries(anbox-protobuf
     ${PROTOBUF_LITE_LIBRARIES})
+
+set(XML2CPP ${CMAKE_BINARY_DIR}/external/sdbus-cpp/src/sdbus-cpp-build/tools/sdbus-c++-xml2cpp)
+
+macro(DBusServer BaseName)
+    add_custom_command(
+        COMMAND ${XML2CPP} --adaptor=${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_server_glue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/${BaseName}.xml
+        DEPENDS anbox/dbus/${BaseName}.xml
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_server_glue.h
+        COMMENT "Generating server code for DBUS (${BaseName})"
+    )
+    list(APPEND DBUS_GENERATED "${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_server_glue.h")
+endmacro()
+
+macro(DBusClient BaseName)
+    add_custom_command(
+        COMMAND ${XML2CPP} --proxy=${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_client_glue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/${BaseName}.xml
+        DEPENDS anbox/dbus/${BaseName}.xml
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_client_glue.h
+        COMMENT "Generating client code for DBUS (${BaseName})"
+    )
+    list(APPEND DBUS_GENERATED "${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_client_glue.h")
+endmacro()
+
+set(DBUS_GENERATED)
+
+DBusServer(application_manager)
+DBusClient(application_manager)
+DBusServer(sensors)
 
 set(SOURCES
     anbox/android/intent.cpp
@@ -145,17 +175,14 @@ set(SOURCES
 
     anbox/dbus/bus.cpp
     anbox/dbus/bus.h
-    anbox/dbus/codecs.h
     anbox/dbus/interface.h
-    anbox/dbus/sd_bus_helpers.c
-    anbox/dbus/sd_bus_helpers.h
-    anbox/dbus/sd_bus_helpers.hpp
-    anbox/dbus/skeleton/application_manager.cpp
-    anbox/dbus/skeleton/application_manager.h
-    anbox/dbus/skeleton/service.cpp
-    anbox/dbus/skeleton/service.h
-    anbox/dbus/stub/application_manager.cpp
-    anbox/dbus/stub/application_manager.h
+    ${DBUS_GENERATED}
+    anbox/dbus/application_manager_server.cpp
+    anbox/dbus/application_manager_server.h
+    anbox/dbus/application_manager_client.cpp
+    anbox/dbus/application_manager_client.h
+    anbox/dbus/sensors_server.cpp
+    anbox/dbus/sensors_server.h
 
     anbox/graphics/buffered_io_stream.cpp
     anbox/graphics/buffered_io_stream.h
@@ -374,7 +401,10 @@ target_link_libraries(anbox-core
   OpenGLESDispatch
   OpenglCodecCommon
   anbox-protobuf
+  sdbus-c++
   xdg)
+
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/../external/sdbus-cpp/src/sdbus-cpp-build/)
 
 add_executable(anbox main.cpp ${BACKWARD_ENABLE})
 target_link_libraries(anbox

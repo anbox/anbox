@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Simon Fels <morphis@gravedo.de>
+ * Copyright (C) 2020 Tomasz Grobelny <tomasz@grobelny.net>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -15,31 +15,25 @@
  *
  */
 
-#ifndef ANBOX_CMDS_LAUNCH_H_
-#define ANBOX_CMDS_LAUNCH_H_
+#include <sdbus-c++/sdbus-c++.h>
 
-#include <functional>
-#include <iostream>
-#include <memory>
+#include <sstream>
 
+#include "application_manager_client_glue.h"
 #include "anbox/android/intent.h"
+#include "anbox/logger.h"
 #include "anbox/wm/stack.h"
-#include "anbox/cli.h"
 
-namespace anbox {
-namespace cmds {
-class Launch : public cli::CommandWithFlagsAndAction {
+class ApplicationManagerClient : public sdbus::ProxyInterfaces<org::anbox::ApplicationManager_proxy> {
  public:
-  Launch();
+  ApplicationManagerClient(sdbus::IConnection& connection, std::string destination, std::string objectPath)
+      : sdbus::ProxyInterfaces<org::anbox::ApplicationManager_proxy>(connection, std::move(destination), std::move(objectPath)) {
+    registerProxy();
+  }
 
- private:
-  bool launch_session_manager();
+  virtual ~ApplicationManagerClient() {
+    unregisterProxy();
+  }
 
-  android::Intent intent_;
-  wm::Stack::Id stack_ = wm::Stack::Id::Default;
-  bool use_system_dbus_ = false;
+  bool TryLaunch(anbox::android::Intent intent, anbox::wm::Stack::Id stack);
 };
-}  // namespace cmds
-}  // namespace anbox
-
-#endif

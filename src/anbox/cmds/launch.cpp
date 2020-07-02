@@ -16,8 +16,9 @@
  */
 
 #include "anbox/cmds/launch.h"
-#include "anbox/dbus/stub/application_manager.h"
+#include "anbox/dbus/bus.h"
 #include "anbox/dbus/interface.h"
+#include "anbox/dbus/application_manager_client.h"
 #include "anbox/ui/splash_screen.h"
 #include "anbox/system_configuration.h"
 #include "anbox/logger.h"
@@ -122,21 +123,6 @@ bool anbox::cmds::Launch::launch_session_manager() {
   return true;
 }
 
-bool anbox::cmds::Launch::try_launch_activity(const std::shared_ptr<dbus::stub::ApplicationManager> &stub) {
-  try {
-    DEBUG("Sending launch intent %s to Android ..", intent_);
-    stub->launch(intent_, graphics::Rect::Invalid, stack_);
-  } catch (const std::exception &err) {
-    ERROR("Failed to launch activity: %s", err.what());
-    return false;
-  } catch (...) {
-    ERROR("Failed to launch activity");
-    return false;
-  }
-
-  return true;
-}
-
 anbox::cmds::Launch::Launch()
     : CommandWithFlagsAndAction{
           cli::Name{"launch"}, cli::Usage{"launch"},
@@ -199,18 +185,20 @@ anbox::cmds::Launch::Launch()
       n++;
     }
 
-    auto app_mgr = dbus::stub::ApplicationManager::create_for_bus(bus);
+    auto connection = use_system_dbus_
+                          ? sdbus::createSystemBusConnection()
+                          : sdbus::createSessionBusConnection();
+    ApplicationManagerClient client(*connection, dbus::interface::Service::name(), dbus::interface::Service::path());
     n = 0;
     while (n < max_session_mgr_wait_attempts) {
-      app_mgr->update_properties();
-      if (app_mgr->ready().get())
+      if (client.Ready())
         break;
 
       std::this_thread::sleep_for(session_mgr_wait_interval);
       n++;
     }
 
-    if (!app_mgr->ready()) {
+    if (!client.Ready()) {
       ERROR("Session manager failed to become ready");
       return EXIT_FAILURE;
     }
@@ -219,7 +207,6 @@ anbox::cmds::Launch::Launch()
     // going to launch the real application now.
     ss.reset();
 
-    const auto success = try_launch_activity(app_mgr);
-    return success ? EXIT_SUCCESS : EXIT_FAILURE;
+    return client.TryLaunch(intent_, stack_) ? EXIT_SUCCESS : EXIT_FAILURE;
   });
 }

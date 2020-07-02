@@ -25,19 +25,6 @@ struct Service {
   static inline const char* name() { return "org.anbox"; }
   static inline const char* path() { return "/org/anbox"; }
 };
-struct ApplicationManager {
-  static inline const char* name() { return "org.anbox.ApplicationManager"; }
-  struct Methods {
-      struct Launch {
-        static inline const char* name() { return "Launch"; }
-      };
-  };
-  struct Properties {
-    struct Ready {
-      static inline const char* name() { return "Ready"; }
-    };
-  };
-};
 }  // namespace interface
 }  // namespace dbus
 }  // namespace anbox

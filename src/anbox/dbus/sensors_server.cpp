@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Martin Unzner <martin.u@posteo.de>
+ * Copyright (C) 2020 Tomasz Grobelny <tomasz@grobelny.net>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -15,16 +15,15 @@
  *
  */
 
-#ifndef ANBOX_DBUS_SD_BUS_HELPERS_HPP_
-#define ANBOX_DBUS_SD_BUS_HELPERS_HPP_
+#include "anbox/dbus/sensors_server.h"
 
-namespace anbox {
-namespace dbus {
+#include "anbox/android/intent.h"
+#include "anbox/logger.h"
 
-extern "C" {
-#include "sd_bus_helpers.h"
+double SensorsServer::Temperature() {
+  return impl_->temperature;
 }
-}  // namespace dbus
-}  // namespace anbox
 
-#endif
+void SensorsServer::Temperature(const double& value) {
+  impl_->temperature = value;
+}

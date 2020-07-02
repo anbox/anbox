@@ -1,9 +1,10 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # hadolint ignore=DL3008
 RUN apt-get update && \
-  apt-get install -qq -y --no-install-recommends \
+  DEBIAN_FRONTEND="noninteractive" apt-get install -qq -y --no-install-recommends \
   build-essential \
+  ca-certificates \
   cmake \
   cmake-data \
   cmake-extras \
@@ -21,6 +22,7 @@ RUN apt-get update && \
   libboost-thread-dev \
   libcap-dev \
   libegl1-mesa-dev \
+  libexpat1-dev \
   libgles2-mesa-dev \
   libglm-dev \
   libgtest-dev \
@@ -32,6 +34,7 @@ RUN apt-get update && \
   libsystemd-dev \
   lxc-dev \
   pkg-config \
+  python2 \
   protobuf-compiler && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*

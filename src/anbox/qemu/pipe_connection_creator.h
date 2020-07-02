@@ -22,6 +22,7 @@
 
 #include <memory>
 
+#include "anbox/application/sensors_state.h"
 #include "anbox/do_not_copy_or_move.h"
 #include "anbox/network/connection_creator.h"
 #include "anbox/network/connections.h"
@@ -36,7 +37,7 @@ namespace qemu {
 class PipeConnectionCreator
     : public network::ConnectionCreator<boost::asio::local::stream_protocol> {
  public:
-  PipeConnectionCreator(const std::shared_ptr<Renderer> &renderer, const std::shared_ptr<Runtime> &rt);
+  PipeConnectionCreator(std::shared_ptr<Renderer> renderer, std::shared_ptr<Runtime> rt, std::shared_ptr<anbox::application::SensorsState> ss);
   ~PipeConnectionCreator() noexcept;
 
   void create_connection_for(
@@ -67,6 +68,7 @@ class PipeConnectionCreator
 
   std::shared_ptr<Renderer> renderer_;
   std::shared_ptr<Runtime> runtime_;
+  std::shared_ptr<application::SensorsState> sensors_state_;
   std::atomic<int> next_connection_id_;
   std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;
 };

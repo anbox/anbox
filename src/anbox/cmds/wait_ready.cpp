@@ -18,7 +18,9 @@
  */
 
 #include "anbox/cmds/wait_ready.h"
-#include "anbox/dbus/stub/application_manager.h"
+#include "anbox/dbus/application_manager_client.h"
+#include "anbox/dbus/bus.h"
+#include "anbox/dbus/interface.h"
 
 namespace {
 constexpr const unsigned int max_wait_attempts{30};
@@ -39,12 +41,14 @@ anbox::cmds::WaitReady::WaitReady()
       bus_type = anbox::dbus::Bus::Type::System;
     auto bus = std::make_shared<anbox::dbus::Bus>(bus_type);
 
-    auto stub = dbus::stub::ApplicationManager::create_for_bus(bus);
+    auto connection = use_system_dbus_
+                          ? sdbus::createSystemBusConnection()
+                          : sdbus::createSessionBusConnection();
+    ApplicationManagerClient client(*connection, dbus::interface::Service::name(), dbus::interface::Service::path());
 
     unsigned int n = 0;
     while (n < max_wait_attempts) {
-      stub->update_properties();
-      if (stub->ready().get())
+      if (client.Ready())
         return EXIT_SUCCESS;
 
       std::this_thread::sleep_for(std::chrono::seconds{1});

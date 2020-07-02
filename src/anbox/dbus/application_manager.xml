@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright: 2020 Tomasz Grobelny <tomasz@grobelny.net> -->
+<!-- SPDX-License-Identifier: MIT -->
+<node name="/org/anbox">
+ <interface name="org.anbox.ApplicationManager">
+  <method name="Launch">
+   <arg type="a{sv}" direction="in"/>
+   <arg type="s" direction="in"/>
+  </method>
+  <property name="Ready" type="b" access="read">
+  </property>
+ </interface>
+</node>
