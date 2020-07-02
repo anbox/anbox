@@ -25,6 +25,10 @@ void ApplicationManagerServer::Launch(const std::map<std::string, sdbus::Variant
   }
 
   try {
+    if (!impl_->ready())
+      throw std::runtime_error("Anbox not yet ready to launch applications");
+
+    DEBUG("Launching %s", intent);
     impl_->launch(intent, anbox::graphics::Rect::Invalid, launch_stack);
   } catch (std::exception& err) {
     ERROR("Failed to launch application: %s", err.what());

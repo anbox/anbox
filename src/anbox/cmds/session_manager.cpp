@@ -33,6 +33,7 @@
 #include "anbox/common/dispatcher.h"
 #include "anbox/system_configuration.h"
 #include "anbox/container/client.h"
+#include "anbox/dbus/ApplicationManagerServer.h"
 #include "anbox/dbus/bus.h"
 #include "anbox/dbus/skeleton/service.h"
 #include "anbox/input/manager.h"
