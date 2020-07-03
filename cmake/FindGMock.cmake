@@ -54,10 +54,10 @@ if (NOT (GTEST_FOUND AND GTEST_MAIN_FOUND AND GMOCK_FOUND AND GMOCK_MAIN_FOUND))
     set(findgmock_cxx_flags "${CMAKE_CXX_FLAGS} -g -Wno-old-style-cast -Wno-missing-field-initializers -Wno-ctor-dtor-privacy -Wno-switch-default")
 
     set(findgmock_bin_dir "${CMAKE_CURRENT_BINARY_DIR}/gmock")
-    set(findgmock_gtest_lib "${findgmock_bin_dir}/gtest/libgtest.a")
-    set(findgmock_gtest_main_lib "${findgmock_bin_dir}/gtest/libgtest_main.a")
-    set(findgmock_gmock_lib "${findgmock_bin_dir}/libgmock.a")
-    set(findgmock_gmock_main_lib "${findgmock_bin_dir}/libgmock_main.a")
+    set(findgmock_gtest_lib "${findgmock_bin_dir}/lib/libgtest.a")
+    set(findgmock_gtest_main_lib "${findgmock_bin_dir}/lib/libgtest_main.a")
+    set(findgmock_gmock_lib "${findgmock_bin_dir}/lib/libgmock.a")
+    set(findgmock_gmock_main_lib "${findgmock_bin_dir}/lib/libgmock_main.a")
 
     include(ExternalProject)
     ExternalProject_Add(GMock SOURCE_DIR "${GMOCK_SOURCE_DIR}"

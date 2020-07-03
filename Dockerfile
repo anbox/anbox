@@ -34,6 +34,7 @@ RUN apt-get update && \
   libsystemd-dev \
   lxc-dev \
   pkg-config \
+  python2 \
   protobuf-compiler && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
