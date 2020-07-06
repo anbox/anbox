@@ -23,7 +23,6 @@
 #include <memory>
 
 #include "anbox/android/intent.h"
-#include "anbox/dbus/stub/application_manager.h"
 #include "anbox/wm/stack.h"
 #include "anbox/cli.h"
 

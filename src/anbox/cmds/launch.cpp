@@ -16,7 +16,7 @@
  */
 
 #include "anbox/cmds/launch.h"
-#include "anbox/dbus/stub/application_manager.h"
+#include "anbox/dbus/bus.h"
 #include "anbox/dbus/interface.h"
 #include "anbox/dbus/ApplicationManagerClient.h"
 #include "anbox/ui/splash_screen.h"
@@ -188,8 +188,7 @@ anbox::cmds::Launch::Launch()
     auto connection = use_system_dbus_
                           ? sdbus::createSystemBusConnection()
                           : sdbus::createSessionBusConnection();
-    auto serviceName = "org.anbox";
-    ApplicationManagerClient client(*connection, serviceName, "/org/anbox");
+    ApplicationManagerClient client(*connection, dbus::interface::Service::name(), dbus::interface::Service::path());
     n = 0;
     while (n < max_session_mgr_wait_attempts) {
       if (client.Ready())

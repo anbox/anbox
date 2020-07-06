@@ -35,7 +35,7 @@
 #include "anbox/container/client.h"
 #include "anbox/dbus/ApplicationManagerServer.h"
 #include "anbox/dbus/bus.h"
-#include "anbox/dbus/skeleton/service.h"
+#include "anbox/dbus/interface.h"
 #include "anbox/input/manager.h"
 #include "anbox/logger.h"
 #include "anbox/network/published_socket_connector.h"
@@ -289,11 +289,10 @@ anbox::cmds::SessionManager::SessionManager()
       });
     }
 
-    auto serviceName = "org.anbox";
     auto connection = use_system_dbus_
-                          ? sdbus::createSystemBusConnection(serviceName)
-                          : sdbus::createSessionBusConnection(serviceName);
-    ApplicationManagerServer appManagerServer(*connection, "/org/anbox", app_manager);
+                          ? sdbus::createSystemBusConnection(dbus::interface::Service::name())
+                          : sdbus::createSessionBusConnection(dbus::interface::Service::name());
+    ApplicationManagerServer appManagerServer(*connection, dbus::interface::Service::path(), app_manager);
     connection->enterEventLoopAsync();
 
     rt->start();
