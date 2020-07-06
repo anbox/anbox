@@ -21,6 +21,9 @@ The following picture shows an overview over the architecture:
 
 ![Anbox architecture](architecture.png)
 
+### Prebuilt Android Images
+The repository does not contain an android image. Either [build android from source](https://github.com/anbox/anbox/blob/master/docs/build-android.md) or download a prebuilt image from [here](https://build.anbox.io/android-images/ "anbox.io"). 
+
 ## Application Mapping
 
 Android applications are mapped into single windows within the desktop environment.
