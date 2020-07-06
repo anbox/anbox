@@ -60,14 +60,15 @@ target_link_libraries(anbox-protobuf
     ${PROTOBUF_LITE_LIBRARIES})
 
 add_custom_command(
-    COMMAND ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp --adaptor=${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerServerGlue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/ApplicationManager.xml
+    COMMAND ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp --adaptor=${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerServerGlue.h --proxy=${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerClientGlue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/ApplicationManager.xml
     DEPENDS ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp anbox/dbus/ApplicationManager.xml
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerServerGlue.h
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerServerGlue.h ${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerClientGlue.h
     COMMENT "Generating code for DBUS."
 )
 
 set(DBUS_GENERATED
     ${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerServerGlue.h
+    ${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerClientGlue.h
 )
 
 set(SOURCES
@@ -172,6 +173,8 @@ set(SOURCES
     ${DBUS_GENERATED}
     anbox/dbus/ApplicationManagerServer.cpp
     anbox/dbus/ApplicationManagerServer.h
+    anbox/dbus/ApplicationManagerClient.cpp
+    anbox/dbus/ApplicationManagerClient.h
 
     anbox/graphics/buffered_io_stream.cpp
     anbox/graphics/buffered_io_stream.h

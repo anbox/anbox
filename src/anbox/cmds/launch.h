@@ -35,7 +35,6 @@ class Launch : public cli::CommandWithFlagsAndAction {
 
  private:
   bool launch_session_manager();
-  bool try_launch_activity(const std::shared_ptr<dbus::stub::ApplicationManager> &stub);
 
   android::Intent intent_;
   wm::Stack::Id stack_ = wm::Stack::Id::Default;
