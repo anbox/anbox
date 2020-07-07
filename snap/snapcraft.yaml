@@ -209,9 +209,7 @@ parts:
     plugin: cmake
     source: https://swiftshader.googlesource.com/SwiftShader
     source-type: git
-    # Last upstream version which doesn't make use of newer cmake features we can't
-    # support on 18.04
-    source-commit: 1f456938b36f02404830c2e831e328d8ba8d30cd
+    source-commit: b6e8c3f0f4830887d69ba765a922ac3c40e81dd9
     organize:
       libEGL.so: lib/anbox/swiftshader/libEGL.so
       libGLES_CM.so: lib/anbox/swiftshader/libGLES_CM.so
