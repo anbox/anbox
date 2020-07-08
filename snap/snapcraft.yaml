@@ -207,6 +207,8 @@ parts:
     # Last upstream version which doesn't make use of newer cmake features we can't
     # support on 16.04
     source-commit: 1f456938b36f02404830c2e831e328d8ba8d30cd
+    cmake-parameters:
+      - -DSWIFTSHADER_WARNINGS_AS_ERRORS=FALSE
     override-build: |
       git submodule update --init
       snapcraftctl build
