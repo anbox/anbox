@@ -10,7 +10,7 @@ class ApplicationManagerServer : public sdbus::AdaptorInterfaces<org::anbox::App
     registerAdaptor();
   }
 
-  ~ApplicationManagerServer() {
+  virtual ~ApplicationManagerServer() {
     unregisterAdaptor();
   }
 

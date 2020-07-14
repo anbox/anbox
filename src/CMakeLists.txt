@@ -27,6 +27,7 @@ include_directories(
   ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/renderControl_dec
   ${CMAKE_SOURCE_DIR}/external/cpu_features/include
   ${CMAKE_SOURCE_DIR}/external/sdbus-cpp/include
+  ${CMAKE_SOURCE_DIR}/external/di/include
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBINDERFS_PATH=\"\\\"${BINDERFS_PATH}\\\"\"")
@@ -58,18 +59,32 @@ add_library(anbox-protobuf
     anbox/protobuf/google_protobuf_guard.cpp)
 target_link_libraries(anbox-protobuf
     ${PROTOBUF_LITE_LIBRARIES})
+    
+macro(DBusServer BaseName)
+    add_custom_command(
+        COMMAND ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp --adaptor=${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ServerGlue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/${BaseName}.xml
+        DEPENDS ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp anbox/dbus/${BaseName}.xml
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ServerGlue.h
+        COMMENT "Generating server code for DBUS (${BaseName})"
+    )
+    list(APPEND DBUS_GENERATED "${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ServerGlue.h")
+endmacro()
 
-add_custom_command(
-    COMMAND ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp --adaptor=${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerServerGlue.h --proxy=${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerClientGlue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/ApplicationManager.xml
-    DEPENDS ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp anbox/dbus/ApplicationManager.xml
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerServerGlue.h ${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerClientGlue.h
-    COMMENT "Generating code for DBUS."
-)
+macro(DBusClient BaseName)
+    add_custom_command(
+        COMMAND ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp --proxy=${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ClientGlue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/${BaseName}.xml
+        DEPENDS ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp anbox/dbus/${BaseName}.xml
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ClientGlue.h
+        COMMENT "Generating client code for DBUS (${BaseName})"
+    )
+    list(APPEND DBUS_GENERATED "${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ClientGlue.h")
+endmacro()
 
-set(DBUS_GENERATED
-    ${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerServerGlue.h
-    ${CMAKE_CURRENT_BINARY_DIR}/ApplicationManagerClientGlue.h
-)
+set(DBUS_GENERATED)
+
+DBusServer(ApplicationManager)
+DBusClient(ApplicationManager)
+DBusServer(Sensors)
 
 set(SOURCES
     anbox/android/intent.cpp
@@ -165,6 +180,8 @@ set(SOURCES
     anbox/dbus/ApplicationManagerServer.h
     anbox/dbus/ApplicationManagerClient.cpp
     anbox/dbus/ApplicationManagerClient.h
+    anbox/dbus/SensorsServer.cpp
+    anbox/dbus/SensorsServer.h
 
     anbox/graphics/buffered_io_stream.cpp
     anbox/graphics/buffered_io_stream.h

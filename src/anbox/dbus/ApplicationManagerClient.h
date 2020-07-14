@@ -14,7 +14,7 @@ class ApplicationManagerClient : public sdbus::ProxyInterfaces<org::anbox::Appli
     registerProxy();
   }
 
-  ~ApplicationManagerClient() {
+  virtual ~ApplicationManagerClient() {
     unregisterProxy();
   }
 

@@ -18,42 +18,48 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #include <boost/filesystem.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#include "boost/di.hpp"
+#pragma GCC diagnostic pop
 
-#include "core/posix/signal.h"
+#include <sys/prctl.h>
 
-#include "anbox/application/launcher_storage.h"
 #include "anbox/application/database.h"
+#include "anbox/application/launcher_storage.h"
+#include "anbox/application/sensors_state.h"
 #include "anbox/audio/server.h"
 #include "anbox/bridge/android_api_stub.h"
 #include "anbox/bridge/platform_api_skeleton.h"
 #include "anbox/bridge/platform_message_processor.h"
-#include "anbox/graphics/gl_renderer_server.h"
-
 #include "anbox/cmds/session_manager.h"
 #include "anbox/common/dispatcher.h"
-#include "anbox/system_configuration.h"
 #include "anbox/container/client.h"
 #include "anbox/dbus/ApplicationManagerServer.h"
+#include "anbox/dbus/SensorsServer.h"
 #include "anbox/dbus/bus.h"
 #include "anbox/dbus/interface.h"
+#include "anbox/graphics/emugl/Renderer.h"
+#include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/input/manager.h"
 #include "anbox/logger.h"
 #include "anbox/network/published_socket_connector.h"
+#include "anbox/platform/base_platform.h"
 #include "anbox/qemu/pipe_connection_creator.h"
 #include "anbox/rpc/channel.h"
 #include "anbox/rpc/connection_creator.h"
 #include "anbox/runtime.h"
-#include "anbox/platform/base_platform.h"
+#include "anbox/system_configuration.h"
 #include "anbox/wm/multi_window_manager.h"
 #include "anbox/wm/single_window_manager.h"
-
+#include "core/posix/signal.h"
 #include "external/xdg/xdg.h"
-
-#include <sys/prctl.h>
 
 #pragma GCC diagnostic pop
 
 namespace fs = boost::filesystem;
+namespace di = boost::di;
 
 namespace {
 constexpr const char *default_appmgr_package{"org.anbox.appmgr"};
@@ -71,7 +77,7 @@ class NullConnectionCreator : public anbox::network::ConnectionCreator<
     socket->close();
   }
 };
-}
+}  // namespace
 
 void anbox::cmds::SessionManager::launch_appmgr_if_needed(const std::shared_ptr<bridge::AndroidApiStub> &android_api_stub) {
   if (!single_window_)
@@ -195,12 +201,11 @@ anbox::cmds::SessionManager::SessionManager()
     const auto should_force_software_rendering = utils::get_env_value("ANBOX_FORCE_SOFTWARE_RENDERING", "false");
     auto gl_driver = graphics::GLRendererServer::Config::Driver::Host;
     if (should_force_software_rendering == "true" || use_software_rendering_)
-     gl_driver = graphics::GLRendererServer::Config::Driver::Software;
+      gl_driver = graphics::GLRendererServer::Config::Driver::Software;
 
-    graphics::GLRendererServer::Config renderer_config {
-      gl_driver,
-      single_window_
-    };
+    graphics::GLRendererServer::Config renderer_config{
+        gl_driver,
+        single_window_};
     auto gl_server = std::make_shared<graphics::GLRendererServer>(renderer_config, window_manager);
 
     platform->set_window_manager(window_manager);
@@ -213,7 +218,7 @@ anbox::cmds::SessionManager::SessionManager()
       // only launch applications in freeform mode as otherwise the window tracking
       // doesn't work.
       app_manager = std::make_shared<application::RestrictedManager>(
-            android_api_stub, wm::Stack::Id::Freeform);
+          android_api_stub, wm::Stack::Id::Freeform);
     }
 
     auto audio_server = std::make_shared<audio::Server>(rt, platform);
@@ -222,10 +227,13 @@ anbox::cmds::SessionManager::SessionManager()
 
     // The qemu pipe is used as a very fast communication channel between guest
     // and host for things like the GLES emulation/translation, the RIL or ADB.
+    const auto injector = di::make_injector(
+        di::bind<Renderer>().to(gl_server->renderer()),
+        di::bind<Runtime>().to(rt));
     auto qemu_pipe_connector =
         std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/qemu_pipe", socket_path), rt,
-            std::make_shared<qemu::PipeConnectionCreator>(gl_server->renderer(), rt));
+            injector.create<std::shared_ptr<qemu::PipeConnectionCreator>>());
 
     boost::asio::deadline_timer appmgr_start_timer(rt->service());
 
@@ -269,19 +277,19 @@ anbox::cmds::SessionManager::SessionManager()
     container_configuration.extra_properties.push_back("ro.boot.fake_battery=1");
 
     if (server_side_decoration_)
-        container_configuration.extra_properties.push_back("ro.anbox.no_decorations=1");
+      container_configuration.extra_properties.push_back("ro.anbox.no_decorations=1");
 
     if (!standalone_) {
       container_configuration.bind_mounts = {
-        {qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"},
-        {bridge_connector->socket_file(), "/dev/anbox_bridge"},
-        {audio_server->socket_file(), "/dev/anbox_audio"},
-        {SystemConfiguration::instance().input_device_dir(), "/dev/input"},
+          {qemu_pipe_connector->socket_file(), "/dev/qemu_pipe"},
+          {bridge_connector->socket_file(), "/dev/anbox_bridge"},
+          {audio_server->socket_file(), "/dev/anbox_audio"},
+          {SystemConfiguration::instance().input_device_dir(), "/dev/input"},
 
       };
 
       container_configuration.devices = {
-        {"/dev/fuse", {0666}},
+          {"/dev/fuse", {0666}},
       };
 
       dispatcher->dispatch([&]() {
@@ -293,6 +301,7 @@ anbox::cmds::SessionManager::SessionManager()
                           ? sdbus::createSystemBusConnection(dbus::interface::Service::name())
                           : sdbus::createSessionBusConnection(dbus::interface::Service::name());
     ApplicationManagerServer appManagerServer(*connection, dbus::interface::Service::path(), app_manager);
+    SensorsServer sensorsServer(*connection, dbus::interface::Service::path(), injector.create<std::shared_ptr<application::SensorsState>>());
     connection->enterEventLoopAsync();
 
     rt->start();

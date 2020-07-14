@@ -16,28 +16,69 @@
  */
 
 #include "anbox/qemu/sensors_message_processor.h"
+
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
+#include <chrono>
+#include <thread>
+
 #include "anbox/logger.h"
+
+using namespace std;
 
 namespace anbox {
 namespace qemu {
 SensorsMessageProcessor::SensorsMessageProcessor(
-    const std::shared_ptr<network::SocketMessenger> &messenger)
-    : QemudMessageProcessor(messenger) {}
-
-SensorsMessageProcessor::~SensorsMessageProcessor() {}
-
-void SensorsMessageProcessor::handle_command(const std::string &command) {
-  if (command == "list-sensors") list_sensors();
+    shared_ptr<network::SocketMessenger> messenger, shared_ptr<application::SensorsState> sensorsState)
+    : QemudMessageProcessor(messenger), sensorsState_(sensorsState) {
+  thread = std::thread([this]() {
+    for (;;) {
+      if (temperature.load())
+        send_message("temperature:" + to_string(sensorsState_->temperature));
+      if (!run_thread.load())
+        break;
+      this_thread::sleep_for(delay.load() * 1ms);
+    }
+  });
 }
 
-void SensorsMessageProcessor::list_sensors() {
-  // We don't support sensors yet so we mark all as disabled
-  int mask = 0;
-  char buf[12];
-  snprintf(buf, sizeof(buf), "%d", mask);
-  send_header(strlen(buf));
-  messenger_->send(buf, strlen(buf));
+SensorsMessageProcessor::~SensorsMessageProcessor() {
+  run_thread = false;
+  thread.join();
+}
+
+void SensorsMessageProcessor::handle_command(const string &command) {
+  if (!(list_sensors(command) || handle_set(command) || handle_set_delay(command)))
+    ERROR("Unknown command: " + command);
+}
+
+bool SensorsMessageProcessor::handle_set_delay(const string &command) {
+  if (!boost::starts_with(command, "set-delay:"))
+    return false;
+  delay = boost::lexical_cast<int>(command.substr("set-delay:"s.length()));
+  return true;
+}
+
+bool SensorsMessageProcessor::handle_set(const string &command) {
+  if (!boost::starts_with(command, "set:temperature:"))
+    return false;
+  temperature = static_cast<bool>(boost::lexical_cast<int>(command.substr("set:temperature:"s.length())));
+  return true;
+}
+
+bool SensorsMessageProcessor::list_sensors(const string &command) {
+  if (command != "list-sensors")
+    return false;
+  int mask = 8;
+  send_message(to_string(mask));
+  return true;
+}
+
+void SensorsMessageProcessor::send_message(const string &msg) {
+  send_header(msg.length());
+  messenger_->send(msg.c_str(), msg.length());
   finish_message();
 }
+
 }  // namespace qemu
 }  // namespace anbox
