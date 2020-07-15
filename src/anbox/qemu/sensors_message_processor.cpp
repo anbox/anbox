@@ -19,12 +19,15 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/spirit/home/x3.hpp>
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 #include "anbox/logger.h"
 
 using namespace std;
+namespace x3 = boost::spirit::x3;
 
 namespace anbox {
 namespace qemu {
@@ -48,30 +51,13 @@ SensorsMessageProcessor::~SensorsMessageProcessor() {
 }
 
 void SensorsMessageProcessor::handle_command(const string &command) {
-  if (!(list_sensors(command) || handle_set(command) || handle_set_delay(command)))
+  auto list_sensors = [this](auto &) { send_message(to_string(SensorType::TemperatureSensor)); };
+  auto set_delay = [this](auto &ctx) { delay = _attr(ctx); };
+  auto set_temperature = [this](auto &ctx) { temperature = _attr(ctx); };
+  auto set_command_parser = ("set:temperature:" >> x3::int_[set_temperature]);
+  auto general_command_parser = x3::lit("list-sensors")[list_sensors] | ("set-delay:" >> x3::int_[set_delay]);
+  if (!parse(command.begin(), command.end(), general_command_parser | set_command_parser))
     ERROR("Unknown command: " + command);
-}
-
-bool SensorsMessageProcessor::handle_set_delay(const string &command) {
-  if (!boost::starts_with(command, "set-delay:"))
-    return false;
-  delay = boost::lexical_cast<int>(command.substr("set-delay:"s.length()));
-  return true;
-}
-
-bool SensorsMessageProcessor::handle_set(const string &command) {
-  if (!boost::starts_with(command, "set:temperature:"))
-    return false;
-  temperature = static_cast<bool>(boost::lexical_cast<int>(command.substr("set:temperature:"s.length())));
-  return true;
-}
-
-bool SensorsMessageProcessor::list_sensors(const string &command) {
-  if (command != "list-sensors")
-    return false;
-  int mask = 8;
-  send_message(to_string(mask));
-  return true;
 }
 
 void SensorsMessageProcessor::send_message(const string &msg) {
