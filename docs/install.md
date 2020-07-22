@@ -49,6 +49,9 @@ These will add the PPA to your system and install the `anbox-modules-dkms`
 package which contains the ashmem and binder kernel modules. They will be
 automatically rebuild everytime the kernel packages on your system update.
 
+> On system with UEFI the Secure Boot should be disabled, see
+> https://wiki.ubuntu.com/UEFI/SecureBoot/DKMS
+
 After you installed the `anbox-modules-dkms` package you have to manually
 load the kernel modules. The next time your system starts they will be
 automatically loaded.
@@ -65,6 +68,11 @@ Now you should have two new nodes in your systems `/dev` directory:
  /dev/ashmem
  /dev/binder
 ```
+
+> In Ubuntu 19.10 the binder driver doesn't create /dev/binder when loaded. That is intentional. 
+> Instead it provides support for binderfs (see https://brauner.github.io/2019/01/09/android-binderfs.html) 
+> which is instead since PR anbox/anbox#1309
+
 
 ## Install the Anbox snap
 
