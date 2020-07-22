@@ -1,5 +1,4 @@
 name: anbox
-version: git
 summary: Android in a Box
 description: |
   Runtime for Android applications which runs a full Android system
@@ -9,6 +8,7 @@ confinement: devmode
 grade: devel
 base: core18
 architectures: [amd64]
+adopt-info: anbox
 
 slots:
   dbus-session-slot:
@@ -250,6 +250,7 @@ parts:
       - lxc
       - desktop-glib-only
     source: .
+    source-type: git
     configflags:
       # FIXME: Anbox currently has some paths with hard coded prefixes. Once
       # that is fixed we can avoid using a prefix here.
@@ -308,3 +309,8 @@ parts:
       - usr/bin/anbox
       - usr/share/anbox
       - usr/lib/*-linux-*/
+    override-build: |
+      snapcraftctl set-grade stable
+      rev=$(cd "$SNAPCRAFT_PART_SRC_WORK" ; git rev-parse --short HEAD)
+      snapcraftctl set-version 4+gitr"$rev"
+      snapcraftctl build
