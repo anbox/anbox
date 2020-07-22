@@ -29,7 +29,7 @@ fi
 
 # Re-exec outside of apparmor confinement
 if [ -d /sys/kernel/security/apparmor ] && [ "$(cat /proc/self/attr/current)" != "unconfined" ]; then
-	exec /usr/sbin/aa-exec -p unconfined -- "$0" "$@"
+	exec /usr/bin/aa-exec -p unconfined -- "$0" "$@"
 fi
 
 start() {
