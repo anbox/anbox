@@ -15,7 +15,7 @@
  *
  */
 
-#include "ApplicationManagerClient.h"
+#include "application_manager_client.h"
 
 bool ApplicationManagerClient::TryLaunch(anbox::android::Intent intent, anbox::wm::Stack::Id stack) {
   try {

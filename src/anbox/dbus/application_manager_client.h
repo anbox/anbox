@@ -17,23 +17,23 @@
 
 #include <sdbus-c++/sdbus-c++.h>
 
-#include "SensorsServerGlue.h"
-#include "anbox/application/sensors_state.h"
+#include <sstream>
 
-class SensorsServer : public sdbus::AdaptorInterfaces<org::anbox::Sensors_adaptor> {
+#include "application_manager_client_glue.h"
+#include "anbox/android/intent.h"
+#include "anbox/logger.h"
+#include "anbox/wm/stack.h"
+
+class ApplicationManagerClient : public sdbus::ProxyInterfaces<org::anbox::ApplicationManager_proxy> {
  public:
-  SensorsServer(sdbus::IConnection& connection, std::string objectPath, const std::shared_ptr<anbox::application::SensorsState>& impl)
-      : sdbus::AdaptorInterfaces<org::anbox::Sensors_adaptor>(connection, std::move(objectPath)), impl_(impl) {
-    registerAdaptor();
+  ApplicationManagerClient(sdbus::IConnection& connection, std::string destination, std::string objectPath)
+      : sdbus::ProxyInterfaces<org::anbox::ApplicationManager_proxy>(connection, std::move(destination), std::move(objectPath)) {
+    registerProxy();
   }
 
-  virtual ~SensorsServer() {
-    unregisterAdaptor();
+  virtual ~ApplicationManagerClient() {
+    unregisterProxy();
   }
 
-  double Temperature() override;
-  void Temperature(const double& value) override;
-
- private:
-  const std::shared_ptr<anbox::application::SensorsState> impl_;
+  bool TryLaunch(anbox::android::Intent intent, anbox::wm::Stack::Id stack);
 };

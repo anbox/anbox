@@ -18,7 +18,7 @@
  */
 
 #include "anbox/cmds/wait_ready.h"
-#include "anbox/dbus/ApplicationManagerClient.h"
+#include "anbox/dbus/application_manager_client.h"
 #include "anbox/dbus/bus.h"
 #include "anbox/dbus/interface.h"
 

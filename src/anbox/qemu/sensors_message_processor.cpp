@@ -20,6 +20,11 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/home/x3.hpp>
+#include <boost/spirit/home/x3/core/parse.hpp>
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/qi_parse_attr.hpp>
+#include <boost/spirit/include/qi_parse_auto.hpp>
+#include <boost/xpressive/xpressive.hpp>
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -28,36 +33,42 @@
 
 using namespace std;
 namespace x3 = boost::spirit::x3;
+namespace qi = boost::spirit::qi;
+
+using namespace boost::xpressive;
 
 namespace anbox {
 namespace qemu {
 SensorsMessageProcessor::SensorsMessageProcessor(
     shared_ptr<network::SocketMessenger> messenger, shared_ptr<application::SensorsState> sensorsState)
-    : QemudMessageProcessor(messenger), sensorsState_(sensorsState) {
-  thread = std::thread([this]() {
+    : QemudMessageProcessor(messenger), sensors_state_(sensorsState) {
+  thread_ = std::thread([this]() {
     for (;;) {
-      if (temperature.load())
-        send_message("temperature:" + to_string(sensorsState_->temperature));
-      if (!run_thread.load())
+      if (temperature_.load())
+        send_message("temperature:" + to_string(sensors_state_->temperature));
+      if (!run_thread_.load())
         break;
-      this_thread::sleep_for(delay.load() * 1ms);
+      this_thread::sleep_for(delay_.load() * 1ms);
     }
   });
 }
 
 SensorsMessageProcessor::~SensorsMessageProcessor() {
-  run_thread = false;
-  thread.join();
+  run_thread_ = false;
+  thread_.join();
 }
 
 void SensorsMessageProcessor::handle_command(const string &command) {
-  auto list_sensors = [this](auto &) { send_message(to_string(SensorType::TemperatureSensor)); };
-  auto set_delay = [this](auto &ctx) { delay = _attr(ctx); };
-  auto set_temperature = [this](auto &ctx) { temperature = _attr(ctx); };
-  auto set_command_parser = ("set:temperature:" >> x3::int_[set_temperature]);
-  auto general_command_parser = x3::lit("list-sensors")[list_sensors] | ("set-delay:" >> x3::int_[set_delay]);
-  if (!parse(command.begin(), command.end(), general_command_parser | set_command_parser))
+  int value;
+  if (command == "list-sensors") {
+    send_message(to_string(SensorType::TemperatureSensor));
+  } else if (sscanf(command.c_str(), "set-delay:%d", &value)) {
+    delay_ = value;
+  } else if (sscanf(command.c_str(), "set:temperature:%d", &value)) {
+    temperature_ = value;
+  } else {
     ERROR("Unknown command: " + command);
+  }
 }
 
 void SensorsMessageProcessor::send_message(const string &msg) {

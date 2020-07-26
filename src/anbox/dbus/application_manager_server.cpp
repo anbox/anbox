@@ -15,7 +15,7 @@
  *
  */
 
-#include "anbox/dbus/ApplicationManagerServer.h"
+#include "anbox/dbus/application_manager_server.h"
 
 #include <sstream>
 

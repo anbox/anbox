@@ -18,7 +18,7 @@
 #include "anbox/cmds/launch.h"
 #include "anbox/dbus/bus.h"
 #include "anbox/dbus/interface.h"
-#include "anbox/dbus/ApplicationManagerClient.h"
+#include "anbox/dbus/application_manager_client.h"
 #include "anbox/ui/splash_screen.h"
 #include "anbox/system_configuration.h"
 #include "anbox/logger.h"

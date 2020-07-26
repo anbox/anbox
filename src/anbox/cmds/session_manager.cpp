@@ -18,11 +18,6 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #include <boost/filesystem.hpp>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#include "boost/di.hpp"
-#pragma GCC diagnostic pop
 
 #include <sys/prctl.h>
 
@@ -36,8 +31,8 @@
 #include "anbox/cmds/session_manager.h"
 #include "anbox/common/dispatcher.h"
 #include "anbox/container/client.h"
-#include "anbox/dbus/ApplicationManagerServer.h"
-#include "anbox/dbus/SensorsServer.h"
+#include "anbox/dbus/application_manager_server.h"
+#include "anbox/dbus/sensors_server.h"
 #include "anbox/dbus/bus.h"
 #include "anbox/dbus/interface.h"
 #include "anbox/graphics/emugl/Renderer.h"
@@ -59,7 +54,6 @@
 #pragma GCC diagnostic pop
 
 namespace fs = boost::filesystem;
-namespace di = boost::di;
 
 namespace {
 constexpr const char *default_appmgr_package{"org.anbox.appmgr"};
@@ -225,15 +219,14 @@ anbox::cmds::SessionManager::SessionManager()
 
     const auto socket_path = SystemConfiguration::instance().socket_dir();
 
+    auto sensors_state = std::make_shared<application::SensorsState>();
+
     // The qemu pipe is used as a very fast communication channel between guest
     // and host for things like the GLES emulation/translation, the RIL or ADB.
-    const auto injector = di::make_injector(
-        di::bind<Renderer>().to(gl_server->renderer()),
-        di::bind<Runtime>().to(rt));
     auto qemu_pipe_connector =
         std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/qemu_pipe", socket_path), rt,
-            injector.create<std::shared_ptr<qemu::PipeConnectionCreator>>());
+            std::make_shared<qemu::PipeConnectionCreator>(gl_server->renderer(), rt, sensors_state));
 
     boost::asio::deadline_timer appmgr_start_timer(rt->service());
 
@@ -301,7 +294,7 @@ anbox::cmds::SessionManager::SessionManager()
                           ? sdbus::createSystemBusConnection(dbus::interface::Service::name())
                           : sdbus::createSessionBusConnection(dbus::interface::Service::name());
     ApplicationManagerServer appManagerServer(*connection, dbus::interface::Service::path(), app_manager);
-    SensorsServer sensorsServer(*connection, dbus::interface::Service::path(), injector.create<std::shared_ptr<application::SensorsState>>());
+    SensorsServer sensorsServer(*connection, dbus::interface::Service::path(), sensors_state);
     connection->enterEventLoopAsync();
 
     rt->start();

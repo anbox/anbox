@@ -62,29 +62,29 @@ target_link_libraries(anbox-protobuf
     
 macro(DBusServer BaseName)
     add_custom_command(
-        COMMAND ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp --adaptor=${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ServerGlue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/${BaseName}.xml
+        COMMAND ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp --adaptor=${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_server_glue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/${BaseName}.xml
         DEPENDS ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp anbox/dbus/${BaseName}.xml
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ServerGlue.h
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_server_glue.h
         COMMENT "Generating server code for DBUS (${BaseName})"
     )
-    list(APPEND DBUS_GENERATED "${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ServerGlue.h")
+    list(APPEND DBUS_GENERATED "${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_server_glue.h")
 endmacro()
 
 macro(DBusClient BaseName)
     add_custom_command(
-        COMMAND ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp --proxy=${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ClientGlue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/${BaseName}.xml
+        COMMAND ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp --proxy=${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_client_glue.h ${CMAKE_CURRENT_SOURCE_DIR}/anbox/dbus/${BaseName}.xml
         DEPENDS ${CMAKE_BINARY_DIR}/external/sdbus-cpp/tools/sdbus-c++-xml2cpp anbox/dbus/${BaseName}.xml
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ClientGlue.h
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_client_glue.h
         COMMENT "Generating client code for DBUS (${BaseName})"
     )
-    list(APPEND DBUS_GENERATED "${CMAKE_CURRENT_BINARY_DIR}/${BaseName}ClientGlue.h")
+    list(APPEND DBUS_GENERATED "${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_client_glue.h")
 endmacro()
 
 set(DBUS_GENERATED)
 
-DBusServer(ApplicationManager)
-DBusClient(ApplicationManager)
-DBusServer(Sensors)
+DBusServer(application_manager)
+DBusClient(application_manager)
+DBusServer(sensors)
 
 set(SOURCES
     anbox/android/intent.cpp
@@ -176,12 +176,12 @@ set(SOURCES
     anbox/dbus/bus.h
     anbox/dbus/interface.h
     ${DBUS_GENERATED}
-    anbox/dbus/ApplicationManagerServer.cpp
-    anbox/dbus/ApplicationManagerServer.h
-    anbox/dbus/ApplicationManagerClient.cpp
-    anbox/dbus/ApplicationManagerClient.h
-    anbox/dbus/SensorsServer.cpp
-    anbox/dbus/SensorsServer.h
+    anbox/dbus/application_manager_server.cpp
+    anbox/dbus/application_manager_server.h
+    anbox/dbus/application_manager_client.cpp
+    anbox/dbus/application_manager_client.h
+    anbox/dbus/sensors_server.cpp
+    anbox/dbus/sensors_server.h
 
     anbox/graphics/buffered_io_stream.cpp
     anbox/graphics/buffered_io_stream.h

@@ -17,24 +17,23 @@
 
 #include <sdbus-c++/sdbus-c++.h>
 
-#include "ApplicationManagerServerGlue.h"
-#include "anbox/application/manager.h"
+#include "sensors_server_glue.h"
+#include "anbox/application/sensors_state.h"
 
-class ApplicationManagerServer : public sdbus::AdaptorInterfaces<org::anbox::ApplicationManager_adaptor> {
+class SensorsServer : public sdbus::AdaptorInterfaces<org::anbox::Sensors_adaptor> {
  public:
-  ApplicationManagerServer(sdbus::IConnection& connection, std::string objectPath, const std::shared_ptr<anbox::application::Manager>& impl)
-      : sdbus::AdaptorInterfaces<org::anbox::ApplicationManager_adaptor>(connection, std::move(objectPath)), impl_(impl) {
+  SensorsServer(sdbus::IConnection& connection, std::string objectPath, const std::shared_ptr<anbox::application::SensorsState>& impl)
+      : sdbus::AdaptorInterfaces<org::anbox::Sensors_adaptor>(connection, std::move(objectPath)), impl_(impl) {
     registerAdaptor();
   }
 
-  virtual ~ApplicationManagerServer() {
+  virtual ~SensorsServer() {
     unregisterAdaptor();
   }
 
- protected:
-  void Launch(const std::map<std::string, sdbus::Variant>& intentDict, const std::string& arg1) override;
-  bool Ready() override;
+  double Temperature() override;
+  void Temperature(const double& value) override;
 
  private:
-  const std::shared_ptr<anbox::application::Manager> impl_;
+  const std::shared_ptr<anbox::application::SensorsState> impl_;
 };
