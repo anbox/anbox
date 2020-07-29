@@ -1,3 +1,0 @@
-[submodule "external/cpu_features"]
-	path = external/cpu_features
-	url = git@github.com:google/cpu_features.git
