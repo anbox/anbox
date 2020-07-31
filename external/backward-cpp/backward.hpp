@@ -867,7 +867,7 @@ public:
 				return;
 			}
 			_symbols.reset(
-					backtrace_symbols(st.begin(), (int)st.size())
+					backtrace_symbols(st.begin(), static_cast<int>(st.size()))
 					);
 		}
 
