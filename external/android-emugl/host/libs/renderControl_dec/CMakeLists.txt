@@ -7,7 +7,7 @@ PREPEND(GENERATED_SOURCES ${CURRENT_BINARY_DIR}/
 add_custom_command(
     OUTPUT ${GENERATED_SOURCES}
     POST_BUILD
-    COMMAND mkdir -p ${CURRENT_BINARY_DIR} && ${CMAKE_BINARY_DIR}/external/android-emugl/host/tools/emugen/emugen
+    COMMAND mkdir -p ${CURRENT_BINARY_DIR} && ${EMUGEN_GENERATOR}
             -D ${CURRENT_BINARY_DIR} renderControl
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     DEPENDS emugen)

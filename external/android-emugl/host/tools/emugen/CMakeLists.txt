@@ -1,3 +1,7 @@
+if (NOT PROJECT_NAME)
+    project(emugen)
+endif()
+
 if (NOT "${HOST_CMAKE_CXX_COMPILER}" STREQUAL "")
     set (CMAKE_CXX_COMPILER "${HOST_CMAKE_CXX_COMPILER}")
 endif()
@@ -11,3 +15,12 @@ set(SOURCES
     TypeFactory.cpp)
 
 add_executable(emugen ${SOURCES})
+
+# Make sure to install emugen into your sysroot
+if (${PROJECT_NAME} STREQUAL "emugen")
+    install(
+      TARGETS emugen
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+    )
+endif()
