@@ -16,28 +16,55 @@
  */
 
 #include "anbox/qemu/sensors_message_processor.h"
+
+#include <boost/algorithm/string/predicate.hpp>
+#include <chrono>
+#include <iostream>
+#include <thread>
+
 #include "anbox/logger.h"
+
+using namespace std;
 
 namespace anbox {
 namespace qemu {
 SensorsMessageProcessor::SensorsMessageProcessor(
-    const std::shared_ptr<network::SocketMessenger> &messenger)
-    : QemudMessageProcessor(messenger) {}
-
-SensorsMessageProcessor::~SensorsMessageProcessor() {}
-
-void SensorsMessageProcessor::handle_command(const std::string &command) {
-  if (command == "list-sensors") list_sensors();
+    shared_ptr<network::SocketMessenger> messenger, shared_ptr<application::SensorsState> sensorsState)
+    : QemudMessageProcessor(messenger), sensors_state_(sensorsState) {
+  thread_ = std::thread([this]() {
+    for (;;) {
+      if (temperature_.load())
+        send_message("temperature:" + to_string(sensors_state_->temperature));
+      if (!run_thread_.load())
+        break;
+      this_thread::sleep_for(delay_.load() * 1ms);
+    }
+  });
 }
 
-void SensorsMessageProcessor::list_sensors() {
-  // We don't support sensors yet so we mark all as disabled
-  int mask = 0;
-  char buf[12];
-  snprintf(buf, sizeof(buf), "%d", mask);
-  send_header(strlen(buf));
-  messenger_->send(buf, strlen(buf));
+SensorsMessageProcessor::~SensorsMessageProcessor() {
+  run_thread_ = false;
+  thread_.join();
+}
+
+void SensorsMessageProcessor::handle_command(const string &command) {
+  int value;
+  if (command == "list-sensors") {
+    send_message(to_string(SensorType::TemperatureSensor));
+  } else if (sscanf(command.c_str(), "set-delay:%d", &value)) {
+    delay_ = value;
+  } else if (sscanf(command.c_str(), "set:temperature:%d", &value)) {
+    temperature_ = value;
+  } else {
+    ERROR("Unknown command: " + command);
+  }
+}
+
+void SensorsMessageProcessor::send_message(const string &msg) {
+  send_header(msg.length());
+  messenger_->send(msg.c_str(), msg.length());
   finish_message();
 }
+
 }  // namespace qemu
 }  // namespace anbox

@@ -9,6 +9,8 @@ cleanup() {
   if [ -d .git ] ; then
     git clean -fdx .
     git reset --hard
+    git submodule init
+    git submodule update
   fi
 }
 

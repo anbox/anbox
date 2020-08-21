@@ -18,6 +18,9 @@
 #ifndef ANBOX_QEMU_SENSORS_MESSAGE_PROCESSOR_H_
 #define ANBOX_QEMU_SENSORS_MESSAGE_PROCESSOR_H_
 
+#include <thread>
+
+#include "anbox/application/sensors_state.h"
 #include "anbox/qemu/qemud_message_processor.h"
 
 namespace anbox {
@@ -25,16 +28,24 @@ namespace qemu {
 class SensorsMessageProcessor : public QemudMessageProcessor {
  public:
   SensorsMessageProcessor(
-      const std::shared_ptr<network::SocketMessenger> &messenger);
+      std::shared_ptr<network::SocketMessenger> messenger, std::shared_ptr<application::SensorsState> sensorsState);
   ~SensorsMessageProcessor();
 
  protected:
-  void handle_command(const std::string &command) override;
+  void handle_command(const std::string& command) override;
 
  private:
-  void list_sensors();
+  void send_message(const std::string& message);
+  std::shared_ptr<application::SensorsState> sensors_state_;
+  std::atomic<int> delay_ = 200;
+  std::atomic<bool> temperature_ = false;
+  std::atomic<bool> run_thread_ = true;
+  std::thread thread_;
+  enum SensorType {
+    TemperatureSensor = (1 << 3),
+  };
 };
-}  // namespace graphics
+}  // namespace qemu
 }  // namespace anbox
 
 #endif
