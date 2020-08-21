@@ -13,8 +13,8 @@ fi
 # where it can be found
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH/pulseaudio"
 
-# liblxc.so.1 is in $SNAP/lib
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/lib"
+# liblxc.so.1 is in $SNAP/usr/lib
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/lib:$SNAP/usr/lib"
 
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH"
 
