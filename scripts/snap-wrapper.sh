@@ -13,10 +13,10 @@ fi
 # where it can be found
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH/pulseaudio"
 
-# liblxc.so.1 is in $SNAP/usr/lib
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/lib:$SNAP/usr/lib"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/lib"
 
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH"
+# liblxc.so.1 is in /usr/lib/$ARCH-linux-gnu/
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH-linux-gnu/"
 
 # We set XDG_DATA_HOME to SNAP_USER_COMMON here as this will be the location we will
 # create all our application launchers in. The system application launcher will
