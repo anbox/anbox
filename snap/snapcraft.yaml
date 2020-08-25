@@ -155,56 +155,6 @@ parts:
     prime:
       - usr/bin/zip
 
-  lxc:
-    source: https://github.com/lxc/lxc
-    source-type: git
-    source-tag: lxc-3.0.1
-    build-packages:
-      - libapparmor-dev
-      - libcap-dev
-      - libgnutls28-dev
-      - libseccomp-dev
-      - pkg-config
-    plugin: autotools
-    autotools-configure-parameters:
-      - --disable-selinux
-      - --disable-python
-      - --disable-lua
-      - --disable-tests
-      - --disable-examples
-      - --disable-doc
-      - --disable-api-docs
-      - --disable-bash
-      - --disable-cgmanager
-      - --enable-apparmor
-      - --enable-seccomp
-      - --enable-capabilities
-      - --with-rootfs-path=/var/snap/anbox/common/lxc/
-      - --libexecdir=/snap/anbox/current/libexec/
-      - --prefix=/usr/
-    override-build: |
-      set -ex
-      git config user.email "buildbot@anbox.io"
-      git config user.name "Anbox Buildbot"
-      git remote add anbox https://github.com/anbox/lxc
-      git fetch anbox
-      # apparmor: don't require a transition for Anbox child profiles
-      git cherry-pick 2f81fb7c91560b32e506bb874f8cd63e37985906
-      set +ex
-      snapcraftctl build
-    organize:
-      snap/anbox/current/libexec: libexec
-    prime:
-      - usr/lib/liblxc.so.1
-      - usr/lib/liblxc.so.1.4.0
-      - libexec/lxc/lxc-monitord
-      - usr/bin/lxc-start
-      - usr/bin/lxc-stop
-      - usr/bin/lxc-info
-      - usr/bin/lxc-attach
-      - usr/bin/lxc-ls
-      - usr/bin/lxc-top
-
   swiftshader:
     plugin: cmake
     source: https://swiftshader.googlesource.com/SwiftShader
@@ -246,7 +196,6 @@ parts:
   anbox:
     plugin: cmake
     after:
-      - lxc
       - desktop-glib-only
     source: .
     source-type: git
@@ -266,6 +215,7 @@ parts:
       - cmake-extras
       - dbus
       - debhelper
+      - libexpat1-dev
       - google-mock
       - libboost-dev
       - libboost-filesystem-dev
@@ -282,6 +232,7 @@ parts:
       - libglm-dev
       - libgmock-dev
       - libgtest-dev
+      - liblxc-dev
       - libproperties-cpp-dev
       - libprotobuf-dev
       - libsdl2-dev
@@ -302,6 +253,7 @@ parts:
       - libegl1-mesa
       - libgl1-mesa-glx
       - libgles2-mesa
+      - liblxc1
       - libprotobuf-lite17
       - libsdl2-2.0-0
       - libsdl2-gfx-1.0-0
