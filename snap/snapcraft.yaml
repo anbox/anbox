@@ -254,6 +254,7 @@ parts:
       - libgl1-mesa-glx
       - libgles2-mesa
       - liblxc1
+      - lxc
       - libprotobuf-lite17
       - libsdl2-2.0-0
       - libsdl2-gfx-1.0-0
