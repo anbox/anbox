@@ -33,6 +33,8 @@ everything you need to run the full Anbox experience.
 
 ## Install necessary kernel modules
 
+### Before Ubuntu 20.04
+
 In order to add the PPA to your Ubuntu system please run the following commands:
 
 ```
@@ -61,6 +63,27 @@ automatically loaded.
  $ sudo modprobe binder_linux
 ```
 
+### On Ubuntu 20.04
+
+There is no need to install those modules on Ubuntu 20.04. However, you may get an error loading `ashmem_linux` if SecureBoot is enabled:
+
+```
+ $ sudo modprobe ashmem_linux
+ modprobe: ERROR: could not insert 'ashmem_linux': Operation not permitted
+```
+
+You can confirm that SecureBoot is enabled by running the following command:
+
+```
+$ sudo mokutil --sb-state
+SecureBoot enabled
+```
+
+There are two ways around this. One is to disable the SecureBoot: https://wiki.ubuntu.com/UEFI/SecureBoot/DKMS. 
+Following [this post](https://github.com/anbox/anbox/issues/1570), the other way is to sign the `ashmem_linux` kernel module yourself. Note that you may have to enroll your own key, as described [here](https://ubuntu.com/blog/how-to-sign-things-for-secure-boot).
+
+## Verify that kernel modules are loaded
+
 Now you should have two new nodes in your systems `/dev` directory:
 
 ```
@@ -72,7 +95,6 @@ Now you should have two new nodes in your systems `/dev` directory:
 > In Ubuntu 19.10 the binder driver doesn't create /dev/binder when loaded. That is intentional. 
 > Instead it provides support for binderfs (see https://brauner.github.io/2019/01/09/android-binderfs.html) 
 > which is instead since PR anbox/anbox#1309
-
 
 ## Install the Anbox snap
 
