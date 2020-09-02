@@ -39,10 +39,12 @@ class SensorsMessageProcessor : public QemudMessageProcessor {
   std::shared_ptr<application::SensorsState> sensors_state_;
   std::atomic<int> delay_ = 200;
   std::atomic<bool> temperature_ = false;
+  std::atomic<bool> proximity_ = false;
   std::atomic<bool> run_thread_ = true;
   std::thread thread_;
   enum SensorType {
     TemperatureSensor = (1 << 3),
+    ProximitySensor = (1 << 4),
   };
 };
 }  // namespace qemu

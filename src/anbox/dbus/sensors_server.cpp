@@ -27,3 +27,11 @@ double SensorsServer::Temperature() {
 void SensorsServer::Temperature(const double& value) {
   impl_->temperature = value;
 }
+
+double SensorsServer::Proximity() {
+  return impl_->proximity;
+}
+
+void SensorsServer::Proximity(const double& value) {
+  impl_->proximity = value;
+}

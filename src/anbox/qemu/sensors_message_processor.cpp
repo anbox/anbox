@@ -17,6 +17,8 @@
 
 #include "anbox/qemu/sensors_message_processor.h"
 
+#include <fmt/core.h>
+
 #include <boost/algorithm/string/predicate.hpp>
 #include <chrono>
 #include <iostream>
@@ -33,8 +35,16 @@ SensorsMessageProcessor::SensorsMessageProcessor(
     : QemudMessageProcessor(messenger), sensors_state_(sensorsState) {
   thread_ = std::thread([this]() {
     for (;;) {
+      bool atLeastOneEnabled = false;
       if (temperature_.load())
-        send_message("temperature:" + to_string(sensors_state_->temperature));
+        send_message(fmt::format("temperature:{0:.1f}", sensors_state_->temperature)), atLeastOneEnabled = true;
+      if (proximity_.load())
+        send_message(fmt::format("proximity:{0:.2f}", sensors_state_->proximity)), atLeastOneEnabled = true;
+      if (atLeastOneEnabled) {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        send_message(fmt::format("sync:{0:d}", tv.tv_sec * 1000000LL + tv.tv_usec));
+      }
       if (!run_thread_.load())
         break;
       this_thread::sleep_for(delay_.load() * 1ms);
@@ -50,11 +60,13 @@ SensorsMessageProcessor::~SensorsMessageProcessor() {
 void SensorsMessageProcessor::handle_command(const string &command) {
   int value;
   if (command == "list-sensors") {
-    send_message(to_string(SensorType::TemperatureSensor));
+    send_message(to_string(SensorType::TemperatureSensor | SensorType::ProximitySensor));
   } else if (sscanf(command.c_str(), "set-delay:%d", &value)) {
     delay_ = value;
   } else if (sscanf(command.c_str(), "set:temperature:%d", &value)) {
     temperature_ = value;
+  } else if (sscanf(command.c_str(), "set:proximity:%d", &value)) {
+    proximity_ = value;
   } else {
     ERROR("Unknown command: " + command);
   }
@@ -63,7 +75,6 @@ void SensorsMessageProcessor::handle_command(const string &command) {
 void SensorsMessageProcessor::send_message(const string &msg) {
   send_header(msg.length());
   messenger_->send(msg.c_str(), msg.length());
-  finish_message();
 }
 
 }  // namespace qemu

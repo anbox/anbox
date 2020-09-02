@@ -11,8 +11,10 @@ namespace application {
 struct SensorsState : public DoNotCopyOrMove {
   SensorsState() {
     temperature = 25;
+    proximity = 5;
   }
   double temperature;
+  double proximity;
 };
 }  // namespace application
 }  // namespace anbox

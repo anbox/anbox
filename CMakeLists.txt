@@ -62,6 +62,7 @@ find_package(Threads)
 find_package(EGL REQUIRED)
 find_package(GLESv2 REQUIRED)
 find_package(Protobuf REQUIRED)
+find_package(fmt REQUIRED)
 
 pkg_check_modules(SDL2 sdl2 REQUIRED)
 pkg_check_modules(SDL2_IMAGE SDL2_image REQUIRED)

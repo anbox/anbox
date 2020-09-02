@@ -4,5 +4,6 @@
 <node name="/org/anbox">
  <interface name="org.anbox.Sensors">
   <property name="Temperature" type="d" access="readwrite" />
+  <property name="Proximity" type="d" access="readwrite" />
  </interface>
 </node>
