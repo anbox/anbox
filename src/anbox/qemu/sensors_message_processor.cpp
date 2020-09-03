@@ -36,10 +36,14 @@ SensorsMessageProcessor::SensorsMessageProcessor(
   thread_ = std::thread([this]() {
     for (;;) {
       bool atLeastOneEnabled = false;
-      if (temperature_.load())
-        send_message(fmt::format("temperature:{0:.1f}", sensors_state_->temperature)), atLeastOneEnabled = true;
-      if (proximity_.load())
-        send_message(fmt::format("proximity:{0:.2f}", sensors_state_->proximity)), atLeastOneEnabled = true;
+      if (temperature_.load()) {
+        send_message(fmt::format("temperature:{0:.1f}", sensors_state_->temperature));
+        atLeastOneEnabled = true;
+      }
+      if (proximity_.load()) {
+        send_message(fmt::format("proximity:{0:.2f}", sensors_state_->proximity));
+        atLeastOneEnabled = true;
+      }
       if (atLeastOneEnabled) {
         struct timeval tv;
         gettimeofday(&tv, NULL);
