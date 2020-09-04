@@ -44,6 +44,18 @@ SensorsMessageProcessor::SensorsMessageProcessor(
         send_message(fmt::format("proximity:{0:.2f}", sensors_state_->proximity));
         atLeastOneEnabled = true;
       }
+      if (light_.load()) {
+        send_message(fmt::format("light:{0:.2f}", sensors_state_->light));
+        atLeastOneEnabled = true;
+      }
+      if (pressure_.load()) {
+        send_message(fmt::format("pressure:{0:.2f}", sensors_state_->pressure));
+        atLeastOneEnabled = true;
+      }
+      if (humidity_.load()) {
+        send_message(fmt::format("humidity:{0:.2f}", sensors_state_->humidity));
+        atLeastOneEnabled = true;
+      }
       if (atLeastOneEnabled) {
         struct timeval tv;
         gettimeofday(&tv, NULL);
@@ -64,13 +76,25 @@ SensorsMessageProcessor::~SensorsMessageProcessor() {
 void SensorsMessageProcessor::handle_command(const string &command) {
   int value;
   if (command == "list-sensors") {
-    send_message(to_string(SensorType::TemperatureSensor | SensorType::ProximitySensor));
+    uint8_t enabledSensors = 0;
+    enabledSensors |= SensorType::TemperatureSensor;
+    enabledSensors |= SensorType::ProximitySensor;
+    enabledSensors |= SensorType::LightSensor;
+    enabledSensors |= SensorType::PressureSensor;
+    enabledSensors |= SensorType::HumiditySensor;
+    send_message(to_string(enabledSensors));
   } else if (sscanf(command.c_str(), "set-delay:%d", &value)) {
     delay_ = value;
   } else if (sscanf(command.c_str(), "set:temperature:%d", &value)) {
     temperature_ = value;
   } else if (sscanf(command.c_str(), "set:proximity:%d", &value)) {
     proximity_ = value;
+  } else if (sscanf(command.c_str(), "set:light:%d", &value)) {
+    light_ = value;
+  } else if (sscanf(command.c_str(), "set:pressure:%d", &value)) {
+    pressure_ = value;
+  } else if (sscanf(command.c_str(), "set:humidity:%d", &value)) {
+    humidity_ = value;
   } else {
     ERROR("Unknown command: " + command);
   }

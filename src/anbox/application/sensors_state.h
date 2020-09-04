@@ -12,9 +12,15 @@ struct SensorsState : public DoNotCopyOrMove {
   SensorsState() {
     temperature = 25;
     proximity = 5;
+    light = 1240;
+    pressure = 1013.25;
+    humidity = 45.1;
   }
   double temperature;
   double proximity;
+  double light;
+  double pressure;
+  double humidity;
 };
 }  // namespace application
 }  // namespace anbox

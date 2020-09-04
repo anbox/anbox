@@ -35,3 +35,27 @@ double SensorsServer::Proximity() {
 void SensorsServer::Proximity(const double& value) {
   impl_->proximity = value;
 }
+
+double SensorsServer::Light() {
+  return impl_->light;
+}
+
+void SensorsServer::Light(const double& value) {
+  impl_->light = value;
+}
+
+double SensorsServer::Pressure() {
+  return impl_->pressure;
+}
+
+void SensorsServer::Pressure(const double& value) {
+  impl_->pressure = value;
+}
+
+double SensorsServer::Humidity() {
+  return impl_->humidity;
+}
+
+void SensorsServer::Humidity(const double& value) {
+  impl_->humidity = value;
+}

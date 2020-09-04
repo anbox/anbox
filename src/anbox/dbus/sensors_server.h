@@ -35,6 +35,12 @@ class SensorsServer : public sdbus::AdaptorInterfaces<org::anbox::Sensors_adapto
   void Temperature(const double& value) override;
   double Proximity() override;
   void Proximity(const double& value) override;
+  double Light() override;
+  void Light(const double& value) override;
+  double Pressure() override;
+  void Pressure(const double& value) override;
+  double Humidity() override;
+  void Humidity(const double& value) override;
 
  private:
   const std::shared_ptr<anbox::application::SensorsState> impl_;
