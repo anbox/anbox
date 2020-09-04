@@ -10,12 +10,14 @@ namespace anbox {
 namespace application {
 struct SensorsState : public DoNotCopyOrMove {
   SensorsState() {
+    disabled_sensors = 0;
     temperature = 25;
     proximity = 5;
     light = 1240;
     pressure = 1013.25;
     humidity = 45.1;
   }
+  int disabled_sensors;
   double temperature;
   double proximity;
   double light;

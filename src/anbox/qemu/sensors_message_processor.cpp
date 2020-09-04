@@ -24,9 +24,11 @@
 #include <iostream>
 #include <thread>
 
+#include "anbox/application/sensor_type.h"
 #include "anbox/logger.h"
 
 using namespace std;
+using namespace anbox::application;
 
 namespace anbox {
 namespace qemu {
@@ -82,6 +84,7 @@ void SensorsMessageProcessor::handle_command(const string &command) {
     enabledSensors |= SensorType::LightSensor;
     enabledSensors |= SensorType::PressureSensor;
     enabledSensors |= SensorType::HumiditySensor;
+    enabledSensors &= ~sensors_state_->disabled_sensors;
     send_message(to_string(enabledSensors));
   } else if (sscanf(command.c_str(), "set-delay:%d", &value)) {
     delay_ = value;

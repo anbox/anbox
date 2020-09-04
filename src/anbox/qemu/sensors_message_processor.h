@@ -45,13 +45,6 @@ class SensorsMessageProcessor : public QemudMessageProcessor {
   std::atomic<bool> humidity_ = false;
   std::atomic<bool> run_thread_ = true;
   std::thread thread_;
-  enum SensorType {
-    TemperatureSensor = (1 << 3),
-    ProximitySensor = (1 << 4),
-    LightSensor = (1 << 5),
-    PressureSensor = (1 << 6),
-    HumiditySensor = (1 << 7),
-  };
 };
 }  // namespace qemu
 }  // namespace anbox
