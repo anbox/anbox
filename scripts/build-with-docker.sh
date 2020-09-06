@@ -1,3 +1,3 @@
 #!/bin/sh
 docker build -t anbox/anbox-builder .
-docker run --rm -v $PWD:/anbox anbox/anbox-builder /anbox/scripts/clean-build.sh
+docker run --rm --user=$(id -u):$(id -g) --volume=$PWD:/anbox anbox/anbox-builder /anbox/scripts/clean-build.sh
