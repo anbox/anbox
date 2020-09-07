@@ -228,16 +228,8 @@ anbox::cmds::SessionManager::SessionManager()
     auto sensors_state = std::make_shared<application::SensorsState>();
     std::stringstream disabled_sensors_stream(disabled_sensors_);
     std::string disabled_sensor_name;
-    std::map<std::string, application::SensorType> nameToType;
-    nameToType["temperature"] = application::SensorType::TemperatureSensor;
-    nameToType["proximity"] = application::SensorType::ProximitySensor;
-    nameToType["light"] = application::SensorType::LightSensor;
-    nameToType["pressure"] = application::SensorType::PressureSensor;
-    nameToType["humidity"] = application::SensorType::HumiditySensor;
     while (std::getline(disabled_sensors_stream, disabled_sensor_name, ',')) {
-      if (nameToType.find(disabled_sensor_name) != nameToType.end()) {
-        sensors_state->disabled_sensors |= nameToType[disabled_sensor_name];
-      }
+      sensors_state->disabled_sensors |= application::SensorTypeHelper::FromString(disabled_sensor_name);
     }
 
     // The qemu pipe is used as a very fast communication channel between guest

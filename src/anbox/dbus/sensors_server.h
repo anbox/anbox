@@ -17,8 +17,8 @@
 
 #include <sdbus-c++/sdbus-c++.h>
 
-#include "sensors_server_glue.h"
 #include "anbox/application/sensors_state.h"
+#include "sensors_server_glue.h"
 
 class SensorsServer : public sdbus::AdaptorInterfaces<org::anbox::Sensors_adaptor> {
  public:
@@ -31,6 +31,12 @@ class SensorsServer : public sdbus::AdaptorInterfaces<org::anbox::Sensors_adapto
     unregisterAdaptor();
   }
 
+  sdbus::Struct<double, double, double> Acceleration() override;
+  void Acceleration(const sdbus::Struct<double, double, double>& value) override;
+  sdbus::Struct<double, double, double> MagneticField() override;
+  void MagneticField(const sdbus::Struct<double, double, double>& value) override;
+  sdbus::Struct<double, double, double> Orientation() override;
+  void Orientation(const sdbus::Struct<double, double, double>& value) override;
   double Temperature() override;
   void Temperature(const double& value) override;
   double Proximity() override;

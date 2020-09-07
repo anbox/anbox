@@ -22,6 +22,42 @@
 #include "anbox/logger.h"
 #include "sdbus-c++/Error.h"
 
+sdbus::Struct<double, double, double> SensorsServer::Acceleration() {
+  if (impl_->disabled_sensors & anbox::application::SensorType::AccelerationSensor)
+    throw sdbus::Error("org.anbox.SensorDisabled", "Acceleration sensor is disabled");
+  return sdbus::Struct<double, double, double>(impl_->acceleration);
+}
+
+void SensorsServer::Acceleration(const sdbus::Struct<double, double, double>& value) {
+  if (impl_->disabled_sensors & anbox::application::SensorType::AccelerationSensor)
+    throw sdbus::Error("org.anbox.SensorDisabled", "Acceleration sensor is disabled");
+  impl_->acceleration = value;
+}
+
+sdbus::Struct<double, double, double> SensorsServer::MagneticField() {
+  if (impl_->disabled_sensors & anbox::application::SensorType::MagneticFieldSensor)
+    throw sdbus::Error("org.anbox.SensorDisabled", "MagneticField sensor is disabled");
+  return sdbus::Struct<double, double, double>(impl_->magneticField);
+}
+
+void SensorsServer::MagneticField(const sdbus::Struct<double, double, double>& value) {
+  if (impl_->disabled_sensors & anbox::application::SensorType::MagneticFieldSensor)
+    throw sdbus::Error("org.anbox.SensorDisabled", "MagneticField sensor is disabled");
+  impl_->magneticField = value;
+}
+
+sdbus::Struct<double, double, double> SensorsServer::Orientation() {
+  if (impl_->disabled_sensors & anbox::application::SensorType::OrientationSensor)
+    throw sdbus::Error("org.anbox.SensorDisabled", "Orientation sensor is disabled");
+  return sdbus::Struct<double, double, double>(impl_->orientation);
+}
+
+void SensorsServer::Orientation(const sdbus::Struct<double, double, double>& value) {
+  if (impl_->disabled_sensors & anbox::application::SensorType::OrientationSensor)
+    throw sdbus::Error("org.anbox.SensorDisabled", "Orientation sensor is disabled");
+  impl_->orientation = value;
+}
+
 double SensorsServer::Temperature() {
   if (impl_->disabled_sensors & anbox::application::SensorType::TemperatureSensor)
     throw sdbus::Error("org.anbox.SensorDisabled", "Temperature sensor is disabled");
