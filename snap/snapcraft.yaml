@@ -288,6 +288,7 @@ parts:
       - libsdl2-image-dev
       - libsystemd-dev
       - libx11-xcb-dev
+      - libexpat1-dev
       - pkg-config
       - protobuf-compiler
       - python2
