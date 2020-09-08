@@ -45,8 +45,8 @@ start() {
 	# Ensure FUSE support for user namespaces is enabled
 	echo Y | tee /sys/module/fuse/parameters/userns_mounts || echo "WARNING: kernel doesn't support fuse in user namespaces"
 
-	# liblxc.so.1 is in $SNAP/lib
-	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/liblxc"
+	# liblxc.so.1 is in $SNAP/usr/lib/$ARCH-linux-gnu
+	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH-linux-gnu"
 
 	# For unknown reason we got bug reports that the container manager failed to start
 	# because it cannot find libboost_log.so.1.58.0 To mitigate this we're adding the
