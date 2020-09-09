@@ -33,6 +33,25 @@ everything you need to run the full Anbox experience.
 
 ## Install necessary kernel modules
 
+### On Ubuntu 20.04
+
+There is no need to install those modules on Ubuntu 20.04. However, you may get an error loading `ashmem_linux` if SecureBoot is enabled:
+
+```
+ $ sudo modprobe ashmem_linux
+ modprobe: ERROR: could not insert 'ashmem_linux': Operation not permitted
+```
+
+You can confirm that SecureBoot is enabled by running the following command:
+
+```
+$ sudo mokutil --sb-state
+SecureBoot enabled
+```
+
+There are two ways around this. One is to disable the SecureBoot: https://wiki.ubuntu.com/UEFI/SecureBoot/DKMS. 
+Following [this post](https://github.com/anbox/anbox/issues/1570), the other way is to sign the `ashmem_linux` kernel module yourself. Note that you may have to enroll your own key, as described [here](https://ubuntu.com/blog/how-to-sign-things-for-secure-boot).
+
 ### Before Ubuntu 20.04
 
 In order to add the PPA to your Ubuntu system please run the following commands:
@@ -62,25 +81,6 @@ automatically loaded.
  $ sudo modprobe ashmem_linux
  $ sudo modprobe binder_linux
 ```
-
-### On Ubuntu 20.04
-
-There is no need to install those modules on Ubuntu 20.04. However, you may get an error loading `ashmem_linux` if SecureBoot is enabled:
-
-```
- $ sudo modprobe ashmem_linux
- modprobe: ERROR: could not insert 'ashmem_linux': Operation not permitted
-```
-
-You can confirm that SecureBoot is enabled by running the following command:
-
-```
-$ sudo mokutil --sb-state
-SecureBoot enabled
-```
-
-There are two ways around this. One is to disable the SecureBoot: https://wiki.ubuntu.com/UEFI/SecureBoot/DKMS. 
-Following [this post](https://github.com/anbox/anbox/issues/1570), the other way is to sign the `ashmem_linux` kernel module yourself. Note that you may have to enroll your own key, as described [here](https://ubuntu.com/blog/how-to-sign-things-for-secure-boot).
 
 ## Verify that kernel modules are loaded
 
