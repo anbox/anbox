@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright: 2020 Tomasz Grobelny <tomasz@grobelny.net> -->
+<!-- SPDX-License-Identifier: MIT -->
+<node name="/org/anbox">
+ <interface name="org.anbox.Gps">
+  <method name="PushSentence">
+   <arg name="sentence" direction="in" type="s"/>
+  </method>
+ </interface>
+</node>

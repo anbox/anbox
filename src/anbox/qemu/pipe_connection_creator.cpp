@@ -30,6 +30,7 @@
 #include "anbox/qemu/null_message_processor.h"
 #include "anbox/qemu/pipe_connection_creator.h"
 #include "anbox/qemu/sensors_message_processor.h"
+#include "anbox/qemu/gps_message_processor.h"
 
 namespace ba = boost::asio;
 
@@ -55,6 +56,8 @@ std::string client_type_to_string(
       return "adb";
     case anbox::qemu::PipeConnectionCreator::client_type::bootanimation:
       return "boot-animation";
+    case anbox::qemu::PipeConnectionCreator::client_type::qemud_gps:
+      return "gps";
     case anbox::qemu::PipeConnectionCreator::client_type::invalid:
       break;
     default:
@@ -65,10 +68,11 @@ std::string client_type_to_string(
 }
 namespace anbox {
 namespace qemu {
-PipeConnectionCreator::PipeConnectionCreator(std::shared_ptr<Renderer> renderer, std::shared_ptr<Runtime> rt, std::shared_ptr<anbox::application::SensorsState> sensors_state)
+PipeConnectionCreator::PipeConnectionCreator(std::shared_ptr<Renderer> renderer, std::shared_ptr<Runtime> rt, std::shared_ptr<anbox::application::SensorsState> sensors_state, std::shared_ptr<anbox::application::GpsInfoBroker> gpsInfoBroker)
     : renderer_(renderer),
       runtime_(rt),
       sensors_state_(sensors_state),
+      gps_info_broker_(gpsInfoBroker),
       next_connection_id_(0),
       connections_(
           std::make_shared<network::Connections<network::SocketConnection>>()) {
@@ -133,6 +137,8 @@ PipeConnectionCreator::client_type PipeConnectionCreator::identify_client(
     return client_type::bootanimation;
   else if (utils::string_starts_with(identifier_and_args, "pipe:qemud:adb"))
     return client_type::qemud_adb;
+  else if (utils::string_starts_with(identifier_and_args, "pipe:qemud:gps"))
+    return client_type::qemud_gps;
 
   return client_type::invalid;
 }
@@ -157,6 +163,8 @@ PipeConnectionCreator::create_processor(
     return std::make_shared<qemu::GsmMessageProcessor>(messenger);
   else if (type == client_type::qemud_adb)
     return std::make_shared<qemu::AdbMessageProcessor>(runtime_, messenger);
+  else if (type == client_type::qemud_gps)
+    return std::make_shared<qemu::GpsMessageProcessor>(messenger, gps_info_broker_);
 
   return std::make_shared<qemu::NullMessageProcessor>();
 }

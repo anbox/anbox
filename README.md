@@ -108,7 +108,7 @@ $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
     libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
     pkg-config protobuf-compiler python-minimal
 ```
-We recommend Ubuntu 18.04 (bionic) with **GCC 7.x** as your build environment.
+We recommend Ubuntu 20.04 (focal) with **GCC 7.x** as your build environment.
 
 
 ### Build
