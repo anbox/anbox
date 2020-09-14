@@ -53,10 +53,10 @@ class PipeConnectionCreator
     qemud_sensors,
     qemud_camera,
     qemud_fingerprint,
+    qemud_gps,
     qemud_gsm,
     qemud_adb,
     bootanimation,
-    qemud_gps,
   };
 
  private:
