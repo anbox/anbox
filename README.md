@@ -117,7 +117,7 @@ We recommend Ubuntu 18.04 (bionic) with **GCC 7.x** as your build environment.
 Afterwards you can build Anbox with
 
 ```
-$ git clone https://github.com/anbox/anbox.git
+$ git clone https://github.com/anbox/anbox.git --recurse-submodules
 $ cd anbox
 $ mkdir build
 $ cd build
