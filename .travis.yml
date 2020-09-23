@@ -6,4 +6,4 @@ services:
   - docker
 
 script:
-  - scripts/build-with-docker.sh
+  - scripts/build-with-docker.sh --clean
