@@ -24,6 +24,7 @@
 #include "anbox/application/database.h"
 #include "anbox/application/launcher_storage.h"
 #include "anbox/application/sensors_state.h"
+#include "anbox/application/gps_info_broker.h"
 #include "anbox/audio/server.h"
 #include "anbox/bridge/android_api_stub.h"
 #include "anbox/bridge/platform_api_skeleton.h"
@@ -32,6 +33,7 @@
 #include "anbox/common/dispatcher.h"
 #include "anbox/container/client.h"
 #include "anbox/dbus/application_manager_server.h"
+#include "anbox/dbus/gps_server.h"
 #include "anbox/dbus/sensors_server.h"
 #include "anbox/dbus/bus.h"
 #include "anbox/dbus/interface.h"
@@ -220,13 +222,14 @@ anbox::cmds::SessionManager::SessionManager()
     const auto socket_path = SystemConfiguration::instance().socket_dir();
 
     auto sensors_state = std::make_shared<application::SensorsState>();
+    auto gps_info_broker = std::make_shared<application::GpsInfoBroker>();
 
     // The qemu pipe is used as a very fast communication channel between guest
     // and host for things like the GLES emulation/translation, the RIL or ADB.
     auto qemu_pipe_connector =
         std::make_shared<network::PublishedSocketConnector>(
             utils::string_format("%s/qemu_pipe", socket_path), rt,
-            std::make_shared<qemu::PipeConnectionCreator>(gl_server->renderer(), rt, sensors_state));
+            std::make_shared<qemu::PipeConnectionCreator>(gl_server->renderer(), rt, sensors_state, gps_info_broker));
 
     boost::asio::deadline_timer appmgr_start_timer(rt->service());
 
@@ -295,6 +298,7 @@ anbox::cmds::SessionManager::SessionManager()
                           : sdbus::createSessionBusConnection(dbus::interface::Service::name());
     ApplicationManagerServer appManagerServer(*connection, dbus::interface::Service::path(), app_manager);
     SensorsServer sensorsServer(*connection, dbus::interface::Service::path(), sensors_state);
+    GpsServer gpsServer(*connection, dbus::interface::Service::path(), gps_info_broker);
     connection->enterEventLoopAsync();
 
     rt->start();
