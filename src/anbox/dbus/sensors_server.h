@@ -15,6 +15,9 @@
  *
  */
 
+#ifndef ANBOX_DBUS_SENSORS_SERVER_H_
+#define ANBOX_DBUS_SENSORS_SERVER_H_
+
 #include <sdbus-c++/sdbus-c++.h>
 
 #include "anbox/application/sensors_state.h"
@@ -51,3 +54,5 @@ class SensorsServer : public sdbus::AdaptorInterfaces<org::anbox::Sensors_adapto
  private:
   const std::shared_ptr<anbox::application::SensorsState> impl_;
 };
+
+#endif
