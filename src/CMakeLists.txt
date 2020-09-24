@@ -397,7 +397,6 @@ target_link_libraries(anbox-core
   pthread
   process-cpp
   emugl_common
-  fmt::fmt
   GLESv1_dec
   GLESv2_dec
   renderControl_dec

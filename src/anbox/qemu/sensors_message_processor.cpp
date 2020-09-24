@@ -17,9 +17,6 @@
 
 #include "anbox/qemu/sensors_message_processor.h"
 
-#include <fmt/core.h>
-#include <fmt/format.h>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <chrono>
@@ -32,18 +29,12 @@
 using namespace std;
 using namespace anbox::application;
 
-template <>
-struct fmt::formatter<std::tuple<double, double, double>> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx) {
-    return ctx.begin();
-  }
-
-  template <typename FormatContext>
-  auto format(std::tuple<double, double, double> const& tuple, FormatContext& ctx) {
-    return fmt::format_to(ctx.out(), "{0:f}:{1:f}:{2:f}", std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
-  }
-};
+namespace std {
+std::ostream& operator<<(std::ostream& os, std::tuple<double, double, double> t) {
+  os << std::get<0>(t) << ":" << std::get<1>(t) << ":" << std::get<2>(t);
+  return os;
+}
+};  // namespace std
 
 namespace anbox {
 namespace qemu {
@@ -55,25 +46,25 @@ SensorsMessageProcessor::SensorsMessageProcessor(
     for (;;) {
       auto enabledSensors = enabledSensors_.load();
       if (enabledSensors & SensorType::AccelerationSensor)
-        send_message(fmt::format("acceleration:{0}", sensors_state_->acceleration));
+        send_message(utils::string_format("acceleration:%1%", sensors_state_->acceleration));
       if (enabledSensors & SensorType::MagneticFieldSensor)
-        send_message(fmt::format("magnetic:{0}", sensors_state_->magneticField));
+        send_message(utils::string_format("magnetic:%1%", sensors_state_->magneticField));
       if (enabledSensors & SensorType::OrientationSensor)
-        send_message(fmt::format("orientation:{0}", sensors_state_->orientation));
+        send_message(utils::string_format("orientation:%1%", sensors_state_->orientation));
       if (enabledSensors & SensorType::TemperatureSensor)
-        send_message(fmt::format("temperature:{0}", sensors_state_->temperature));
+        send_message(utils::string_format("temperature:%1%", sensors_state_->temperature));
       if (enabledSensors & SensorType::ProximitySensor)
-        send_message(fmt::format("proximity:{0}", sensors_state_->proximity));
+        send_message(utils::string_format("proximity:%1%", sensors_state_->proximity));
       if (enabledSensors & SensorType::LightSensor)
-        send_message(fmt::format("light:{0}", sensors_state_->light));
+        send_message(utils::string_format("light:%1%", sensors_state_->light));
       if (enabledSensors & SensorType::PressureSensor)
-        send_message(fmt::format("pressure:{0}", sensors_state_->pressure));
+        send_message(utils::string_format("pressure:%1%", sensors_state_->pressure));
       if (enabledSensors & SensorType::HumiditySensor)
-        send_message(fmt::format("humidity:{0}", sensors_state_->humidity));
+        send_message(utils::string_format("humidity:%1%", sensors_state_->humidity));
       if (enabledSensors) {
         struct timeval tv;
         gettimeofday(&tv, NULL);
-        send_message(fmt::format("sync:{0:d}", tv.tv_sec * 1000000LL + tv.tv_usec));
+        send_message(utils::string_format("sync:%d", tv.tv_sec * 1000000LL + tv.tv_usec));
       }
       if (!run_thread_.load())
         break;

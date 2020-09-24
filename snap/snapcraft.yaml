@@ -278,7 +278,6 @@ parts:
       - libcap-dev
       - libdbus-1-dev
       - libegl1-mesa-dev
-      - libfmt-dev
       - libgles2-mesa-dev
       - libglm-dev
       - libgmock-dev
