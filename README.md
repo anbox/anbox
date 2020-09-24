@@ -17,14 +17,13 @@ In general the following chapter structure should be kept to have a common theme
     &nbsp;
 -->
 
-[![Snap Status](https://build.snapcraft.io/badge/anbox/anbox.svg)](https://build.snapcraft.io/user/anbox/anbox)
+<!--does not work: [![Snap Status](https://build.snapcraft.io/badge/anbox/anbox.svg)](https://build.snapcraft.io/user/anbox/anbox)-->
 [![Build Status](https://travis-ci.org/anbox/anbox.svg?branch=master)](https://travis-ci.org/anbox/anbox)
 
 Anbox is a container-based approach to boot a virtual Android device on a regular GNU/Linux operating system. In other words: Anbox will let you seamlessly run Android applications on your Linux system.
 
 Anbox uses an LXC Container to run a modified **Android 7.1.1 (nougat)** image based on the [Android Open Source Project](https://source.android.com/).
 
-**Additional Resources**: [Anbox Features and Limitations](docs/architecture.md#features-and-limitations), [Android Modifications](docs/android.md#modifications), [Build your own Anbox Android](docs/build.md#android-image)
 ____
 &nbsp;
 
@@ -58,7 +57,7 @@ $ sudo modprobe binder_linux ashmem_linux
 ____
 &nbsp;
 
-### **Build Instructions** 
+## **Build Instructions** 
 We use `cmake` and `make` to build Anbox. If you have a docker installation available, please consider using the provided image to build Anbox. All dependencies are provided and the project can be built with a single script call:
 ```
 scripts/build-with-docker.sh
@@ -83,12 +82,12 @@ ____
 ____
 &nbsp;
 
-## Get in Touch
+## **Get in Touch**
 If you want to get in contact with the developers please feel free to join the
 *#anbox* IRC channel on [Freenode](https://freenode.net/) or join our [Telegram Chat](https://t.me/anbox).
 
 
-## Copyright and Licensing
+## **Copyright and Licensing**
 Anbox reuses code from other projects like the Android QEMU emulator. These
 projects are available in the `external/` subdirectory with the licensing terms
 included.
