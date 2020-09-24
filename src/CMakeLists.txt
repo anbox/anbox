@@ -86,6 +86,7 @@ set(DBUS_GENERATED)
 DBusServer(application_manager)
 DBusClient(application_manager)
 DBusServer(sensors)
+DBusServer(gps)
 
 set(SOURCES
     anbox/android/intent.cpp
@@ -185,6 +186,8 @@ set(SOURCES
     anbox/dbus/application_manager_client.h
     anbox/dbus/sensors_server.cpp
     anbox/dbus/sensors_server.h
+    anbox/dbus/gps_server.cpp
+    anbox/dbus/gps_server.h
 
     anbox/graphics/buffered_io_stream.cpp
     anbox/graphics/buffered_io_stream.h
@@ -311,6 +314,8 @@ set(SOURCES
     anbox/qemu/camera_message_processor.h
     anbox/qemu/fingerprint_message_processor.cpp
     anbox/qemu/fingerprint_message_processor.h
+    anbox/qemu/gps_message_processor.cpp
+    anbox/qemu/gps_message_processor.h
     anbox/qemu/gsm_message_processor.cpp
     anbox/qemu/gsm_message_processor.h
     anbox/qemu/hwcontrol_message_processor.cpp

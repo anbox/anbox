@@ -278,6 +278,7 @@ parts:
       - libcap-dev
       - libdbus-1-dev
       - libegl1-mesa-dev
+      - libexpat1-dev
       - libgles2-mesa-dev
       - libglm-dev
       - libgmock-dev
@@ -312,7 +313,6 @@ parts:
       - usr/share/anbox
       - usr/lib/*-linux-*/
     override-build: |
-      snapcraftctl set-grade stable
       rev=$(cd "$SNAPCRAFT_PART_SRC_WORK" ; git rev-parse --short HEAD)
       snapcraftctl set-version 4+gitr"$rev"
       # HACK: for some reason, snapcraft puts a copy of the source code

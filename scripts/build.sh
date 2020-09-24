@@ -2,7 +2,8 @@
 
 set -ex
 
-cleanup() {
+# optional clean up
+if [ "$1" = "--clean" ] ; then
   # In cases where anbox comes directly from a checked out Android
   # build environment we miss some symlinks which are present on
   # the host and don't have a valid git repository in that case.
@@ -12,9 +13,7 @@ cleanup() {
     git submodule init
     git submodule update
   fi
-}
-
-cleanup
+fi
 
 mkdir build || rm -rf build/*
 cd build
