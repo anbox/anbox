@@ -78,7 +78,7 @@ ____
 * [Command Line Interface](docs/cli.md)
   * [Container Manager](docs/cli.md#container-manager)
   * [Session Manager](docs/cli.md#session-manager)
-  * [Launch Applications](docs/cli.md#session-manager)
+  * [Launch Applications](docs/cli.md#launching-applications)
 ____
 &nbsp;
 
