@@ -23,7 +23,6 @@ RUN apt-get update && \
   libcap-dev \
   libegl1-mesa-dev \
   libexpat1-dev \
-  libfmt-dev \
   libgles2-mesa-dev \
   libglm-dev \
   libgtest-dev \

@@ -87,7 +87,6 @@ system:
  * libboost-test
  * libboost-thread
  * libcap
- * libfmt
  * libsystemd
  * mesa (libegl1, libgles2)
  * libglm
