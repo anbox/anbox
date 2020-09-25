@@ -9,24 +9,23 @@ Questions this doc should answer:
 
 In general the following chapter structure should be kept to have a common theme.
 
+    ____
+    &nbsp;
     # title
     content **important**
 
-    **Additional Resources**: [link name](dir/file.md#chapter), ...
-    ____
-    &nbsp;
+    **Additional Resources**: [link name](dir/file.md#chapter), ...    
 -->
 
-<!--does not work: [![Snap Status](https://build.snapcraft.io/badge/anbox/anbox.svg)](https://build.snapcraft.io/user/anbox/anbox)-->
 [![Build Status](https://travis-ci.org/anbox/anbox.svg?branch=master)](https://travis-ci.org/anbox/anbox)
 
-Anbox is a container-based approach to boot a virtual Android device on a regular GNU/Linux operating system. In other words: Anbox will let you seamlessly run Android applications on your Linux system.
+<!-- Basic Introduction -->
+Anbox is a container-based approach to boot a virtual Android 7.1.1 (nougat) device on a regular GNU/Linux operating system. We use [LXC](https://linuxcontainers.org/) to run a modified [Android Open Source Project](https://source.android.com/) without the overhead of a hypervisor virtualization. 
 
-Anbox uses an LXC Container to run a modified **Android 7.1.1 (nougat)** image based on the [Android Open Source Project](https://source.android.com/).
+In other words: Anbox will let you seamlessly run your favourite Android apps on your Linux computer.
 
 ____
 &nbsp;
-
 ## **Installation**
 We are distributing Anbox with [snap](https://snapcraft.io) packages:
 ```sh
@@ -54,9 +53,9 @@ $ sudo modprobe binder_linux ashmem_linux
 -->
 
 **Additional Resources**: [Kernel Modules](docs/architecture.md#kernel-modules).
+
 ____
 &nbsp;
-
 ## **Build Instructions** 
 We use `cmake` and `make` to build Anbox. If you have a docker installation available, please consider using the provided image to build Anbox. All dependencies are provided and the project can be built with a single script call:
 ```
@@ -64,13 +63,10 @@ scripts/build-with-docker.sh
 ```
 
 **Additional Resources**: [Build from Source](docs/build.md)
+
 ____
 &nbsp;
-
 ## **Documentation**
-<!--  table of contents
-  - only skeleton for now
--->
 * [Architecture](docs/architecture.md)
   * [Container Lifecycle](docs/architecture.md#container-lifecycle)
   * [Kernel Modules](docs/architecture.md#kernel-modules)
@@ -79,9 +75,9 @@ ____
   * [Container Manager](docs/cli.md#container-manager)
   * [Session Manager](docs/cli.md#session-manager)
   * [Launch Applications](docs/cli.md#launching-applications)
+
 ____
 &nbsp;
-
 ## **Get in Touch**
 If you want to get in contact with the developers please feel free to join the
 *#anbox* IRC channel on [Freenode](https://freenode.net/) or join our [Telegram Chat](https://t.me/anbox).
