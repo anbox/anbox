@@ -3,6 +3,13 @@
 <!-- SPDX-License-Identifier: MIT -->
 <node name="/org/anbox">
  <interface name="org.anbox.Sensors">
+  <property name="Acceleration" type="(ddd)" access="readwrite" />
+  <property name="MagneticField" type="(ddd)" access="readwrite" />
+  <property name="Orientation" type="(ddd)" access="readwrite" />
   <property name="Temperature" type="d" access="readwrite" />
+  <property name="Proximity" type="d" access="readwrite" />
+  <property name="Light" type="d" access="readwrite" />
+  <property name="Pressure" type="d" access="readwrite" />
+  <property name="Humidity" type="d" access="readwrite" />
  </interface>
 </node>

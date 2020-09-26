@@ -15,14 +15,17 @@
  *
  */
 
+#include <boost/algorithm/string/split.hpp>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-default"
-#include <boost/filesystem.hpp>
-
 #include <sys/prctl.h>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 #include "anbox/application/database.h"
 #include "anbox/application/launcher_storage.h"
+#include "anbox/application/sensor_type.h"
 #include "anbox/application/sensors_state.h"
 #include "anbox/application/gps_info_broker.h"
 #include "anbox/audio/server.h"
@@ -37,6 +40,7 @@
 #include "anbox/dbus/sensors_server.h"
 #include "anbox/dbus/bus.h"
 #include "anbox/dbus/interface.h"
+#include "anbox/dbus/sensors_server.h"
 #include "anbox/graphics/emugl/Renderer.h"
 #include "anbox/graphics/gl_renderer_server.h"
 #include "anbox/input/manager.h"
@@ -121,6 +125,9 @@ anbox::cmds::SessionManager::SessionManager()
   flag(cli::make_flag(cli::Name{"server-side-decoration"},
                       cli::Description{"Prefer to use server-side decoration instead of client-side decoration"},
                       server_side_decoration_));
+  flag(cli::make_flag(cli::Name{"disabled-sensors"},
+                      cli::Description{"Sensors to disable, comma delimited"},
+                      disabled_sensors_));
 
   action([this](const cli::Command::Context &) {
     auto trap = core::posix::trap_signals_for_process(
@@ -222,6 +229,11 @@ anbox::cmds::SessionManager::SessionManager()
     const auto socket_path = SystemConfiguration::instance().socket_dir();
 
     auto sensors_state = std::make_shared<application::SensorsState>();
+    std::stringstream disabled_sensors_stream(disabled_sensors_);
+    std::string disabled_sensor_name;
+    while (std::getline(disabled_sensors_stream, disabled_sensor_name, ',')) {
+      sensors_state->disabled_sensors |= application::SensorTypeHelper::FromString(disabled_sensor_name);
+    }
     auto gps_info_broker = std::make_shared<application::GpsInfoBroker>();
 
     // The qemu pipe is used as a very fast communication channel between guest

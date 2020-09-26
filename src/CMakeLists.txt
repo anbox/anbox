@@ -99,6 +99,8 @@ set(SOURCES
     anbox/application/launcher_storage.cpp
     anbox/application/launcher_storage.h
     anbox/application/manager.h
+    anbox/application/sensor_type.cpp
+    anbox/application/sensor_type.h
 
     anbox/audio/client_info.h
     anbox/audio/server.cpp

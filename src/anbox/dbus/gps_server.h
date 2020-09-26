@@ -15,6 +15,9 @@
  *
  */
 
+#ifndef ANBOX_DBUS_GPS_SERVER_H_
+#define ANBOX_DBUS_GPS_SERVER_H_
+
 #include <sdbus-c++/sdbus-c++.h>
 
 #include "gps_server_glue.h"
@@ -36,3 +39,5 @@ class GpsServer : public sdbus::AdaptorInterfaces<org::anbox::Gps_adaptor> {
  private:
   const std::shared_ptr<anbox::application::GpsInfoBroker> gps_info_broker_;
 };
+
+#endif

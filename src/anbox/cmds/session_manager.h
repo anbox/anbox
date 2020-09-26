@@ -44,6 +44,7 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
 
   std::shared_ptr<container::Client> container_;
   std::string desktop_file_hint_;
+  std::string disabled_sensors_;
   bool single_window_ = false;
   graphics::Rect window_size_;
   bool standalone_ = false;
