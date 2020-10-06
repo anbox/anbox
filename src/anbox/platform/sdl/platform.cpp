@@ -54,6 +54,12 @@ Platform::Platform(
   SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
 #endif
 
+#ifdef SDL_HINT_TOUCH_MOUSE_EVENTS
+  // Don't emulate mouse events from touch, we're handling touch ourselves.
+  // Available since SDL 2.0.10
+  SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+#endif
+
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) {
     const auto message = utils::string_format("Failed to initialize SDL: %s", SDL_GetError());
     BOOST_THROW_EXCEPTION(std::runtime_error(message));
