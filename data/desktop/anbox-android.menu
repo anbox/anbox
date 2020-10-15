@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+"http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+<Menu>
+	<Name>Applications</Name>
+	<Menu>
+		<Name>anbox-android</Name>
+		<Directory>anbox-android.directory</Directory>
+		<Include>
+			<Or>
+				<Category>Anbox</Category>
+				<Filename>appmgr.desktop</Filename>
+			</Or>
+		</Include>
+	</Menu>
+</Menu>
