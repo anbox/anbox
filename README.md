@@ -50,7 +50,7 @@ At the moment we officially support the following Linux distributions:
  * Ubuntu 20.04 (focal)
 
 However all other distributions supporting snap packages should work as
-well as long as they provide the mandatory kernel modules (see kernel/).
+well as long as they provide the mandatory kernel modules (see [documentation](https://github.com/anbox/anbox/blob/master/docs/install.md#install-necessary-kernel-modules)).
 
 ## Install and Run Android Applications
 
