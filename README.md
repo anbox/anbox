@@ -21,7 +21,8 @@ We officially support **Ubuntu 18.04 (bionic)** and **Ubuntu 20.04 (focal)** as 
 ### **Kernel Modules**
 Anbox requires [ashmem](https://elinux.org/Android_Kernel_Features#ashmem) and [binder](https://elinux.org/Android_Binder) for the Android subsystem. You can test wether they are available by executing:
 ```sh
-$ sudo modprobe binder_linux ashmem_linux
+$ sudo modprobe binder_linux
+$ sudo modprobe ashmem_linux
 ```
 Ubuntu includes them since version 18.04.4. If your Kernel does not have the modules included for whatever reason, you can use our unmaintained [Kernel Modules](https://github.com/anbox/anbox-modules).
 
