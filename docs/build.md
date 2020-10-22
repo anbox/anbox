@@ -53,15 +53,28 @@ ____
 ## **Run Anbox**
 To run the compiled binaries, you will need an Android image.
 You can build one yourself with [this guide](docs/build-android.md) or download a precompiled image: [build.anbox.io/android-images](https://build.anbox.io/android-images/).
-
-
 ```sh
 # download latest prebuilt android image
 $ wget build.anbox.io/android-images/2018/07/19/android_amd64.img \
   --output-document=${PWD}/android_amd64.img
 ```
 
-You can load the kernel modules, start the Anbox container and boot Android by executing the following commands:
+&nbsp;
+### Unprivileged Containers
+The following scripts will start the `container-manager` in **unprivileged** mode. 
+This means, that user and group ids are different on the host and inside the container namespace. This behaviour is restricted by default and needs some modifications on your host system. We need to allow your current user to impersonate other user ids.
+
+Assuming that your current user id is `1000`, add the following lines to `/etc/subuid` and `/etc/subgid`:
+```
+root:100000:999
+root:1000:1
+root:101001:99999
+```
+
+&nbsp;
+### Using the Anbox Commandline Interface
+
+Now you can load the kernel modules, start the Anbox container and boot Android.
 ```sh
 #!/bin/bash
 
