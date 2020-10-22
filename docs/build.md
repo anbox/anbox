@@ -104,6 +104,7 @@ anbox launch \
   --package=org.anbox.appmgr \
     --component=org.anbox.appmgr.AppViewActivity
 ```
+Starting the container and booting Android might take a few seconds depending on your system. During that thime the launch command might be unresponsive.
 
 **Additional Resources**: [Command Line Interface](docs/cli.md)
 
