@@ -291,7 +291,7 @@ parts:
       - libx11-xcb-dev
       - pkg-config
       - protobuf-compiler
-      - python2
+      - python3
     stage-packages:
       - libboost-filesystem1.71.0
       - libboost-iostreams1.71.0

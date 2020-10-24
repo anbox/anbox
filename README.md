@@ -94,7 +94,7 @@ system:
  * libsdl2
  * libprotobuf
  * protobuf-compiler
- * python2
+ * python3
  * lxc (>= 3.0)
 
 On an Ubuntu system you can install all build dependencies with the following
@@ -107,7 +107,7 @@ $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
     libboost-thread-dev libcap-dev libexpat1-dev libsystemd-dev libegl1-mesa-dev \
     libgles2-mesa-dev libglm-dev libgtest-dev liblxc1 \
     libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
-    pkg-config protobuf-compiler python-minimal
+    pkg-config protobuf-compiler python3-minimal
 ```
 We recommend Ubuntu 20.04 (focal) as your build environment.
 
