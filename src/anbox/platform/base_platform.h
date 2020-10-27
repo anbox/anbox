@@ -20,6 +20,7 @@
 
 #include "anbox/graphics/rect.h"
 #include "anbox/wm/window_state.h"
+#include "anbox/network/local_socket_messenger.h"
 
 #include <memory>
 
@@ -51,7 +52,7 @@ class BasePlatform {
   virtual void set_clipboard_data(const ClipboardData &data) = 0;
   virtual ClipboardData get_clipboard_data() = 0;
 
-  virtual std::shared_ptr<audio::Sink> create_audio_sink() = 0;
+  virtual std::shared_ptr<audio::Sink> create_audio_sink(const std::shared_ptr<anbox::network::LocalSocketMessenger> &messenger) = 0;
   virtual std::shared_ptr<audio::Source> create_audio_source() = 0;
 
   virtual void set_renderer(const std::shared_ptr<Renderer> &renderer) = 0;

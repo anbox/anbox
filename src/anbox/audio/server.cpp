@@ -31,8 +31,10 @@ using namespace std::placeholders;
 namespace {
 class AudioForwarder : public anbox::network::MessageProcessor {
  public:
-  AudioForwarder(const std::shared_ptr<anbox::audio::Sink> &sink) :
-    sink_(sink) {
+  AudioForwarder(const std::shared_ptr<anbox::audio::Sink> &sink, 
+                 const std::shared_ptr<anbox::network::LocalSocketMessenger> &messenger) :
+    sink_(sink), 
+    messenger_(messenger) {
   }
 
   bool process_data(const std::vector<std::uint8_t> &data) override {
@@ -42,6 +44,7 @@ class AudioForwarder : public anbox::network::MessageProcessor {
 
  private:
   std::shared_ptr<anbox::audio::Sink> sink_;
+  std::shared_ptr<anbox::network::LocalSocketMessenger> messenger_;
 };
 }
 
@@ -81,7 +84,7 @@ void Server::create_connection_for(std::shared_ptr<boost::asio::basic_stream_soc
 
   switch (client_info.type) {
   case ClientInfo::Type::Playback:
-    processor = std::make_shared<AudioForwarder>(platform_->create_audio_sink());
+    processor = std::make_shared<AudioForwarder>(platform_->create_audio_sink(messenger), messenger);
     break;
   case ClientInfo::Type::Recording:
     break;
