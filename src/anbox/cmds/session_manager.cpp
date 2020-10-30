@@ -93,8 +93,7 @@ void anbox::cmds::SessionManager::launch_appmgr_if_needed(const std::shared_ptr<
 
 anbox::cmds::SessionManager::SessionManager()
     : CommandWithFlagsAndAction{cli::Name{"session-manager"}, cli::Usage{"session-manager"},
-                                cli::Description{"Run the the anbox session manager"}},
-      window_size_(default_single_window_size) {
+                                cli::Description{"Run the the anbox session manager"}} {
   // Just for the purpose to allow QtMir (or unity8) to find this on our
   // /proc/*/cmdline
   // for proper confinement etc.
@@ -106,7 +105,7 @@ anbox::cmds::SessionManager::SessionManager()
                       single_window_));
   flag(cli::make_flag(cli::Name{"window-size"},
                       cli::Description{"Size of the window in single window mode, e.g. --window-size=1024,768"},
-                      window_size_));
+                      window_size_string));
   flag(cli::make_flag(cli::Name{"standalone"},
                       cli::Description{"Prevents the Container Manager from starting the default container (Experimental)"},
                       standalone_));
@@ -167,8 +166,22 @@ anbox::cmds::SessionManager::SessionManager()
     auto android_api_stub = std::make_shared<bridge::AndroidApiStub>();
 
     auto display_frame = graphics::Rect::Invalid;
-    if (single_window_)
-      display_frame = window_size_;
+    if (single_window_) {
+      display_frame = default_single_window_size;
+
+      // parse window size from passed argument
+      if (window_size_string.length() > 0) {
+        std::size_t indexOfComma = window_size_string.find(',');
+        
+        if (indexOfComma > 0) {
+          int w = std::stoi(window_size_string.substr(0, window_size_string.length() - indexOfComma));
+          int h = std::stoi(window_size_string.substr(indexOfComma + 1));
+          display_frame = graphics::Rect(w, h);
+        }
+      }
+
+      DEBUG("using window size: " + std::to_string(display_frame.width()) + "," + std::to_string(display_frame.height()));
+    }
 
     const auto should_enable_touch_emulation = utils::get_env_value("ANBOX_ENABLE_TOUCH_EMULATION", "true");
     if (should_enable_touch_emulation == "false" || no_touch_emulation_)
