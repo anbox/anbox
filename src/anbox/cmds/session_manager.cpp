@@ -174,12 +174,17 @@ anbox::cmds::SessionManager::SessionManager()
         std::size_t indexOfComma = window_size_string.find(',');
         
         if (indexOfComma > 0) {
-          int w = std::stoi(window_size_string.substr(0, window_size_string.length() - indexOfComma));
-          int h = std::stoi(window_size_string.substr(indexOfComma + 1));
-          display_frame = graphics::Rect(w, h);
+          try {
+            int w = std::stoi(window_size_string.substr(0, window_size_string.length() - indexOfComma));
+            int h = std::stoi(window_size_string.substr(indexOfComma + 1));
+            display_frame = graphics::Rect(w, h);
+          } 
+          catch (std::exception &err) {
+            WARNING("malformed window-size. expected: --window-size=[width],[height}");
+          }
         }
       }
-
+      
       DEBUG("using window size: " + std::to_string(display_frame.width()) + "," + std::to_string(display_frame.height()));
     }
 
