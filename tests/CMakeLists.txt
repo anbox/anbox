@@ -19,8 +19,9 @@ macro(ANBOX_ADD_TEST test_name src)
 
     anbox-core
 
-    ${GMOCK_LIBRARIES}
-    ${GTEST_BOTH_LIBRARIES}
+    gmock
+    gtest
+    gtest_main
 
     ${ARGN}
 

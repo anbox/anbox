@@ -5,6 +5,12 @@ add_subdirectory(backward-cpp)
 
 set(BUILD_TESTING OFF)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error")
+
+# disable -Wswitch-default temporarily
+string(REPLACE "-Wswitch-default" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+add_subdirectory(googletest)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wswitch-default")
+
 add_subdirectory(cpu_features)
 include(ExternalProject)
 ExternalProject_Add(sdbus-cpp

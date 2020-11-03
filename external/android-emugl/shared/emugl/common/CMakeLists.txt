@@ -29,5 +29,10 @@ set(COMMON_SOURCES
     unique_integer_map.h)
 
 add_library(emugl_common STATIC ${COMMON_SOURCES})
-target_link_libraries(emugl_common
-    dl pthread)
+target_link_libraries(
+    emugl_common
+    dl 
+    pthread
+    gmock
+    gtest
+)
