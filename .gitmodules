@@ -4,3 +4,7 @@
 [submodule "external/sdbus-cpp"]
 	path = external/sdbus-cpp
 	url = https://github.com/Kistler-Group/sdbus-cpp.git
+[submodule "external/googletest"]
+	path = external/googletest
+	url = git@github.com:google/googletest.git
+	branch = v1.10.x
