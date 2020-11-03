@@ -266,7 +266,6 @@ parts:
       - cmake-extras
       - dbus
       - debhelper
-      - google-mock
       - libboost-dev
       - libboost-filesystem-dev
       - libboost-iostreams-dev
@@ -281,8 +280,6 @@ parts:
       - libexpat1-dev
       - libgles2-mesa-dev
       - libglm-dev
-      - libgmock-dev
-      - libgtest-dev
       - libproperties-cpp-dev
       - libprotobuf-dev
       - libsdl2-dev

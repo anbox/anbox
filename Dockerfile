@@ -11,7 +11,6 @@ RUN apt-get update && \
   debhelper \
   dbus \
   git \
-  google-mock \
   libboost-dev \
   libboost-filesystem-dev \
   libboost-log-dev \
@@ -25,7 +24,6 @@ RUN apt-get update && \
   libexpat1-dev \
   libgles2-mesa-dev \
   libglm-dev \
-  libgtest-dev \
   liblxc1 \
   libproperties-cpp-dev \
   libprotobuf-dev \
