@@ -24,8 +24,7 @@
 
 using namespace std::placeholders;
 
-namespace anbox {
-namespace qemu {
+namespace anbox::qemu {
 GsmMessageProcessor::GsmMessageProcessor(
     const std::shared_ptr<network::SocketMessenger> &messenger)
     : messenger_(messenger), parser_(std::make_shared<AtParser>()) {
@@ -108,5 +107,4 @@ void GsmMessageProcessor::handle_cfun(const std::string &command) {
   else if (utils::string_starts_with(command, "+CFUN="))
     send_reply("");
 }
-}  // namespace qemu
-}  // namespace anbox
+}

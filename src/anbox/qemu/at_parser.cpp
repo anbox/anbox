@@ -19,8 +19,7 @@
 #include "anbox/logger.h"
 #include "anbox/utils.h"
 
-namespace anbox {
-namespace qemu {
+namespace anbox::qemu {
 AtParser::AtParser() {}
 
 void AtParser::register_command(const std::string &command,
@@ -72,5 +71,4 @@ void AtParser::processs_command(const std::string &command) {
 
   handler(real_command);
 }
-}  // namespace qemu
-}  // namespace anbox
+}

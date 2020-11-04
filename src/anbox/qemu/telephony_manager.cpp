@@ -19,8 +19,7 @@
 #include "anbox/dbus/ofono.h"
 #include "anbox/logger.h"
 
-namespace anbox {
-namespace qemu {
+namespace anbox::qemu {
 TelephonyManager::TelephonyManager(const core::dbus::Bus::Ptr &bus)
     : bus_(bus) {
   ofono_ = core::dbus::Service::use_service(bus_, "org.ofono");
@@ -36,5 +35,4 @@ TelephonyManager::TelephonyManager(const core::dbus::Bus::Ptr &bus)
 }
 
 TelephonyManager::~TelephonyManager() {}
-}  // namespace qemu
-}  // namespace anbox
+}

@@ -19,8 +19,7 @@
 #include "anbox/graphics/density.h"
 #include "anbox/utils.h"
 
-namespace anbox {
-namespace qemu {
+namespace anbox::qemu {
 BootPropertiesMessageProcessor::BootPropertiesMessageProcessor(
     const std::shared_ptr<network::SocketMessenger> &messenger)
     : QemudMessageProcessor(messenger) {}
@@ -46,5 +45,4 @@ void BootPropertiesMessageProcessor::list_properties() {
 
   finish_message();
 }
-}  // namespace qemu
-}  // namespace anbox
+}

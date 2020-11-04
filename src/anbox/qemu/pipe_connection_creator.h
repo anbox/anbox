@@ -33,8 +33,7 @@
 
 class Renderer;
 
-namespace anbox {
-namespace qemu {
+namespace anbox::qemu {
 class PipeConnectionCreator
     : public network::ConnectionCreator<boost::asio::local::stream_protocol> {
  public:
@@ -75,7 +74,5 @@ class PipeConnectionCreator
   std::atomic<int> next_connection_id_;
   std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;
 };
-}  // namespace qemu
-}  // namespace anbox
-
+}
 #endif
