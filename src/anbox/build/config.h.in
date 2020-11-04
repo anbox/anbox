@@ -23,15 +23,13 @@
 #include <cstdint>
 #include <string>
 
-namespace anbox {
-namespace build {
+namespace anbox::build {
 /// @brief version marks the version
 static constexpr const char *version{"@ANBOX_VERSION@"};
 
 // path for system configuration
 static constexpr const char *default_resource_path{"@ANBOX_RESOURCE_DIR_FULL@"};
 static constexpr const char *default_data_path{"@ANBOX_STATEDIR_FULL@"};
-}  // namespace build
-}  // namespace anbox
+}
 
 #endif  // ANBOX_CONFIG_H_
