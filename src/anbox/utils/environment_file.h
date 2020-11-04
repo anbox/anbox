@@ -22,8 +22,7 @@
 #include <string>
 #include <boost/filesystem.hpp>
 
-namespace anbox {
-namespace utils {
+namespace anbox::utils {
 class EnvironmentFile {
  public:
   EnvironmentFile(const boost::filesystem::path &path);
@@ -34,7 +33,5 @@ class EnvironmentFile {
  private:
   std::map<std::string, std::string> data_;
 };
-} // namespace utils
-} // namespace anbox
-
+}
 #endif
