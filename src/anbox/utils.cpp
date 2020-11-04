@@ -34,8 +34,7 @@
 
 namespace fs = boost::filesystem;
 
-namespace anbox {
-namespace utils {
+namespace anbox::utils {
 std::vector<std::string> collect_arguments(int argc, char **argv) {
   std::vector<std::string> result;
   for (int i = 1; i < argc; i++) result.push_back(argv[i]);
@@ -205,5 +204,4 @@ std::string find_program_on_path(const std::string &name) {
   }
   return "";
 }
-}  // namespace utils
-}  // namespace anbox
+}
