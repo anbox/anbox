@@ -32,8 +32,7 @@
 #include <google/protobuf/stubs/callback.h>
 #endif
 
-namespace anbox {
-namespace bridge {
+namespace anbox::bridge {
 PlatformApiSkeleton::PlatformApiSkeleton(
     const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
     const std::shared_ptr<platform::BasePlatform> &platform,
@@ -144,5 +143,4 @@ void PlatformApiSkeleton::handle_application_list_update_event(const anbox::prot
 void PlatformApiSkeleton::register_boot_finished_handler(const std::function<void()> &action) {
   boot_finished_handler_ = action;
 }
-}  // namespace bridge
-}  // namespace anbox
+}

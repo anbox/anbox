@@ -22,8 +22,7 @@
 
 #include "anbox_bridge.pb.h"
 
-namespace anbox {
-namespace bridge {
+namespace anbox::bridge {
 PlatformMessageProcessor::PlatformMessageProcessor(
     const std::shared_ptr<network::MessageSender> &sender,
     const std::shared_ptr<PlatformApiSkeleton> &server,
@@ -57,5 +56,4 @@ void PlatformMessageProcessor::process_event_sequence(
     server_->handle_application_list_update_event(
         seq.application_list_update());
 }
-}  // namespace anbox
-}  // namespace network
+}
