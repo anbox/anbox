@@ -22,8 +22,7 @@
 
 #include <SDL2/SDL.h>
 
-namespace anbox {
-namespace ui {
+namespace anbox::ui {
 class SplashScreen {
  public:
   SplashScreen();
@@ -36,7 +35,5 @@ class SplashScreen {
   bool event_thread_running_;
   SDL_Window *window_;
 };
-} // namespace ui
-} // namespace anbox
-
+}
 #endif
