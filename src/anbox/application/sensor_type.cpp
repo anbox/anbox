@@ -4,8 +4,7 @@
 #include <string>
 #include <map>
 
-namespace anbox {
-namespace application {
+namespace anbox::application {
 
 SensorType SensorTypeHelper::FromString(const std::string& str) {
   static std::map<std::string, SensorType> nameToType;
@@ -24,5 +23,4 @@ SensorType SensorTypeHelper::FromString(const std::string& str) {
   else
     return SensorType::UnknownSensor;
 }
-}  // namespace application
-}  // namespace anbox
+}

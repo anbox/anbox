@@ -6,12 +6,9 @@
 
 #include "anbox/do_not_copy_or_move.h"
 
-namespace anbox {
-namespace application {
+namespace anbox::application {
 struct GpsInfoBroker : public DoNotCopyOrMove {
   boost::signals2::signal<void(const std::string&)> newNmeaSentence;
 };
-}  // namespace application
-}  // namespace anbox
-
+}
 #endif

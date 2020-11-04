@@ -27,8 +27,7 @@
 
 #include <core/property.h>
 
-namespace anbox {
-namespace application {
+namespace anbox::application {
 class Manager : public DoNotCopyOrMove {
  public:
   virtual void launch(const android::Intent &intent,
@@ -65,7 +64,5 @@ class RestrictedManager : public Manager {
   std::shared_ptr<Manager> other_;
   wm::Stack::Id launch_stack_;
 };
-} // namespace application
-} // namespace anbox
-
+}
 #endif
