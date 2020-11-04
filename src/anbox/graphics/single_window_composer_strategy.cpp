@@ -24,8 +24,7 @@ namespace {
 const constexpr char *sprite_name{"Sprite"};
 }
 
-namespace anbox {
-namespace graphics {
+namespace anbox::graphics {
 SingleWindowComposerStrategy::SingleWindowComposerStrategy(const std::shared_ptr<wm::Manager> &wm) : wm_(wm) {}
 
 std::map<std::shared_ptr<wm::Window>, RenderableList> SingleWindowComposerStrategy::process_layers(const RenderableList &renderables) {
@@ -46,5 +45,4 @@ std::map<std::shared_ptr<wm::Window>, RenderableList> SingleWindowComposerStrate
   win_layers.insert({window, final_renderables});
   return win_layers;
 }
-}  // namespace graphics
-}  // namespace anbox
+}

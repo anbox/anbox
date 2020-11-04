@@ -18,8 +18,7 @@
 #include "anbox/graphics/buffered_io_stream.h"
 #include "anbox/logger.h"
 
-namespace anbox {
-namespace graphics {
+namespace anbox::graphics {
 BufferedIOStream::BufferedIOStream(
     const std::shared_ptr<anbox::network::SocketMessenger> &messenger,
     size_t buffer_size)
@@ -133,5 +132,4 @@ void BufferedIOStream::thread_main() {
     }
   }
 }
-}  // namespace graphics
-}  // namespace anbox
+}

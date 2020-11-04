@@ -21,8 +21,7 @@
 #include <stdexcept>
 #include <string.h>
 
-namespace anbox {
-namespace graphics {
+namespace anbox::graphics {
 class GLExtensions {
  public:
   GLExtensions(char const* extensions) : extensions{extensions} {
@@ -50,7 +49,5 @@ class GLExtensions {
  private:
   char const* extensions;
 };
-}  // namespace graphics
-}  // namespace anbox
-
+}
 #endif

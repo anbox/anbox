@@ -14,8 +14,7 @@
 
 #include "anbox/graphics/buffer_queue.h"
 
-namespace anbox {
-namespace graphics {
+namespace anbox::graphics {
 BufferQueue::BufferQueue(size_t capacity)
     : capacity_(capacity), buffers_(new Buffer[capacity]) {}
 
@@ -89,5 +88,4 @@ void BufferQueue::close_locked() {
     can_pop_.notify_all();
   }
 }
-}  // namespace graphics
-}  // namespace anbox
+}

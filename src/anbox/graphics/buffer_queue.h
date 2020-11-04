@@ -21,8 +21,7 @@
 #include <memory>
 #include <mutex>
 
-namespace anbox {
-namespace graphics {
+namespace anbox::graphics {
 using Buffer = anbox::common::SmallFixedVector<char, 512>;
 
 class BufferQueue {
@@ -50,7 +49,5 @@ class BufferQueue {
   std::condition_variable can_pop_;
 };
 
-}  // namespace graphics
-}  // namespace anbox
-
+}
 #endif

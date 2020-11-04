@@ -17,8 +17,7 @@
 
 #include "anbox/graphics/density.h"
 
-namespace anbox {
-namespace graphics {
+namespace anbox::graphics {
 DensityType current_density() {
   return DensityType::medium;
 }
@@ -26,5 +25,4 @@ DensityType current_density() {
 int dp_to_pixel(unsigned int dp) {
   return dp * static_cast<unsigned int>(current_density()) / static_cast<unsigned int>(DensityType::medium);
 }
-}  // namespace graphics
-}  // namespace anbox
+}
