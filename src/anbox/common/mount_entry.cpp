@@ -21,8 +21,7 @@
 
 #include <sys/mount.h>
 
-namespace anbox {
-namespace common {
+namespace anbox::common {
 std::shared_ptr<MountEntry> MountEntry::create(const boost::filesystem::path &src, const boost::filesystem::path &target,
                                                const std::string &fs_type, unsigned long flags, const std::string &data) {
   auto entry = std::shared_ptr<MountEntry>(new MountEntry(target));
@@ -74,5 +73,4 @@ MountEntry::~MountEntry() {
 
   ::umount(target_.c_str());
 }
-} // namespace common
-} // namespace anbox
+}

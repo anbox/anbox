@@ -31,8 +31,7 @@ bool is_little_endian() {
 }
 }
 
-namespace anbox {
-namespace common {
+namespace anbox::common {
 
 BinaryWriter::BinaryWriter(std::vector<std::uint8_t>::iterator begin,
                            std::vector<std::uint8_t>::iterator end) :
@@ -102,5 +101,4 @@ void BinaryWriter::write_string_with_size(const char *s, std::size_t size) {
 std::size_t BinaryWriter::bytes_written() const {
   return current_ - begin_;
 }
-} // namespace common
-} // namespace anbox
+}

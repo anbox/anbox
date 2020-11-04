@@ -20,8 +20,7 @@
 #include <condition_variable>
 #include <mutex>
 
-namespace anbox {
-namespace common {
+namespace anbox::common {
 
 // Base non-templated class used to reduce the amount of template
 // specialization.
@@ -93,7 +92,5 @@ class MessageChannel : public MessageChannelBase {
  private:
   T mItems[CAPACITY];
 };
-}  // namespace common
-}  // namespace anbox
-
+}
 #endif
