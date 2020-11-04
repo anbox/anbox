@@ -18,15 +18,10 @@
 #ifndef ANBOX_DBUS_INTERFACE_H_
 #define ANBOX_DBUS_INTERFACE_H_
 
-namespace anbox {
-namespace dbus {
-namespace interface {
+namespace anbox::dbus::interface {
 struct Service {
   static inline const char* name() { return "org.anbox"; }
   static inline const char* path() { return "/org/anbox"; }
 };
-}  // namespace interface
-}  // namespace dbus
-}  // namespace anbox
-
+}
 #endif
