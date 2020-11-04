@@ -22,23 +22,18 @@
 #include <memory>
 #include <mutex>
 
-namespace google {
-namespace protobuf {
-class Closure;
-class MessageLite;
-}  // namespace protobuf
-}  // namespace google
+namespace google::protobuf {
+  class Closure;
+  class MessageLite;
+}
 
-namespace anbox {
-namespace protobuf {
-namespace rpc {
-class Invocation;
-}  // namespace rpc
-}  // namespace protobuf
-namespace network {
-class MessageSender;
-}  // namespace network
-namespace rpc {
+namespace anbox::protobuf::rpc {
+  class Invocation;  
+}
+namespace anbox::network {
+  class MessageSender;
+}
+namespace anbox::rpc {
 class PendingCallCache;
 class Channel {
  public:
@@ -66,7 +61,6 @@ class Channel {
   std::shared_ptr<network::MessageSender> sender_;
   std::mutex write_mutex_;
 };
-}  // namespace rpc
-}  // namespace anbox
+}
 
 #endif
