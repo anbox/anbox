@@ -26,13 +26,10 @@
 
 #include "anbox/cli.h"
 
-namespace anbox {
-namespace cmds {
+namespace anbox::cmds {
 class Version : public cli::CommandWithFlagsAndAction {
  public:
   Version();
 };
-}  // namespace cmds
-}  // namespace anbox
-
+}
 #endif
