@@ -21,9 +21,11 @@
 #include <map>
 #include <memory>
 
-namespace anbox {
-class Runtime;
-namespace input {
+namespace anbox{
+  class Runtime;
+}
+
+namespace anbox::input {
 class Device;
 class Manager {
  public:
@@ -39,7 +41,5 @@ class Manager {
   std::shared_ptr<Runtime> runtime_;
   std::map<std::uint32_t, std::shared_ptr<Device>> devices_;
 };
-}  // namespace input
-}  // namespace anbox
-
+}
 #endif

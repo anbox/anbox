@@ -23,8 +23,7 @@
 
 #include <boost/format.hpp>
 
-namespace anbox {
-namespace input {
+namespace anbox::input {
 Manager::Manager(const std::shared_ptr<Runtime> &runtime) : runtime_(runtime) {
   const auto dir = SystemConfiguration::instance().input_device_dir();
   utils::ensure_paths({dir});
@@ -53,5 +52,4 @@ std::string Manager::build_device_path(const std::uint32_t &id) {
   return (boost::format("%1%/event%2%") % SystemConfiguration::instance().input_device_dir() % id).str();
 }
 
-}  // namespace input
-}  // namespace anbox
+}

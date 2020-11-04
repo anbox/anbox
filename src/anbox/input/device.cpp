@@ -24,8 +24,7 @@
 
 #include <time.h>
 
-namespace anbox {
-namespace input {
+namespace anbox::input {
 std::shared_ptr<Device> Device::create(
     const std::string &path, const std::shared_ptr<Runtime> &runtime) {
   auto sp = std::make_shared<Device>();
@@ -168,5 +167,4 @@ void Device::new_client(
   // side can properly configure itself for this input device
   connection->send(reinterpret_cast<char const *>(&info_), sizeof(info_));
 }
-}  // namespace input
-}  // namespace anbox
+}

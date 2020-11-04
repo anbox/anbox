@@ -27,8 +27,7 @@
 
 #include <linux/input.h>
 
-namespace anbox {
-namespace input {
+namespace anbox::input {
 struct Event {
   std::uint16_t type;
   std::uint16_t code;
@@ -97,7 +96,5 @@ class Device : public std::enable_shared_from_this<Device> {
   std::shared_ptr<network::Connections<network::SocketConnection>> connections_;
   Info info_;
 };
-}  // namespace input
-}  // namespace anbox
-
+}
 #endif
