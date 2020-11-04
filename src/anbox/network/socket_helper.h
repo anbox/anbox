@@ -20,12 +20,9 @@
 
 #include <string>
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 bool socket_file_exists(std::string const& filename);
 bool socket_exists(std::string const& socket_name);
 std::string remove_socket_if_stale(std::string const& socket_name);
-}  // namespace network
-}  // namespace anbox
-
+}
 #endif

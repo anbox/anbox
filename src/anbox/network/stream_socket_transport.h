@@ -26,8 +26,7 @@
 
 #include <boost/asio.hpp>
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 class StreamSocketTransport {
  public:
   class Observer {
@@ -59,7 +58,5 @@ class StreamSocketTransport {
   std::shared_ptr<boost::asio::local::stream_protocol::socket> socket_;
   SocketMessenger messenger_;
 };
-}  // namespace network
-}  // namespace anbox
-
+}
 #endif  // STREAM_SOCKET_TRANSPORT_H_

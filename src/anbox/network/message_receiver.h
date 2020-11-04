@@ -25,8 +25,7 @@
 
 #include "anbox/common/fd.h"
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 class MessageReceiver {
  public:
   // receive message from the socket. 'handler' will be called when 'buffer' has
@@ -46,7 +45,5 @@ class MessageReceiver {
   MessageReceiver(MessageReceiver const&) = delete;
   MessageReceiver& operator=(MessageReceiver const&) = delete;
 };
-}  // namespace network
-}  // namespace anbox
-
+}
 #endif

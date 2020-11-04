@@ -25,8 +25,7 @@
 
 #include <boost/exception/errinfo_errno.hpp>
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 bool socket_file_exists(std::string const& filename) {
   struct stat statbuf;
   bool exists = (0 == stat(filename.c_str(), &statbuf));
@@ -72,5 +71,4 @@ std::string remove_socket_if_stale(std::string const& socket_name) {
   }
   return socket_name;
 }
-}  // namespace network
-}  // namespace anbox
+}

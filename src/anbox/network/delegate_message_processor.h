@@ -22,8 +22,7 @@
 
 #include <functional>
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 class DelegateMessageProcessor : public MessageProcessor {
  public:
   DelegateMessageProcessor(
@@ -35,7 +34,5 @@ class DelegateMessageProcessor : public MessageProcessor {
  private:
   std::function<bool(const std::vector<std::uint8_t> &)> process_data_;
 };
-}  // namespace network
-}  // namespace anbox
-
+}
 #endif

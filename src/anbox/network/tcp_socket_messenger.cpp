@@ -17,8 +17,7 @@
 
 #include "anbox/network/tcp_socket_messenger.h"
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 TcpSocketMessenger::TcpSocketMessenger(const boost::asio::ip::address_v4 &addr,
                                        unsigned short port,
                                        const std::shared_ptr<Runtime> &rt) {
@@ -36,5 +35,4 @@ TcpSocketMessenger::TcpSocketMessenger(
 TcpSocketMessenger::~TcpSocketMessenger() {}
 
 unsigned short TcpSocketMessenger::local_port() const { return local_port_; }
-}  // namespace network
-}  // namespace anbox
+}

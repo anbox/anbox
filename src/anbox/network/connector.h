@@ -18,12 +18,9 @@
 #ifndef ANBOX_NETWORK_CONNECTOR_H
 #define ANBOX_NETWORK_CONNECTOR_H
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 class Connector {
  public:
 };
-}  // namespace network
-}  // namespace anbox
-
+}
 #endif
