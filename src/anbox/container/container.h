@@ -23,8 +23,7 @@
 #include <map>
 #include <string>
 
-namespace anbox {
-namespace container {
+namespace anbox::container {
 class Container {
  public:
   virtual ~Container();
@@ -43,7 +42,5 @@ class Container {
   // Get the current container state
   virtual State state() = 0;
 };
-}  // namespace container
-}  // namespace anbox
-
+}
 #endif

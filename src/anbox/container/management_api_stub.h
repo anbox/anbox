@@ -24,16 +24,15 @@
 
 #include <memory>
 
-namespace anbox {
-namespace protobuf {
-namespace rpc {
-class Void;
-}  // namespace rpc
-}  // namespace protobuf
-namespace rpc {
-class Channel;
-}  // namespace rpc
-namespace container {
+namespace anbox::protobuf::rpc {
+  class Void;
+}
+
+namespace anbox::rpc {
+  class Channel;
+}
+
+namespace anbox::container {
 class ManagementApiStub : public DoNotCopyOrMove {
  public:
   ManagementApiStub(const std::shared_ptr<rpc::Channel> &channel);
@@ -58,7 +57,5 @@ class ManagementApiStub : public DoNotCopyOrMove {
   std::shared_ptr<rpc::Channel> channel_;
   static const std::chrono::milliseconds stop_waiting_timeout;
 };
-}  // namespace container
-}  // namespace anbox
-
+}
 #endif

@@ -29,8 +29,7 @@
 #include <google/protobuf/stubs/callback.h>
 #endif
 
-namespace anbox {
-namespace container {
+namespace anbox::container {
 ManagementApiSkeleton::ManagementApiSkeleton(
     const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
     const std::shared_ptr<Container> &container)
@@ -96,5 +95,4 @@ void ManagementApiSkeleton::stop_container(
 
   done->Run();
 }
-}  // namespace container
-}  // namespace anbox
+}
