@@ -24,17 +24,19 @@
 #include <memory>
 #include <mutex>
 
-namespace anbox {
-namespace application {
-class Database;
-} // namespace application
-namespace bridge {
-class AndroidApiStub;
-} // namespace bridge
-namespace platform {
-class BasePlatform;
-} // namespace platform
-namespace wm {
+namespace anbox::application {
+  class Database;
+}
+
+namespace anbox::bridge {
+  class AndroidApiStub;
+}
+
+namespace anbox::platform {
+  class BasePlatform;
+}
+
+namespace anbox::wm {
 class MultiWindowManager : public Manager {
  public:
   MultiWindowManager(const std::weak_ptr<platform::BasePlatform> &platform,
@@ -58,7 +60,5 @@ class MultiWindowManager : public Manager {
   std::shared_ptr<application::Database> app_db_;
   std::map<Task::Id, std::shared_ptr<Window>> windows_;
 };
-}  // namespace wm
-}  // namespace anbox
-
+}
 #endif

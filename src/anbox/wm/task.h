@@ -20,8 +20,7 @@
 
 #include <cstdint>
 
-namespace anbox {
-namespace wm {
+namespace anbox::wm {
 class Task {
  public:
   typedef std::int32_t Id;
@@ -31,7 +30,5 @@ class Task {
   Task() = delete;
   Task(const Task&) = delete;
 };
-}  // namespace wm
-}  // namespace anbox
-
+}
 #endif
