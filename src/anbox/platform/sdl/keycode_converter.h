@@ -24,9 +24,7 @@
 
 #include <array>
 
-namespace anbox {
-namespace platform {
-namespace sdl {
+namespace anbox::platform::sdl {
 class KeycodeConverter {
  public:
   static std::uint16_t convert(const SDL_Scancode &scan_code);
@@ -34,8 +32,5 @@ class KeycodeConverter {
  private:
   static const std::array<SDL_Scancode, 249> code_map;
 };
-} // namespace sdl
-} // namespace platform
-} // namespace anbox
-
+}
 #endif

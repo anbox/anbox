@@ -21,9 +21,7 @@
 
 #include <linux/input.h>
 
-namespace anbox {
-namespace platform {
-namespace sdl {
+namespace anbox::platform::sdl {
 std::uint16_t KeycodeConverter::convert(const SDL_Scancode &scan_code) {
   for (std::uint16_t n = 0; n < code_map.size(); n++) {
     if (code_map[n] == scan_code) return n;
@@ -290,6 +288,4 @@ const std::array<SDL_Scancode, 249> KeycodeConverter::code_map = {{
                              */
     SDL_SCANCODE_UNKNOWN         /*  KEY_MICMUTE     248 Mute / unmute the microphone */
 }};
-} // namespace sdl
-} // namespace platform
-} // namespace anbox
+}
