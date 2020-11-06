@@ -33,8 +33,7 @@ std::string read_file_if_exists_or_throw(const std::string &file_path);
 bool write_to_file(const std::string &file_path,
                    const std::string &content = "");
 int write_to_fd(int fd, const char *content, ssize_t len);
-int write_file_at(int dirfd, const char *path, const char *content);
-
+                   
 bool string_starts_with(const std::string &text, const std::string &prefix);
 
 std::vector<std::string> string_split(const std::string &text, char sep);

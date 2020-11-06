@@ -78,21 +78,6 @@ int write_to_fd(int fd, const char *content, ssize_t len) {
   }
   return 0;
 }
-
-int write_file_at(int dirfd, const char *path, const char *content) {
-  const auto fd = openat(dirfd, path, O_RDWR | O_CLOEXEC, 0);
-  if (fd == -1) return -1;
-
-  auto res = 0;
-  if (content) res = write_to_fd(fd, content, strlen(content));
-
-  const auto errsv = errno;
-  close(fd);
-  errno = errsv;
-
-  return res;
-}
-
 bool string_starts_with(const std::string &text, const std::string &prefix) {
   return text.compare(0, prefix.size(), prefix) == 0;
 }
