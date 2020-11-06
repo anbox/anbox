@@ -32,7 +32,6 @@ std::string read_file_if_exists_or_throw(const std::string &file_path);
 
 bool write_to_file(const std::string &file_path,
                    const std::string &content = "");
-int write_to_fd(int fd, const char *content, ssize_t len);
                    
 bool string_starts_with(const std::string &text, const std::string &prefix);
 

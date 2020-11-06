@@ -61,23 +61,6 @@ bool write_to_file(const std::string &file_path, const std::string &content) {
   return true;
 }
 
-int write_to_fd(int fd, const char *content, ssize_t len) {
-  while (len > 0) {
-    const auto res = write(fd, content, len);
-    if (res < 0 && errno == EINTR) continue;
-
-    if (res <= 0) {
-      if (res == 0) /* Unexpected short write, should not happen when writing to
-                       a file */
-        errno = ENOSPC;
-      return -1;
-    }
-
-    len -= res;
-    content += res;
-  }
-  return 0;
-}
 bool string_starts_with(const std::string &text, const std::string &prefix) {
   return text.compare(0, prefix.size(), prefix) == 0;
 }
