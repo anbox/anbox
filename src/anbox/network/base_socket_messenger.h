@@ -19,7 +19,6 @@
 #ifndef ANBOX_NETWORK_BASE_SOCKET_MESSENGER_H_
 #define ANBOX_NETWORK_BASE_SOCKET_MESSENGER_H_
 
-#include "anbox/common/fd_sets.h"
 #include "anbox/network/socket_messenger.h"
 
 #include <boost/asio.hpp>
