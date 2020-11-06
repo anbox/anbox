@@ -139,7 +139,6 @@ set(SOURCES
     anbox/common/dispatcher.h
     anbox/common/fd.cpp
     anbox/common/fd.h
-    anbox/common/fd_sets.h
     anbox/common/loop_device_allocator.cpp
     anbox/common/loop_device_allocator.h
     anbox/common/loop_device.cpp
