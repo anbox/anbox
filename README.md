@@ -20,6 +20,8 @@ get support for full confinement. As a side effect of using `--devmode` the snap
 
 We officially support **Ubuntu 18.04 (bionic)** and **Ubuntu 20.04 (focal)** as they include everything you need to run Anbox, including the kernel modules.
 
+If you want to build Anbox yourself, take a look at the [Build Instructions](docs/build.md)
+
 &nbsp;
 ### **Kernel Modules**
 Anbox requires [ashmem](https://elinux.org/Android_Kernel_Features#ashmem) and [binder](https://elinux.org/Android_Binder) for the Android subsystem. You can test wether they are available by executing:
@@ -95,86 +97,6 @@ The Android runtime environment ships with a minimal customized Android system
 image based on the [Android Open Source Project](https://source.android.com/).
 The used image is currently based on Android 7.1.1
 
-
-____
-&nbsp;
-## **Build from source**
-To build the Anbox runtime itself there is nothing special to know. We're using
-cmake as build system. A few build dependencies need to be present on your host
-system:
-
- * libdbus
- * google-mock
- * google-test
- * libboost
- * libboost-filesystem
- * libboost-log
- * libboost-iostreams
- * libboost-program-options
- * libboost-system
- * libboost-test
- * libboost-thread
- * libcap
- * libexpat1-dev
- * libsystemd
- * mesa (libegl1, libgles2)
- * libglm
- * libsdl2
- * libprotobuf
- * protobuf-compiler
- * python3
- * lxc (>= 3.0)
-
-On an Ubuntu system you can install all build dependencies with the following
-command:
-
-```
-$ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
-    libboost-dev libboost-filesystem-dev libboost-log-dev libboost-iostreams-dev \
-    libboost-program-options-dev libboost-system-dev libboost-test-dev \
-    libboost-thread-dev libcap-dev libexpat1-dev libsystemd-dev libegl1-mesa-dev \
-    libgles2-mesa-dev libglm-dev libgtest-dev liblxc1 \
-    libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
-    pkg-config protobuf-compiler python3-minimal
-```
-We recommend Ubuntu 20.04 (focal) as your build environment.
-
-
-### Build
-
-Afterwards you can build Anbox with
-
-```
-$ git clone https://github.com/anbox/anbox.git --recurse-submodules
-$ cd anbox
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
-```
-
-A simple
-
-```
-$ sudo make install
-```
-
-will install the necessary bits into your system.
-
-If you want to build the anbox snap instead you can do this with the following
-steps:
-
-```
-$ mkdir android-images
-$ cp /path/to/android.img android-images/android.img
-$ snapcraft
-```
-
-The result will be a .snap file you can install on a system supporting snaps
-
-```
-$ snap install --dangerous --devmode anbox_1_amd64.snap
-```
 
 ____
 &nbsp;
