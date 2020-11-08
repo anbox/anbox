@@ -1,12 +1,11 @@
-[![Snap Status](https://build.snapcraft.io/badge/anbox/anbox.svg)](https://build.snapcraft.io/user/anbox/anbox)
-[![Build Status](https://travis-ci.org/anbox/anbox.svg?branch=master)](https://travis-ci.org/anbox/anbox)
+<h2 align="center">Anbox - Android in a Box</h2>
+<p align="center">
+  <img title="Build Status" src="https://travis-ci.org/anbox/anbox.svg?branch=master">
+</p>
 
-# Anbox
+Anbox is a container-based approach to boot a virtual Android 7.1.1 (nougat) device on a regular GNU/Linux operating system. We use [LXC](https://linuxcontainers.org/) to run a modified [Android Open Source Project](https://source.android.com/) without the overhead of a hypervisor virtualization. 
 
-Anbox is a container-based approach to boot a full Android system on a
-regular GNU/Linux system like Ubuntu. In other words: Anbox will let
-you run Android on your Linux system without the slowness of
-virtualization.
+In other words: Anbox will let you seamlessly run your favourite Android apps on your Linux computer.
 
 ## Overview
 
