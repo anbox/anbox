@@ -7,6 +7,36 @@ Anbox is a container-based approach to boot a virtual Android 7.1.1 (nougat) dev
 
 In other words: Anbox will let you seamlessly run your favourite Android apps on your Linux computer.
 
+____
+&nbsp;
+## **Installation**
+We are distributing Anbox with [snap](https://snapcraft.io) packages:
+```sh
+$ sudo snap install --devmode --beta anbox
+```
+At the moment we require the use of `--devmode` as the Anbox snap is not
+yet fully confined. Work has started with the upstream `snapd` project to
+get support for full confinement. As a side effect of using `--devmode` the snap will not automatically update.
+
+We officially support **Ubuntu 18.04 (bionic)** and **Ubuntu 20.04 (focal)** as they include everything you need to run Anbox, including the kernel modules.
+
+&nbsp;
+### **Kernel Modules**
+Anbox requires [ashmem](https://elinux.org/Android_Kernel_Features#ashmem) and [binder](https://elinux.org/Android_Binder) for the Android subsystem. You can test wether they are available by executing:
+```sh
+$ sudo modprobe binder_linux
+$ sudo modprobe ashmem_linux
+```
+Ubuntu includes them since version 18.04.4. If your Kernel does not have the modules included for whatever reason, you can use our unmaintained [Kernel Modules](https://github.com/anbox/anbox-modules).
+
+
+#### **Secure Boot can cause errors when trying to load `ashmem_linux`**. There are two ways around this: 
+* One is to disable the SecureBoot: https://wiki.ubuntu.com/UEFI/SecureBoot/DKMS. 
+* Following [this post](https://github.com/anbox/anbox/issues/1570), the other way is to sign the `ashmem_linux` kernel module yourself. Note that you may have to enroll your own key, as described [here](https://ubuntu.com/blog/how-to-sign-things-for-secure-boot).
+<!-- TODO: mode detailed desctiption of process
+  - create separate guide
+-->
+
 ## Overview
 
 Anbox uses Linux namespaces (user, pid, uts, net, mount, ipc) to run a
@@ -36,10 +66,6 @@ However this is still a work in progress.
 The Android runtime environment ships with a minimal customized Android system
 image based on the [Android Open Source Project](https://source.android.com/).
 The used image is currently based on Android 7.1.1
-
-## Installation
-
-See our [installation instructions](docs/install.md) for details.
 
 ## Supported Linux Distributions
 
