@@ -37,6 +37,19 @@ Ubuntu includes them since version 18.04.4. If your Kernel does not have the mod
   - create separate guide
 -->
 
+
+## Install and Run Android Applications
+You can install Android applications from the command line using adb.
+```sh
+adb install xyz.apk
+```
+The applications you can use with Anbox need to match your host architecture. You cannot use an app made for AArch64/ARM64 on an x86\_64 machine.
+
+You may want to install [F-Droid](https://f-droid.org/) to get applications
+graphically. Note that the Google Play Store will not work as is, because it
+relies on the proprietary Google Play Services, which are not installed.
+
+
 ## Documentation
 
 You will find additional documentation for Anbox in the *docs* subdirectory
@@ -79,20 +92,6 @@ The Android runtime environment ships with a minimal customized Android system
 image based on the [Android Open Source Project](https://source.android.com/).
 The used image is currently based on Android 7.1.1
 
-## Install and Run Android Applications
-
-You can install Android applications from the command line using adb.
-
-```sh
-adb install xyz.apk
-```
-
-The apk files you will sometimes find on the internet tend to only have arm
-support, and will therefore not work on x86\_64.
-
-You may want to install [F-Droid](https://f-droid.org/) to get applications
-graphically. Note that the Google Play Store will not work as is, because it
-relies on the proprietary Google Play Services, which are not installed.
 
 ## Build from source
 
