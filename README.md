@@ -100,12 +100,6 @@ The used image is currently based on Android 7.1.1
 
 ____
 &nbsp;
-## **Run Anbox**
-Running Anbox from a local build requires a few more things you need to know
-about. Please have a look at the ["Runtime Setup"](docs/runtime-setup.md)
-documentation.
-
-____
 ## **Reporting bugs**
 If you have found an issue with Anbox, please [file a bug](https://github.com/anbox/anbox/issues/new).
 
