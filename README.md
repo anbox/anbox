@@ -67,16 +67,6 @@ The Android runtime environment ships with a minimal customized Android system
 image based on the [Android Open Source Project](https://source.android.com/).
 The used image is currently based on Android 7.1.1
 
-## Supported Linux Distributions
-
-At the moment we officially support the following Linux distributions:
-
- * Ubuntu 18.04 (bionic)
- * Ubuntu 20.04 (focal)
-
-However all other distributions supporting snap packages should work as
-well as long as they provide the mandatory kernel modules (see [documentation](https://github.com/anbox/anbox/blob/master/docs/install.md#install-necessary-kernel-modules)).
-
 ## Install and Run Android Applications
 
 You can install Android applications from the command line using adb.
