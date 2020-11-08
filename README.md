@@ -37,6 +37,18 @@ Ubuntu includes them since version 18.04.4. If your Kernel does not have the mod
   - create separate guide
 -->
 
+## Documentation
+
+You will find additional documentation for Anbox in the *docs* subdirectory
+of the project source.
+
+Interesting things to have a look at
+
+ * [Runtime Setup](docs/runtime-setup.md)
+ * [Build Android image](docs/build-android.md)
+ * [Generate Android emugl source](docs/generate-emugl-source.md)
+ * [DBUS interface](docs/dbus.md)
+
 ## Overview
 
 Anbox uses Linux namespaces (user, pid, uts, net, mount, ipc) to run a
@@ -168,18 +180,6 @@ $ snap install --dangerous --devmode anbox_1_amd64.snap
 Running Anbox from a local build requires a few more things you need to know
 about. Please have a look at the ["Runtime Setup"](docs/runtime-setup.md)
 documentation.
-
-## Documentation
-
-You will find additional documentation for Anbox in the *docs* subdirectory
-of the project source.
-
-Interesting things to have a look at
-
- * [Runtime Setup](docs/runtime-setup.md)
- * [Build Android image](docs/build-android.md)
- * [Generate Android emugl source](docs/generate-emugl-source.md)
- * [DBUS interface](docs/dbus.md)
 
 ## Reporting bugs
 
