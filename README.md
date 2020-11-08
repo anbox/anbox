@@ -38,7 +38,9 @@ Ubuntu includes them since version 18.04.4. If your Kernel does not have the mod
 -->
 
 
-## Install and Run Android Applications
+____
+&nbsp;
+## **Install and Run Android Applications**
 You can install Android applications from the command line using adb.
 ```sh
 adb install xyz.apk
@@ -50,8 +52,9 @@ graphically. Note that the Google Play Store will not work as is, because it
 relies on the proprietary Google Play Services, which are not installed.
 
 
-## Documentation
-
+____
+&nbsp;
+## **Documentation**
 You will find additional documentation for Anbox in the *docs* subdirectory
 of the project source.
 
@@ -62,8 +65,8 @@ Interesting things to have a look at
  * [Generate Android emugl source](docs/generate-emugl-source.md)
  * [DBUS interface](docs/dbus.md)
 
-## Overview
-
+&nbsp;
+### **Overview**
 Anbox uses Linux namespaces (user, pid, uts, net, mount, ipc) to run a
 full Android system in a container and provide Android applications on
 any GNU/Linux-based platform.
@@ -93,10 +96,9 @@ image based on the [Android Open Source Project](https://source.android.com/).
 The used image is currently based on Android 7.1.1
 
 
-## Build from source
-
-### Requirements
-
+____
+&nbsp;
+## **Build from source**
 To build the Anbox runtime itself there is nothing special to know. We're using
 cmake as build system. A few build dependencies need to be present on your host
 system:
@@ -174,23 +176,28 @@ The result will be a .snap file you can install on a system supporting snaps
 $ snap install --dangerous --devmode anbox_1_amd64.snap
 ```
 
-## Run Anbox
-
+____
+&nbsp;
+## **Run Anbox**
 Running Anbox from a local build requires a few more things you need to know
 about. Please have a look at the ["Runtime Setup"](docs/runtime-setup.md)
 documentation.
 
-## Reporting bugs
-
+____
+&nbsp;
+## **Reporting bugs**
 If you have found an issue with Anbox, please [file a bug](https://github.com/anbox/anbox/issues/new).
 
-## Get in Touch
 
+____
+&nbsp;
+## **Get in Touch**
 If you want to get in contact with the developers please feel free to join the
 *#anbox* IRC channel on [Freenode](https://freenode.net/).
 
-## Copyright and Licensing
-
+____
+&nbsp;
+## **Copyright and Licensing**
 Anbox reuses code from other projects like the Android QEMU emulator. These
 projects are available in the external/ subdirectory with the licensing terms
 included.
