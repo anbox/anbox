@@ -32,9 +32,8 @@
 namespace anbox {
 namespace container {
 ManagementApiSkeleton::ManagementApiSkeleton(
-    const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
     const std::shared_ptr<Container> &container)
-    : pending_calls_(pending_calls), container_(container) {}
+    : container_(container) { }
 
 ManagementApiSkeleton::~ManagementApiSkeleton() {}
 

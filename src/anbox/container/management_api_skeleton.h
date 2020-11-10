@@ -44,7 +44,6 @@ class Container;
 class ManagementApiSkeleton {
  public:
   ManagementApiSkeleton(
-      const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
       const std::shared_ptr<Container> &container);
   ~ManagementApiSkeleton();
 
@@ -57,7 +56,6 @@ class ManagementApiSkeleton {
       anbox::protobuf::rpc::Void *response, google::protobuf::Closure *done);
 
  private:
-  std::shared_ptr<rpc::PendingCallCache> pending_calls_;
   std::shared_ptr<Container> container_;
 };
 }  // namespace container
