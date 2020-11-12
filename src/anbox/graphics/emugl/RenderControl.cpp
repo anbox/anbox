@@ -120,6 +120,12 @@ static EGLint rcGetGLString(EGLenum name, void* buffer, EGLint bufferSize) {
   // which aren't met.
   if (name == GL_VERSION)
     result = "OpenGL ES 2.0";
+  if (name == GL_VENDOR)
+    result = "Google ("+result+")";
+  if (name == GL_RENDERER)
+    result = "Android Emulator OpenGL ES ("+result+")";
+  if (name == GL_SHADING_LANGUAGE_VERSION)
+    result = "OpenGL ES GLSL ES 2.0";
   else if (name == GL_EXTENSIONS) {
     // We need to drop a few extensions from the list reported by the driver
     // as not all are well enough support by our GL implementation.
