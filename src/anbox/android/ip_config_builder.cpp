@@ -52,8 +52,7 @@ std::string assignment_to_string(const aa::IpConfigBuilder::Assignment &value) {
 }
 }
 
-namespace anbox {
-namespace android {
+namespace anbox::android {
 std::size_t IpConfigBuilder::write(common::BinaryWriter &writer) {
   writer.set_byte_order(common::BinaryWriter::Order::Big);
 
@@ -110,5 +109,4 @@ void IpConfigBuilder::set_dns_servers(const std::vector<std::string> &dns_server
 void IpConfigBuilder::set_id(uint32_t id) {
   id_ = id;
 }
-}  // namespace android
-}  // namespace anbox
+}

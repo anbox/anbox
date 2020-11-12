@@ -26,11 +26,11 @@
 
 #include <atomic>
 
-namespace anbox {
-namespace network {
-class PublishedSocketConnector;
-} // namespace network
-namespace audio {
+namespace anbox::network {
+  class PublishedSocketConnector;
+} 
+
+namespace anbox::audio {
 class Server {
  public:
   Server(const std::shared_ptr<Runtime>& rt, const std::shared_ptr<platform::BasePlatform> &platform);
@@ -50,7 +50,5 @@ class Server {
   std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;
   std::atomic<int> next_id_;
 };
-} // namespace audio
-} // namespace anbox
-
+}
 #endif

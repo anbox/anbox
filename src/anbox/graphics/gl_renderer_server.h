@@ -23,14 +23,15 @@
 
 class Renderer;
 
-namespace anbox {
-namespace input {
-class Manager;
-}  // namespace input
-namespace wm {
-class Manager;
-}  // namespace wm
-namespace graphics {
+namespace anbox::input {
+  class Manager;
+}
+
+namespace anbox::wm {
+  class Manager;
+}
+
+namespace anbox::graphics {
 class LayerComposer;
 class GLRendererServer {
  public:
@@ -58,7 +59,5 @@ class GLRendererServer {
   std::shared_ptr<LayerComposer> composer_;
 };
 
-}  // namespace graphics
-}  // namespace anbox
-
+}
 #endif

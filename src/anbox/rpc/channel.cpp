@@ -25,8 +25,7 @@
 
 #include "anbox_rpc.pb.h"
 
-namespace anbox {
-namespace rpc {
+namespace anbox::rpc {
 Channel::Channel(const std::shared_ptr<PendingCallCache> &pending_calls,
                  const std::shared_ptr<network::MessageSender> &sender)
     : pending_calls_(pending_calls), sender_(sender) {}
@@ -100,5 +99,4 @@ std::uint32_t Channel::next_id() {
   static std::uint32_t next_message_id = 0;
   return next_message_id++;
 }
-}  // namespace rpc
-}  // namespace anbox
+}

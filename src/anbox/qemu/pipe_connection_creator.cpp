@@ -66,8 +66,7 @@ std::string client_type_to_string(
   return "unknown";
 }
 }
-namespace anbox {
-namespace qemu {
+namespace anbox::qemu {
 PipeConnectionCreator::PipeConnectionCreator(std::shared_ptr<Renderer> renderer, std::shared_ptr<Runtime> rt, std::shared_ptr<anbox::application::SensorsState> sensors_state, std::shared_ptr<anbox::application::GpsInfoBroker> gpsInfoBroker)
     : renderer_(renderer),
       runtime_(rt),
@@ -172,5 +171,4 @@ PipeConnectionCreator::create_processor(
 int PipeConnectionCreator::next_id() {
   return next_connection_id_.fetch_add(1);
 }
-}  // namespace qemu
-}  // namespace anbox
+}

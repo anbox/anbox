@@ -22,8 +22,7 @@
 #include <core/dbus/object.h>
 #include <core/dbus/service.h>
 
-namespace anbox {
-namespace qemu {
+namespace anbox::qemu {
 class TelephonyManager {
  public:
   TelephonyManager(const core::dbus::Bus::Ptr &bus);
@@ -34,7 +33,5 @@ class TelephonyManager {
   core::dbus::Service::Ptr ofono_;
   core::dbus::Object::Ptr modem_;
 };
-}  // namespace qemu
-}  // namespace anbox
-
+}
 #endif

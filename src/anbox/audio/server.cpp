@@ -45,8 +45,7 @@ class AudioForwarder : public anbox::network::MessageProcessor {
 };
 }
 
-namespace anbox {
-namespace audio {
+namespace anbox::audio {
 Server::Server(const std::shared_ptr<Runtime>& rt, const std::shared_ptr<platform::BasePlatform> &platform) :
   platform_(platform),
   socket_file_(utils::string_format("%s/anbox_audio", SystemConfiguration::instance().socket_dir())),
@@ -105,5 +104,4 @@ void Server::create_connection_for(std::shared_ptr<boost::asio::basic_stream_soc
 int Server::next_id() {
   return next_id_.fetch_add(1);
 }
-} // namespace audio
-} // namespace anbox
+}

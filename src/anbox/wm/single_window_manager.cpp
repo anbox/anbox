@@ -24,8 +24,7 @@
 #include <sys/types.h>
 #include <signal.h>
 
-namespace anbox {
-namespace wm {
+namespace anbox::wm {
 SingleWindowManager::SingleWindowManager(const std::weak_ptr<platform::BasePlatform> &platform,
                                          const graphics::Rect &window_size,
                                          const std::shared_ptr<application::Database> &app_db)
@@ -75,5 +74,4 @@ void SingleWindowManager::remove_task(const Task::Id &task) {
   // application.
   kill(getpid(), SIGTERM);
 }
-}  // namespace wm
-}  // namespace anbox
+}

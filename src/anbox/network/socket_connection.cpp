@@ -33,8 +33,7 @@
 namespace ba = boost::asio;
 namespace bs = boost::system;
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 SocketConnection::SocketConnection(
     std::shared_ptr<MessageReceiver> const& message_receiver,
     std::shared_ptr<MessageSender> const& message_sender, int id_,
@@ -71,5 +70,4 @@ void SocketConnection::on_read_size(const boost::system::error_code& error, std:
   else
       connections_->remove(id());
 }
-}  // namespace anbox
-}  // namespace network
+}

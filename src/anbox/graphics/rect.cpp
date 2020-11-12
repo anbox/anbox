@@ -23,8 +23,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace anbox {
-namespace graphics {
+namespace anbox::graphics {
 const Rect Rect::Invalid{-1, -1, -1, -1};
 const Rect Rect::Empty{0, 0, 0, 0};
 
@@ -83,5 +82,4 @@ try {
 } catch (...) {
   return in;
 }
-}  // namespace graphics
-}  // namespace anbox
+}

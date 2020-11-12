@@ -20,8 +20,7 @@
 #include "anbox/network/socket_helper.h"
 #include "anbox/logger.h"
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 PublishedSocketConnector::PublishedSocketConnector(
     const std::string& socket_file, const std::shared_ptr<Runtime>& rt,
     const std::shared_ptr<ConnectionCreator<
@@ -54,5 +53,4 @@ void PublishedSocketConnector::on_new_connection(std::shared_ptr<boost::asio::lo
 
   start_accept();
 }
-}  // namespace network
-}  // namespace anbox
+}

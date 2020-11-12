@@ -22,8 +22,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-namespace anbox {
-namespace common {
+namespace anbox::common {
 class LoopDevice {
  public:
   static std::shared_ptr<LoopDevice> create(const boost::filesystem::path &path);
@@ -40,7 +39,5 @@ class LoopDevice {
   Fd fd_;
   boost::filesystem::path path_;
 };
-} // namespace common
-} // namespace anbox
-
+}
 #endif

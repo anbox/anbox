@@ -22,8 +22,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-namespace anbox {
-namespace common {
+namespace anbox::common {
 class BinderDevice {
  public:
   static std::unique_ptr<BinderDevice> create(const std::string& path);
@@ -37,7 +36,5 @@ class BinderDevice {
 
   const std::string path_;
 };
-} // namespace common
-} // namespace anbox
-
+}
 #endif

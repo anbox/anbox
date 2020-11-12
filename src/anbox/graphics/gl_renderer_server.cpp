@@ -65,8 +65,7 @@ void logger_write(const emugl::LogLevel &level, const char *format, ...) {
 }
 }
 
-namespace anbox {
-namespace graphics {
+namespace anbox::graphics {
 GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<wm::Manager> &wm)
     : renderer_(std::make_shared<::Renderer>()) {
 
@@ -108,5 +107,4 @@ GLRendererServer::GLRendererServer(const Config &config, const std::shared_ptr<w
 }
 
 GLRendererServer::~GLRendererServer() { renderer_->finalize(); }
-}  // namespace graphics
-}  // namespace anbox
+}

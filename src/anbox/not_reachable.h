@@ -23,8 +23,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace anbox {
-namespace util {
+namespace anbox::util {
 /// @brief NotReachable is thrown from not_reachable.
 struct NotReachable : public std::logic_error {
   /// @brief NotImplemented initializes a new instance for the given function
@@ -36,7 +35,6 @@ struct NotReachable : public std::logic_error {
 /// @brief not_reachable throws NotReachable.
 [[noreturn]] void not_reachable(const std::string& function,
                                 const std::string& file, std::uint32_t line);
-}  // namespace util
-}  // namespace anbox
+}
 
 #endif

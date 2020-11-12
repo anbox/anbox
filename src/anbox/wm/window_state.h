@@ -26,8 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace anbox {
-namespace wm {
+namespace anbox::wm {
 class WindowState {
  public:
   typedef std::vector<WindowState> List;
@@ -53,7 +52,5 @@ class WindowState {
   Task::Id task_;
   Stack::Id stack_;
 };
-}  // namespace wm
-}  // namespace anbox
-
+}
 #endif

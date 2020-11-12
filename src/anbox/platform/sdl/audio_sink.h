@@ -24,9 +24,7 @@
 
 #include <thread>
 
-namespace anbox {
-namespace platform {
-namespace sdl {
+namespace anbox::platform::sdl {
 class AudioSink : public audio::Sink {
  public:
   AudioSink();
@@ -48,8 +46,5 @@ class AudioSink : public audio::Sink {
   graphics::Buffer read_buffer_;
   size_t read_buffer_left_ = 0;
 };
-} // namespace sdl
-} // namespace platform
-} // namespace anbox
-
+}
 #endif

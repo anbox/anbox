@@ -34,9 +34,7 @@ constexpr const int button_margin{5};
 constexpr const int button_padding{0};
 }
 
-namespace anbox {
-namespace platform {
-namespace sdl {
+namespace anbox::platform::sdl {
 Window::Id Window::Invalid{-1};
 
 Window::Observer::~Observer() {}
@@ -220,6 +218,4 @@ EGLNativeWindowType Window::native_handle() const { return native_window_; }
 Window::Id Window::id() const { return id_; }
 
 std::uint32_t Window::window_id() const { return SDL_GetWindowID(window_); }
-} // namespace sdl
-} // namespace platform
-} // namespace anbox
+}

@@ -29,8 +29,7 @@
 
 class Renderer;
 
-namespace anbox {
-namespace wm {
+namespace anbox::wm {
 // FIXME(morphis): move this somewhere else once we have the integration
 // with the emugl layer.
 class Layer {
@@ -66,7 +65,5 @@ class Window {
   std::string title_;
   bool attached_ = false;
 };
-}  // namespace wm
-}  // namespace anbox
-
+}
 #endif

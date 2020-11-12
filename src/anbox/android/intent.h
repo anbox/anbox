@@ -21,8 +21,7 @@
 #include <string>
 #include <vector>
 
-namespace anbox {
-namespace android {
+namespace anbox::android {
 struct Intent {
   std::string action;
   std::string uri;
@@ -36,7 +35,5 @@ struct Intent {
 };
 
 std::ostream &operator<<(std::ostream &out, const Intent &intent);
-}  // namespace android
-}  // namespace anbox
-
+}
 #endif

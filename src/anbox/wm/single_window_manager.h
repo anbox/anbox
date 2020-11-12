@@ -24,14 +24,15 @@
 #include <memory>
 #include <mutex>
 
-namespace anbox {
-namespace application {
+namespace anbox::application {
 class Database;
-} // namespace application
-namespace platform {
+}
+
+namespace anbox::platform {
 class BasePlatform;
-} // namespace platform
-namespace wm {
+}
+
+namespace anbox::wm {
 class Window;
 class SingleWindowManager : public Manager {
  public:
@@ -57,7 +58,5 @@ class SingleWindowManager : public Manager {
   std::shared_ptr<application::Database> app_db_;
   std::shared_ptr<Window> window_;
 };
-}  // namespace wm
-}  // namespace anbox
-
+}
 #endif

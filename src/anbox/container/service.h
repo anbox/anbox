@@ -26,8 +26,7 @@
 #include "anbox/network/socket_connection.h"
 #include "anbox/runtime.h"
 
-namespace anbox {
-namespace container {
+namespace anbox::container {
 class Service : public std::enable_shared_from_this<Service> {
  public:
   struct Configuration {
@@ -57,7 +56,5 @@ class Service : public std::enable_shared_from_this<Service> {
   std::shared_ptr<Container> backend_;
   Configuration config_;
 };
-}  // namespace container
-}  // namespace anbox
-
+}
 #endif

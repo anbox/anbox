@@ -21,9 +21,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace anbox {
-namespace graphics {
-namespace emugl {
+namespace anbox::graphics::emugl {
 class DisplayInfo {
  public:
   DisplayInfo() = default;
@@ -39,8 +37,5 @@ class DisplayInfo {
   std::uint32_t vertical_resolution_ = 1280;
   std::uint32_t horizontal_resolution_ = 720;
 };
-} // namespace emugl
-} // namespace graphics
-} // namespace anbox
-
+}
 #endif

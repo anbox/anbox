@@ -89,8 +89,7 @@ constexpr int device_minor(dev_t dev) {
 }
 } // namespace
 
-namespace anbox {
-namespace container {
+namespace anbox::container {
 LxcContainer::LxcContainer(bool privileged,
                            bool rootfs_overlay,
                            const std::string& container_network_address,
@@ -513,5 +512,4 @@ void LxcContainer::set_config_item(const std::string &key,
 }
 
 Container::State LxcContainer::state() { return state_; }
-}  // namespace container
-}  // namespace anbox
+}

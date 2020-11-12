@@ -24,8 +24,7 @@
 #include <google/protobuf/stubs/callback.h>
 #endif
 
-namespace anbox {
-namespace rpc {
+namespace anbox::rpc {
 PendingCallCache::PendingCallCache() {}
 
 void PendingCallCache::save_completion_details(
@@ -72,5 +71,4 @@ bool PendingCallCache::empty() const {
   std::unique_lock<std::mutex> lock(mutex_);
   return pending_calls_.empty();
 }
-}  // namespace rpc
-}  // namespace anbox
+}

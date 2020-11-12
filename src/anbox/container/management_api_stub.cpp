@@ -26,8 +26,7 @@
 #include <google/protobuf/stubs/callback.h>
 #endif
 
-namespace anbox {
-namespace container {
+namespace anbox::container {
 
 const std::chrono::milliseconds ManagementApiStub::stop_waiting_timeout{3000};
 
@@ -102,5 +101,4 @@ void ManagementApiStub::container_stopped(Request<protobuf::rpc::Void> *request)
   request->wh.result_received();
 }
 
-}  // namespace container
-}  // namespace anbox
+}

@@ -20,8 +20,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-namespace anbox {
-namespace common {
+namespace anbox::common {
 class LoopDevice;
 class MountEntry {
  public:
@@ -42,7 +41,5 @@ class MountEntry {
   std::shared_ptr<LoopDevice> loop_;
   boost::filesystem::path target_;
 };
-} // namespace common
-} // namespace anbox
-
+}
 #endif

@@ -24,8 +24,7 @@
 #include <map>
 #include <memory>
 
-namespace anbox {
-namespace application {
+namespace anbox::application {
 class LauncherStorage;
 class Database {
  public:
@@ -53,7 +52,5 @@ class Database {
   std::map<std::string,Item> items_;
   bool done_reset = false;
 };
-}  // namespace application
-}  // namespace anbox
-
+}
 #endif

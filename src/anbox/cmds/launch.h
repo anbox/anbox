@@ -26,8 +26,7 @@
 #include "anbox/wm/stack.h"
 #include "anbox/cli.h"
 
-namespace anbox {
-namespace cmds {
+namespace anbox::cmds {
 class Launch : public cli::CommandWithFlagsAndAction {
  public:
   Launch();
@@ -39,7 +38,5 @@ class Launch : public cli::CommandWithFlagsAndAction {
   wm::Stack::Id stack_ = wm::Stack::Id::Default;
   bool use_system_dbus_ = false;
 };
-}  // namespace cmds
-}  // namespace anbox
-
+}
 #endif

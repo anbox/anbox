@@ -22,8 +22,7 @@
 #include <functional>
 #include <memory>
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 class Connector;
 
 class ConnectionContext {
@@ -40,7 +39,6 @@ class ConnectionContext {
   std::function<void()> const connect_handler;
   Connector const* const connector;
 };
-}  // namespace anbox
-}  // namespace network
+}
 
 #endif

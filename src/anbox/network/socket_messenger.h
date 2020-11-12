@@ -25,8 +25,7 @@
 #include "anbox/network/message_receiver.h"
 #include "anbox/network/message_sender.h"
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 class SocketMessenger : public MessageSender, public MessageReceiver {
  public:
   virtual Credentials creds() const = 0;
@@ -34,7 +33,5 @@ class SocketMessenger : public MessageSender, public MessageReceiver {
   virtual void set_no_delay() = 0;
   virtual void close() = 0;
 };
-}  // namespace network
-}  // namespace anbox
-
+}
 #endif

@@ -22,8 +22,7 @@
 #include "anbox_bridge.pb.h"
 #include "anbox_container.pb.h"
 
-namespace anbox {
-namespace container {
+namespace anbox::container {
 ManagementApiMessageProcessor::ManagementApiMessageProcessor(
     const std::shared_ptr<network::MessageSender> &sender,
     const std::shared_ptr<rpc::PendingCallCache> &pending_calls,
@@ -41,5 +40,4 @@ void ManagementApiMessageProcessor::dispatch(rpc::Invocation const &invocation) 
 
 void ManagementApiMessageProcessor::process_event_sequence(
     const std::string &) {}
-}  // namespace container
-}  // namespace anbox
+}

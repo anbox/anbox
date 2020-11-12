@@ -24,8 +24,7 @@
 #include <condition_variable>
 #include <mutex>
 
-namespace anbox {
-namespace common {
+namespace anbox::common {
 struct WaitHandle {
  public:
   WaitHandle();
@@ -47,7 +46,5 @@ struct WaitHandle {
   int expecting;
   int received;
 };
-}  // namespace common
-}  // namespace anbox
-
+}
 #endif

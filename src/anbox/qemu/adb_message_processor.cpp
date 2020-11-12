@@ -43,8 +43,7 @@ const boost::posix_time::seconds default_adb_wait_time{1};
 
 using namespace std::placeholders;
 
-namespace anbox {
-namespace qemu {
+namespace anbox::qemu {
 std::mutex AdbMessageProcessor::active_instance_{};
 
 AdbMessageProcessor::AdbMessageProcessor(
@@ -206,5 +205,4 @@ bool AdbMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
 
   return true;
 }
-}  // namespace qemu
-}  // namespace anbox
+}

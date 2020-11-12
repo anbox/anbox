@@ -23,8 +23,7 @@
 #include <memory>
 #include <mutex>
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 template <class Connection>
 class Connections {
  public:
@@ -62,7 +61,6 @@ class Connections {
   std::mutex mutex;
   std::map<int, std::shared_ptr<Connection>> connections;
 };
-}  // namespace anbox
-}  // namespace network
+}
 
 #endif

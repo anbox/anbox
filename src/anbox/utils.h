@@ -23,8 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace anbox {
-namespace utils {
+namespace anbox::utils {
 
 std::vector<std::string> collect_arguments(int argc, char **argv);
 
@@ -60,8 +59,7 @@ std::string find_program_on_path(const std::string &name);
 
 template <typename... Types>
 static std::string string_format(const std::string &fmt_str, Types &&... args);
-}  // namespace utils
-}  // namespace anbox
+}
 
 namespace impl {
 // Base case, just return the passed in boost::format instance.

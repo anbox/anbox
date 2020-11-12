@@ -24,8 +24,7 @@
 
 namespace ba = boost::asio;
 
-namespace anbox {
-namespace rpc {
+namespace anbox::rpc {
 ConnectionCreator::ConnectionCreator(const std::shared_ptr<Runtime>& rt,
                                      const MessageProcessorFactory& factory)
     : runtime_(rt),
@@ -60,5 +59,4 @@ void ConnectionCreator::create_connection_for(
 
 int ConnectionCreator::next_id() { return next_connection_id_.fetch_add(1); }
 
-}  // namespace rpc
-}  // namespace anbox
+}

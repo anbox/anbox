@@ -17,8 +17,6 @@
 
 #include "anbox/wm/manager.h"
 
-namespace anbox {
-namespace wm {
+namespace anbox::wm {
 Manager::~Manager() {}
-} // namespace wm
-} // namespace anbox
+}

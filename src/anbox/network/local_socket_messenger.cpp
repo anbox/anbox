@@ -22,8 +22,7 @@
 
 #include <boost/system/error_code.hpp>
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 LocalSocketMessenger::LocalSocketMessenger(
     std::shared_ptr<boost::asio::local::stream_protocol::socket> const &socket)
     : BaseSocketMessenger(socket) {}
@@ -44,5 +43,4 @@ LocalSocketMessenger::LocalSocketMessenger(const std::string &path,
 }
 
 LocalSocketMessenger::~LocalSocketMessenger() {}
-}  // namespace network
-}  // namespace anbox
+}

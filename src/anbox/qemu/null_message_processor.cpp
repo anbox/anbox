@@ -21,8 +21,7 @@
 
 #include <string.h>
 
-namespace anbox {
-namespace qemu {
+namespace anbox::qemu {
 NullMessageProcessor::NullMessageProcessor() {}
 
 NullMessageProcessor::~NullMessageProcessor() {}
@@ -31,5 +30,4 @@ bool NullMessageProcessor::process_data(const std::vector<std::uint8_t> &data) {
   (void)data;
   return true;
 }
-}  // namespace qemu
-}  // namespace anbox
+}

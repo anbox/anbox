@@ -17,8 +17,7 @@
 
 #include "anbox/network/delegate_message_processor.h"
 
-namespace anbox {
-namespace network {
+namespace anbox::network {
 DelegateMessageProcessor::DelegateMessageProcessor(
     std::function<bool(const std::vector<std::uint8_t> &)> process_data)
     : process_data_(process_data) {}
@@ -31,5 +30,4 @@ bool DelegateMessageProcessor::process_data(
 
   return process_data_(data);
 }
-}  // namespace network
-}  // namespace anbox
+}

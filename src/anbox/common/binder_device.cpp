@@ -29,8 +29,7 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 
-namespace anbox {
-namespace common {
+namespace anbox::common {
 std::unique_ptr<BinderDevice> BinderDevice::create(const std::string& path) {
   return std::unique_ptr<BinderDevice>(new BinderDevice(path));
 }
@@ -45,5 +44,4 @@ BinderDevice::~BinderDevice() {
   if (::unlink(path_.c_str()) < 0)
     ERROR("Failed to remove binder node %s: %s", path_, std::strerror(errno));
 }
-} // namespace common
-} // namespace anbox
+}

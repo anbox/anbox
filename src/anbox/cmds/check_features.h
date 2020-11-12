@@ -24,8 +24,7 @@
 
 #include "anbox/cli.h"
 
-namespace anbox {
-namespace cmds {
+namespace anbox::cmds {
 class CheckFeatures : public cli::CommandWithFlagsAndAction {
  public:
   CheckFeatures();
@@ -33,7 +32,5 @@ class CheckFeatures : public cli::CommandWithFlagsAndAction {
  private:
   bool sanity_check_for_features();
 };
-}  // namespace cmds
-}  // namespace anbox
-
+}
 #endif

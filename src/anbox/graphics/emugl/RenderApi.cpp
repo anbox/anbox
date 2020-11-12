@@ -33,9 +33,7 @@ constexpr const char *default_egl_lib{"libEGL.so.1"};
 constexpr const char *default_glesv2_lib{"libGLESv2.so.2"};
 }
 
-namespace anbox {
-namespace graphics {
-namespace emugl {
+namespace anbox::graphics::emugl {
 std::vector<GLLibrary> default_gl_libraries() {
   return std::vector<GLLibrary>{
     {GLLibrary::Type::EGL, default_egl_lib},
@@ -83,6 +81,4 @@ bool initialize(const std::vector<GLLibrary> &libs, emugl_logger_struct *log_fun
 
   return true;
 }
-}  // namespace emugl
-}  // namespace graphics
-}  // namespace anbox
+}
