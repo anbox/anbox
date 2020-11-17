@@ -37,8 +37,7 @@ class ConnectionCreator
       const std::shared_ptr<network::MessageSender> &)>
       MessageProcessorFactory;
 
-  ConnectionCreator(const std::shared_ptr<Runtime> &rt,
-                    const MessageProcessorFactory &factory);
+  ConnectionCreator(const MessageProcessorFactory &factory);
   ~ConnectionCreator() noexcept;
 
   void create_connection_for(
@@ -48,7 +47,6 @@ class ConnectionCreator
  private:
   int next_id();
 
-  std::shared_ptr<Runtime> runtime_;
   std::atomic<int> next_connection_id_;
   std::shared_ptr<network::Connections<network::SocketConnection>> const
       connections_;
