@@ -374,6 +374,9 @@ void LxcContainer::start(const Configuration &configuration) {
   const auto log_path = SystemConfiguration::instance().log_dir();
   set_config_item(lxc_config_log_file_key, utils::string_format("%s/container.log", log_path).c_str());
 
+  // set RLIMIT_NICE to 1 so binder_linux does not complain
+  set_config_item("lxc.prlimit.nice", "1");
+
 #ifndef ENABLE_LXC2_SUPPORT
     // Dump the console output to disk to have a chance to debug early boot problems
     set_config_item("lxc.console.logfile", utils::string_format("%s/console.log", log_path).c_str());
