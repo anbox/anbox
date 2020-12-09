@@ -183,13 +183,14 @@ bool is_mounted(const std::string &path) {
   bool is_mounted = false;
   if ((mtab = setmntent("/etc/mtab", "r")) != nullptr) {
     while ((part = getmntent(mtab)) != nullptr) {
-      if ((part->mnt_fsname != nullptr) && (strcmp(part->mnt_fsname, path.c_str())) == 0)
+      if ((part->mnt_fsname != nullptr) && (strcmp(part->mnt_fsname, path.c_str())) == 0) {
         is_mounted = true;
+        break;
+      }
     }
     endmntent(mtab);
   }
   return is_mounted;
-
 }
 
 std::string find_program_on_path(const std::string &name) {
