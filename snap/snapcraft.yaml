@@ -123,7 +123,7 @@ parts:
         # FIXME: downloading with a source: field doesn't work as snapcraft
         # expects the downloaded file to be an archive it can extract.
         echo "Downloading image..."
-        wget http://build.anbox.io/android-images/$IMAGE_PATH/$IMAGE_NAME
+        wget https://build.anbox.io/android-images/$IMAGE_PATH/$IMAGE_NAME
 
         echo "$IMAGE_HASH $IMAGE_NAME" > image-hash
         sha256sum -c image-hash || exit 1
