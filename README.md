@@ -137,8 +137,8 @@ If you want to build the anbox snap instead you can do this with the following
 steps:
 
 ```
-$ mkdir android-images
-$ cp /path/to/android.img android-images/android.img
+$ ARCH=$(uname -m)
+$ cp /path/to/android.img data/android-images/android-$ARCH.img
 $ snapcraft
 ```
 

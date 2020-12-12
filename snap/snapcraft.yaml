@@ -95,18 +95,20 @@ parts:
     build-packages:
       - wget
     override-build: |
-      LOCAL_IMAGE=$SNAPCRAFT_PART_INSTALL/../../../android-images/android.img
+      ARCH=$(uname -m)
+      LOCAL_IMAGE="$SNAPCRAFT_PART_SRC/android-images/android-$ARCH.img"
 
-      if [ -f $LOCAL_IMAGE ]; then
+      if [ -f "$LOCAL_IMAGE" ]; then
 
         echo "Using local image $LOCAL_IMAGE"
-        cp $LOCAL_IMAGE $SNAPCRAFT_PART_INSTALL/android.img
+        cp "$LOCAL_IMAGE" "$SNAPCRAFT_PART_INSTALL"/android.img
 
       else
+        echo "android image 'data/android-images/android-$ARCH.img'" \
+             "not found, downloading one\n\n"
 
         IMAGE_PATH=
         IMAGE_NAME=
-        ARCH=$(uname -m)
 
         case "$ARCH" in
           x86_64)
@@ -115,7 +117,7 @@ parts:
             IMAGE_HASH="6b04cd33d157814deaf92dccf8a23da4dc00b05ca6ce982a03830381896a8cca"
             ;;
           *)
-            echo "ERROR: Unknown architecture $ARCH"
+            echo "ERROR: Anbox upstream doesn't provide an image for $ARCH"
             exit 1
             ;;
         esac
