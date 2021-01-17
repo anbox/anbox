@@ -59,7 +59,8 @@ add_library(anbox-protobuf
 target_link_libraries(anbox-protobuf
     ${PROTOBUF_LITE_LIBRARIES})
 
-set(XML2CPP ${CMAKE_BINARY_DIR}/external/sdbus-cpp/src/sdbus-cpp-build/tools/sdbus-c++-xml2cpp)
+# use precompiled binary
+set(XML2CPP /usr/local/bin/sdbus-c++-xml2cpp)
 
 macro(DBusServer BaseName)
     add_custom_command(

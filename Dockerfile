@@ -1,11 +1,39 @@
-FROM ubuntu:20.04
+# ---- BASE IMAGE
+FROM ubuntu:20.04 as base
+
+RUN apt-get update && \
+  DEBIAN_FRONTEND="noninteractive" apt-get install --no-install-recommends --yes \
+    build-essential \
+    cmake
+
+
+# ---- COMPILE SDBUS-C++
+FROM base as sdbus-cpp
+
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install --no-install-recommends --yes \
+  build-essential \
+  libsystemd-dev \
+  pkg-config \
+  libexpat1-dev
+
+# copy and build library sdbus-cpp
+RUN mkdir -p /tmp/
+COPY external/sdbus-cpp /tmp/sdbus-cpp
+RUN   cmake -S/tmp/sdbus-cpp -B/tmp/sdbus-cpp/build \
+        -DBUILD_CODE_GEN=ON \
+        -DBUILD_SHARED_LIBS=OFF \
+    && make --directory=/tmp/sdbus-cpp/build --jobs=8
+    
+
+
+# ---- COMPILE ANBOX
+FROM base as anbox
 
 # hadolint ignore=DL3008
-RUN apt-get update && \
-  DEBIAN_FRONTEND="noninteractive" apt-get install -qq -y --no-install-recommends \
-  build-essential \
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install --no-install-recommends --yes \
+  # build-essential \ in base
   ca-certificates \
-  cmake \
+  # cmake \ in base
   cmake-data \
   cmake-extras \
   debhelper \
@@ -33,10 +61,14 @@ RUN apt-get update && \
   libsdl2-image-dev \
   libsystemd-dev \
   lxc-dev \
-  pkg-config \
+  # pkg-config \ needed for sdbus-cpp
   python3 \
   protobuf-compiler && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
+
+COPY --from=sdbus-cpp /tmp/sdbus-cpp /tmp/sdbus-cpp
+RUN make --directory=/tmp/sdbus-cpp/build install
+RUN ls -l /usr/local/bin/sdbus-c++-xml2cpp
 
 WORKDIR /anbox
