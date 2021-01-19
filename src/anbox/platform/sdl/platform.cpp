@@ -370,7 +370,7 @@ bool Platform::adjust_coordinates(SDL_Window *window, std::int32_t &x, std::int3
   if (!window) {
     return false;
   }
-  // As we get only absolute coordindates relative to our window we have to
+  // As we get only absolute coordinates relative to our window we have to
   // calculate the correct position based on the current focused window
   SDL_GetWindowPosition(window, &rel_x, &rel_y);
   x += rel_x;

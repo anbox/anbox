@@ -111,7 +111,7 @@ bool anbox::cmds::Launch::launch_session_manager() {
     // We don't wait for the grandchild but the child as we use double forking
     // here to break through the process hierarchy and make the grandchild a
     // direct child of the init process so it keeps running on its own and
-    // indepent of our short living process here.
+    // independent of our short living process here.
     child.wait_for(core::posix::wait::Flags::untraced);
 
     DEBUG("Started session manager, will now try to connect ..");

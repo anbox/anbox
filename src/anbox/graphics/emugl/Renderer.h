@@ -201,7 +201,7 @@ class Renderer : public anbox::graphics::Renderer {
   // |p_colorbuffer| is the ColorBuffer's handle value. Similar
   // to glReadPixels(), this can be a slow operation.
   // |x|, |y|, |width| and |height| are the position and dimensions of
-  // a rectangle whose pixel values will be transfered to the host.
+  // a rectangle whose pixel values will be transferred to the host.
   // |format| indicates the format of the pixel data, e.g. GL_RGB or GL_RGBA.
   // |type| is the type of pixel data, e.g. GL_UNSIGNED_BYTE.
   // |pixels| is the address of a caller-provided buffer that will be filled
@@ -213,7 +213,7 @@ class Renderer : public anbox::graphics::Renderer {
   // |p_colorbuffer| is the ColorBuffer's handle value. Similar
   // to glReadPixels(), this can be a slow operation.
   // |x|, |y|, |width| and |height| are the position and dimensions of
-  // a rectangle whose pixel values will be transfered to the GPU
+  // a rectangle whose pixel values will be transferred to the GPU
   // |format| indicates the format of the pixel data, e.g. GL_RGB or GL_RGBA.
   // |type| is the type of pixel data, e.g. GL_UNSIGNED_BYTE.
   // |pixels| is the address of a buffer containing the new pixel data.

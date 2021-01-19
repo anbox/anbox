@@ -197,7 +197,7 @@ void LxcContainer::setup_network() {
   if (!fs::exists(ip_conf_dir))
     fs::create_directories(ip_conf_dir);
 
-  // We have to walk through the created directory hierachy now and
+  // We have to walk through the created directory hierarchy now and
   // ensure the permissions are set correctly. Otherwise the Android
   // system will fail to boot as it isn't allowed to write anything
   // into these directories. As previous versions of Anbox which were

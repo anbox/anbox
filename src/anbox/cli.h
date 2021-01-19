@@ -259,7 +259,7 @@ class Command : public DoNotCopyOrMove {
 
   /// @brief name adjusts the name of the command to n.
   // virtual void name(const Name& n);
-  /// @brief usage adjusts the usage string of the comand to u.
+  /// @brief usage adjusts the usage string of the command to u.
   // virtual void usage(const Usage& u);
   /// @brief description adjusts the description string of the command to d.
   // virtual void description(const Description& d);

@@ -74,7 +74,7 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
   }
 
   // If we create a window with border (server-side decoration), We
-  // should not set hit test handler beacuse we don't need to simulate
+  // should not set hit test handler because we don't need to simulate
   // the behavior of the title bar and resize area.
   if (borderless && utils::get_env_value("ANBOX_NO_SDL_WINDOW_HIT_TEST", "false") == "false")
     if (SDL_SetWindowHitTest(window_, &Window::on_window_hit, this) < 0)

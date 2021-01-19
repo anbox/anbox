@@ -41,7 +41,7 @@
 //   may leave the iterators pointing to nowhere if they were for the in-place
 //   array storage.
 //
-// Currenly only a limited subset of std::vector<>'s operations is implemented,
+// Currently only a limited subset of std::vector<>'s operations is implemented,
 // but fill free to add the ones you need.
 //
 
@@ -200,7 +200,7 @@ class SmallVector {
     }
   }
 
-  // Sets the capacity() to be exacly |newCap|. Allocates the array
+  // Sets the capacity() to be exactly |newCap|. Allocates the array
   // dynamically, moves all elements over and (potentially) deallocates the
   // old array.
   // Doesn't change size(), only capacity().
