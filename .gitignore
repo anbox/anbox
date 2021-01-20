@@ -7,3 +7,4 @@ snap/.snapcraft
 CMakeLists.txt.user
 *.o
 .idea
+.vscode
