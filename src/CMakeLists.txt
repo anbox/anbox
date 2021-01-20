@@ -26,7 +26,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/external/android-emugl/host/libs/renderControl_dec
   ${CMAKE_BINARY_DIR}/external/android-emugl/host/libs/renderControl_dec
   ${CMAKE_SOURCE_DIR}/external/cpu_features/include
-  ${CMAKE_SOURCE_DIR}/external/sdbus-cpp/include
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBINDERFS_PATH=\"\\\"${BINDERFS_PATH}\\\"\"")
@@ -59,8 +58,22 @@ add_library(anbox-protobuf
 target_link_libraries(anbox-protobuf
     ${PROTOBUF_LITE_LIBRARIES})
 
-# use precompiled binary
-set(XML2CPP /usr/local/bin/sdbus-c++-xml2cpp)
+    
+# sdbus-cpp
+#   set includes and code-generator
+if(COMPILE_SDBUS_CPP)
+    # in-tree binary and includes
+    set(XML2CPP ${CMAKE_BINARY_DIR}/external/sdbus-cpp/src/sdbus-cpp-build/tools/sdbus-c++-xml2cpp)
+    include_directories(
+        ${CMAKE_SOURCE_DIR}/external/sdbus-cpp/include
+    )
+else()
+    # installed binary (must be in PATH) and includes
+    set(XML2CPP sdbus-c++-xml2cpp)
+    include_directories(
+        /usr/local/include/sdbus-c++
+    )
+endif()
 
 macro(DBusServer BaseName)
     add_custom_command(

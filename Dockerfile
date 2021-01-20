@@ -67,8 +67,9 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install --no-install-recommends --y
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+# install sdbus-cpp and add to path
 COPY --from=sdbus-cpp /tmp/sdbus-cpp /tmp/sdbus-cpp
 RUN make --directory=/tmp/sdbus-cpp/build install
-RUN ls -l /usr/local/bin/sdbus-c++-xml2cpp
+ENV PATH="/usr/local/bin/sdbus-c++-xml2cpp:${PATH}"
 
 WORKDIR /anbox
