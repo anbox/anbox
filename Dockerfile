@@ -31,9 +31,7 @@ FROM base as anbox
 
 # hadolint ignore=DL3008
 RUN DEBIAN_FRONTEND="noninteractive" apt-get install --no-install-recommends --yes \
-  # build-essential \ in base
   ca-certificates \
-  # cmake \ in base
   cmake-data \
   cmake-extras \
   debhelper \
@@ -61,7 +59,6 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install --no-install-recommends --y
   libsdl2-image-dev \
   libsystemd-dev \
   lxc-dev \
-  # pkg-config \ needed for sdbus-cpp
   python3 \
   protobuf-compiler && \
   apt-get clean && \
