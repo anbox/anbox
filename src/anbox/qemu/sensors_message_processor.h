@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_QEMU_SENSORS_MESSAGE_PROCESSOR_H_
-#define ANBOX_QEMU_SENSORS_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include <thread>
 
@@ -42,4 +41,3 @@ class SensorsMessageProcessor : public QemudMessageProcessor {
   std::thread thread_;
 };
 }
-#endif

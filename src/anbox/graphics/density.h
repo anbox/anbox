@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_DENSITY_H_
-#define ANBOX_GRAPHICS_DENSITY_H_
+#pragma once
 
 namespace anbox::graphics {
 /**
@@ -38,4 +37,3 @@ enum class DensityType {
 DensityType current_density();
 int dp_to_pixel(unsigned int dp);
 }
-#endif

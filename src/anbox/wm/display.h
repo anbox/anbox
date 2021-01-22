@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_WM_DISPLAY_H_
-#define ANBOX_WM_DISPLAY_H_
+#pragma once
 
 #include <cstdint>
 
@@ -32,4 +31,3 @@ class Display {
   Display(const Display&) = delete;
 };
 }
-#endif

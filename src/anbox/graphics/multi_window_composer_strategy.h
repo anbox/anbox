@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_MULTI_WINDOW_COMPOSER_STRATEGY_H_
-#define ANBOX_GRAPHICS_MULTI_WINDOW_COMPOSER_STRATEGY_H_
+#pragma once
 
 #include "anbox/graphics/layer_composer.h"
 
@@ -34,4 +33,3 @@ private:
   std::shared_ptr<wm::Manager> wm_;
 };
 }
-#endif

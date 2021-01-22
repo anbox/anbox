@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_APPLICATION_DATABASE_H_
-#define ANBOX_APPLICATION_DATABASE_H_
+#pragma once
 
 #include "anbox/android/intent.h"
 
@@ -53,4 +52,3 @@ class Database {
   bool done_reset = false;
 };
 }
-#endif

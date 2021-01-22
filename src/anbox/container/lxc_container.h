@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_LXC_CONTAINER_H_
-#define ANBOX_CONTAINER_LXC_CONTAINER_H_
+#pragma once
 
 #include "anbox/container/container.h"
 #include "anbox/network/credentials.h"
@@ -66,4 +65,3 @@ class LxcContainer : public Container {
 // get_id_map() is published for unit testing
 std::vector<std::string> get_id_map(uid_t uid, gid_t gid);
 }
-#endif

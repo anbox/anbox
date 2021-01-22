@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_UTILS_H_
-#define ANBOX_UTILS_H_
+#pragma once
 
 #include <boost/format.hpp>
 
@@ -79,4 +78,3 @@ inline std::string anbox::utils::string_format(const std::string &format,
   return impl::string_format(f, std::forward<Types>(args)...).str();
 }
 
-#endif

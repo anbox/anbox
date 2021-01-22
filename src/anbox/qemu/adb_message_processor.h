@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_QEMU_ADBD_MESSAGE_PROCESSOR_H_
-#define ANBOX_QEMU_ADBD_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/network/message_processor.h"
 #include "anbox/network/socket_connection.h"
@@ -73,5 +72,3 @@ class AdbMessageProcessor : public network::MessageProcessor {
 };
 }  // namespace graphics
 }  // namespace anbox
-
-#endif

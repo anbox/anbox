@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_PLATFORM_SDL_PLATFORM_H_
-#define ANBOX_PLATFORM_SDL_PLATFORM_H_
+#pragma once
 
 #include "anbox/platform/sdl/window.h"
 #include "anbox/platform/sdl/sdl_wrapper.h"
@@ -111,4 +110,3 @@ class Platform : public std::enable_shared_from_this<Platform>,
   void push_finger_motion(int x, int y, int finger_id, std::vector<input::Event> &touch_events);
 };
 }
-#endif

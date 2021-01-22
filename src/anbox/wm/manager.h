@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_WM_MANAGER_H_
-#define ANBOX_WM_MANAGER_H_
+#pragma once
 
 #include "anbox/wm/window.h"
 #include "anbox/wm/window_state.h"
@@ -43,4 +42,3 @@ class Manager {
   virtual std::shared_ptr<Window> find_window_for_task(const Task::Id &task) = 0;
 };
 }
-#endif

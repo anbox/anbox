@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_STREAM_SOCKET_TRANSPORT_H_
-#define ANBOX_STREAM_SOCKET_TRANSPORT_H_
+#pragma once
 
 #include "anbox/common/fd.h"
 #include "anbox/network/socket_messenger.h"
@@ -59,4 +58,3 @@ class StreamSocketTransport {
   SocketMessenger messenger_;
 };
 }
-#endif  // STREAM_SOCKET_TRANSPORT_H_

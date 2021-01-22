@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_QEMU_FINGERPRINT_MESSAGE_PROCESSOR_H_
-#define ANBOX_QEMU_FINGERPRINT_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/qemu/qemud_message_processor.h"
 
@@ -37,4 +36,3 @@ class FingerprintMessageProcessor : public QemudMessageProcessor {
 }  // namespace graphics
 }  // namespace anbox
 
-#endif

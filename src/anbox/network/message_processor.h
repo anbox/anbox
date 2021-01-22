@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_MESSAGE_PROCESSOR_H
-#define ANBOX_NETWORK_MESSAGE_PROCESSOR_H
+#pragma once
 
 #include <cstdint>
 #include <vector>
@@ -28,4 +27,3 @@ class MessageProcessor {
   virtual bool process_data(const std::vector<std::uint8_t> &data) = 0;
 };
 }
-#endif

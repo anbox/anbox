@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_RPC_CONSTANTS_H_
-#define ANBOX_RPC_CONSTANTS_H_
+#pragma once
 
 namespace anbox {
 namespace rpc {
@@ -30,4 +29,3 @@ enum MessageType {
 }  // namespace rpc
 }  // namespace network
 
-#endif

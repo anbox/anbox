@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CLIENT_H_
-#define ANBOX_CONTAINER_CLIENT_H_
+#pragma once
 
 #include "anbox/container/configuration.h"
 #include "anbox/runtime.h"
@@ -59,4 +58,3 @@ class Client {
   TerminateCallback terminate_callback_;
 };
 }
-#endif

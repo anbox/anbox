@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_CREDENTIALS_H_
-#define ANBOX_NETWORK_CREDENTIALS_H_
+#pragma once
 
 #include <sys/types.h>
 
@@ -37,4 +36,3 @@ class Credentials {
   gid_t gid_;
 };
 }
-#endif

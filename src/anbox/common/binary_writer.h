@@ -16,8 +16,7 @@
  *
  */
 
-#ifndef ANBOX_COMMON_BINARY_WRITER_H_
-#define ANBOX_COMMON_BINARY_WRITER_H_
+#pragma once
 
 #include <cstdint>
 #include <vector>
@@ -51,4 +50,3 @@ class BinaryWriter {
   Order byte_order_;
 };
 }
-#endif

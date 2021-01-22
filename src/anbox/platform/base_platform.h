@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_PLATFORM_POLICY_H_
-#define ANBOX_PLATFORM_POLICY_H_
+#pragma once
 
 #include "anbox/graphics/rect.h"
 #include "anbox/wm/window_state.h"
@@ -73,4 +72,3 @@ std::shared_ptr<BasePlatform> create(const std::string &name,
                                      const std::shared_ptr<input::Manager> &input_manager,
                                      const Configuration &config);
 }
-#endif

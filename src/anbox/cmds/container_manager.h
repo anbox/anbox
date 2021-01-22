@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CMDS_CONTAINER_MANAGER_H_
-#define ANBOX_CMDS_CONTAINER_MANAGER_H_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -50,4 +49,3 @@ class ContainerManager : public cli::CommandWithFlagsAndAction {
   std::string container_network_dns_servers_;
 };
 }
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_ANDROID_INTENT_H_
-#define ANBOX_ANDROID_INTENT_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -36,4 +35,3 @@ struct Intent {
 
 std::ostream &operator<<(std::ostream &out, const Intent &intent);
 }
-#endif

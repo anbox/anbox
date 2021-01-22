@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_PLATFORM_SDL_KEYCODE_CONVERTER_H_
-#define ANBOX_PLATFORM_SDL_KEYCODE_CONVERTER_H_
+#pragma once
 
 #include "anbox/platform/sdl/sdl_wrapper.h"
 
@@ -33,4 +32,3 @@ class KeycodeConverter {
   static const std::array<SDL_Scancode, 249> code_map;
 };
 }
-#endif

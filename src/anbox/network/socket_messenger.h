@@ -16,8 +16,7 @@
  * Authored by: Kevin DuBois <kevin.dubois@canonical.com>
  */
 
-#ifndef ANBOX_NETWORK_SOCKET_MESSENGER_H_
-#define ANBOX_NETWORK_SOCKET_MESSENGER_H_
+#pragma once
 
 #include <mutex>
 
@@ -34,4 +33,3 @@ class SocketMessenger : public MessageSender, public MessageReceiver {
   virtual void close() = 0;
 };
 }
-#endif

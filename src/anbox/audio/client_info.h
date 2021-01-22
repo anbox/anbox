@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_AUDIO_CLIENT_INFO_H_
-#define ANBOX_AUDIO_CLIENT_INFO_H_
+#pragma once
 
 #include <cstdint>
 
@@ -30,4 +29,3 @@ struct ClientInfo {
   Type type;
 };
 }
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_COMMON_BINDER_DEVICE_ALLOCATOR_H_
-#define ANBOX_COMMON_BINDER_DEVICE_ALLOCATOR_H_
+#pragma once
 
 #include <memory>
 
@@ -28,4 +27,3 @@ class BinderDeviceAllocator {
   static std::unique_ptr<BinderDevice> new_device();
 };
 }
-#endif

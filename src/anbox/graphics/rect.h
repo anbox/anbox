@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_RECT_H_
-#define ANBOX_GRAPHICS_RECT_H_
+#pragma once
 
 #include <cstdint>
 
@@ -76,4 +75,3 @@ class Rect {
 std::ostream &operator<<(std::ostream &out, const Rect &rect);
 std::istream& operator>>(std::istream& in, anbox::graphics::Rect &rect);
 }
-#endif

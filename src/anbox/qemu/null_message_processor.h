@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_QEMU_NULL_MESSAGE_PROCESSOR_H_
-#define ANBOX_QEMU_NULL_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/network/message_processor.h"
 
@@ -32,4 +31,3 @@ class NullMessageProcessor : public network::MessageProcessor {
 }  // namespace graphics
 }  // namespace anbox
 
-#endif

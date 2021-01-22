@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_TCPSOCKETCONNECTOR_H
-#define ANBOX_TCPSOCKETCONNECTOR_H
+#pragma once
 
 #include <boost/asio/ip/tcp.hpp>
 
@@ -51,4 +50,3 @@ class TcpSocketConnector : public DoNotCopyOrMove, public Connector {
   boost::asio::ip::tcp::acceptor acceptor_;
 };
 }
-#endif

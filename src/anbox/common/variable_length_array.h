@@ -16,8 +16,7 @@
  * Authored by: Alexandros Frantzis <alexandros.frantzis@canonical.com>
  */
 
-#ifndef ANBOX_COMMON_VARIABLE_LENGTH_ARRAY_H_
-#define ANBOX_COMMON_VARIABLE_LENGTH_ARRAY_H_
+#pragma once
 
 #include <sys/types.h>
 #include <memory>
@@ -55,4 +54,3 @@ class VariableLengthArray {
 };
 }  // namespace anbox
 
-#endif

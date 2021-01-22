@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CMDS_RUN_H_
-#define ANBOX_CMDS_RUN_H_
+#pragma once
 
 #include "anbox/cli.h"
 
@@ -56,4 +55,3 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
   bool server_side_decoration_ = false;
 };
 }
-#endif

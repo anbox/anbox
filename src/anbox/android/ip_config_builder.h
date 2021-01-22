@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_ANDROID_IPCONFIGBUILDER_H_
-#define ANBOX_ANDROID_IPCONFIGBUILDER_H_
+#pragma once
 
 #include "anbox/common/binary_writer.h"
 
@@ -60,4 +59,4 @@ class IpConfigBuilder {
   std::uint32_t id_;
 };
 }
-#endif
+

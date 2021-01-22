@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_BUFFERED_IO_STREAM_H_
-#define ANBOX_GRAPHICS_BUFFERED_IO_STREAM_H_
+#pragma once
 
 #include "external/android-emugl/host/include/libOpenglRender/IOStream.h"
 
@@ -59,4 +58,3 @@ class BufferedIOStream : public IOStream {
   std::thread worker_thread_;
 };
 }
-#endif

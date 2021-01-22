@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_BRIDGE_ANDROID_API_STUB_H_
-#define ANBOX_BRIDGE_ANDROID_API_STUB_H_
+#pragma once
 
 #include "anbox/application/manager.h"
 #include "anbox/common/wait_handle.h"
@@ -78,4 +77,3 @@ class AndroidApiStub : public anbox::application::Manager {
   core::Property<bool> ready_;
 };
 }
-#endif

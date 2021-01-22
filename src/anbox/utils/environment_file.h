@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_UTILS_ENVIRONMENT_FILE_H_
-#define ANBOX_UTILS_ENVIRONMENT_FILE_H_
+#pragma once
 
 #include <map>
 #include <string>
@@ -34,4 +33,3 @@ class EnvironmentFile {
   std::map<std::string, std::string> data_;
 };
 }
-#endif

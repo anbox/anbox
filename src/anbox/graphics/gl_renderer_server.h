@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
-#define ANBOX_GRAPHICS_GL_RENDERER_SERVER_H_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -60,4 +59,3 @@ class GLRendererServer {
 };
 
 }
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_MANAGEMENT_API_MESSAGE_PROCESSOR_H_
-#define ANBOX_CONTAINER_MANAGEMENT_API_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/rpc/message_processor.h"
 
@@ -40,4 +39,3 @@ class ManagementApiMessageProcessor : public rpc::MessageProcessor {
 }  // namespace anbox
 }  // namespace network
 
-#endif

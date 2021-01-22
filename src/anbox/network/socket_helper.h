@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_SOCKET_HELPER_H_
-#define ANBOX_NETWORK_SOCKET_HELPER_H_
+#pragma once
 
 #include <string>
 
@@ -25,4 +24,3 @@ bool socket_file_exists(std::string const& filename);
 bool socket_exists(std::string const& socket_name);
 std::string remove_socket_if_stale(std::string const& socket_name);
 }
-#endif

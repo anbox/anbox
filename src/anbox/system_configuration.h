@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_SYSTEM_CONFIGURATION_H_
-#define ANBOX_SYSTEM_CONFIGURATION_H_
+#pragma once
 
 #include <string>
 #include <memory>
@@ -54,4 +53,3 @@ class SystemConfiguration {
 };
 }  // namespace anbox
 
-#endif // ANBOX_SYSTEM_CONFIGURATION_H_

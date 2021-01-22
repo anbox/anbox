@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_COMMON_BINDER_DEVICE_H_
-#define ANBOX_COMMON_BINDER_DEVICE_H_
+#pragma once
 
 #include "anbox/common/fd.h"
 
@@ -37,4 +36,3 @@ class BinderDevice {
   const std::string path_;
 };
 }
-#endif

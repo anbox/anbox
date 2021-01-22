@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CMDS_INSTALL_H_
-#define ANBOX_CMDS_INSTALL_H_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -33,4 +32,3 @@ class Install : public cli::CommandWithFlagsAndAction {
   std::string apk_;
 };
 }
-#endif

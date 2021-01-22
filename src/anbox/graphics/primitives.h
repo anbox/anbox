@@ -17,8 +17,7 @@
  *              Kevin DuBois <kevin.dubois@canonical.com>
  */
 
-#ifndef ANBOX_GRAPHICS_PRIMITIVES_H_
-#define ANBOX_GRAPHICS_PRIMITIVES_H_
+#pragma once
 
 #include <GLES2/gl2.h>
 
@@ -41,4 +40,3 @@ struct Primitive {
   Vertex vertices[max_vertices];
 };
 }
-#endif

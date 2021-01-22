@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_PLATFORM_SDL_AUDIO_SINK_H_
-#define ANBOX_PLATFORM_SDL_AUDIO_SINK_H_
+#pragma once
 
 #include "anbox/audio/sink.h"
 #include "anbox/graphics/buffer_queue.h"
@@ -47,4 +46,3 @@ class AudioSink : public audio::Sink {
   size_t read_buffer_left_ = 0;
 };
 }
-#endif

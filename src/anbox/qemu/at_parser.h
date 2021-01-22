@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_QEMU_AT_PARSER_H_
-#define ANBOX_QEMU_AT_PARSER_H_
+#pragma once
 
 #include <functional>
 #include <map>
@@ -43,4 +42,3 @@ class AtParser {
   std::map<std::string, CommandHandler> handlers_;
 };
 }
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_OPENGLES_MESSAGE_PROCESSOR_H_
-#define ANBOX_GRAPHICS_OPENGLES_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/network/message_processor.h"
 #include "anbox/network/socket_connection.h"
@@ -50,4 +49,3 @@ class OpenGlesMessageProcessor : public network::MessageProcessor {
   std::shared_ptr<RenderThread> render_thread_;
 };
 }
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_WM_WINDOW_STATE_H_
-#define ANBOX_WM_WINDOW_STATE_H_
+#pragma once
 
 #include "anbox/graphics/rect.h"
 #include "anbox/wm/display.h"
@@ -53,4 +52,3 @@ class WindowState {
   Stack::Id stack_;
 };
 }
-#endif

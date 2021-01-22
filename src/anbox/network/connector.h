@@ -15,12 +15,10 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_CONNECTOR_H
-#define ANBOX_NETWORK_CONNECTOR_H
+#pragma once
 
 namespace anbox::network {
 class Connector {
  public:
 };
 }
-#endif

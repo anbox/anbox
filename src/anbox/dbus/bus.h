@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_DBUS_BUS_H_
-#define ANBOX_DBUS_BUS_H_
+#pragma once
 
 #include "anbox/do_not_copy_or_move.h"
 
@@ -53,4 +52,3 @@ class Bus : public DoNotCopyOrMove {
 };
 using BusPtr = std::shared_ptr<Bus>;
 }
-#endif

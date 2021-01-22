@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_MANAGEMENT_API_SKELETON_H_
-#define ANBOX_CONTAINER_MANAGEMENT_API_SKELETON_H_
+#pragma once
 
 #include <memory>
 
@@ -58,4 +57,3 @@ class ManagementApiSkeleton {
 };
 }
 
-#endif

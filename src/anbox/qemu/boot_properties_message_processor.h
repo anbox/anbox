@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_QEMU_BOOT_PROPERTIES_MESSAGE_PROCESSOR_H_
-#define ANBOX_QEMU_BOOT_PROPERTIES_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/qemu//qemud_message_processor.h"
 
@@ -37,4 +36,3 @@ class BootPropertiesMessageProcessor : public QemudMessageProcessor {
 }  // namespace graphics
 }  // namespace anbox
 
-#endif

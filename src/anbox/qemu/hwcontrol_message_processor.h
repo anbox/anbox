@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_QEMU_HWCONTROL_MESSAGE_PROCESSOR_H_
-#define ANBOX_QEMU_HWCONTROL_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/qemu/qemud_message_processor.h"
 
@@ -34,4 +33,3 @@ class HwControlMessageProcessor : public QemudMessageProcessor {
 }  // namespace graphics
 }  // namespace anbox
 
-#endif

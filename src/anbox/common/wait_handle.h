@@ -17,8 +17,7 @@
  *              Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
-#ifndef ANBOX_COMMON_WAIT_HANDLE_H_
-#define ANBOX_COMMON_WAIT_HANDLE_H_
+#pragma once
 
 #include <chrono>
 #include <condition_variable>
@@ -47,4 +46,3 @@ struct WaitHandle {
   int received;
 };
 }
-#endif

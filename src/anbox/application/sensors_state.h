@@ -1,5 +1,4 @@
-#ifndef ANBOX_APPLICATION_SENSORS_STATE_H_
-#define ANBOX_APPLICATION_SENSORS_STATE_H_
+#pragma once
 
 #include <cstdint>
 #include <tuple>
@@ -31,4 +30,3 @@ struct SensorsState : public DoNotCopyOrMove {
   double humidity;
 };
 }
-#endif

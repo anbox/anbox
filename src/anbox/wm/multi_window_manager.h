@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_WM_MULTI_WINDOW_MANAGER_H_
-#define ANBOX_WM_MULTI_WINDOW_MANAGER_H_
+#pragma once
 
 #include "anbox/wm/manager.h"
 
@@ -61,4 +60,3 @@ class MultiWindowManager : public Manager {
   std::map<Task::Id, std::shared_ptr<Window>> windows_;
 };
 }
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_PLATFORM_NULL_PLATFORM_H_
-#define ANBOX_PLATFORM_NULL_PLATFORM_H_
+#pragma once
 
 #include "anbox/platform/base_platform.h"
 
@@ -40,4 +39,3 @@ class NullPlatform : public BasePlatform {
 }  // namespace wm
 }  // namespace anbox
 
-#endif

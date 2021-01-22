@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_WM_TASK_H_
-#define ANBOX_WM_TASK_H_
+#pragma once
 
 #include <cstdint>
 
@@ -31,4 +30,3 @@ class Task {
   Task(const Task&) = delete;
 };
 }
-#endif

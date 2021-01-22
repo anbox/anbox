@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_DBUS_INTERFACE_H_
-#define ANBOX_DBUS_INTERFACE_H_
+#pragma once
 
 namespace anbox::dbus::interface {
 struct Service {
@@ -24,4 +23,3 @@ struct Service {
   static inline const char* path() { return "/org/anbox"; }
 };
 }
-#endif

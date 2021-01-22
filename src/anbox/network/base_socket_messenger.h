@@ -16,8 +16,7 @@
  * Authored by: Kevin DuBois <kevin.dubois@canonical.com>
  */
 
-#ifndef ANBOX_NETWORK_BASE_SOCKET_MESSENGER_H_
-#define ANBOX_NETWORK_BASE_SOCKET_MESSENGER_H_
+#pragma once
 
 #include "anbox/common/fd_sets.h"
 #include "anbox/network/socket_messenger.h"
@@ -59,4 +58,3 @@ class BaseSocketMessenger : public SocketMessenger {
   std::mutex message_lock;
 };
 }
-#endif

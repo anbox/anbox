@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef ANBOX_CMDS_VERSION_H_
-#define ANBOX_CMDS_VERSION_H_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -32,4 +31,3 @@ class Version : public cli::CommandWithFlagsAndAction {
   Version();
 };
 }
-#endif

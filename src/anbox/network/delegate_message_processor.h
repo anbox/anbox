@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_DELEGATE_MESSAGE_PROCESSOR_H_
-#define ANBOX_NETWORK_DELEGATE_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/network/message_processor.h"
 
@@ -35,4 +34,3 @@ class DelegateMessageProcessor : public MessageProcessor {
   std::function<bool(const std::vector<std::uint8_t> &)> process_data_;
 };
 }
-#endif

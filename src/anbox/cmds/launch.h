@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CMDS_LAUNCH_H_
-#define ANBOX_CMDS_LAUNCH_H_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -39,4 +38,3 @@ class Launch : public cli::CommandWithFlagsAndAction {
   bool use_system_dbus_ = false;
 };
 }
-#endif

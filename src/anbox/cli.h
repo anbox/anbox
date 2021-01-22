@@ -16,8 +16,7 @@
  * Authored by: Thomas Voß <thomas.voss@canonical.com>
  *
  */
-#ifndef BIOMETRY_UTIL_CLI_H_
-#define BIOMETRY_UTIL_CLI_H_
+#pragma once
 
 #include <iomanip>
 #include <iostream>
@@ -383,4 +382,3 @@ inline BoolSwitchFlag::Ptr make_flag(const Name& name,
 }  // namespace cli
 }  // namespace anbox
 
-#endif

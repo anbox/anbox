@@ -16,8 +16,7 @@
  * Authored by: Kevin DuBois <kevin.dubois@canonical.com>
  */
 
-#ifndef ANBOX_COMMON_FD_H_
-#define ANBOX_COMMON_FD_H_
+#pragma once
 
 #include <memory>
 
@@ -47,4 +46,3 @@ class Fd {
 };
 }  // namespace anbox
 
-#endif

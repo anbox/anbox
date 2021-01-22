@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_LOCAL_SOCKET_MESSENGER_H_
-#define ANBOX_NETWORK_LOCAL_SOCKET_MESSENGER_H_
+#pragma once
 
 #include "anbox/network/base_socket_messenger.h"
 #include "anbox/runtime.h"
@@ -38,4 +37,3 @@ class LocalSocketMessenger
   std::shared_ptr<boost::asio::local::stream_protocol::socket> socket_;
 };
 }
-#endif

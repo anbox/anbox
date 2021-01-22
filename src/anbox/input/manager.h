@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_INPUT_MANAGER_H_
-#define ANBOX_INPUT_MANAGER_H_
+#pragma once
 
 #include <map>
 #include <memory>
@@ -42,4 +41,3 @@ class Manager {
   std::map<std::uint32_t, std::shared_ptr<Device>> devices_;
 };
 }
-#endif

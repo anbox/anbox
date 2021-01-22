@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_LAYER_COMPOSER_H_
-#define ANBOX_GRAPHICS_LAYER_COMPOSER_H_
+#pragma once
 
 #include "anbox/graphics/renderer.h"
 
@@ -50,4 +49,3 @@ class LayerComposer {
   std::shared_ptr<Strategy> strategy_;
 };
 }
-#endif

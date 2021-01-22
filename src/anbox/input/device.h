@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_INPUT_DEVICE_H_
-#define ANBOX_INPUT_DEVICE_H_
+#pragma once
 
 #include "anbox/network/connections.h"
 #include "anbox/network/published_socket_connector.h"
@@ -97,4 +96,3 @@ class Device : public std::enable_shared_from_this<Device> {
   Info info_;
 };
 }
-#endif

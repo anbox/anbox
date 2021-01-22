@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ANBOX_COMMON_MESSAGE_CHANNEL_H
-#define ANBOX_COMMON_MESSAGE_CHANNEL_H
+#pragma once
 
 #include <stddef.h>
 
@@ -93,4 +92,3 @@ class MessageChannel : public MessageChannelBase {
   T mItems[CAPACITY];
 };
 }
-#endif

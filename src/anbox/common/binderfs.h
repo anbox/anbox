@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_COMMON_BINDERFS_H_
-#define ANBOX_COMMON_BINDERFS_H_
+#pragma once
 
 #include <linux/types.h>
 #include <linux/ioctl.h>
@@ -41,4 +40,3 @@ struct binderfs_device {
  */
 #define BINDER_CTL_ADD _IOWR('b', 1, struct binderfs_device)
 
-#endif

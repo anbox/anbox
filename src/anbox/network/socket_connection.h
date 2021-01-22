@@ -16,8 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef ANBOX_NETWORK_SOCKET_CONNECTION_H_
-#define ANBOX_NETWORK_SOCKET_CONNECTION_H_
+#pragma once
 
 #include "anbox/network/connections.h"
 #include "anbox/network/message_processor.h"
@@ -60,4 +59,3 @@ class SocketConnection {
 };
 }
 
-#endif

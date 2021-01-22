@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_APPLICATION_MANAGER_H_
-#define ANBOX_APPLICATION_MANAGER_H_
+#pragma once
 
 #include "anbox/android/intent.h"
 #include "anbox/do_not_copy_or_move.h"
@@ -65,4 +64,3 @@ class RestrictedManager : public Manager {
   wm::Stack::Id launch_stack_;
 };
 }
-#endif

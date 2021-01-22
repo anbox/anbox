@@ -16,8 +16,7 @@
  * Authored by: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
-#ifndef ANBOX_GRAPHICS_PROGRAM_FAMILY_H_
-#define ANBOX_GRAPHICS_PROGRAM_FAMILY_H_
+#pragma once
 
 #include <map>
 #include <unordered_map>
@@ -59,4 +58,3 @@ class ProgramFamily {
   std::map<ShaderPair, Program> program;
 };
 }
-#endif  // MIR_RENDERER_GL_PROGRAM_FAMILY_H_

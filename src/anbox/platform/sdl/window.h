@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_PLATFORM_SDL_WINDOW_H_
-#define ANBOX_PLATFORM_SDL_WINDOW_H_
+#pragma once
 
 #include "anbox/wm/window.h"
 #include "anbox/platform/sdl/sdl_wrapper.h"
@@ -73,4 +72,3 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
   SDL_Window *window_;
 };
 }
-#endif

@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef ANBOX_COMMON_DISPATCHER_H_
-#define ANBOX_COMMON_DISPATCHER_H_
+#pragma once
 
 #include "anbox/do_not_copy_or_move.h"
 #include "anbox/runtime.h"
@@ -38,4 +37,3 @@ class Dispatcher : public DoNotCopyOrMove {
 std::shared_ptr<Dispatcher> create_dispatcher_for_runtime(
     const std::shared_ptr<Runtime>&);
 }
-#endif

@@ -16,8 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef ANBOX_NETWORK_CONNECTIONS_H_
-#define ANBOX_NETWORK_CONNECTIONS_H_
+#pragma once
 
 #include <map>
 #include <memory>
@@ -63,4 +62,3 @@ class Connections {
 };
 }
 
-#endif

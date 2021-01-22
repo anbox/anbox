@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_APPLICATION_LAUNCHER_STORAGE_H_
-#define ANBOX_APPLICATION_LAUNCHER_STORAGE_H_
+#pragma once
 
 #include "anbox/application/database.h"
 #include "anbox/android/intent.h"
@@ -45,4 +44,3 @@ class LauncherStorage {
   boost::filesystem::path path_;
 };
 }
-#endif

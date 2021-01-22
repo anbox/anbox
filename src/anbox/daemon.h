@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_DAEMON_H_
-#define ANBOX_DAEMON_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -36,4 +35,3 @@ class Daemon : public DoNotCopyOrMove {
 };
 }  // namespace anbox
 
-#endif

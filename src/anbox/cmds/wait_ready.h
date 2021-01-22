@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CMDS_WAIT_READY_H_
-#define ANBOX_CMDS_WAIT_READY_H_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -33,4 +32,3 @@ class WaitReady : public cli::CommandWithFlagsAndAction {
   bool use_system_dbus_ = false;
 };
 }
-#endif

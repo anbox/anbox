@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef ANBOX_CONFIG_H_
-#define ANBOX_CONFIG_H_
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -31,5 +30,3 @@ static constexpr const char *version{"@ANBOX_VERSION@"};
 static constexpr const char *default_resource_path{"@ANBOX_RESOURCE_DIR_FULL@"};
 static constexpr const char *default_data_path{"@ANBOX_STATEDIR_FULL@"};
 }
-
-#endif  // ANBOX_CONFIG_H_

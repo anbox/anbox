@@ -14,8 +14,7 @@
 * limitations under the License.
 */
 
-#ifndef ANBOX_GRAPHICS_EMUGL_RENDERABLE_H_
-#define ANBOX_GRAPHICS_EMUGL_RENDERABLE_H_
+#pragma once
 
 #include "anbox/graphics/rect.h"
 
@@ -66,4 +65,3 @@ std::ostream &operator<<(std::ostream &out, const Renderable &r);
 
 typedef std::vector<Renderable> RenderableList;
 
-#endif

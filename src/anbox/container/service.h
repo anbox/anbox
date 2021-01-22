@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_SERVICE_H_
-#define ANBOX_CONTAINER_SERVICE_H_
+#pragma once
 
 #include "anbox/common/dispatcher.h"
 #include "anbox/container/container.h"
@@ -57,4 +56,3 @@ class Service : public std::enable_shared_from_this<Service> {
   Configuration config_;
 };
 }
-#endif

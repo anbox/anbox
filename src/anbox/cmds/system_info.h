@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CMDS_SYSTEM_INFO_H_
-#define ANBOX_CMDS_SYSTEM_INFO_H_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -30,4 +29,3 @@ class SystemInfo : public cli::CommandWithFlagsAndAction {
   SystemInfo();
 };
 }
-#endif

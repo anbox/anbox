@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_RPC_CHANNEL_H_
-#define ANBOX_RPC_CHANNEL_H_
+#pragma once
 
 #include <atomic>
 #include <memory>
@@ -63,4 +62,3 @@ class Channel {
 };
 }
 
-#endif

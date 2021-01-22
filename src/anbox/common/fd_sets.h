@@ -16,8 +16,7 @@
  * Authored by: Robert Carr <robert.carr@canonical.com>
  */
 
-#ifndef ANBOX_COMMON_FD_SETS_H_
-#define ANBOX_COMMON_FD_SETS_H_
+#pragma once
 
 #include <initializer_list>
 #include <vector>
@@ -28,4 +27,3 @@ namespace anbox {
 typedef std::vector<std::vector<Fd>> FdSets;
 }  // namespace anbox
 
-#endif

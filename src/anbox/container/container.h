@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONTAINER_H_
-#define ANBOX_CONTAINER_CONTAINER_H_
+#pragma once
 
 #include "anbox/container/configuration.h"
 
@@ -43,4 +42,3 @@ class Container {
   virtual State state() = 0;
 };
 }
-#endif

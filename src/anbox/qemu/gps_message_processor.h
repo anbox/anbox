@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_QEMU_GPS_MESSAGE_PROCESSOR_H_
-#define ANBOX_QEMU_GPS_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/application/gps_info_broker.h"
 #include "anbox/network/message_processor.h"
@@ -36,4 +35,3 @@ class GpsMessageProcessor : public network::MessageProcessor {
   boost::signals2::connection connection_;
 };
 }
-#endif

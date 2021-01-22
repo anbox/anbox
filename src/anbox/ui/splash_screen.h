@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_UI_SPLASH_SCREEN_H_
-#define ANBOX_UI_SPLASH_SCREEN_H_
+#pragma once
 
 #include <thread>
 
@@ -36,4 +35,3 @@ class SplashScreen {
   SDL_Window *window_;
 };
 }
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_DEFER_ACTION_H_
-#define ANBOX_DEFER_ACTION_H_
+#pragma once
 
 #include <functional>
 
@@ -38,4 +37,3 @@ class DeferAction : public DoNotCopyOrMove {
 
 }  // namespace anbox
 
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_QEMU_PIPE_CONNECTION_CREATOR_H_
-#define ANBOX_NETWORK_QEMU_PIPE_CONNECTION_CREATOR_H_
+#pragma once
 
 #include <boost/asio.hpp>
 
@@ -75,4 +74,3 @@ class PipeConnectionCreator
   std::shared_ptr<network::Connections<network::SocketConnection>> const connections_;
 };
 }
-#endif

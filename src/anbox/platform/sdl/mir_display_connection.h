@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_PLATFORM_SDL_MIR_DISPLAY_CONNECTION_H_
-#define ANBOX_PLATFORM_SDL_MIR_DISPLAY_CONNECTION_H_
+#pragma once
 
 #define MIR_EGL_PLATFORM
 
@@ -46,4 +45,3 @@ class MirDisplayConnection {
   int horizontal_resolution_;
 };
 }
-#endif

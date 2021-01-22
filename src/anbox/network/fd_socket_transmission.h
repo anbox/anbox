@@ -16,8 +16,7 @@
  * Authored by: Kevin DuBois <kevin.dubois@canonical.com>
  */
 
-#ifndef ANBOX_NETWORK_FD_SOCKET_TRANSMISSION_H_
-#define ANBOX_NETWORK_FD_SOCKET_TRANSMISSION_H_
+#pragma once
 
 #include "anbox/common/fd.h"
 
@@ -44,4 +43,3 @@ void receive_data(Fd const& socket, void* buffer, size_t bytes_requested,
                   std::vector<Fd>& fds);
 }
 
-#endif

@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ANBOX_GRAPHICS_BUFFER_QUEUE_H_
-#define ANBOX_GRAPHICS_BUFFER_QUEUE_H_
+#pragma once
 
 #include "anbox/common/small_vector.h"
 
@@ -50,4 +49,3 @@ class BufferQueue {
 };
 
 }
-#endif

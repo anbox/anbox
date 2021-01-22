@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_WM_WINDOW_H_
-#define ANBOX_WM_WINDOW_H_
+#pragma once
 
 #include "anbox/wm/window_state.h"
 
@@ -66,4 +65,3 @@ class Window {
   bool attached_ = false;
 };
 }
-#endif

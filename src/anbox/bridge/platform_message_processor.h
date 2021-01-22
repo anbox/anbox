@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_BRIDGE_PLATFORM_MESSAGE_PROCESSOR_H_
-#define ANBOX_BRIDGE_PLATFORM_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/rpc/message_processor.h"
 
@@ -38,4 +37,3 @@ class PlatformMessageProcessor : public rpc::MessageProcessor {
 };
 }
 
-#endif

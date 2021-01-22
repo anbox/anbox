@@ -16,8 +16,7 @@
  * Authored by: Alberto Aguirre <alberto.aguirre@canonical.com>
  */
 
-#ifndef ANBOX_RPC_MAKE_PROTOBUF_OBJECT_H_
-#define ANBOX_RPC_MAKE_PROTOBUF_OBJECT_H_
+#pragma once
 
 #include <memory>
 
@@ -34,4 +33,3 @@ auto make_protobuf_object(ProtobufType const& from) {
   return object;
 }
 }
-#endif

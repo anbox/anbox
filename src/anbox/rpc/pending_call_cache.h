@@ -16,8 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef ANBOX_RPC_PENDING_CALL_CACHE_
-#define ANBOX_RPC_PENDING_CALL_CACHE_
+#pragma once
 
 #include <functional>
 #include <map>
@@ -65,5 +64,3 @@ class PendingCallCache {
   std::map<int, PendingCall> pending_calls_;
 };
 }
-
-#endif

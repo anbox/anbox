@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_AUDIO_SINK_H_
-#define ANBOX_AUDIO_SINK_H_
+#pragma once
 
 #include <cstdint>
 
@@ -29,4 +28,3 @@ class Sink {
   virtual void write_data(const std::vector<std::uint8_t> &data) = 0;
 };
 }
-#endif

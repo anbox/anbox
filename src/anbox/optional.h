@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef ANBOX_OPTIONAL_H_
-#define ANBOX_OPTIONAL_H_
+#pragma once
 
 #include <boost/optional.hpp>
 #include <boost/optional/optional_io.hpp>
@@ -28,4 +27,3 @@ template <typename T>
 using Optional = boost::optional<T>;
 }
 
-#endif

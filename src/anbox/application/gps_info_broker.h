@@ -1,5 +1,4 @@
-#ifndef ANBOX_APPLICATION_GPS_INFO_BROKER_H_
-#define ANBOX_APPLICATION_GPS_INFO_BROKER_H_
+#pragma once
 
 #include <boost/signals2.hpp>
 #include <string>
@@ -11,4 +10,3 @@ struct GpsInfoBroker : public DoNotCopyOrMove {
   boost::signals2::signal<void(const std::string&)> newNmeaSentence;
 };
 }
-#endif

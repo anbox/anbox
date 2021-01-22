@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_BRIDGE_PLATFORM_SERVER_H_
-#define ANBOX_BRIDGE_PLATFORM_SERVER_H_
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -84,5 +83,3 @@ class PlatformApiSkeleton {
 };
 }
 
-
-#endif

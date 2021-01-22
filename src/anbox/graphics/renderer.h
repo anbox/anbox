@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_RENDERER_H_
-#define ANBOX_GRAPHICS_RENDERER_H_
+#pragma once
 
 #include "anbox/graphics/emugl/Renderable.h"
 
@@ -32,4 +31,3 @@ class Renderer {
                     const RenderableList& renderables) = 0;
 };
 }
-#endif

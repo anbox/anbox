@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_QEMU_TELEPHONY_MANAGER_H_
-#define ANBOX_QEMU_TELEPHONY_MANAGER_H_
+#pragma once
 
 #include <core/dbus/bus.h>
 #include <core/dbus/object.h>
@@ -34,4 +33,3 @@ class TelephonyManager {
   core::dbus::Object::Ptr modem_;
 };
 }
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_PUBLISHEDSOCKETCONNECTOR_H
-#define ANBOX_PUBLISHEDSOCKETCONNECTOR_H
+#pragma once
 
 #include <boost/asio/local/stream_protocol.hpp>
 
@@ -50,4 +49,3 @@ class PublishedSocketConnector : public DoNotCopyOrMove, public Connector {
   boost::asio::local::stream_protocol::acceptor acceptor_;
 };
 }
-#endif

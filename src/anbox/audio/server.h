@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_AUDIO_SERVER_H_
-#define ANBOX_AUDIO_SERVER_H_
+#pragma once
 
 #include "anbox/runtime.h"
 #include "anbox/audio/client_info.h"
@@ -51,4 +50,3 @@ class Server {
   std::atomic<int> next_id_;
 };
 }
-#endif

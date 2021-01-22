@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_RPC_MESSAGE_PROCESSOR_H_
-#define ANBOX_RPC_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include "anbox/network/message_processor.h"
 #include "anbox/network/message_sender.h"
@@ -65,4 +64,3 @@ class MessageProcessor : public network::MessageProcessor {
   std::shared_ptr<PendingCallCache> pending_calls_;
 };
 }
-#endif

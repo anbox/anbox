@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_WM_SINGLE_WINDOW_MANAGER_H_
-#define ANBOX_WM_SINGLE_WINDOW_MANAGER_H_
+#pragma once
 
 #include "anbox/wm/manager.h"
 
@@ -59,4 +58,3 @@ class SingleWindowManager : public Manager {
   std::shared_ptr<Window> window_;
 };
 }
-#endif

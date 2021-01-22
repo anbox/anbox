@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_WM_STACK_H_
-#define ANBOX_WM_STACK_H_
+#pragma once
 
 #include <ostream>
 
@@ -39,4 +38,3 @@ std::istream& operator>>(std::istream &in, Stack::Id &stack);
 }
 
 
-#endif

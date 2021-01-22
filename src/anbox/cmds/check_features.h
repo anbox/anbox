@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CMDS_CHECK_FEATURES_H_
-#define ANBOX_CMDS_CHECK_FEATURES_H_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -33,4 +32,3 @@ class CheckFeatures : public cli::CommandWithFlagsAndAction {
   bool sanity_check_for_features();
 };
 }
-#endif

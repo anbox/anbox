@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_CONFIGURATION_H_
-#define ANBOX_CONTAINER_CONFIGURATION_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -34,4 +33,3 @@ struct Configuration {
   std::vector<std::string> extra_properties;
 };
 }
-#endif

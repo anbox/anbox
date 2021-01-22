@@ -16,8 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef ANBOX_NETWORK_MESSAGE_SENDER_H_
-#define ANBOX_NETWORK_MESSAGE_SENDER_H_
+#pragma once
 
 #include <sys/types.h>
 #include <cstddef>
@@ -36,4 +35,3 @@ class MessageSender {
 };
 }
 
-#endif

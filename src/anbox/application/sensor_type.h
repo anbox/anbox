@@ -1,5 +1,4 @@
-#ifndef ANBOX_APPLICATION_SENSOR_TYPE_H_
-#define ANBOX_APPLICATION_SENSOR_TYPE_H_
+#pragma once
 
 #include <string>
 
@@ -20,4 +19,3 @@ class SensorTypeHelper {
   static SensorType FromString(const std::string& str);
 };
 }
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_GRAPHICS_GL_EXTENSIONS_H_
-#define ANBOX_GRAPHICS_GL_EXTENSIONS_H_
+#pragma once
 
 #include <stdexcept>
 #include <string.h>
@@ -50,4 +49,3 @@ class GLExtensions {
   char const* extensions;
 };
 }
-#endif

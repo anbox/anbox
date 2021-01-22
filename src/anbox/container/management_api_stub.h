@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_CONTAINER_MANAGEMENT_API_STUB_H_
-#define ANBOX_CONTAINER_MANAGEMENT_API_STUB_H_
+#pragma once
 
 #include "anbox/common/wait_handle.h"
 #include "anbox/container/configuration.h"
@@ -58,4 +57,3 @@ class ManagementApiStub : public DoNotCopyOrMove {
   static const std::chrono::milliseconds stop_waiting_timeout;
 };
 }
-#endif

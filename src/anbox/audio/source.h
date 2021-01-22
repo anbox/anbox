@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_AUDIO_SOURCE_H_
-#define ANBOX_AUDIO_SOURCE_H_
+#pragma once
 
 #include <cstdint>
 
@@ -30,4 +29,3 @@ class Source {
   virtual void read_data(std::vector<std::uint8_t> &data) = 0;
 };
 }
-#endif

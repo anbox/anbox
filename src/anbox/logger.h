@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_LOGGER_H_
-#define ANBOX_LOGGER_H_
+#pragma once
 
 #include <boost/optional.hpp>
 
@@ -147,4 +146,3 @@ void SetLogger(const std::shared_ptr<Logger>& logger);
   anbox::Log().Fatalf( \
       anbox::Logger::Location{__FILE__, __FUNCTION__, __LINE__}, __VA_ARGS__)
 
-#endif

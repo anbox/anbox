@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_CONNECTION_CREATOR_H_
-#define ANBOX_NETWORK_CONNECTION_CREATOR_H_
+#pragma once
 
 #include <boost/asio.hpp>
 
@@ -32,4 +31,3 @@ class ConnectionCreator : public DoNotCopyOrMove {
           socket) = 0;
 };
 }
-#endif

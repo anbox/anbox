@@ -16,8 +16,7 @@
  * Authored by: Kevin DuBois <kevin.dubois@canonical.com>
  */
 
-#ifndef ANBOX_NETWORK_MESSAGE_RECEIVER_H_
-#define ANBOX_NETWORK_MESSAGE_RECEIVER_H_
+#pragma once
 
 #include <boost/asio.hpp>
 #include <functional>
@@ -46,4 +45,3 @@ class MessageReceiver {
   MessageReceiver& operator=(MessageReceiver const&) = delete;
 };
 }
-#endif

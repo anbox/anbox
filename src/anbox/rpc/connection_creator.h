@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_RPC_CONNECTION_CREATOR_H_
-#define ANBOX_RPC_CONNECTION_CREATOR_H_
+#pragma once
 
 #include <boost/asio.hpp>
 
@@ -53,4 +52,3 @@ class ConnectionCreator
   MessageProcessorFactory message_processor_factory_;
 };
 }
-#endif

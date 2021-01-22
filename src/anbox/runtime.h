@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_RUNTIME_H_
-#define ANBOX_RUNTIME_H_
+#pragma once
 
 #include <boost/asio.hpp>
 #include <boost/version.hpp>
@@ -75,4 +74,3 @@ class Runtime : public DoNotCopyOrMove,
 
 }  // namespace anbox
 
-#endif

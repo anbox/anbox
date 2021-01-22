@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_COMMON_LOOP_DEVICE_H_
-#define ANBOX_COMMON_LOOP_DEVICE_H_
+#pragma once
 
 #include "anbox/common/fd.h"
 
@@ -40,4 +39,3 @@ class LoopDevice {
   boost::filesystem::path path_;
 };
 }
-#endif

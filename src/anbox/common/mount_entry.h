@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_COMMON_MOUNT_ENTRY_H_
-#define ANBOX_COMMON_MOUNT_ENTRY_H_
+#pragma once
 
 #include <boost/filesystem/path.hpp>
 
@@ -42,4 +41,3 @@ class MountEntry {
   boost::filesystem::path target_;
 };
 }
-#endif

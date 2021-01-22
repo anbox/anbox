@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef ANBOX_UTIL_NOT_REACHABLE_H_
-#define ANBOX_UTIL_NOT_REACHABLE_H_
+#pragma once
 
 #include <stdexcept>
 #include <string>
@@ -37,4 +36,3 @@ struct NotReachable : public std::logic_error {
                                 const std::string& file, std::uint32_t line);
 }
 
-#endif

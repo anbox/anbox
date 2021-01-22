@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_DELEGATE_CONNECTION_CREATOR_H_
-#define ANBOX_NETWORK_DELEGATE_CONNECTION_CREATOR_H_
+#pragma once
 
 #include <boost/asio.hpp>
 #include "anbox/network/connection_creator.h"
@@ -48,4 +47,3 @@ class DelegateConnectionCreator : public ConnectionCreator<stream_protocol> {
       delegate_;
 };
 }
-#endif

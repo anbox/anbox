@@ -16,8 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef ANBOX_RPC_TEMPLATE_MESSAGE_PROCESSOR_H_
-#define ANBOX_RPC_TEMPLATE_MESSAGE_PROCESSOR_H_
+#pragma once
 
 #include <google/protobuf/stubs/common.h>
 #ifdef USE_PROTOBUF_CALLBACK_HEADER
@@ -69,4 +68,3 @@ void invoke(Self* self, Bridge* rpc,
   }
 }
 }
-#endif

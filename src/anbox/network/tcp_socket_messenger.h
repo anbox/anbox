@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_NETWORK_TCP_SOCKET_MESSENGER_H_
-#define ANBOX_NETWORK_TCP_SOCKET_MESSENGER_H_
+#pragma once
 
 #include "anbox/network/base_socket_messenger.h"
 #include "anbox/runtime.h"
@@ -38,4 +37,3 @@ class TcpSocketMessenger : public BaseSocketMessenger<boost::asio::ip::tcp> {
   unsigned short local_port_;
 };
 }
-#endif

@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_DO_NOT_COPY_OR_MOVE_H_
-#define ANBOX_DO_NOT_COPY_OR_MOVE_H_
+#pragma once
 
 namespace anbox {
 
@@ -33,4 +32,3 @@ class DoNotCopyOrMove {
 };
 }
 
-#endif

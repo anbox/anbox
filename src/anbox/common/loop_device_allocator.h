@@ -15,8 +15,7 @@
  *
  */
 
-#ifndef ANBOX_COMMON_LOOP_DEVICE_ALLOCATOR_H_
-#define ANBOX_COMMON_LOOP_DEVICE_ALLOCATOR_H_
+#pragma once
 
 #include <memory>
 
@@ -27,4 +26,3 @@ class LoopDeviceAllocator {
   static std::shared_ptr<LoopDevice> new_device();
 };
 }
-#endif
