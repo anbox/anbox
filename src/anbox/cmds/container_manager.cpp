@@ -85,6 +85,11 @@ anbox::cmds::ContainerManager::ContainerManager()
         return EXIT_FAILURE;
       }
 
+      if ((!fs::exists("/dev/binder") && !fs::exists("/dev/binderfs")) || !fs::exists("/dev/ashmem")) {
+        ERROR("Failed to start as either binder or ashmem kernel drivers are not loaded");
+        return EXIT_FAILURE;
+      }
+
       auto trap = core::posix::trap_signals_for_process(
           {core::posix::Signal::sig_term, core::posix::Signal::sig_int});
       trap->signal_raised().connect([trap](const core::posix::Signal& signal) {
