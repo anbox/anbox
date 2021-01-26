@@ -1,0 +1,109 @@
+{
+    "external": [],
+    "empty": [
+        "build",
+        "external",
+        "cmds"
+    ],
+    "build": [],
+    "dbus": [
+        "application",
+        "android",
+        "sdbus-c++",
+        "wm"
+    ],
+    "platform": [
+        "graphics",
+        "wm",
+        "audio",
+        "input"
+    ],
+    "common": [],
+    "container": [
+        "common",
+        "network",
+        "rpc",
+        "android",
+        "qemu"
+    ],
+    "audio": [
+        "network",
+        "common",
+        "platform"
+    ],
+    "input": [
+        "network",
+        "qemu"
+    ],
+    "bridge": [
+        "rpc",
+        "wm",
+        "application",
+        "common",
+        "graphics",
+        "platform"
+    ],
+    "application": [
+        "android",
+        "graphics",
+        "wm"
+    ],
+    "wm": [
+        "graphics",
+        "platform",
+        "application",
+        "bridge"
+    ],
+    "graphics": [
+        "wm",
+        "network",
+        "common",
+        "external",
+        "OpenGLESDispatch",
+        "emugl"
+    ],
+    "network": [
+        "common"
+    ],
+    "testing": [
+        "common"
+    ],
+    "ui": [],
+    "android": [
+        "common"
+    ],
+    "cmds": [
+        "dbus",
+        "ui",
+        "core",
+        "application",
+        "audio",
+        "bridge",
+        "common",
+        "container",
+        "graphics",
+        "input",
+        "network",
+        "platform",
+        "qemu",
+        "rpc",
+        "wm",
+        "external",
+        "build",
+        "utils",
+        "OpenGLESDispatch",
+        "android"
+    ],
+    "rpc": [
+        "common",
+        "network"
+    ],
+    "utils": [],
+    "protobuf": [],
+    "qemu": [
+        "application",
+        "network",
+        "dbus",
+        "graphics"
+    ]
+}
