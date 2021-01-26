@@ -15,27 +15,16 @@ distribution and how to use them.
 
 The installation of Anbox consists of two steps.
 
- 1. Install necessary kernel modules
+ 1. Getting the necessary kernel support
  2. Install the Anbox snap
 
-In order to support the mandatory kernel subsystems ashmem and binder for the
-Android container you have to install two
-[DKMS](https://en.wikipedia.org/wiki/Dynamic_Kernel_Module_Support)
-based kernel modules. The source for the kernel modules is maintained by the
-Anbox project [here](https://github.com/anbox/anbox-modules).
+## Have necessary kernel support
 
-At the moment we only have packages prepared for Ubuntu in a PPA on Launchpad.
-If you want to help to get the packages in your favorite distribution please
-come and talk to us or submit a PR with the distribution specific packaging.
+### On current Debian (from Buster) or Ubuntu (from 18.04)
 
-The second step will install the Anbox snap from the store and will give you
-everything you need to run the full Anbox experience.
-
-## Install necessary kernel modules
-
-### On Ubuntu 19.04 and later
-
-There is no need to install those modules on a recent Ubuntu or Debian: Even Ubuntu 18.04 LTS and Debian Stable have got the modules. However, you may get an error loading `ashmem_linux` if SecureBoot is enabled:
+There is no need to install those modules on an up-to-date Ubuntu or Debian:
+Ubuntu and Debian have got the support compiled as modules. However, you may
+get an error loading `ashmem_linux` if SecureBoot is enabled:
 
 ```
  $ sudo modprobe ashmem_linux
@@ -49,68 +38,44 @@ $ sudo mokutil --sb-state
 SecureBoot enabled
 ```
 
-There are two ways around this. One is to disable the SecureBoot: https://wiki.ubuntu.com/UEFI/SecureBoot/DKMS. 
+There are two ways around this. One is to disable the SecureBoot: https://wiki.ubuntu.com/UEFI/SecureBoot/DKMS.
 Following [this post](https://github.com/anbox/anbox/issues/1570), the other way is to sign the `ashmem_linux` kernel module yourself. Note that you may have to enroll your own key, as described [here](https://ubuntu.com/blog/how-to-sign-things-for-secure-boot).
 
-### Before Ubuntu 19.04
+### On every other Linux distribution out there
 
-You should have the modules on your system already. However, you can still try to use the ppa (no longer maintained) if `sudo modprobe ashmem_linux binder_linux` can't find the modules.
-
-In order to add the PPA to your Ubuntu system please run the following commands:
-
-```
- $ sudo add-apt-repository ppa:morphis/anbox-support
- $ sudo apt update
- $ sudo apt install anbox-modules-dkms
-```
-> In case `add-apt-repository` is missing, install it via:
-> ```
-> sudo apt install software-properties-common
-> ```
-
-These will add the PPA to your system and install the `anbox-modules-dkms`
-package which contains the ashmem and binder kernel modules. They will be
-automatically rebuild everytime the kernel packages on your system update.
-
-> On system with UEFI the Secure Boot should be disabled, see
-> https://wiki.ubuntu.com/UEFI/SecureBoot/DKMS
-
-After you installed the `anbox-modules-dkms` package you have to manually
-load the kernel modules. The next time your system starts they will be
-automatically loaded.
-
-```
- $ sudo modprobe ashmem_linux
- $ sudo modprobe binder_linux
-```
+You need a kernel that's compiled with binder and ashmem support.
 
 ## Verify that kernel modules are loaded
 
 Now you should have two new nodes in your systems `/dev` directory:
 
-```
+```sh
  $ ls -1 /dev/{ashmem,binder}
  /dev/ashmem
  /dev/binder
 ```
 
 > In Ubuntu 19.10 the binder driver doesn't create /dev/binder when loaded. That is intentional. 
-> Instead it provides support for binderfs (see https://brauner.github.io/2019/01/09/android-binderfs.html) 
+> Instead it provides support with binderfs (see https://brauner.github.io/2019/01/09/android-binderfs.html) 
 > which is instead since PR anbox/anbox#1309
+
+You can use `grep binder /proc/filesystems || echo "binderfs support is missing"`
+To check for binderfs support. Note that only the snap supports binderfs
+without manual intervention as of now (PR welcome).
 
 ## Install the Anbox snap
 
 Installing the Anbox snap is very simple:
 
 ```
- $ snap install --devmode --beta anbox
+ $ snap install --devmode --edge anbox
 ```
 
 If you haven't logged into the Ubuntu Store yet, the `snap` command will
 ask you to use `sudo snap ...` in order to install the snap:
 
 ```
- $ sudo snap install --devmode --beta anbox
+ $ sudo snap install --devmode --edge anbox
 ```
 
 At the moment we require the use of `--devmode` as the Anbox snap is not
@@ -121,7 +86,7 @@ As a side effect of using `--devmode` the snap will not automatically update.
 In order to update to a newer version you can run:
 
 ```
- $ snap refresh --beta --devmode anbox
+ $ snap refresh --edge --devmode anbox
 ```
 
 Information about the currently available versions of the snap is available
@@ -133,10 +98,9 @@ via:
 
 ## Available snap channels
 
-Currently we only use the beta and edge channels for the Anbox snap. The edge
-channel tracks the latest development is always synced with the state of the
-master branch on github. The beta channel is updated less frequently to provide
-a more stable and bug free experience.
+Currently we only use the edge channels for the Anbox snap. The edge channel
+tracks the latest development is always synced with the state of the master
+branch on github. There is a second release channel, beta, that's getting old.
 
 Once proper confinement for the Anbox snap exists we will also start using the
 candidate and stable channels.
@@ -152,7 +116,8 @@ from your system. There is no way to bring it back.
  $ snap remove anbox
 ```
 
-Once the snap is removed you have to remove the installed kernel modules as well:
+Once the snap is removed you may have to remove the legacy DKMS modules (if you
+installed them):
 
 ```
  $ sudo apt install ppa-purge
