@@ -5,7 +5,7 @@ add_subdirectory(backward-cpp)
 
 set(BUILD_TESTING OFF)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error")
-add_subdirectory(cpu_features)
+add_subdirectory(cpu_features EXCLUDE_FROM_ALL)
 include(ExternalProject)
 ExternalProject_Add(sdbus-cpp
   PREFIX sdbus-cpp
