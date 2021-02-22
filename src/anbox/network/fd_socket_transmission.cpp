@@ -69,7 +69,9 @@ void send_fds(Fd const& socket, std::vector<Fd> const& fds) {
     message->cmsg_level = SOL_SOCKET;
     message->cmsg_type = SCM_RIGHTS;
 
-    int* const data = reinterpret_cast<int*>(CMSG_DATA(message));
+    unsigned char* msgtp = CMSG_DATA(message);
+    int* const data = reinterpret_cast<int*>(&msgtp);
+
     int i = 0;
     for (auto& fd : fds) data[i++] = fd;
 
