@@ -136,6 +136,22 @@ set(ANBOX_STATEDIR_FULL "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/anbox")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/config.h.in
                ${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/config.h)
 
+
+# sdbus-cpp
+#   find includes and code-generator
+find_package(sdbus-c++ QUIET)
+find_program(XML2CPP "sdbus-c++-xml2cpp")
+
+# sdbus-c++-xml2cpp should be in PATH when building with docker container
+if(${sdbus-c++_FOUND} AND (NOT XML2CPP STREQUAL "XML2CPP-NOTFOUND"))
+  message(STATUS "sdbus-cpp: use installed library")
+  set(COMPILE_SDBUS_CPP FALSE)
+else()
+  message(STATUS "sdbus-cpp: compile from source")
+  set(COMPILE_SDBUS_CPP TRUE)
+endif()
+
+
 add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(tests)
