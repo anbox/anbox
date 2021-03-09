@@ -97,6 +97,7 @@ class Platform : public std::enable_shared_from_this<Platform>,
   graphics::Rect display_frame_;
   bool window_size_immutable_ = false;
   std::uint32_t focused_sdl_window_id_ = 0;
+  bool video_has_been_closed_ = false;
   Configuration config_;
 
   static const int MAX_FINGERS = 10;
