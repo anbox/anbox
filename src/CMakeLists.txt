@@ -204,6 +204,8 @@ set(SOURCES
     anbox/graphics/multi_window_composer_strategy.h
     anbox/graphics/opengles_message_processor.cpp
     anbox/graphics/opengles_message_processor.h
+    anbox/graphics/opengles_socket_connection.cpp
+    anbox/graphics/opengles_socket_connection.h
     anbox/graphics/primitives.h
     anbox/graphics/program_family.cpp
     anbox/graphics/program_family.h

@@ -20,12 +20,15 @@
 
 #include <cstdint>
 #include <vector>
+#include "anbox/common/small_vector.h"
 
 namespace anbox::network {
+using MessageBuffer = anbox::common::SmallFixedVector<char, 512>;
 class MessageProcessor {
  public:
   virtual ~MessageProcessor() {}
-  virtual bool process_data(const std::vector<std::uint8_t> &data) = 0;
+  virtual bool process_data(const std::vector<std::uint8_t> &) { return false; }
+  virtual bool process_data(MessageBuffer &&) { return false; }
 };
 }
 #endif
