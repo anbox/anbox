@@ -54,6 +54,7 @@ class SessionManager : public cli::CommandWithFlagsAndAction {
   bool use_software_rendering_ = false;
   bool no_touch_emulation_ = false;
   bool server_side_decoration_ = false;
+  bool rootless_ = false;
 };
 }
 #endif
