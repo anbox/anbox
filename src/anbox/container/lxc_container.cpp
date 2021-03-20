@@ -482,6 +482,20 @@ void LxcContainer::start(const Configuration &configuration) {
                                          new_default_prop_path.string(), rootfs_path));
   }
 
+  fs::path bindtab = SystemConfiguration::instance().data_dir() / "bindtab";
+  if ( fs::exists(bindtab) && fs::is_regular_file(bindtab) ) {
+    std::ifstream bindtab_data;
+    bindtab_data.open(bindtab.string(), std::ios_base::in);
+
+    if (bindtab_data.is_open()) {
+      std::string bind_mnt;
+      while (std::getline(bindtab_data, bind_mnt)) {
+        if (bind_mnt.rfind("/", 0) == 0)
+          set_config_item("lxc.mount.entry", bind_mnt);
+      }
+    }
+  }
+
   if (!container_->save_config(container_, nullptr))
     throw std::runtime_error("Failed to save container configuration");
 
