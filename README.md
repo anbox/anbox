@@ -107,7 +107,7 @@ $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
     libboost-thread-dev libcap-dev libexpat1-dev libsystemd-dev libegl1-mesa-dev \
     libgles2-mesa-dev libglm-dev libgtest-dev liblxc1 \
     libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
-    pkg-config protobuf-compiler python3-minimal
+    pkg-config protobuf-compiler python3-minimal cmake-extras
 ```
 We recommend Ubuntu 20.04 (focal) as your build environment.
 
