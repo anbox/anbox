@@ -122,7 +122,23 @@ $ cd anbox
 $ mkdir build
 $ cd build
 $ cmake ..
-$ make
+$ make -j$(nproc)
+```
+#### cmake error: no cpu_features
+
+```
+documenting here for later: `
+when running cmake ..  in anbox/build (or when running cmake . in root of source tree) it is possible that cmake complains about not having cpu_features. 
+
+cpu_features is a google open source project to be able to detect the features of the host architecture at compile time to maximize efficiency on target platform. 
+
+As such, if it errors out: 
+cd ../external 
+rm -rf cpu_features 
+git clone https://github.com/google/cpu_features.git
+cd ../build 
+cmake .. 
+../make -j$(nproc)`
 ```
 
 A simple
