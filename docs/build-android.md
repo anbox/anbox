@@ -117,3 +117,40 @@ prevents anything from the outside to see its mount points.
 
 The *cache* and *data* directories are bind-mounted into the rootfs at *rootfs/data*
 and *rootfs/cache*.
+
+
+## Trouble shooting:
+
+#### repo init
+It may be that you have trouble initializing the repository with errors similiar to 
+```
+anbox-work/mount/.repo/repo/main.py", line 79
+    file=sys.stderr)
+        ^
+SyntaxError: invalid syntax
+```
+
+This is almost always due to the system attempting to use python 2 instead of python 3. A "nuclear" option to get around this issue is to remove python2 completely and force the system to only use python 3. 
+```sudo apt remove python2* ```
+```repo init ```
+It should return 
+```/usr/bin/env: 'python': No such .... ```
+This means that repo tried to call python, and the system was trying to point to python2 instead of python3 
+
+to confirm that python 2 was completely gone
+```env | grep pyth* ```
+which should only show python 3 entries 
+
+after that run 
+```whereis python3``` 
+which will return all known instances of "python3*"
+
+from there 
+```sudo ln -sf /usr/bin/python3 /usr/bin/python ```
+followed by 
+``` repo init -u https://github.com/anbox/platform_manifests.git -b anbox ```
+```
+repo sync -j$(nproc)
+```
+
+And you should be up and running 
