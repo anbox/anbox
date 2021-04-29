@@ -211,6 +211,7 @@ bool anbox::cmds::ContainerManager::setup_mounts() {
     return false;
   }
 
+  mount("none", "/dev/binderfs", "binder", 0, nullptr);
   auto final_android_rootfs_dir = android_rootfs_dir;
   if (enable_rootfs_overlay_) {
     if (!setup_rootfs_overlay())
