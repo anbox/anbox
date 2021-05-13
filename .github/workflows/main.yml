@@ -15,4 +15,4 @@ jobs:
         submodules: true
     - name: Build Anbox
       run: |
-        scripts/build-with-docker.sh --clean
+        ./build.sh --docker --hard-reset
