@@ -56,10 +56,14 @@ std::map<std::shared_ptr<wm::Window>, RenderableList> MultiWindowComposerStrateg
     for (auto &r : renderables) {
       // We always prioritize layers which are lower in the list we got
       // from SurfaceFlinger as they are already ordered.
-      if (r.screen_position().left()   < new_left)   new_left   = r.screen_position().left();
-      if (r.screen_position().top()    < new_top)    new_top    = r.screen_position().top();
-      if (r.screen_position().right()  > new_right)  new_right  = r.screen_position().right();
-      if (r.screen_position().bottom() > new_bottom) new_bottom = r.screen_position().bottom();
+      if (r.screen_position().left() < new_left)
+        new_left = r.screen_position().left();
+      if (r.screen_position().top() < new_top)
+        new_top = r.screen_position().top();
+      if (r.screen_position().right() > new_right) 
+        new_right = r.screen_position().right();
+      if (r.screen_position().bottom() > new_bottom)
+        new_bottom = r.screen_position().bottom();
     }
     auto new_window_frame = Rect{new_left, new_top, new_right, new_bottom};
 
