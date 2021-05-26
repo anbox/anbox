@@ -173,7 +173,7 @@ If you have found an issue with Anbox, please [file a bug](https://github.com/an
 ## Get in Touch
 
 If you want to get in contact with the developers please feel free to join the
-*#anbox* IRC channel on [Freenode](https://freenode.net/).
+*#anbox* IRC channel on [Libera.Chat](https://libera.chat).
 
 ## Copyright and Licensing
 
