@@ -131,7 +131,11 @@ status_t QemuQuery::completeQuery(status_t status)
      * with a ':'. If there is no more data in the reply, the prefix will be
      * zero-terminated, and the terminator will be inculded in the reply. */
     if (mReplyBuffer == NULL || mReplySize < 3) {
-        ALOGE("%s: Invalid reply to the query", __FUNCTION__);
+        if (!mReplyBuffer) {
+            ALOGE("%s: Invalid reply to query '%s': reply buffer is null", __FUNCTION__, mQuery);
+        } else {
+            ALOGE("%s: Invalid reply to query '%s': reply size is %d", __FUNCTION__, mQuery, mReplySize);
+        }
         mQueryDeliveryStatus = EINVAL;
         return EINVAL;
     }
@@ -315,17 +319,25 @@ status_t QemuClient::receiveMessage(void** data, size_t* data_size)
              __FUNCTION__, payload_size);
         return ENOMEM;
     }
-    rd_res = qemud_fd_read(mPipeFD, *data, payload_size);
-    if (static_cast<size_t>(rd_res) == payload_size) {
-        *data_size = payload_size;
-        return NO_ERROR;
-    } else {
-        ALOGE("%s: Read size %d doesnt match expected payload size %zu: %s",
-             __FUNCTION__, rd_res, payload_size, strerror(errno));
-        free(*data);
-        *data = NULL;
-        return errno ? errno : EIO;
+    size_t read_size = 0;
+    while (read_size < payload_size) {
+        if (read_size > 0) {
+            ALOGV("%s: Reading %zuth byte of expected payload %zu: %s", __FUNCTION__, read_size, payload_size, strerror(errno));
+        }
+        // Ensure that errno is cleared
+        errno = 0;
+        rd_res = qemud_fd_read(mPipeFD, static_cast<char*>(*data) + read_size, payload_size);
+        if (rd_res <= 0) {
+            ALOGE("%s: Read size %d doesnt match expected payload size %zu: %s",
+                __FUNCTION__, read_size, payload_size, strerror(errno));
+            free(*data);
+            *data = NULL;
+            return errno ? errno : EIO;
+        }
+        read_size += static_cast<size_t>(rd_res);
     }
+    *data_size = payload_size;
+    return NO_ERROR;
 }
 
 status_t QemuClient::doQuery(QemuQuery* query)
