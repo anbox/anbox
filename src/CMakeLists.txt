@@ -118,6 +118,14 @@ set(SOURCES
     anbox/build/config.h
     anbox/build/config.h.in
 
+    anbox/camera/camera_device_linux.cpp
+    anbox/camera/camera_device.h
+    anbox/camera/camera_common.h
+    anbox/camera/camera_format_converters.cpp
+    anbox/camera/camera_format_converters.h
+    anbox/camera/camera_service.cpp
+    anbox/camera/camera_service.h
+
     anbox/cmds/container_manager.cpp
     anbox/cmds/container_manager.h
     anbox/cmds/launch.cpp

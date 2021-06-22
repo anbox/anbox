@@ -33,9 +33,10 @@ void BootPropertiesMessageProcessor::handle_command(
 
 void BootPropertiesMessageProcessor::list_properties() {
   std::vector<std::string> properties = {
-      // TODO(morphis): Using HDPI here for now but should be adjusted to the
-      // device we're running on
-      utils::string_format("ro.sf.lcd_density=%d", static_cast<int>(graphics::current_density())),
+    // TODO(morphis): Using HDPI here for now but should be adjusted to the
+    // device we're running on
+    utils::string_format("ro.sf.lcd_density=%d", static_cast<int>(graphics::current_density())),
+    utils::string_format("qemu.sf.qemu_camera.orient=0")
   };
 
   for (const auto &prop : properties) {

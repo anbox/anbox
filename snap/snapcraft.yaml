@@ -34,6 +34,7 @@ apps:
       - opengl
       - wayland
       - pulseaudio
+      - camera
       - home
       - process-control
       - desktop
@@ -65,6 +66,7 @@ apps:
       - opengl
       - wayland
       - pulseaudio
+      - camera
       - home
       - process-control
       - desktop
@@ -82,6 +84,7 @@ apps:
       - opengl
       - wayland
       - pulseaudio
+      - camera
       - home
       - process-control
       - desktop

@@ -59,12 +59,14 @@ class PipeConnectionCreator
   };
 
  private:
+  struct ClientParams;
+
   int next_id();
 
-  client_type identify_client(
+  ClientParams identify_client(
       std::shared_ptr<network::SocketMessenger> const &messenger);
   std::shared_ptr<network::MessageProcessor> create_processor(
-      const client_type &type,
+      const ClientParams &params,
       const std::shared_ptr<network::SocketMessenger> &messenger);
 
   std::shared_ptr<Renderer> renderer_;

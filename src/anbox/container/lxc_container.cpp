@@ -23,6 +23,7 @@
 #include "anbox/logger.h"
 #include "anbox/utils.h"
 
+#include <cerrno>
 #include <map>
 #include <stdexcept>
 #include <fstream>
@@ -500,7 +501,7 @@ void LxcContainer::start(const Configuration &configuration) {
     throw std::runtime_error("Failed to save container configuration");
 
   if (!container_->start(container_, 0, nullptr))
-    throw std::runtime_error("Failed to start container");
+    throw std::runtime_error(utils::string_format("Failed to start container: %d", errno));
 
   state_ = Container::State::running;
 

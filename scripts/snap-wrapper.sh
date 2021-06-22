@@ -51,6 +51,9 @@ if [ "$(snapctl get server-side-decoration.enable)" = true ]; then
 	export ANBOX_FORCE_SERVER_SIDE_DECORATION=true
 fi
 
+export ANBOX_HW_CAMERA_BACK="$(snapctl get hw.camera.back)"
+export ANBOX_HW_CAMERA_FRONT="$(snapctl get hw.camera.front)"
+
 # Use custom Anbox binary for debugging purposes if available
 ANBOX="$SNAP"/usr/bin/anbox
 if [ -e "$SNAP_COMMON"/anbox.debug ]; then
