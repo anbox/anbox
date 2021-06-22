@@ -499,6 +499,34 @@ int EmulatedCameraFactory::getFrontCameraHalVersion()
     return 1;
 }
 
+int EmulatedCameraFactory::getFakeCameraOrientation() {
+    char prop[PROPERTY_VALUE_MAX];
+    if (property_get("qemu.sf.fake_camera.orient", prop, NULL) > 0) {
+        char *prop_end = prop;
+        int val = strtol(prop, &prop_end, 10);
+        if (*prop_end == '\0') {
+            return val;
+        }
+        // Badly formatted property, should just be a number
+        ALOGE("qemu.sf.fake_camera.orient is not a number: %s", prop);
+    }
+    return 90;
+}
+
+int EmulatedCameraFactory::getQemuCameraOrientation() {
+    char prop[PROPERTY_VALUE_MAX];
+    if (property_get("qemu.sf.qemu_camera.orient", prop, NULL) > 0) {
+        char *prop_end = prop;
+        int val = strtol(prop, &prop_end, 10);
+        if (*prop_end == '\0') {
+            return val;
+        }
+        // Badly formatted property, should just be a number
+        ALOGE("qemu.sf.qemu_camera.orient is not a number: %s", prop);
+    }
+    return 270;
+}
+
 void EmulatedCameraFactory::onStatusChanged(int cameraId, int newStatus) {
 
     EmulatedBaseCamera *cam = mEmulatedCameras[cameraId];
