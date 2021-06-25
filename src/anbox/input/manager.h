@@ -20,6 +20,7 @@
 
 #include <map>
 #include <memory>
+#include <cstdint>
 
 namespace anbox{
   class Runtime;
