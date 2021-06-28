@@ -148,6 +148,9 @@ anbox::cmds::Launch::Launch()
   flag(cli::make_flag(cli::Name{"use-system-dbus"},
                       cli::Description{"Use system instead of session DBus"},
                       use_system_dbus_));
+  flag(cli::make_flag(cli::Name{"launch-bounds"},
+                      cli::Description{"The launch-bounds in freeform mode. Format: 'left,top,right,bottom' without space in between"},
+                      bound_));
 
 
   action([this](const cli::Command::Context&) {
@@ -207,6 +210,6 @@ anbox::cmds::Launch::Launch()
     // going to launch the real application now.
     ss.reset();
 
-    return client.TryLaunch(intent_, stack_) ? EXIT_SUCCESS : EXIT_FAILURE;
+    return client.TryLaunch(intent_, bound_, stack_) ? EXIT_SUCCESS : EXIT_FAILURE;
   });
 }

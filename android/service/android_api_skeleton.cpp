@@ -82,12 +82,10 @@ void AndroidApiSkeleton::launch_application(anbox::protobuf::bridge::LaunchAppli
 
     if (request->has_launch_bounds()) {
         argv.push_back("--launch-bounds");
-        std::stringstream launch_bounds;
-        launch_bounds << request->launch_bounds().left() << " "
-                      << request->launch_bounds().top() << " "
-                      << request->launch_bounds().right() << " "
-                      << request->launch_bounds().bottom();
-        argv.push_back(launch_bounds.str());
+        argv.push_back(std::to_string(request->launch_bounds().left()));
+        argv.push_back(std::to_string(request->launch_bounds().top()));
+        argv.push_back(std::to_string(request->launch_bounds().right()));
+        argv.push_back(std::to_string(request->launch_bounds().bottom()));
     }
 
     if (intent.has_action()) {
