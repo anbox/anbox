@@ -23,6 +23,7 @@
 #include <memory>
 
 #include "anbox/android/intent.h"
+#include "anbox/graphics/rect.h"
 #include "anbox/wm/stack.h"
 #include "anbox/cli.h"
 
@@ -36,6 +37,8 @@ class Launch : public cli::CommandWithFlagsAndAction {
 
   android::Intent intent_;
   wm::Stack::Id stack_ = wm::Stack::Id::Default;
+
+  anbox::graphics::Rect bound_ = anbox::graphics::Rect::Invalid;
   bool use_system_dbus_ = false;
 };
 }

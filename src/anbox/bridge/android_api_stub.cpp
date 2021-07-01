@@ -82,10 +82,10 @@ void AndroidApiStub::launch(const android::Intent &intent,
 
   if (launch_bounds != graphics::Rect::Invalid) {
     auto rect = message.mutable_launch_bounds();
-    rect->set_left(launch_bounds_.left());
-    rect->set_top(launch_bounds_.top());
-    rect->set_right(launch_bounds_.right());
-    rect->set_bottom(launch_bounds_.bottom());
+    rect->set_left(launch_bounds.left());
+    rect->set_top(launch_bounds.top());
+    rect->set_right(launch_bounds.right());
+    rect->set_bottom(launch_bounds.bottom());
   }
 
   auto launch_intent = message.mutable_intent();
