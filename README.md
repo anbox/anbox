@@ -14,8 +14,8 @@ from Anbox, this project isn't ready to be merged into the main repository
 
 The only reliable way to use this fork is to build it from source. Before
 building the Anbox runtime from source, you need an Android image. This can
-either be downloaded from [here] or built from source using the instructions
-below.
+either be downloaded from [here](https://drive.google.com/file/d/184q9BFXbuSVTMc1rS65R0iSPfsjhBCuA/view?usp=sharing)
+or built from source using the instructions below.
 
 These instructions are copied almost verbatim from the main repository
 
