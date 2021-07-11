@@ -1,73 +1,23 @@
-[![Snap Status](https://build.snapcraft.io/badge/anbox/anbox.svg)](https://build.snapcraft.io/user/anbox/anbox)
-[![Build Status](https://travis-ci.org/anbox/anbox.svg?branch=master)](https://travis-ci.org/anbox/anbox)
-
 # Anbox
 
 Anbox is a container-based approach to boot a full Android system on a
 regular GNU/Linux system like Ubuntu. In other words: Anbox will let
 you run Android on your Linux system without the slowness of
-virtualization.
+virtualization. For full details, see the mainline distribution's documentation:
+<https://github.com/anbox/anbox>.
 
-## Overview
+This fork implements webcam access from Anbox. While the webcam is accessible
+from Anbox, this project isn't ready to be merged into the main repository
+&ndash; see the "limitations" section below.
 
-Anbox uses Linux namespaces (user, pid, uts, net, mount, ipc) to run a
-full Android system in a container and provide Android applications on
-any GNU/Linux-based platform.
+## Installation instructions
 
-The Android inside the container has no direct access to any hardware.
-All hardware access is going through the anbox daemon on the host. We're
-reusing what Android implemented within the QEMU-based emulator for OpenGL
-ES accelerated rendering. The Android system inside the container uses
-different pipes to communicate with the host system and sends all hardware
-access commands through these.
+The only reliable way to use this fork is to build it from source. Before
+building the Anbox runtime from source, you need an Android image. This can
+either be downloaded from [here] or built from source using the instructions
+below.
 
-For more details have a look at the following documentation pages:
-
- * [Android Hardware OpenGL ES emulation design overview](https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android/android-emugl/DESIGN)
- * [Android QEMU fast pipes](https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android/docs/ANDROID-QEMU-PIPE.TXT)
- * [The Android "qemud" multiplexing daemon](https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android/docs/ANDROID-QEMUD.TXT)
- * [Android qemud services](https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android/docs/ANDROID-QEMUD-SERVICES.TXT)
-
-Anbox is currently suited for the desktop use case but can be used on mobile
-operating systems like [Ubuntu Touch](https://ubuntu-touch.io/) or
-[postmarketOS](https://postmarketos.org)
-([installation instructions](https://wiki.postmarketos.org/wiki/Anbox)).
-However this is still a work in progress.
-
-The Android runtime environment ships with a minimal customized Android system
-image based on the [Android Open Source Project](https://source.android.com/).
-The used image is currently based on Android 7.1.1
-
-## Installation
-
-See our [installation instructions](docs/install.md) for details.
-
-## Supported Linux Distributions
-
-At the moment we officially support the following Linux distributions:
-
- * Ubuntu 18.04 (bionic)
- * Ubuntu 20.04 (focal)
-
-However all other distributions supporting snap packages should work as
-well as long as they provide the mandatory kernel support (see [documentation](docs/install.md)).
-
-## Install and Run Android Applications
-
-You can install Android applications from the command line using adb.
-
-```sh
-adb install xyz.apk
-```
-
-The apk files you will sometimes find on the internet tend to only have arm
-support, and will therefore not work on x86\_64.
-
-You may want to install [F-Droid](https://f-droid.org/) to get applications
-graphically. Note that the Google Play Store will not work as is, because it
-relies on the proprietary Google Play Services, which are not installed.
-
-## Build from source
+These instructions are copied almost verbatim from the main repository
 
 ### Requirements
 
@@ -109,7 +59,7 @@ $ sudo apt install build-essential cmake cmake-data debhelper dbus google-mock \
     libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
     pkg-config protobuf-compiler python3-minimal
 ```
-We recommend Ubuntu 20.04 (focal) as your build environment.
+It's recommended that you use Ubuntu 20.04 (focal) as your build environment.
 
 
 ### Build
@@ -117,7 +67,7 @@ We recommend Ubuntu 20.04 (focal) as your build environment.
 Afterwards you can build Anbox with
 
 ```
-$ git clone https://github.com/anbox/anbox.git --recurse-submodules
+$ git clone https://github.com/alecbarber/anbox.git --recurse-submodules
 $ cd anbox
 $ mkdir build
 $ cd build
@@ -133,53 +83,138 @@ $ sudo make install
 
 will install the necessary bits into your system.
 
-If you want to build the anbox snap instead you can do this with the following
-steps:
-
-```
-$ ARCH=$(uname -m)
-$ cp /path/to/android.img data/android-images/android-$ARCH.img
-$ snapcraft
-```
-
-The result will be a .snap file you can install on a system supporting snaps
-
-```
-$ snap install --dangerous --devmode anbox_1_amd64.snap
-```
-
 ## Run Anbox
 
-Running Anbox from a local build requires a few more things you need to know
-about. Please have a look at the ["Runtime Setup"](docs/runtime-setup.md)
-documentation.
+There are several steps to run Anbox:
 
-## Documentation
+Setup the network bridge:
+```
+$ sudo scripts/anbox-bridge.sh start
+```
 
-You will find additional documentation for Anbox in the *docs* subdirectory
-of the project source.
+Start the container manager:
+```
+$ sudo mkdir /dev/binderfs
+$ sudo mount -t binder binder /dev/binderfs
+$ datadir=$HOME/anbox-data
+$ mkdir -p $datadir/rootfs
+$ sudo anbox container-manager \
+    --privileged
+    --daemon
+    --android-image=/path/to/android.img \
+    --data-path=$datadir &
+```
 
-Interesting things to have a look at
+Run the session manager:
+```
+$ anbox session-manager &
+```
 
- * [Runtime Setup](docs/runtime-setup.md)
- * [Build Android image](docs/build-android.md)
- * [Generate Android emugl source](docs/generate-emugl-source.md)
- * [DBUS interface](docs/dbus.md)
+Finally, launch the Application Manager:
+```
+$ anbox launch --package=org.anbox.appmgr --component=org.anbox.appmgr.AppViewActivity
+```
 
-## Reporting bugs
+### Webcam setup
 
-If you have found an issue with Anbox, please [file a bug](https://github.com/anbox/anbox/issues/new).
+The session manager uses environment variables at startup to determine which
+cameras (if any) to initialise. The front-facing camera is controlled by
+`ANBOX_HW_CAMERA_FRONT` and the rear camera is defined by
+`ANBOX_HW_CAMERA_BACK`. To connect `/dev/videoNN` to Anbox, set the appropriate
+environment variable to `webcamNN`. For example, the following commands will
+launch the session manager with `/dev/video2` as the front-facing camera:
 
-## Get in Touch
+```
+$ export ANBOX_HW_CAMERA_FRONT=webcam2
+$ anbox session-manager
+```
 
-If you want to get in contact with the developers please feel free to join the
-*#anbox* IRC channel on [Libera.Chat](https://libera.chat).
+Note that the session manager needs to be restarted every time the camera
+configuration changes. If you need to access `/dev/videoNN` where `NN >= 16`,
+define `ANBOX_HW_CAMERA_MAX_CAMERA` to be at least `NN + 1`.
 
-## Copyright and Licensing
+If you want to be able to switch camera streams into Anbox on the fly, try
+installing [v4l2loopback](https://github.com/umlaeute/v4l2loopback/).
+You can then point Anbox at the loopback device, and stream your chosen camera
+input into it using (for example) 
 
-Anbox reuses code from other projects like the Android QEMU emulator. These
-projects are available in the external/ subdirectory with the licensing terms
-included.
+```
+$ sudo modprobe v4l2loopback
+$ ffmpeg -f v4l2 -r 30 -s 1280x720 -i /dev/REAL_DEVICE -vcodec rawvideo -threads 0 -f v4l2 /dev/LOOPBACK_DEVICE
+```
 
-The Anbox source itself, if not stated differently in the relevant source files,
-is licensed under the terms of the GPLv3 license.
+### Common issues
+
+If the session manager fails to start with an error mentioning EGL, try `export EGL_PLATFORM=x11` 
+
+## Building Android
+
+Building Android from source is not a small undertaking. You need significant
+omputational resources available &ndash; 100GB of disk space and 16GB of
+RAM are sensible minimum values. The full build will take a couple of hours;
+if you encounter issues, expect troubleshooting to be time-consuming. These
+instructions are based on the instructions [here](https://github.com/anbox/anbox/blob/master/docs/build-android.md).
+More detailed information on building Android can be found at the
+[Android Open Source Project](https://source.android.com/setup/build/requirements).
+
+First, get the sources
+```
+$ repo init --depth=1 -u https://github.com/alecbarber/platform_manifests.git -b anbox
+$ repo sync  -f --force-sync --no-clone-bundle --no-tags -j8
+```
+
+Then initialise the environment
+```
+$ . build/envsetup.sh
+$ lunch anbox_x86_64-userdebug
+```
+
+And build!
+```
+$ make -j8
+$ cd vendor/anbox
+$ scripts/create-package.sh \
+    $PWD/../../out/target/product/x86_64/ramdisk.img \
+    $PWD/../../out/target/product/x86_64/system.img
+```
+
+### Common issues
+
+If you encounter out-of-memory errors during the build, try increasing your swap
+memory.
+
+If the build fails with an assertion about locales failing, try
+`export LC_ALL=C` and re-running `make`.
+
+## Implementation details
+
+On the host side, all this fork does is incorporate QEMU's host-side camera
+implementation into the Anbox session manager. There are no substantive changes
+to QEMU's code, but it has been refactored from C to be closer to the Anbox
+C++ coding style.
+
+There are a couple of minor changes to the Android source. The original QEMU
+client implementation tries to read each camera frame in a single `read()`
+call, and fails if it doesn't read the whole frame. This causes issues because
+1024x720 video uses about 2MB per frame! The QEMU client has been
+modified to respect `EAGAIN` when reading frames.
+
+## Limitations
+
+The main limitations are:
+
+* The camera stream has heavy lag
+* The camera doesn't work when running in a snap
+
+The camera stream has about 50-100ms of lag; this is mainly because the QEMU
+host camera implementation is extremely inefficient ([source](./anbox/camera/camera_format_converters.cpp#L419)).
+The lag seems to trigger Whatsapp's "poor connection" detection; video calls are
+quickly dropped. Major improvements should be possible by replacing the linked
+code with GL shaders to do the format conversion.
+
+When running Anbox as a snap, I've had little success enabling the camera. In
+particular, I haven't been able to find the session manager logs, which has made
+it difficult to debug the camera connection.
+
+I'm actively working on both of these issues &ndash; contributions are more than
+welcome!
