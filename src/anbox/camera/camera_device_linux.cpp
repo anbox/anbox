@@ -954,8 +954,6 @@ CameraDevice::enumerateCameraDevices(int max) {
         result->push_back(ci);
       }
       cd->closeCameraDevice();
-    } else {
-        break;
     }
   }
 

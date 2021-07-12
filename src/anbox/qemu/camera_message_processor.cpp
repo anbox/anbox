@@ -661,7 +661,7 @@ void CameraMessageProcessor::frame(const std::string &param) {
    * the loop by 2 second time period (which is more than enough to obtain
    * something from the device) */
   while (repeat == 1 && !connection_data_->frames_cached &&
-         (anbox::camera::_get_timestamp() - tick) < 2000000LL) {
+         (anbox::camera::_get_timestamp() - tick) < 10000000LL) {
     /* Sleep for 1 millisec before repeating the attempt. */
     anbox::camera::_camera_sleep(1);
     repeat = connection_data_->camera->readFrame(fbs, fbs_num,
