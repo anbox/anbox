@@ -7,9 +7,8 @@ description: |
 confinement: devmode
 grade: devel
 base: core20
-architectures: [amd64]
 adopt-info: anbox
-
+##add this image to build.anbox.io as android-aarch64.img https://ci.android.com/builds/submitted/7345029/aosp_arm64-userdebug/latest/aosp_arm64-img-7345029.zip and check for the hashes 
 slots:
   dbus-session-slot:
     interface: dbus
@@ -111,10 +110,10 @@ parts:
         IMAGE_NAME=
 
         case "$ARCH" in
-          x86_64)
+          x86_64 || case "$ARCH" in aarch64)
             IMAGE_PATH="2018/07/19"
-            IMAGE_NAME="android_amd64.img"
-            IMAGE_HASH="6b04cd33d157814deaf92dccf8a23da4dc00b05ca6ce982a03830381896a8cca"
+            IMAGE_NAME="android_$ARCH.img"
+            IMAGE_HASH_amd64="6b04cd33d157814deaf92dccf8a23da4dc00b05ca6ce982a03830381896a8cca"
             ;;
           *)
             echo "ERROR: Anbox upstream doesn't provide an image for $ARCH"
@@ -127,7 +126,7 @@ parts:
         echo "Downloading image..."
         wget https://build.anbox.io/android-images/$IMAGE_PATH/$IMAGE_NAME
 
-        echo "$IMAGE_HASH $IMAGE_NAME" > image-hash
+        echo "$IMAGE_HASH_$ARCH $IMAGE_NAME" > image-hash
         sha256sum -c image-hash || exit 1
 
         mv $IMAGE_NAME $SNAPCRAFT_PART_INSTALL/android.img
