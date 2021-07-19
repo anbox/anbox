@@ -95,7 +95,7 @@ anbox::cmds::ContainerManager::ContainerManager()
       if (!data_path_.empty())
         SystemConfiguration::instance().set_data_path(data_path_);
 
-      if (!fs::exists(data_path_))
+      if (!data_path_.empty() && !fs::exists(data_path_))
         fs::create_directories(data_path_);
 
       if (!setup_mounts())
