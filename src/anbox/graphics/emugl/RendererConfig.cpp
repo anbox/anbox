@@ -142,6 +142,13 @@ int RendererConfigList::chooseConfig(const EGLint* attribs, EGLint* configs,
         mustReplaceSurfaceType = true;
       }
     }
+    // EGL_RENDERABLE_TYPE , fix webview
+    if (attribs[numAttribs] == EGL_RENDERABLE_TYPE) {
+      if (attribs[numAttribs + 1] > EGL_OPENGL_ES2_BIT) {
+        ERROR("EGL_RENDERABLE_TYPE can not > EGL_OPENGL_ES2_BIT");
+        return 0;
+      }
+    }
     numAttribs += 2;
   }
 
