@@ -48,7 +48,7 @@ void exception_safe_run(boost::asio::io_service& service) {
 namespace anbox {
 
 std::shared_ptr<Runtime> Runtime::create(std::uint32_t pool_size) {
-  return std::shared_ptr<Runtime>(new Runtime(pool_size));
+  return std::make_shared<Runtime>(pool_size);
 }
 
 Runtime::Runtime(std::uint32_t pool_size)

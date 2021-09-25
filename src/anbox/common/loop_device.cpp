@@ -31,7 +31,7 @@ std::shared_ptr<LoopDevice> LoopDevice::create(const boost::filesystem::path &pa
   if (fd < 0)
     throw std::system_error{errno, std::system_category()};
 
-  return std::shared_ptr<LoopDevice>(new LoopDevice(Fd{fd}, path));
+  return std::make_shared<LoopDevice>(Fd{fd}, path);
 }
 
 LoopDevice::LoopDevice(Fd fd, const boost::filesystem::path &path) :

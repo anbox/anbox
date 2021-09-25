@@ -34,7 +34,7 @@ namespace fs = boost::filesystem;
 
 namespace anbox::container {
 std::shared_ptr<Service> Service::create(const std::shared_ptr<Runtime> &rt, const Configuration &config) {
-  auto sp = std::shared_ptr<Service>(new Service(rt, config));
+  auto sp = std::make_shared<Service>(rt, config);
 
   auto wp = std::weak_ptr<Service>(sp);
   auto delegate_connector = std::make_shared<network::DelegateConnectionCreator<boost::asio::local::stream_protocol>>(

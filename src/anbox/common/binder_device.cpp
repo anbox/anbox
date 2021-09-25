@@ -31,7 +31,7 @@
 
 namespace anbox::common {
 std::unique_ptr<BinderDevice> BinderDevice::create(const std::string& path) {
-  return std::unique_ptr<BinderDevice>(new BinderDevice(path));
+  return std::make_unique<BinderDevice>BinderDevice(path);
 }
 
 BinderDevice::BinderDevice(const std::string& path) :

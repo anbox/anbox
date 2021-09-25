@@ -24,7 +24,7 @@
 namespace anbox::common {
 std::shared_ptr<MountEntry> MountEntry::create(const boost::filesystem::path &src, const boost::filesystem::path &target,
                                                const std::string &fs_type, unsigned long flags, const std::string &data) {
-  auto entry = std::shared_ptr<MountEntry>(new MountEntry(target));
+  auto entry = std::make_shared<MountEntry>(target);
   if (!entry)
     return nullptr;
 
@@ -55,7 +55,7 @@ std::shared_ptr<MountEntry> MountEntry::create(const std::shared_ptr<LoopDevice>
 }
 
 std::shared_ptr<MountEntry> MountEntry::create(const boost::filesystem::path &target) {
-  auto entry = std::shared_ptr<MountEntry>(new MountEntry(target));
+  auto entry = std::make_shared<MountEntry>(target);
   if (!entry)
     return nullptr;
 
