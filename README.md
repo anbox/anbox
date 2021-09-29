@@ -14,7 +14,7 @@ from Anbox, this project isn't ready to be merged into the main repository
 
 The only reliable way to use this fork is to build it from source. Before
 building the Anbox runtime from source, you need an Android image. This can
-either be downloaded from [here](https://drive.google.com/file/d/184q9BFXbuSVTMc1rS65R0iSPfsjhBCuA/view?usp=sharing)
+either be downloaded from [here](https://drive.google.com/file/d/1zc3uVuu8p2i1DdNYgz6vHlaYn1qLa5Qb/view?usp=sharing)
 or built from source using the instructions below.
 
 These instructions are copied almost verbatim from the main repository
@@ -99,15 +99,15 @@ $ sudo mount -t binder binder /dev/binderfs
 $ datadir=$HOME/anbox-data
 $ mkdir -p $datadir/rootfs
 $ sudo anbox container-manager \
-    --privileged
-    --daemon
+    --privileged \
+    --daemon \
     --android-image=/path/to/android.img \
-    --data-path=$datadir &
+    --data-path=$datadir
 ```
 
-Run the session manager:
+In a separate terminal session, run the session manager:
 ```
-$ anbox session-manager &
+$ anbox session-manager
 ```
 
 Finally, launch the Application Manager:
@@ -133,29 +133,33 @@ Note that the session manager needs to be restarted every time the camera
 configuration changes. If you need to access `/dev/videoNN` where `NN >= 16`,
 define `ANBOX_HW_CAMERA_MAX_CAMERA` to be at least `NN + 1`.
 
-If you want to be able to switch camera streams into Anbox on the fly, try
-installing [v4l2loopback](https://github.com/umlaeute/v4l2loopback/).
-You can then point Anbox at the loopback device, and stream your chosen camera
-input into it using (for example) 
+### Copy screen to emulated camera
+
+If you want to use the screen as an emulated camera input (e.g. to scan a QR
+code), start by installing [v4l2loopback](https://github.com/umlaeute/v4l2loopback/).
+
+You can then use `ffmpeg` to stream a portion of your screen to the emulated
+device, using something like:
 
 ```
 $ sudo modprobe v4l2loopback
-$ ffmpeg -f v4l2 -r 30 -s 1280x720 -i /dev/REAL_DEVICE -vcodec rawvideo -threads 0 -f v4l2 /dev/LOOPBACK_DEVICE
+$ ffmpeg -f x11grab -r 2 -video_size 800x600 -i :0.0+850,80 -f v4l2 /dev/LOOPBACK_DEVICE
 ```
 
 ### Common issues
 
-If the session manager fails to start with an error mentioning EGL, try `export EGL_PLATFORM=x11` 
+* If the session manager fails to start with an error mentioning EGL, try `export EGL_PLATFORM=x11` 
+* If build fails with an error about tests, comment out line 141 in [CMakeLists.txt](https://github.com/alecbarber/anbox/blob/master/CMakeLists.txt#L141)
 
 ## Building Android
 
 Building Android from source is not a small undertaking. You need significant
-omputational resources available &ndash; 100GB of disk space and 16GB of
+computational resources available &ndash; 100GB of disk space and 16GB of
 RAM are sensible minimum values. The full build will take a couple of hours;
 if you encounter issues, expect troubleshooting to be time-consuming. These
 instructions are based on the instructions [here](https://github.com/anbox/anbox/blob/master/docs/build-android.md).
-More detailed information on building Android can be found at the
-[Android Open Source Project](https://source.android.com/setup/build/requirements).
+More detailed information on building Android (including required packages etc)
+can be found at the [Android Open Source Project](https://source.android.com/setup/build/requirements).
 
 First, get the sources
 ```
@@ -207,7 +211,7 @@ The main limitations are:
 * The camera doesn't work when running in a snap
 
 The camera stream has about 50-100ms of lag; this is mainly because the QEMU
-host camera implementation is extremely inefficient ([source](./anbox/camera/camera_format_converters.cpp#L419)).
+host camera implementation is extremely inefficient ([source](https://github.com/alecbarber/anbox/blob/master/src/anbox/camera/camera_format_converters.cpp#L419)).
 The lag seems to trigger Whatsapp's "poor connection" detection; video calls are
 quickly dropped. Major improvements should be possible by replacing the linked
 code with GL shaders to do the format conversion.
