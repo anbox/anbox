@@ -209,9 +209,15 @@ parts:
 
   swiftshader:
     plugin: cmake
-    source: https://swiftshader.googlesource.com/SwiftShader
-    source-type: git
-    source-commit: b6e8c3f0f4830887d69ba765a922ac3c40e81dd9
+    build-packages:
+      - sed
+    override-pull: |
+      set -ex
+      git clone https://swiftshader.googlesource.com/SwiftShader .
+      git checkout b6e8c3f0f4830887d69ba765a922ac3c40e81dd9
+      sed -i '/git-hooks/d' .gitmodules
+      git submodule update --init --recursive
+      set +ex
     organize:
       libEGL.so: lib/anbox/swiftshader/libEGL.so
       libGLES_CM.so: lib/anbox/swiftshader/libGLES_CM.so
