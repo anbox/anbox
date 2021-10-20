@@ -607,7 +607,7 @@ EGLBoolean eglGetConfigAttrib(EGLDisplay dpy, EGLConfig config, EGLint attribute
     if (s_display.getConfigAttrib(config, attribute, value))
     {
         if (attribute == EGL_RENDERABLE_TYPE && *value > EGL_OPENGL_ES2_BIT){
-	    ALOGE("[%s] EGL_RENDERABLE_TYPE -> EGL_OPENGL_ES2_BIT\n", __FUNCTION__);
+            ALOGE("[%s] EGL_RENDERABLE_TYPE -> EGL_OPENGL_ES2_BIT\n", __FUNCTION__);
             *value = EGL_OPENGL_ES2_BIT;
         }
         return EGL_TRUE;
