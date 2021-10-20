@@ -144,7 +144,7 @@ static EGLint rcGetGLString(EGLenum name, void* buffer, EGLint bufferSize) {
     };
 
     result = filter_extensions(result, whitelisted_extensions);
-  }else if (name == GL_SHADING_LANGUAGE_VERSION) {
+  } else if (name == GL_SHADING_LANGUAGE_VERSION) {
     // GL_VERSION:"OpenGL ES 2.0" matched GL_SHADING_LANGUAGE_VERSION:"OpenGL ES GLSL ES 1.00"
     result = "OpenGL ES GLSL ES 1.00";
   }
