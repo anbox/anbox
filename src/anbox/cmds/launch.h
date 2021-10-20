@@ -21,6 +21,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <systemd/sd-bus.h>
 
 #include "anbox/android/intent.h"
 #include "anbox/wm/stack.h"
@@ -33,6 +34,7 @@ class Launch : public cli::CommandWithFlagsAndAction {
 
  private:
   bool launch_session_manager();
+  bool launch_session_manager_dbus(sd_bus* bus);
 
   android::Intent intent_;
   wm::Stack::Id stack_ = wm::Stack::Id::Default;
