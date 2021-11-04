@@ -336,7 +336,9 @@ void LxcContainer::start(const Configuration &configuration) {
 
   // We can mount proc/sys as rw here as we will run the container unprivileged
   // in the end
-  set_config_item("lxc.mount.auto", "proc:mixed sys:mixed cgroup:mixed");
+  set_config_item("lxc.mount.auto", "proc:mixed sys:ro cgroup:mixed");
+  // Workaround for https://github.com/lxc/lxc/issues/3964
+  set_config_item("lxc.mount.entry", "/sys/devices/virtual/net sys/devices/virtual/net none rw,bind,optional,create=dir 0 0");
 
   set_config_item("lxc.autodev", "1");
   set_config_item(lxc_config_pty_max_key, "1024");
