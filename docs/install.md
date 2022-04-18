@@ -11,7 +11,7 @@ packaging.
 
 If you don't know about snaps yet head over to [snapcraft.io](https://snapcraft.io/)
 to get an introduction of what snaps are, how to install support for them on your
-distribution and, how to use them.
+distribution, and how to use them.
 
 The installation of Anbox consists of two steps.
 
