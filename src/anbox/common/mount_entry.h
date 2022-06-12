@@ -19,6 +19,7 @@
 #define ANBOX_COMMON_MOUNT_ENTRY_H_
 
 #include <boost/filesystem/path.hpp>
+#include <memory>
 
 namespace anbox::common {
 class LoopDevice;

@@ -56,6 +56,26 @@ static int redirect_to_null(int flags, int fd) {
 }
 } // namespace
 
+bool anbox::cmds::Launch::launch_session_manager_dbus(sd_bus* bus) {
+  sd_bus_error err = SD_BUS_ERROR_NULL;
+  sd_bus_message* msg = nullptr;
+  int r;
+
+  r = sd_bus_call_method(bus, "org.anbox", "/",
+                         "org.freedesktop.DBus.Peer",
+                         "Ping", &err, &msg, "");
+  sd_bus_error_free(&err);
+  sd_bus_message_unref(msg);
+
+  if (r < 0) {
+    ERROR("Failed to start session manager instance via dbus");
+    return false;
+  }
+
+  DEBUG("Started session manager, will now try to connect ..");
+  return true;
+}
+
 bool anbox::cmds::Launch::launch_session_manager() {
   std::vector<std::string> args = {"session-manager"};
   const auto should_force_software_rendering = utils::get_env_value("ANBOX_FORCE_SOFTWARE_RENDERING", "false");
@@ -167,7 +187,7 @@ anbox::cmds::Launch::Launch()
     if (!bus->has_service_with_name(dbus::interface::Service::name())) {
       DEBUG("Session manager is not yet running, trying to start it");
 
-      if (!launch_session_manager())
+      if (!( launch_session_manager_dbus(bus->raw()) || launch_session_manager() ))
         return EXIT_FAILURE;
 
       // Give us a splash screen as long as we're trying to connect
