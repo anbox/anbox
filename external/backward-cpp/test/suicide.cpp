@@ -23,77 +23,67 @@
 
 #include "backward.hpp"
 
-#include <cstdio>
-#include <sys/resource.h>
 #include "test/test.hpp"
+#include <cstdio>
+
+#ifndef _WIN32
+#include <sys/resource.h>
+#endif
 
 using namespace backward;
 
-void badass_function()
-{
-	char* ptr = (char*)42;
-	*ptr = 42;
+void badass_function() {
+  char *ptr = (char *)42;
+  *ptr = 42;
 }
 
-TEST_SEGFAULT (invalid_write)
-{
-	badass_function();
+TEST_SEGFAULT(invalid_write) { badass_function(); }
+
+int you_shall_not_pass() {
+  char *ptr = (char *)42;
+  int v = *ptr;
+  return v;
 }
 
-int you_shall_not_pass()
-{
-	char* ptr = (char*)42;
-	int v = *ptr;
-	return v;
+TEST_SEGFAULT(invalid_read) {
+  int v = you_shall_not_pass();
+  std::cout << "v=" << v << std::endl;
 }
 
-TEST_SEGFAULT(invalid_read)
-{
-	int v = you_shall_not_pass();
-	std::cout << "v=" << v << std::endl;
+void abort_abort_I_repeat_abort_abort() {
+  std::cout << "Jumping off the boat!" << std::endl;
+  abort();
 }
 
-void abort_abort_I_repeat_abort_abort()
-{
-	std::cout << "Jumping off the boat!" << std::endl;
-	abort();
-}
+TEST_ABORT(calling_abort) { abort_abort_I_repeat_abort_abort(); }
 
-TEST_ABORT (calling_abort)
-{
-	abort_abort_I_repeat_abort_abort();
-}
-
-// aarch64 does not trap Division by zero
-#ifndef __aarch64__
+// aarch64 and mips does not trap Division by zero
+#if !defined(__aarch64__) || !defined(__mips__)
 volatile int zero = 0;
 
-int divide_by_zero()
-{
-	std::cout << "And the wild black hole appears..." << std::endl;
-	int v = 42 / zero;
-	return v;
+int divide_by_zero() {
+  std::cout << "And the wild black hole appears..." << std::endl;
+  int v = 42 / zero;
+  return v;
 }
 
-TEST_DIVZERO (divide_by_zero)
-{
-	int v = divide_by_zero();
-	std::cout << "v=" << v << std::endl;
+TEST_DIVZERO(divide_by_zero) {
+  int v = divide_by_zero();
+  std::cout << "v=" << v << std::endl;
 }
 #endif
 
 // Darwin does not allow RLIMIT_STACK to be reduced
 #ifndef __APPLE__
-int bye_bye_stack(int i) {
-	return bye_bye_stack(i + 1) + bye_bye_stack(i * 2);
-}
+int bye_bye_stack(int i) { return bye_bye_stack(i + 1) + bye_bye_stack(i * 2); }
 
-TEST_SEGFAULT(stackoverflow)
-{
-	struct rlimit limit;
-	limit.rlim_max = 8096;
-	setrlimit(RLIMIT_STACK, &limit);
-	int r = bye_bye_stack(42);
-	std::cout << "r=" << r << std::endl;
+TEST_SEGFAULT(stackoverflow) {
+#ifndef _WIN32
+  struct rlimit limit;
+  limit.rlim_max = 8096;
+  setrlimit(RLIMIT_STACK, &limit);
+#endif
+  int r = bye_bye_stack(42);
+  std::cout << "r=" << r << std::endl;
 }
 #endif

@@ -28,6 +28,8 @@ set(STACK_WALKING_UNWIND TRUE CACHE BOOL
 	"Use compiler's unwind API")
 set(STACK_WALKING_BACKTRACE FALSE CACHE BOOL
 	"Use backtrace from (e)glibc for stack walking")
+set(STACK_WALKING_LIBUNWIND FALSE CACHE BOOL
+	"Use libunwind for stack walking")
 
 set(STACK_DETAILS_AUTO_DETECT TRUE CACHE BOOL
 	"Auto detect backward's stack details dependencies")
@@ -41,21 +43,56 @@ set(STACK_DETAILS_BFD FALSE CACHE BOOL
 set(STACK_DETAILS_DWARF FALSE CACHE BOOL
 	"Use libdwarf/libelf to read debug info")
 
-set(BACKWARD_TESTS FALSE CACHE BOOL "Enable tests")
-
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR AND NOT DEFINED BACKWARD_TESTS)
+	# If this is a top level CMake project, we most lixely want the tests
+	set(BACKWARD_TESTS ON CACHE BOOL "Enable tests")
+else()
+	set(BACKWARD_TESTS OFF CACHE BOOL "Enable tests")
+endif()
 ###############################################################################
 # CONFIGS
 ###############################################################################
-if (${STACK_DETAILS_AUTO_DETECT})
-	include(FindPackageHandleStandardArgs)
+include(FindPackageHandleStandardArgs)
 
+if (STACK_WALKING_LIBUNWIND)
+	# libunwind works on the macOS without having to add special include
+	# paths or libraries
+	if (NOT APPLE)
+		find_path(LIBUNWIND_INCLUDE_DIR NAMES "libunwind.h")
+		find_library(LIBUNWIND_LIBRARY unwind)
+
+		if (LIBUNWIND_LIBRARY)
+			include(CheckSymbolExists)
+			check_symbol_exists(UNW_INIT_SIGNAL_FRAME libunwind.h HAVE_UNW_INIT_SIGNAL_FRAME)
+			if (NOT HAVE_UNW_INIT_SIGNAL_FRAME)
+				message(STATUS "libunwind does not support unwinding from signal handler frames")
+			endif()
+		endif()
+
+		set(LIBUNWIND_INCLUDE_DIRS ${LIBUNWIND_INCLUDE_DIR})
+		set(LIBDWARF_LIBRARIES ${LIBUNWIND_LIBRARY})
+		find_package_handle_standard_args(libunwind DEFAULT_MSG
+			LIBUNWIND_LIBRARY LIBUNWIND_INCLUDE_DIR)
+		mark_as_advanced(LIBUNWIND_INCLUDE_DIR LIBUNWIND_LIBRARY)
+		list(APPEND _BACKWARD_LIBRARIES ${LIBUNWIND_LIBRARY})
+	endif()
+
+	# Disable other unwinders if libunwind is found
+	set(STACK_WALKING_UNWIND FALSE)
+	set(STACK_WALKING_BACKTRACE FALSE)	
+endif()
+
+if (${STACK_DETAILS_AUTO_DETECT})
+	if(NOT CMAKE_VERSION VERSION_LESS 3.17)
+		set(_name_mismatched_arg NAME_MISMATCHED)
+	endif()
 	# find libdw
 	find_path(LIBDW_INCLUDE_DIR NAMES "elfutils/libdw.h" "elfutils/libdwfl.h")
 	find_library(LIBDW_LIBRARY dw)
 	set(LIBDW_INCLUDE_DIRS ${LIBDW_INCLUDE_DIR} )
 	set(LIBDW_LIBRARIES ${LIBDW_LIBRARY} )
-	find_package_handle_standard_args(libdw DEFAULT_MSG
-		LIBDW_LIBRARY LIBDW_INCLUDE_DIR)
+	find_package_handle_standard_args(libdw ${_name_mismatched_arg}
+		REQUIRED_VARS LIBDW_LIBRARY LIBDW_INCLUDE_DIR)
 	mark_as_advanced(LIBDW_INCLUDE_DIR LIBDW_LIBRARY)
 
 	# find libbfd
@@ -65,8 +102,8 @@ if (${STACK_DETAILS_AUTO_DETECT})
 	find_library(LIBDL_LIBRARY dl)
 	set(LIBBFD_INCLUDE_DIRS ${LIBBFD_INCLUDE_DIR} ${LIBDL_INCLUDE_DIR})
 	set(LIBBFD_LIBRARIES ${LIBBFD_LIBRARY} ${LIBDL_LIBRARY})
-	find_package_handle_standard_args(libbfd DEFAULT_MSG
-		LIBBFD_LIBRARY LIBBFD_INCLUDE_DIR
+	find_package_handle_standard_args(libbfd ${_name_mismatched_arg}
+		REQUIRED_VARS LIBBFD_LIBRARY LIBBFD_INCLUDE_DIR
 		LIBDL_LIBRARY LIBDL_INCLUDE_DIR)
 	mark_as_advanced(LIBBFD_INCLUDE_DIR LIBBFD_LIBRARY
 		LIBDL_INCLUDE_DIR LIBDL_LIBRARY)
@@ -80,8 +117,8 @@ if (${STACK_DETAILS_AUTO_DETECT})
 	find_library(LIBDL_LIBRARY dl)
 	set(LIBDWARF_INCLUDE_DIRS ${LIBDWARF_INCLUDE_DIR} ${LIBELF_INCLUDE_DIR} ${LIBDL_INCLUDE_DIR})
 	set(LIBDWARF_LIBRARIES ${LIBDWARF_LIBRARY} ${LIBELF_LIBRARY} ${LIBDL_LIBRARY})
-	find_package_handle_standard_args(libdwarf DEFAULT_MSG
-		LIBDWARF_LIBRARY LIBDWARF_INCLUDE_DIR
+	find_package_handle_standard_args(libdwarf ${_name_mismatched_arg}
+		REQUIRED_VARS LIBDWARF_LIBRARY LIBDWARF_INCLUDE_DIR
 		LIBELF_LIBRARY LIBELF_INCLUDE_DIR
 		LIBDL_LIBRARY LIBDL_INCLUDE_DIR)
 	mark_as_advanced(LIBDWARF_INCLUDE_DIR LIBDWARF_LIBRARY
@@ -111,7 +148,7 @@ if (${STACK_DETAILS_AUTO_DETECT})
 		set(STACK_DETAILS_BACKTRACE_SYMBOL FALSE)
 	elseif(LIBDWARF_FOUND)
 		LIST(APPEND _BACKWARD_INCLUDE_DIRS ${LIBDWARF_INCLUDE_DIRS})
-		LIST(APPEND BACKWARD_LIBRARIES ${LIBDWARF_LIBRARIES})
+		LIST(APPEND _BACKWARD_LIBRARIES ${LIBDWARF_LIBRARIES})
 
 		set(STACK_DETAILS_DW FALSE)
 		set(STACK_DETAILS_BFD FALSE)
@@ -148,8 +185,16 @@ macro(map_definitions var_prefix define_prefix)
 endmacro()
 
 if (NOT _BACKWARD_DEFINITIONS)
-	map_definitions("STACK_WALKING_" "BACKWARD_HAS_" UNWIND BACKTRACE)
+	map_definitions("STACK_WALKING_" "BACKWARD_HAS_" UNWIND LIBUNWIND BACKTRACE)
 	map_definitions("STACK_DETAILS_" "BACKWARD_HAS_" BACKTRACE_SYMBOL DW BFD DWARF)
+endif()
+
+if(WIN32)
+    list(APPEND _BACKWARD_LIBRARIES dbghelp psapi)
+	if(MINGW)
+	    set(MINGW_MSVCR_LIBRARY "msvcr90$<$<CONFIG:DEBUG>:d>" CACHE STRING "Mingw MSVC runtime import library")
+	    list(APPEND _BACKWARD_LIBRARIES ${MINGW_MSVCR_LIBRARY})
+	endif()
 endif()
 
 set(BACKWARD_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}")

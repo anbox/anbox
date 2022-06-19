@@ -1,4 +1,4 @@
-Backward-cpp [![badge](https://img.shields.io/badge/conan.io-backward%2F1.3.0-green.svg?logo=data:image/png;base64%2CiVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAAAolt3jAAAA1VBMVEUAAABhlctjlstkl8tlmMtlmMxlmcxmmcxnmsxpnMxpnM1qnc1sn85voM91oM11oc1xotB2oc56pNF6pNJ2ptJ8ptJ8ptN9ptN8p9N5qNJ9p9N9p9R8qtOBqdSAqtOAqtR%2BrNSCrNJ/rdWDrNWCsNWCsNaJs9eLs9iRvNuVvdyVv9yXwd2Zwt6axN6dxt%2Bfx%2BChyeGiyuGjyuCjyuGly%2BGlzOKmzOGozuKoz%2BKqz%2BOq0OOv1OWw1OWw1eWx1eWy1uay1%2Baz1%2Baz1%2Bez2Oe02Oe12ee22ujUGwH3AAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfgBQkREyOxFIh/AAAAiklEQVQI12NgAAMbOwY4sLZ2NtQ1coVKWNvoc/Eq8XDr2wB5Ig62ekza9vaOqpK2TpoMzOxaFtwqZua2Bm4makIM7OzMAjoaCqYuxooSUqJALjs7o4yVpbowvzSUy87KqSwmxQfnsrPISyFzWeWAXCkpMaBVIC4bmCsOdgiUKwh3JojLgAQ4ZCE0AMm2D29tZwe6AAAAAElFTkSuQmCC)](http://www.conan.io/source/backward/1.3.0/Manu343726/testing) [![Build Status](https://travis-ci.org/bombela/backward-cpp.svg?branch=master)](https://travis-ci.org/bombela/backward-cpp)
+Backward-cpp [![badge](https://img.shields.io/badge/conan.io-backward%2F1.3.0-green.svg?logo=data:image/png;base64%2CiVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAAAolt3jAAAA1VBMVEUAAABhlctjlstkl8tlmMtlmMxlmcxmmcxnmsxpnMxpnM1qnc1sn85voM91oM11oc1xotB2oc56pNF6pNJ2ptJ8ptJ8ptN9ptN8p9N5qNJ9p9N9p9R8qtOBqdSAqtOAqtR%2BrNSCrNJ/rdWDrNWCsNWCsNaJs9eLs9iRvNuVvdyVv9yXwd2Zwt6axN6dxt%2Bfx%2BChyeGiyuGjyuCjyuGly%2BGlzOKmzOGozuKoz%2BKqz%2BOq0OOv1OWw1OWw1eWx1eWy1uay1%2Baz1%2Baz1%2Bez2Oe02Oe12ee22ujUGwH3AAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfgBQkREyOxFIh/AAAAiklEQVQI12NgAAMbOwY4sLZ2NtQ1coVKWNvoc/Eq8XDr2wB5Ig62ekza9vaOqpK2TpoMzOxaFtwqZua2Bm4makIM7OzMAjoaCqYuxooSUqJALjs7o4yVpbowvzSUy87KqSwmxQfnsrPISyFzWeWAXCkpMaBVIC4bmCsOdgiUKwh3JojLgAQ4ZCE0AMm2D29tZwe6AAAAAElFTkSuQmCC)](http://www.conan.io/source/backward/1.3.0/Manu343726/testing)
 ============
 
 Backward is a beautiful stack trace pretty printer for C++.
@@ -37,7 +37,9 @@ errors (segfault, abort, un-handled exception...), simply add a copy of
 `backward.cpp` to your project, and don't forget to tell your build system.
 
 The code in `backward.cpp` is trivial anyway, you can simply copy what it's
-doing at your convenience.
+doing at your convenience. 
+
+Note for [folly](https://github.com/facebook/folly) library users: must define `backward::SignalHandling sh;` after `folly::init(&argc, &argv);`.
 
 ## Configuration & Dependencies
 
@@ -93,6 +95,35 @@ find_package(Backward)
 # through an IMPORTED target.
 target_link_libraries(mytarget PUBLIC Backward::Backward)
 ```
+### Libraries to unwind the stack
+
+On Linux and macOS, backtrace can back-trace or "walk" the stack using the
+following libraries:
+
+#### unwind
+
+Unwind comes from libgcc, but there is an equivalent inside clang itself. With
+unwind, the stacktrace is as accurate as it can possibly be, since this is
+used by the C++ runtine in gcc/clang for stack unwinding on exception.
+
+Normally libgcc is already linked to your program by default.
+
+#### libunwind from the [libunwind project](https://github.com/libunwind/libunwind)
+
+	apt-get install binutils-dev (or equivalent)
+
+Libunwind provides, in some cases, a more accurate stacktrace as it knows
+to decode signal handler frames and lets us edit the context registers when
+unwinding, allowing stack traces over bad function references.
+
+For best results make sure you are using libunwind 1.3 or later, which added
+`unw_init_local2` and support for handling signal frames.
+
+CMake will warn you when configuring if your libunwind version doesn't support
+signal frames.
+
+On macOS clang provides a libunwind API compatible library as part of its
+environment, so no third party libraries are necessary.
 
 ### Compile with debug info
 
@@ -110,17 +141,17 @@ your sources.
 
 ### Libraries to read the debug info
 
-Backward support pretty printed stack traces on GNU/Linux only, it will compile
-fine under other platforms but will not do anything.  **Pull requests are
-welcome :)**
+Backward supports pretty printed stack traces on GNU/Linux, macOS and Windows,
+it will compile fine under other platforms but will not do anything. **Pull
+requests are welcome :)**
 
 Also, by default you will get a really basic stack trace, based on the
 `backtrace_symbols` API:
 
 ![default trace](doc/nice.png)
 
-You will need to install some dependencies to get the ultimate stack trace. Two
-libraries are currently supported, the only difference is which one is the
+You will need to install some dependencies to get the ultimate stack trace.
+Three libraries are currently supported, the only difference is which one is the
 easiest for you to install, so pick your poison:
 
 #### libbfd from the [GNU/binutils](http://www.gnu.org/software/binutils/)
