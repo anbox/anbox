@@ -16,6 +16,15 @@
 # Taken from https://github.com/lxc/lxd-pkg-ubuntu/blob/dpm-xenial/lxd-bridge/lxd-bridge
 # but modified for the use within anbox.
 
+### BEGIN INIT INFO
+# Provides:       anbox-bridge
+# Required-Start: $network
+# Required-Stop:  $network
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
+# Description:    Network access for Anbox containers
+### END INIT INFO
+
 varrun="/run/anbox"
 
 if [ -n "$SNAP_DATA" ]; then
