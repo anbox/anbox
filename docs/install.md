@@ -11,12 +11,12 @@ packaging.
 
 If you don't know about snaps yet head over to [snapcraft.io](https://snapcraft.io/)
 to get an introduction of what snaps are, how to install support for them on your
-distribution and how to use them.
+distribution, and how to use them.
 
 The installation of Anbox consists of two steps.
 
  1. Getting the necessary kernel support
- 2. Install the Anbox snap
+ 2. Installing the Anbox snap
 
 ## Have necessary kernel support
 
@@ -99,7 +99,7 @@ via:
 ## Available snap channels
 
 Currently we only use the edge channels for the Anbox snap. The edge channel
-tracks the latest development is always synced with the state of the master
+tracks the latest development and is always synced with the state of the master
 branch on github. There is a second release channel, beta, that's getting old.
 
 Once proper confinement for the Anbox snap exists we will also start using the
