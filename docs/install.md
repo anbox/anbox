@@ -86,7 +86,7 @@ As a side effect of using `--devmode` the snap will not automatically update.
 In order to update to a newer version you can run:
 
 ```
- $ snap refresh --edge --devmode anbox
+ $ snap refresh --devmode --edge anbox
 ```
 
 Information about the currently available versions of the snap is available
