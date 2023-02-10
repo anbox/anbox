@@ -22,6 +22,10 @@ plugs:
     bus: session
     name: org.anbox
 
+layout:
+  /usr/share/libdrm:
+    bind: $SNAP/usr/share/libdrm
+
 apps:
   anbox:
     command: bin/desktop-launch $SNAP/bin/anbox-wrapper.sh
