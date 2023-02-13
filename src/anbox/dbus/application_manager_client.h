@@ -21,6 +21,7 @@
 
 #include "application_manager_client_glue.h"
 #include "anbox/android/intent.h"
+#include "anbox/graphics/rect.h"
 #include "anbox/logger.h"
 #include "anbox/wm/stack.h"
 
@@ -35,5 +36,7 @@ class ApplicationManagerClient : public sdbus::ProxyInterfaces<org::anbox::Appli
     unregisterProxy();
   }
 
-  bool TryLaunch(anbox::android::Intent intent, anbox::wm::Stack::Id stack);
+  bool TryLaunch(anbox::android::Intent intent,
+                 const anbox::graphics::Rect& launch_bound,
+                 anbox::wm::Stack::Id stack);
 };

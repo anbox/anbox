@@ -17,7 +17,9 @@
 
 #include "application_manager_client.h"
 
-bool ApplicationManagerClient::TryLaunch(anbox::android::Intent intent, anbox::wm::Stack::Id stack) {
+bool ApplicationManagerClient::TryLaunch(anbox::android::Intent intent,
+                                         const anbox::graphics::Rect& launch_bound,
+                                         anbox::wm::Stack::Id stack) {
   try {
     DEBUG("Sending launch intent %s to Android ..", intent);
     std::map<std::string, sdbus::Variant> intentDict;
@@ -33,6 +35,10 @@ bool ApplicationManagerClient::TryLaunch(anbox::android::Intent intent, anbox::w
       intentDict["type"] = sdbus::Variant(intent.type);
     if (intent.uri.length())
       intentDict["uri"] = sdbus::Variant(intent.uri);
+
+    if (launch_bound != anbox::graphics::Rect::Invalid) {
+        intentDict["bound"] = sdbus::Struct(std::make_tuple(launch_bound.left(), launch_bound.top(), launch_bound.right(), launch_bound.bottom()));
+    }
     this->Launch(intentDict, launch_stack.str());
   } catch (const std::exception &err) {
     ERROR("Failed to launch activity: %s", err.what());
