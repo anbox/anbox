@@ -70,6 +70,8 @@ pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
 pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
 pkg_check_modules(LIBCAP libcap REQUIRED)
+pkg_check_modules(GTEST_BOTH gtest_main REQUIRED)
+pkg_check_modules(GMOCK gmock_main REQUIRED)
 
 message(STATUS "LXC version: ${LXC_VERSION}")
 if (${LXC_VERSION} VERSION_LESS 3.0)
