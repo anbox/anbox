@@ -22,44 +22,36 @@
  */
 
 #include "backward.hpp"
-#include <cstdio>
 #include "test/test.hpp"
+#include <cstdio>
+#include <iostream>
 
 using namespace backward;
 
-void collect_trace(StackTrace& st) {
-	st.load_here();
+void collect_trace(StackTrace &st) { st.load_here(); }
+
+TEST(minitrace) {
+  Printer printer;
+
+  StackTrace st;
+  collect_trace(st);
+
+  printer.print(st, std::cout);
 }
 
-TEST (minitrace) {
-	StackTrace st;
-	collect_trace(st);
+void d(StackTrace &st) { st.load_here(); }
 
-	Printer printer;
-	printer.print(st, stdout);
-}
+void c(StackTrace &st) { return d(st); }
 
-void d(StackTrace& st) {
-	st.load_here();
-}
+void b(StackTrace &st) { return c(st); }
 
-void c(StackTrace& st) {
-	return d(st);
-}
+NOINLINE void a(StackTrace &st) { return b(st); }
 
-void b(StackTrace& st) {
-	return c(st);
-}
+TEST(smalltrace) {
+  Printer printer;
 
-__attribute__ ((noinline))
-void a(StackTrace& st) {
-	return b(st);
-}
+  StackTrace st;
+  a(st);
 
-TEST (smalltrace) {
-	StackTrace st;
-	a(st);
-
-	Printer printer;
-	printer.print(st, stdout);
+  printer.print(st, std::cout);
 }

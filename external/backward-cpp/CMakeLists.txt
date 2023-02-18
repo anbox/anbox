@@ -20,8 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.0)
 project(backward CXX)
+
+# Introduce variables:
+# * CMAKE_INSTALL_LIBDIR
+# * CMAKE_INSTALL_BINDIR
+# * CMAKE_INSTALL_INCLUDEDIR
+include(GNUInstallDirs)
 
 include(BackwardConfig.cmake)
 
@@ -30,6 +36,12 @@ set(COMPILER_IS_NVCC false)
 get_filename_component(COMPILER_NAME ${CMAKE_CXX_COMPILER} NAME)
 if (COMPILER_NAME MATCHES "^nvcc")
   set(COMPILER_IS_NVCC true)
+endif()
+
+if (DEFINED ENV{OMPI_CXX} OR DEFINED ENV{MPICH_CXX})
+   if ( ($ENV{OMPI_CXX} MATCHES "nvcc") OR ($ENV{MPICH_CXX} MATCHES "nvcc") )
+     set(COMPILER_IS_NVCC true)
+   endif()
 endif()
 
 # set CXX standard
@@ -47,13 +59,13 @@ endif()
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 	if (NOT ${COMPILER_IS_NVCC})
-	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
+	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors")
 	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 endif()
 
-# Anbox: allow old-style cast, unknown pragmas
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=old-style-cast -Wno-error=unknown-pragmas -Wno-error=switch-default")
+ # Anbox: allow old-style cast, unknown pragmas
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=old-style-cast -Wno-error=unknown-pragmas")
 
 ###############################################################################
 # BACKWARD OBJECT
@@ -85,15 +97,15 @@ target_include_directories(backward PUBLIC ${BACKWARD_INCLUDE_DIRS})
 if(BACKWARD_TESTS)
 	enable_testing()
 
-	add_library(test_main SHARED test/_test_main.cpp)
+	add_library(test_main OBJECT test/_test_main.cpp)
 
 	macro(backward_add_test src)
 		get_filename_component(name ${src} NAME_WE)
 		set(test_name "test_${name}")
 
-		add_executable(${test_name} ${src} ${ARGN})
+		add_executable(${test_name} ${src} ${ARGN} $<TARGET_OBJECTS:test_main>)
 
-		target_link_libraries(${test_name} PRIVATE Backward::Backward test_main)
+		target_link_libraries(${test_name} PRIVATE Backward::Backward)
 
 		add_test(NAME ${name} COMMAND ${test_name})
 	endmacro()
@@ -122,9 +134,9 @@ endif()
 
 install(
     FILES "backward.hpp"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 install(
     FILES "BackwardConfig.cmake"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/backward
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/backward
 )

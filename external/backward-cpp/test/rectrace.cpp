@@ -22,78 +22,77 @@
  */
 
 #include "backward.hpp"
-#include <stdio.h>
 #include "test/test.hpp"
+#include <stdio.h>
 
 using namespace backward;
 
 typedef StackTrace stacktrace_t;
 
-void end_of_our_journey(stacktrace_t& st) {
-	if (not st.size()) {
-		st.load_here();
-	}
+void end_of_our_journey(stacktrace_t &st) {
+  if (!st.size()) {
+    st.load_here();
+  }
 }
 
-int rec(stacktrace_t& st, int level) {
-	if (level <= 1) {
-		end_of_our_journey(st);
-		return 0;
-	}
-	return rec(st, level - 1);
+int rec(stacktrace_t &st, int level) {
+  if (level <= 1) {
+    end_of_our_journey(st);
+    return 0;
+  }
+  return rec(st, level - 1);
 }
 
 namespace toto {
 
 namespace titi {
 
-	struct foo {
+struct foo {
 
-		union bar {
-			__attribute__((noinline))
-			static int trampoline(stacktrace_t& st, int level) {
-				return rec(st, level);
-			}
-		};
- };
+  union bar {
+    NOINLINE static int trampoline(stacktrace_t &st, int level) {
+      return rec(st, level);
+    }
+  };
+};
 
 } // namespace titi
 
 } // namespace toto
 
-TEST (recursion) {
-	{ // lexical scope.
-		stacktrace_t st;
-		const int input = 3;
-		int r = toto::titi::foo::bar::trampoline(st, input);
+TEST(recursion) {
+  { // lexical scope.
+    stacktrace_t st;
+    const int input = 3;
+    int r = toto::titi::foo::bar::trampoline(st, input);
 
-		std::cout << "rec(" << input << ") == " << r << std::endl;
+    std::cout << "rec(" << input << ") == " << r << std::endl;
 
-		Printer printer;
-		//    printer.address = true;
-		printer.object = true;
-		printer.print(st, stdout);
-	}
+    Printer printer;
+    //    printer.address = true;
+    printer.object = true;
+    printer.print(st, stdout);
+  }
 }
 
-int fib(StackTrace& st, int level) {
-	if (level == 2) {
-		return 1;
-	}
-	if (level <= 1) {
-		end_of_our_journey(st);
-		return 0;
-	}
-	return fib(st, level - 1) + fib(st, level - 2);
+int fib(StackTrace &st, int level) {
+  if (level == 2) {
+    return 1;
+  }
+  if (level <= 1) {
+    end_of_our_journey(st);
+    return 0;
+  }
+  return fib(st, level - 1) + fib(st, level - 2);
 }
 
-TEST (fibrecursive) {
-	StackTrace st;
-	const int input = 6;
-	int r = fib(st, input);
+TEST(fibrecursive) {
+  StackTrace st;
+  const int input = 6;
+  int r = fib(st, input);
 
-	std::cout << "fib(" << input << ") == " << r << std::endl;
+  std::cout << "fib(" << input << ") == " << r << std::endl;
 
-	Printer printer;
-	printer.print(st, stdout);
+  Printer printer;
+  printer.print(st, stdout);
 }
