@@ -42,7 +42,6 @@ constexpr const char *os_release_path{"/etc/os-release"};
 constexpr const char *host_os_release_path{"/var/lib/snapd/hostfs/etc/os-release"};
 constexpr const char *proc_version_path{"/proc/version"};
 constexpr const char *binder_path{"/dev/binder"};
-constexpr const char *binderfs_path{"/dev/binderfs"};
 constexpr const char *ashmem_path{"/dev/ashmem"};
 constexpr const char *os_release_name{"NAME"};
 constexpr const char *os_release_version{"VERSION"};
@@ -162,7 +161,7 @@ class SystemInformation {
     }
 
     kernel_info_.binder = fs::exists(binder_path);
-    kernel_info_.binderfs = fs::exists(binderfs_path);
+    kernel_info_.binderfs = common::BinderDeviceAllocator::is_supported();
     kernel_info_.ashmem = fs::exists(ashmem_path);
   }
 
