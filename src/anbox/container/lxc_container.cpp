@@ -390,8 +390,6 @@ void LxcContainer::start(const Configuration &configuration) {
   // anbox-support interface. The container manager itself runs within a
   // child profile snap.anbox.container-manager//lxc too.
   set_config_item("lxc.apparmor.profile", "snap.anbox.container-manager//container");
-#else
-  set_config_item(lxc_config_apparmor_profile_key, "unconfined");
 #endif
 
   if (!privileged_)
