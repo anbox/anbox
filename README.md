@@ -13,7 +13,7 @@ If you're looking for a solution to run Android in the cloud:
 
 * [Anbox Cloud](https://anbox-cloud.io) as a solution developed by [Canonical](https://canonical.com), the company behind [Ubuntu](https://ubuntu.com), to bring Android at scale to any cloud with support for ultra low latency video streaming and recent Android versions.
 
-The existing repositories will remain as is but no active maintence will be applied going forward.
+The existing repositories will remain as is but no active maintenance will be applied going forward.
 
 *Thank you all for your support!*
 
