@@ -327,3 +327,18 @@ parts:
       # in the build directory. Let's remove it so it doesn't conflict.
       rm -rf *
       snapcraftctl build
+
+
+  strip:
+    after:
+      - lxc
+      - anbox
+    plugin: nil
+    override-prime: |
+      set -x
+
+      # Strip binaries and libraries
+      strip -s "${SNAPCRAFT_PRIME}/usr/bin/anbox"
+      strip -s "${SNAPCRAFT_PRIME}/usr/bin/lxc-"*
+      strip -s "${SNAPCRAFT_PRIME}/usr/lib/liblxc.so"*
+      strip -s "${SNAPCRAFT_PRIME}/libexec/lxc/lxc-monitord"
